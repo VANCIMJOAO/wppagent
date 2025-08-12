@@ -2,7 +2,7 @@
 Configuração do banco de dados
 """
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 import os
 from app.config import settings
@@ -26,7 +26,15 @@ else:
     elif database_url.startswith('postgres://'):
         database_url = database_url.replace('postgres://', 'postgresql+asyncpg://', 1)
 
-logger.info(f"Conectando ao banco: {database_url.split('@')[0]}@***")
+# Log da URL de conexão (sem senha)
+connection_info = database_url.split('@')[0] if '@' in database_url else 'Invalid URL'
+logger.info(f"Tentando conectar ao banco: {connection_info}@***")
+
+# Debug adicional
+logger.info(f"PGHOST: {os.getenv('PGHOST', 'NOT_SET')}")
+logger.info(f"PGPORT: {os.getenv('PGPORT', 'NOT_SET')}")
+logger.info(f"PGDATABASE: {os.getenv('PGDATABASE', 'NOT_SET')}")
+logger.info(f"DATABASE_URL presente: {'Sim' if os.getenv('DATABASE_URL') else 'Não'}")
 
 # Engine assíncrono
 engine = create_async_engine(
@@ -90,9 +98,19 @@ async def init_db():
     """
     Inicializa o banco de dados criando as tabelas
     """
-    from app.models.database import Base
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        from app.models.database import Base
+        # Teste de conectividade primeiro
+        async with engine.begin() as conn:
+            result = await conn.execute(text("SELECT 1"))
+            logger.info("✅ Conexão com banco de dados estabelecida")
+            await conn.run_sync(Base.metadata.create_all)
+            logger.info("✅ Tabelas criadas/verificadas")
+    except Exception as e:
+        logger.error(f"❌ Erro ao inicializar banco: {e}")
+        logger.error(f"❌ Tipo do erro: {type(e).__name__}")
+        # Re-raise para falhar o startup se necessário
+        raise
 
 
 def init_sync_db():

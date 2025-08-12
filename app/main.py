@@ -61,18 +61,27 @@ async def lifespan(app: FastAPI):
         await cache_service.initialize()
         logger.info("Cache service inicializado")
         
-        # 🚀 Inicializar sistemas de performance
-        db_optimizer = DatabaseOptimizer()
-        await db_optimizer.initialize()
-        logger.info("🚀 Database Optimizer ativado")
+        # 🚀 Inicializar sistemas de performance (com tratamento de erro)
+        try:
+            db_optimizer = DatabaseOptimizer()
+            await db_optimizer.initialize()
+            logger.info("🚀 Database Optimizer ativado")
+        except Exception as e:
+            logger.warning(f"⚠️ Database Optimizer não pôde ser inicializado: {e}")
         
-        optimized_cache = OptimizedCacheService()
-        await optimized_cache.initialize()
-        logger.info("🚀 Cache Optimized ativado")
+        try:
+            optimized_cache = OptimizedCacheService()
+            await optimized_cache.initialize()
+            logger.info("🚀 Cache Optimized ativado")
+        except Exception as e:
+            logger.warning(f"⚠️ Cache Optimized não pôde ser inicializado: {e}")
         
-        cdn_manager = CDNManager()
-        await cdn_manager.initialize()
-        logger.info("🚀 CDN Manager ativado")
+        try:
+            cdn_manager = CDNManager()
+            await cdn_manager.initialize()
+            logger.info("🚀 CDN Manager ativado")
+        except Exception as e:
+            logger.warning(f"⚠️ CDN Manager não pôde ser inicializado: {e}")
         
         logger.info("✅ WhatsApp Agent API iniciado com sucesso!")
         logger.info(f"📱 Webhook URL: {settings.webhook_url}")
