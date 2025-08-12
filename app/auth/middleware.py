@@ -16,6 +16,7 @@ from .jwt_manager import jwt_manager
 from .two_factor import two_factor_auth
 from .rate_limiter import rate_limiter
 from .secrets_manager import secrets_manager, SecretType
+from app.config.redis_config import redis_manager
 
 security = HTTPBearer(auto_error=False)
 logger = logging.getLogger(__name__)
@@ -72,8 +73,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     headers={"Retry-After": str(rate_result.get("retry_after", 60))}
                 )
         except Exception as e:
-            # Fallback quando rate limiter falha
-            logger.warning(f"Rate limiter falhou, continuando com requisição: {e}")
+            # Log apenas se não for erro de Redis conhecido
+            if not redis_manager.is_available:
+                # Não logar quando Redis não está disponível - é esperado
+                pass
+            else:
+                logger.warning(f"Rate limiter falhou: {e}")
         
         # 2. Verificar se endpoint é público
         if self._is_public_endpoint(request.url.path):

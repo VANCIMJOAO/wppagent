@@ -10,21 +10,14 @@ import logging
 from dataclasses import dataclass, asdict
 from enum import Enum
 from typing import Optional, Any, Dict, List, Union
+import redis
 
 from app.config import settings
 from app.utils.logger import get_logger
+from app.config.redis_config import redis_manager
 
 logger = get_logger(__name__)
 logger = logging.getLogger(__name__)
-
-# Tentar importar Redis
-try:
-    import redis
-    REDIS_AVAILABLE = True
-    logger.info("Redis biblioteca disponível")
-except ImportError:
-    REDIS_AVAILABLE = False
-    logger.warning("Redis não disponível, usando cache em memória")
 
 
 class CacheType(Enum):
@@ -96,9 +89,9 @@ class CacheService:
     """
     
     def __init__(self):
-        # Verificar disponibilidade do Redis
-        self.redis_available = REDIS_AVAILABLE
-        self.redis = None
+        # Usar redis_manager para detectar disponibilidade
+        self.redis_available = redis_manager.is_available
+        self.redis = redis_manager.client
         self.enabled = getattr(settings, "cache_enabled", True)
         
         # Cache em memória como fallback
@@ -157,15 +150,22 @@ class CacheService:
         
         if self.redis_available:
             try:
-                self.redis = redis.Redis(**self.redis_config)
-                # Teste de conectividade síncrono
-                self.redis.ping()
-                logger.info("✅ Conexão com Redis estabelecida")
+                if not self.redis:
+                    self.redis = redis_manager.client
+                if self.redis:
+                    self.redis.ping()
+                    logger.info("✅ Conexão com Redis estabelecida")
+                else:
+                    # Redis manager já fez a detecção e logging adequado
+                    pass
             except Exception as e:
-                logger.warning(f"Redis não disponível, usando cache em memória: {e}")
+                # Log apenas se Redis deveria estar disponível
+                if redis_manager.is_available:
+                    logger.warning(f"Redis conexão falhou: {e}")
                 self.redis = None
         else:
-            logger.info("Redis não instalado, usando cache em memória")
+            # Redis manager já fez log adequado sobre disponibilidade
+            pass
     
     async def close(self):
         """Fecha conexão com Redis se existir"""
