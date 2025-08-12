@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from typing import Optional, Dict, List
 import json
+import logging
 from datetime import datetime, timezone
 
 from .jwt_manager import jwt_manager
@@ -17,6 +18,7 @@ from .rate_limiter import rate_limiter
 from .secrets_manager import secrets_manager, SecretType
 
 security = HTTPBearer(auto_error=False)
+logger = logging.getLogger(__name__)
 
 class AuthMiddleware(BaseHTTPMiddleware):
     """Middleware principal de autenticação"""
@@ -50,24 +52,28 @@ class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         """Middleware principal"""
         
-        # 1. Rate Limiting (sempre aplicado)
-        endpoint_type = self._determine_endpoint_type(request.url.path)
-        user_id = await self._extract_user_id(request)
-        
-        allowed, rate_result = self.rate_limiter.check_rate_limit(
-            request, user_id, endpoint_type
-        )
-        
-        if not allowed:
-            return JSONResponse(
-                status_code=429,
-                content={
-                    "error": "Rate limit exceeded",
-                    "message": rate_result.get("reason", "Too many requests"),
-                    "retry_after": rate_result.get("retry_after", 60)
-                },
-                headers={"Retry-After": str(rate_result.get("retry_after", 60))}
+        try:
+            # 1. Rate Limiting (sempre aplicado)
+            endpoint_type = self._determine_endpoint_type(request.url.path)
+            user_id = await self._extract_user_id(request)
+            
+            allowed, rate_result = self.rate_limiter.check_rate_limit(
+                request, user_id, endpoint_type
             )
+            
+            if not allowed:
+                return JSONResponse(
+                    status_code=429,
+                    content={
+                        "error": "Rate limit exceeded",
+                        "message": rate_result.get("reason", "Too many requests"),
+                        "retry_after": rate_result.get("retry_after", 60)
+                    },
+                    headers={"Retry-After": str(rate_result.get("retry_after", 60))}
+                )
+        except Exception as e:
+            # Fallback quando rate limiter falha
+            logger.warning(f"Rate limiter falhou, continuando com requisição: {e}")
         
         # 2. Verificar se endpoint é público
         if self._is_public_endpoint(request.url.path):

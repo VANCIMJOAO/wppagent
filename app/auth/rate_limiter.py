@@ -6,6 +6,7 @@ Implementa rate limiting por IP, usuário, endpoint e global
 import time
 import hashlib
 import json
+import logging
 from typing import Dict, Optional, Tuple, List
 from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
@@ -13,6 +14,9 @@ from enum import Enum
 import redis
 from fastapi import Request
 from app.config import get_settings
+
+# Configurar logger
+logger = logging.getLogger(__name__)
 
 class RateLimitType(Enum):
     """Tipos de rate limiting"""
@@ -129,52 +133,77 @@ class RateLimiter:
     
     def _check_ddos_protection(self, client_ip: str) -> Dict:
         """Proteção contra DDoS"""
-        key = f"ddos:ip:{client_ip}"
-        current_time = int(time.time())
-        window_start = current_time - self.ddos_threshold.window
-        
-        # Limpar entradas antigas
-        self.redis_client.zremrangebyscore(key, 0, window_start)
-        
-        # Contar requisições na janela
-        request_count = self.redis_client.zcard(key)
-        
-        if request_count >= self.ddos_threshold.requests:
-            # Bloquear IP por DDoS
-            block_key = f"blocked:ddos:{client_ip}"
-            self.redis_client.setex(block_key, self.ddos_threshold.block_duration, "ddos")
+        try:
+            key = f"ddos:ip:{client_ip}"
+            current_time = int(time.time())
+            window_start = current_time - self.ddos_threshold.window
             
-            # Log de segurança
-            self._log_security_event("ddos_detected", {
-                "ip": client_ip,
-                "request_count": request_count,
-                "window": self.ddos_threshold.window
-            })
+            # Limpar entradas antigas
+            self.redis_client.zremrangebyscore(key, 0, window_start)
             
+            # Contar requisições na janela
+            request_count = self.redis_client.zcard(key)
+        except (redis.exceptions.ConnectionError, redis.exceptions.RedisError, Exception) as e:
+            # Fallback quando Redis não está disponível
+            logger.warning(f"Redis não disponível para DDoS protection, usando fallback: {e}")
+            # Usar fallback em memória ou permitir requisição
             return {
-                "allowed": False,
-                "blocked_by": "DDoS Protection",
-                "retry_after": self.ddos_threshold.block_duration,
-                "reason": f"DDoS detected: {request_count} requests in {self.ddos_threshold.window}s"
+                "allowed": True,
+                "requests_remaining": 100,
+                "reset_time": int(time.time()) + 60,
+                "message": "Redis unavailable, using fallback"
             }
         
-        # Adicionar requisição atual
-        self.redis_client.zadd(key, {str(current_time): current_time})
-        self.redis_client.expire(key, self.ddos_threshold.window)
-        
-        return {"allowed": True}
+        try:
+            if request_count >= self.ddos_threshold.requests:
+                # Bloquear IP por DDoS
+                block_key = f"blocked:ddos:{client_ip}"
+                self.redis_client.setex(block_key, self.ddos_threshold.block_duration, "ddos")
+                
+                # Log de segurança
+                self._log_security_event("ddos_detected", {
+                    "ip": client_ip,
+                    "request_count": request_count,
+                    "window": self.ddos_threshold.window
+                })
+                
+                return {
+                    "allowed": False,
+                    "blocked_by": "DDoS Protection",
+                    "retry_after": self.ddos_threshold.block_duration,
+                    "reason": f"DDoS detected: {request_count} requests in {self.ddos_threshold.window}s"
+                }
+            
+            # Adicionar requisição atual
+            self.redis_client.zadd(key, {str(current_time): current_time})
+            self.redis_client.expire(key, self.ddos_threshold.window)
+            
+            return {"allowed": True}
+        except (redis.exceptions.ConnectionError, redis.exceptions.RedisError, Exception) as e:
+            logger.warning(f"Redis erro nas operações finais de DDoS: {e}")
+            return {"allowed": True}
     
     def _check_ip_rate_limit(self, client_ip: str, endpoint_type: str) -> Dict:
         """Rate limit por IP"""
-        # Verificar se IP está bloqueado
-        block_key = f"blocked:ip:{client_ip}"
-        if self.redis_client.exists(block_key):
-            ttl = self.redis_client.ttl(block_key)
+        try:
+            # Verificar se IP está bloqueado
+            block_key = f"blocked:ip:{client_ip}"
+            if self.redis_client.exists(block_key):
+                ttl = self.redis_client.ttl(block_key)
+                return {
+                    "allowed": False,
+                    "blocked_by": "IP Rate Limit",
+                    "retry_after": ttl,
+                    "reason": "IP temporarily blocked"
+                }
+        except (redis.exceptions.ConnectionError, redis.exceptions.RedisError, Exception) as e:
+            logger.warning(f"Redis não disponível para IP rate limit, usando fallback: {e}")
+            # Permitir requisição quando Redis não está disponível
             return {
-                "allowed": False,
-                "blocked_by": "IP Rate Limit",
-                "retry_after": ttl,
-                "reason": "IP temporarily blocked"
+                "allowed": True,
+                "requests_remaining": 100,
+                "reset_time": int(time.time()) + 60,
+                "message": "Redis unavailable, using fallback"
             }
         
         # Obter configuração do rate limit
