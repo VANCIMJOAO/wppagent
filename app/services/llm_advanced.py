@@ -700,7 +700,9 @@ class AdvancedLLMService:
         # Componentes principais
         self.intent_detector = IntentDetector(self.client)
         from app.services.state_manager import get_state_manager
-        self.state_manager = get_state_manager()
+        # Inicialização lazy do state_manager
+        self._state_manager = None
+        self.get_state_manager = get_state_manager
         self.data_collector = DataCollector(self.client)
         self.response_generator = ResponseGenerator(self.client)
         self.function_handler = FunctionCallHandler()
@@ -708,6 +710,13 @@ class AdvancedLLMService:
         
         # Sistema de plugins (será importado dinamicamente para evitar dependência circular)
         self.plugin_manager = None
+    
+    @property
+    def state_manager(self):
+        """Propriedade lazy para state_manager"""
+        if self._state_manager is None:
+            self._state_manager = self.get_state_manager()
+        return self._state_manager
         self._init_plugins()
         
         # Cache para otimização

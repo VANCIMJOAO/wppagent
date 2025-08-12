@@ -14,11 +14,18 @@ from app.services.cache_service import cache_service
 from app.services.metrics_service import metrics_service
 from app.services.state_manager import get_state_manager, ConversationStatus
 
-# Inicializar state_manager
-state_manager = get_state_manager()
-
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin/strategies", tags=["Strategy Management"])
+
+# Inicializar state_manager de forma lazy
+_state_manager = None
+
+def get_lazy_state_manager():
+    """Obtém state manager de forma lazy"""
+    global _state_manager
+    if _state_manager is None:
+        _state_manager = get_state_manager()
+    return _state_manager
 
 
 @router.get("/performance")
@@ -514,7 +521,7 @@ async def get_observability_dashboard():
 async def get_state_manager_health():
     """Verifica saúde do sistema de gestão de estado"""
     try:
-        health = await state_manager.health_check()
+        health = await get_lazy_state_manager().health_check()
         return {
             "success": True,
             "data": health,
@@ -529,7 +536,7 @@ async def get_state_manager_health():
 async def get_state_manager_stats():
     """Retorna estatísticas do sistema de gestão de estado"""
     try:
-        stats = state_manager.get_stats()
+        stats = get_lazy_state_manager().get_stats()
         return {
             "success": True,
             "data": stats,
@@ -544,13 +551,13 @@ async def get_state_manager_stats():
 async def get_active_conversations():
     """Lista conversas ativas no sistema"""
     try:
-        active_users = await state_manager.get_active_conversations()
+        active_users = await get_lazy_state_manager().get_active_conversations()
         
         # Detalhes das conversas ativas
         conversations = []
         for user_id in active_users:
             try:
-                state = await state_manager.get_state(user_id)
+                state = await get_lazy_state_manager().get_state(user_id)
                 conversations.append({
                     "user_id": user_id,
                     "phone": state.phone,
@@ -586,7 +593,7 @@ async def get_active_conversations():
 async def get_conversation_state(user_id: str):
     """Obtém estado completo de uma conversa específica"""
     try:
-        state = await state_manager.get_state(user_id)
+        state = await get_lazy_state_manager().get_state(user_id)
         
         conversation_data = {
             "user_id": state.user_id,
@@ -644,7 +651,7 @@ async def update_conversation_status(user_id: str, status: str):
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Status inválido: {status}")
         
-        await state_manager.update_status(user_id, new_status)
+        await get_lazy_state_manager().update_status(user_id, new_status)
         
         return {
             "success": True,
@@ -666,7 +673,7 @@ async def update_conversation_status(user_id: str, status: str):
 async def delete_conversation_state(user_id: str):
     """Remove estado de uma conversa"""
     try:
-        await state_manager.delete_state(user_id)
+        await get_lazy_state_manager().delete_state(user_id)
         
         return {
             "success": True,
@@ -685,7 +692,7 @@ async def delete_conversation_state(user_id: str):
 async def get_conversation_history(user_id: str, limit: int = 50):
     """Obtém histórico de mensagens de uma conversa"""
     try:
-        messages = await state_manager.get_conversation_history(user_id, limit)
+        messages = await get_lazy_state_manager().get_conversation_history(user_id, limit)
         
         history = [
             {
@@ -716,12 +723,12 @@ async def get_conversation_history(user_id: str, limit: int = 50):
 async def get_active_booking_contexts():
     """Lista contextos de booking ativos"""
     try:
-        active_users = await state_manager.get_active_conversations()
+        active_users = await get_lazy_state_manager().get_active_conversations()
         booking_contexts = []
         
         for user_id in active_users:
             try:
-                state = await state_manager.get_state(user_id)
+                state = await get_lazy_state_manager().get_state(user_id)
                 if state.booking_context:
                     booking_contexts.append({
                         "user_id": user_id,
@@ -757,9 +764,9 @@ async def get_state_dashboard():
     """Dashboard completo do sistema de gestão de estado"""
     try:
         # Stats básicos
-        stats = state_manager.get_stats()
-        health = await state_manager.health_check()
-        active_users = await state_manager.get_active_conversations()
+        stats = get_lazy_state_manager().get_stats()
+        health = await get_lazy_state_manager().health_check()
+        active_users = await get_lazy_state_manager().get_active_conversations()
         
         # Estatísticas das conversas ativas
         conversation_stats = {
@@ -773,7 +780,7 @@ async def get_state_dashboard():
         total_duration = 0
         for user_id in active_users:
             try:
-                state = await state_manager.get_state(user_id)
+                state = await get_lazy_state_manager().get_state(user_id)
                 
                 # Count by status
                 status = state.status.value

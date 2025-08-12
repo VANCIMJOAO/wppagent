@@ -213,21 +213,24 @@ class ConversationStateManager:
         
         # Estatísticas
         self.stats = {
-            "redis_hits": 0,
-            "redis_misses": 0,
-            "memory_hits": 0,
-            "memory_misses": 0,
+            "loads": 0,
             "saves": 0,
             "errors": 0,
             "cleanups": 0
         }
         
-        asyncio.create_task(self._init_redis())
+        # Não criar task aqui - será criado quando necessário
+        self._init_task = None
+        self._initialized = False
     
     async def _init_redis(self):
         """Inicializa conexão Redis"""
+        if self._initialized:
+            return
+            
         if not REDIS_AVAILABLE:
             logger.warning("Redis não disponível, usando apenas cache em memória")
+            self._initialized = True
             return
         
         try:
@@ -243,14 +246,24 @@ class ConversationStateManager:
             # Testa conexão
             await self.redis_client.ping()
             self.redis_available = True
+            self._initialized = True
             logger.info("Redis conectado com sucesso")
             
-            # Inicia limpeza automática
-            asyncio.create_task(self._cleanup_expired_states())
+            # Inicia limpeza automática apenas se estiver em um event loop
+            try:
+                asyncio.create_task(self._cleanup_expired_states())
+            except RuntimeError:
+                logger.warning("Event loop não disponível para cleanup automático")
             
         except Exception as e:
             logger.error(f"Erro ao conectar Redis: {e}")
             self.redis_available = False
+            self._initialized = True
+    
+    async def _ensure_initialized(self):
+        """Garante que o Redis está inicializado"""
+        if not self._initialized:
+            await self._init_redis()
     
     def _get_state_key(self, user_id: str) -> str:
         """Gera chave para estado no Redis"""
@@ -261,6 +274,9 @@ class ConversationStateManager:
         Obtém estado da conversa
         Prioridade: Redis > Memory Cache > Novo Estado
         """
+        # Garantir inicialização
+        await self._ensure_initialized()
+        
         try:
             # Tenta Redis primeiro
             if self.redis_available and self.redis_client:
@@ -311,6 +327,9 @@ class ConversationStateManager:
         Salva estado da conversa
         Salva tanto no Redis quanto em memória
         """
+        # Garantir inicialização
+        await self._ensure_initialized()
+        
         try:
             ttl = ttl or self.default_ttl
             state.last_activity = datetime.now()
