@@ -55,7 +55,7 @@ class RedisManager:
                 logger.debug(f"Redis não disponível em {url}: {e}")
                 continue
         
-        logger.warning("🔶 Redis não disponível, sistema funcionará com fallbacks em memória")
+        logger.info("🔶 Redis não detectado automaticamente - Sistema funcionando com cache em memória")
         return RedisConfig(
             available=False,
             client=None,

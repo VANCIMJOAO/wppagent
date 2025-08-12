@@ -11,21 +11,14 @@ import logging
 from dataclasses import dataclass, asdict
 from enum import Enum
 from typing import Optional, Any, Dict, List, Union, Callable
+import redis
 
 from app.config import settings
 from app.utils.logger import get_logger
+from app.config.redis_config import redis_manager
 
 logger = get_logger(__name__)
 logger = logging.getLogger(__name__)
-
-# Tentar importar Redis
-try:
-    import redis
-    REDIS_AVAILABLE = True
-    logger.info("Redis biblioteca disponível")
-except ImportError:
-    REDIS_AVAILABLE = False
-    logger.warning("Redis não disponível, usando cache em memória")
 
 
 class CacheType(Enum):
@@ -71,8 +64,8 @@ class OptimizedCacheService:
     """
     
     def __init__(self):
-        self.redis_available = REDIS_AVAILABLE
-        self.redis = None
+        self.redis_available = redis_manager.is_available
+        self.redis = redis_manager.client
         self.redis_pool = None
         self.enabled = getattr(settings, "cache_enabled", True)
         
@@ -82,48 +75,26 @@ class OptimizedCacheService:
         
         # Configuração Redis otimizada
         if self.redis_available:
-            # Usar REDIS_URL se disponível, senão usar configurações individuais
-            redis_url = getattr(settings, "redis_url", None)
-            if redis_url:
-                # Usar URL do Redis (melhor para Docker)
-                self.redis_config = {
-                    "decode_responses": True,
-                    "socket_connect_timeout": 5,
-                    "socket_timeout": 5,
-                    "retry_on_timeout": True,
-                    "health_check_interval": 30,
-                    "max_connections": 20
-                }
-                self.redis_url = redis_url
-            else:
-                # Fallback para configurações individuais
-                self.redis_config = {
-                    "host": getattr(settings, "redis_host", "localhost"),
-                    "port": getattr(settings, "redis_port", 6379),
-                    "db": getattr(settings, "redis_db", 0),
-                    "decode_responses": True,
-                    "socket_connect_timeout": 5,
-                    "socket_timeout": 5,
-                    "retry_on_timeout": True,
-                    "health_check_interval": 30,
-                    "max_connections": 20
-                }
-                self.redis_url = None
-            
-            # Adicionar senha se configurada
-            if hasattr(settings, "redis_password") and settings.redis_password:
-                self.redis_config["password"] = settings.redis_password
+            logger.info(f"🚀 OptimizedCacheService inicializado - Redis: {self.redis_available}")
+        else:
+            logger.info("🚀 OptimizedCacheService inicializado - Redis: False (usando cache em memória)")
         
-        # TTL otimizado por tipo de cache (em segundos)
-        self.ttl_config = {
+        # Configurar TTL padrão por tipo
+        self.default_ttl = {
             CacheType.RESPONSE: 3600,        # 1 hora - respostas reutilizáveis
             CacheType.INTENT: 1800,          # 30 min - intenções estáveis
             CacheType.LEAD_SCORE: 7200,      # 2 horas - lead score lento para mudar
             CacheType.USER_CONTEXT: 900,     # 15 min - contexto dinâmico
             CacheType.BUSINESS_DATA: 14400,  # 4 horas - dados negócio estáveis
             CacheType.QUERY_RESULT: 600,     # 10 min - queries podem mudar
-            CacheType.API_RESPONSE: 300      # 5 min - APIs externas
+            CacheType.API_RESPONSE: 300      # 5 min - API responses
         }
+        
+        # Configuração de compressão
+        self.compression_threshold = 1024  # 1KB
+        
+        # Inicializar conectividade
+        self._setup_connections()
         
         # Prefixos organizacionais
         self.prefixes = {
@@ -159,40 +130,30 @@ class OptimizedCacheService:
         
         logger.info(f"🚀 OptimizedCacheService inicializado - Redis: {self.redis_available}")
     
+    def _setup_connections(self):
+        """Configura conexões com Redis usando redis_manager"""
+        # Não fazer nada especial aqui - redis_manager já cuida da conexão
+        # Esta versão usa redis_manager que já fez toda a detecção
+        pass
+    
     async def initialize(self):
         """Inicializa conexão otimizada com Redis"""
         if not self.enabled:
             logger.info("Cache desabilitado")
             return False
             
-        if self.redis_available:
+        if self.redis_available and self.redis:
             try:
-                # Criar pool de conexões Redis
-                if hasattr(self, 'redis_url') and self.redis_url:
-                    # Usar URL do Redis (Docker/Produção)
-                    self.redis_pool = redis.ConnectionPool.from_url(
-                        self.redis_url,
-                        **self.redis_config
-                    )
-                else:
-                    # Usar configurações individuais (Desenvolvimento)
-                    self.redis_pool = redis.ConnectionPool(**self.redis_config)
-                
-                self.redis = redis.Redis(connection_pool=self.redis_pool)
-                
-                # Testar conexão
+                # Testar se Redis está funcionando
                 await asyncio.get_event_loop().run_in_executor(None, self.redis.ping)
-                
-                logger.info("✅ Conexão Redis estabelecida com pool otimizado")
+                logger.info("✅ Conexão Redis estabelecida via redis_manager")
                 return True
-                
             except Exception as e:
-                logger.warning(f"❌ Erro ao conectar Redis: {e}. Usando cache em memória.")
-                self.redis = None
-                self.redis_pool = None
+                logger.debug(f"Redis ping falhou: {e}")
                 return False
         else:
-            logger.info("📝 Usando cache em memória otimizado")
+            # Redis não disponível - usar cache em memória sem warning
+            logger.debug("Cache funcionando em modo memória (Redis não disponível)")
             return False
     
     def _compress_data(self, data: str) -> bytes:
