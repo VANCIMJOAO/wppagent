@@ -1,0 +1,95 @@
+# ==============================
+# DOCKERIGNORE OTIMIZADO v2.0
+# WhatsApp Agent - Multi-Stage Optimized
+# ==============================
+
+# Git and Version Control
+.git
+.gitignore
+.gitattributes
+.github/
+
+# Development Files
+*.md
+README*
+CHANGELOG*
+LICENSE*
+.editorconfig
+.pre-commit-config.yaml
+
+# Python Cache and Build
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Cache
+.pytest_cache/
+.cache/
+
+# Backups
+backups/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Config files (incluir apenas os necessários)
+.env.example
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scripts de desenvolvimento
+cleanup_*.sh
+deploy_*.sh
+setup_*.sh

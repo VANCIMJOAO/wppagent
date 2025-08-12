@@ -1,0 +1,306 @@
+{
+  "validation_summary": {
+    "total_tests": 8,
+    "passed": 7,
+    "failed": 1,
+    "errors": 0,
+    "success_rate": 87.5,
+    "total_duration": 0.1
+  },
+  "test_results": [
+    {
+      "name": "Configuração",
+      "status": "PASS",
+      "details": {
+        "success": true,
+        "message": "Configuration valid",
+        "issues": [],
+        "config_summary": {
+          "environment": "development",
+          "metrics_enabled": false,
+          "alerting_enabled": false,
+          "sla_response_time_ms": 2000.0,
+          "sla_uptime_percentage": 99.5
+        },
+        "duration": 5.7220458984375e-06
+      },
+      "duration": 5.7220458984375e-06
+    },
+    {
+      "name": "SLA Monitor",
+      "status": "PASS",
+      "details": {
+        "success": true,
+        "message": "SLA monitor working, 4 metric types recorded",
+        "metrics_types": [
+          "response_time",
+          "error_rate",
+          "uptime",
+          "throughput"
+        ],
+        "sla_status_sample": {
+          "period_minutes": 5,
+          "metrics": {
+            "response_time": {
+              "current_value": 1050.0,
+              "warning_threshold": 1600.0,
+              "critical_threshold": 2000.0,
+              "unit": "ms",
+              "is_healthy": true,
+              "sample_count": 3
+            },
+            "error_rate": {
+              "current_value": 1.25,
+              "warning_threshold": 0.7,
+              "critical_threshold": 1.0,
+              "unit": "%",
+              "is_healthy": false,
+              "sample_count": 2
+            },
+            "uptime": {
+              "current_value": 100.0,
+              "warning_threshold": 99.4,
+              "critical_threshold": 99.5,
+              "unit": "%",
+              "is_healthy": true,
+              "sample_count": 1
+            },
+            "throughput": {
+              "current_value": 150.0,
+              "warning_threshold": 100.0,
+              "critical_threshold": 50.0,
+              "unit": "req/min",
+              "is_healthy": true,
+              "sample_count": 1
+            }
+          },
+          "overall_health": false,
+          "active_alerts": 2,
+          "timestamp": "2025-08-10T01:23:13.536410+00:00"
+        },
+        "uptime_percentage": 100.0,
+        "active_alerts": 2,
+        "duration": 0.0002923011779785156
+      },
+      "duration": 0.0002923011779785156
+    },
+    {
+      "name": "Métricas de Negócio",
+      "status": "PASS",
+      "details": {
+        "success": true,
+        "message": "Business metrics working, 6 metrics recorded",
+        "metrics_summary": {
+          "period_days": 1,
+          "metrics": {
+            "conversations_started": {
+              "current_period": {
+                "average": 0,
+                "total": 0,
+                "sample_count": 0
+              },
+              "trends": [],
+              "totals": {}
+            },
+            "messages_processed": {
+              "current_period": {
+                "average": 0,
+                "total": 0,
+                "sample_count": 0
+              },
+              "trends": [],
+              "totals": {}
+            },
+            "bookings_created": {
+              "current_period": {
+                "average": 0,
+                "total": 0,
+                "sample_count": 0
+              },
+              "trends": [],
+              "totals": {}
+            },
+            "conversion_rate": {
+              "current_period": {
+                "average": 0,
+                "total": 0,
+                "sample_count": 0
+              },
+              "trends": [],
+              "totals": {}
+            },
+            "customer_satisfaction": {
+              "current_period": {
+                "average": 0,
+                "total": 0,
+                "sample_count": 0
+              },
+              "trends": [],
+              "totals": {}
+            },
+            "response_quality": {
+              "current_period": {
+                "average": 0,
+                "total": 0,
+                "sample_count": 0
+              },
+              "trends": [],
+              "totals": {}
+            },
+            "lead_generation": {
+              "current_period": {
+                "average": 0,
+                "total": 0,
+                "sample_count": 0
+              },
+              "trends": [],
+              "totals": {}
+            },
+            "revenue_impact": {
+              "current_period": {
+                "average": 0,
+                "total": 0,
+                "sample_count": 0
+              },
+              "trends": [],
+              "totals": {}
+            }
+          },
+          "timestamp": "2025-08-10T01:23:13.536650+00:00"
+        },
+        "buffer_sizes": {
+          "conversations_started": 1,
+          "messages_processed": 1,
+          "bookings_created": 1,
+          "conversion_rate": 1,
+          "customer_satisfaction": 1,
+          "response_quality": 0,
+          "lead_generation": 1,
+          "revenue_impact": 0
+        },
+        "duration": 0.0001201629638671875
+      },
+      "duration": 0.0001201629638671875
+    },
+    {
+      "name": "Sistema de Alertas",
+      "status": "PASS",
+      "details": {
+        "success": true,
+        "message": "Alert system functional, 0 new alerts",
+        "alerts_before": 2,
+        "alerts_after": 2,
+        "alerts_generated": false,
+        "alert_history_count": 2,
+        "active_alerts": [
+          {
+            "id": "sla_response_time_20250810_012313",
+            "severity": "critical",
+            "metric": "response_time",
+            "title": "SLA Violation: Tempo de resposta da API"
+          },
+          {
+            "id": "sla_error_rate_20250810_012313",
+            "severity": "critical",
+            "metric": "error_rate",
+            "title": "SLA Violation: Taxa de erro das requisições"
+          }
+        ],
+        "duration": 0.10018777847290039
+      },
+      "duration": 0.10018777847290039
+    },
+    {
+      "name": "Performance",
+      "status": "PASS",
+      "details": {
+        "success": true,
+        "message": "Performance tracking active, 5 API calls recorded",
+        "api_calls_simulated": 5,
+        "response_time_metrics": 4,
+        "error_rate_metrics": 3,
+        "duration": 0.00034332275390625
+      },
+      "duration": 0.00034332275390625
+    },
+    {
+      "name": "Dashboard",
+      "status": "PASS",
+      "details": {
+        "success": true,
+        "message": "Dashboard generated, 0 missing sections",
+        "missing_sections": [],
+        "sla_has_data": true,
+        "business_has_data": true,
+        "dashboard_size_kb": 3.0673828125,
+        "duration": 0.0002868175506591797
+      },
+      "duration": 0.0002868175506591797
+    },
+    {
+      "name": "Integração",
+      "status": "FAIL",
+      "details": {
+        "success": false,
+        "message": "Integration working, 4 events processed",
+        "business_events_processed": 4,
+        "business_buffer_size": 6,
+        "start_stop_cycle": false,
+        "duration": 0.00010633468627929688
+      },
+      "duration": 0.00010633468627929688
+    },
+    {
+      "name": "Retenção de Dados",
+      "status": "PASS",
+      "details": {
+        "success": true,
+        "message": "Data retention configured for 30 days",
+        "retention_days": 30,
+        "has_cleanup_logic": true,
+        "sla_buffer_sizes": {
+          "response_time": 4,
+          "error_rate": 3,
+          "uptime": 1,
+          "throughput": 1
+        },
+        "business_buffer_sizes": {
+          "conversations_started": 1,
+          "messages_processed": 1,
+          "bookings_created": 1,
+          "conversion_rate": 1,
+          "customer_satisfaction": 1,
+          "lead_generation": 1,
+          "response_quality": 0,
+          "revenue_impact": 0
+        },
+        "duration": 1.5735626220703125e-05
+      },
+      "duration": 1.5735626220703125e-05
+    }
+  ],
+  "recommendations": [
+    "❌ Corrigir testes falhando antes de ir para produção",
+    "⚠️  Habilitar métricas para monitoramento completo",
+    "⚠️  Configurar sistema de alertas para produção",
+    "📧 Configurar canais de notificação (email/Slack)"
+  ],
+  "system_status": {
+    "monitoring_enabled": false,
+    "alerting_enabled": false,
+    "business_metrics_enabled": true,
+    "environment": "development",
+    "sla_configuration": {
+      "response_time_ms": 2000.0,
+      "uptime_percentage": 99.5,
+      "error_rate_percentage": 1.0
+    },
+    "active_features": {
+      "prometheus": false,
+      "grafana": false,
+      "health_checks": true,
+      "performance_tracking": true
+    }
+  },
+  "timestamp": "2025-08-09T22:23:13.637835"
+}

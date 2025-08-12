@@ -1,0 +1,831 @@
+{
+  "test_info": {
+    "timestamp": "2025-08-08T17:44:49.000312",
+    "base_url": "http://localhost:8054",
+    "total_duration": "2025-08-08T17:44:49.000209"
+  },
+  "statistics": {
+    "total_requests": 51,
+    "allowed_requests": 51,
+    "blocked_requests": 0,
+    "errors": 0
+  },
+  "detailed_results": [
+    {
+      "timestamp": "2025-08-08T17:44:43.875397",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0028150081634521484,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:43 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:43.978046",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002520322799682617,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:43 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.080460",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0023109912872314453,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.182942",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0023610591888427734,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.285451",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002403736114501953,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.387840",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002279996871948242,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.490140",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0021958351135253906,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.592568",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002326488494873047,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.695061",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002385377883911133,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.797454",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022902488708496094,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:44.899814",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022521018981933594,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:44 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.002187",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002268075942993164,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.104826",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0025343894958496094,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.207160",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022325515747070312,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.309665",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002401590347290039,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.412240",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0024728775024414062,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.514808",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0024666786193847656,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.617202",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022873878479003906,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.719823",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0025179386138916016,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.822217",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022869110107421875,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:45.924722",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0023987293243408203,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:45 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.027128",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002305746078491211,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.129694",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002458333969116211,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.232090",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022881031036376953,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.334393",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002198457717895508,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.436735",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022356510162353516,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.539092",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002256155014038086,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.641629",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0024275779724121094,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.745016",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.003239154815673828,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.847812",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0026717185974121094,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:46.950388",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002470254898071289,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:46 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.052816",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0023202896118164062,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.155294",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002375364303588867,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.257575",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0021746158599853516,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.360180",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002496957778930664,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.462636",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002353191375732422,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.565024",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022842884063720703,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.667622",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002492666244506836,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.770019",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022940635681152344,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.872336",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0022139549255371094,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:47.974741",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0023026466369628906,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:47 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.077191",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002346515655517578,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.179935",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0026357173919677734,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.282326",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002285480499267578,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.384979",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0025489330291748047,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.487553",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002468109130859375,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.589953",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002298593521118164,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.692559",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002500772476196289,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.795248",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0025827884674072266,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:48.897545",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.002187967300415039,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    },
+    {
+      "timestamp": "2025-08-08T17:44:49.000209",
+      "endpoint": "/",
+      "status_code": 200,
+      "duration": 0.0025568008422851562,
+      "allowed": true,
+      "headers": {
+        "Server": "Werkzeug/3.1.3 Python/3.13.5",
+        "Date": "Fri, 08 Aug 2025 20:44:48 GMT",
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Length": "41972",
+        "Server-Timing": "__dash_server;dur=1",
+        "Connection": "close"
+      },
+      "content_length": 41972
+    }
+  ]
+}

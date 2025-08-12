@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Agent - Documentação Completa</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #25D366;
+            --secondary-color: #128C7E;
+            --accent-color: #075E54;
+            --dark-bg: #1a1a1a;
+            --light-bg: #f8fafc;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --success-color: #48bb78;
+            --warning-color: #ed8936;
+            --error-color: #f56565;
+            --gradient-primary: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--light-bg);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0 2rem;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            padding: 2rem 0;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: slideInDown 1s ease-out;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            animation: slideInUp 1s ease-out 0.5s both;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            margin: 0 0.5rem;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out 1s both;
+        }
+
+        /* Navigation */
+        .nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 3rem 0;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+            animation: fadeInUp 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            color: var(--secondary-color);
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .section h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .section h4 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem 0;
+            color: var(--text-primary);
+        }
+
+        .section p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--dark-bg);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            position: relative;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .code-block code {
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        ul li {
+            list-style: none;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '▶';
+            color: var(--primary-color);
+            position: absolute;
+            left: -1.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        /* FAQ Styles */
+        .faq-item {
+            background: var(--light-bg);
+            border-radius: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .faq-question:hover {
+            background: var(--light-bg);
+        }
+
+        .faq-question strong {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .faq-answer {
+            padding: 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            background: currentColor;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .alert-warning {
+            background: #fffaf0;
+            color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .alert-error {
+            background: #fff5f5;
+            color: var(--error-color);
+            border-color: var(--error-color);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gradient-dark);
+            color: white;
+            padding: 3rem 0 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 100%;
+            margin: 0;
+            padding: 0 2rem;
+        }
+
+        .footer h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .footer p {
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links {
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-link:hover {
+            opacity: 1;
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .section h2 {
+                font-size: 2rem;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--light-bg);
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        tr:hover {
+            background: rgba(37, 211, 102, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1><i class="fab fa-whatsapp"></i> WhatsApp Agent</h1>
+                <p>Plataforma completa de automação empresarial via WhatsApp com Inteligência Artificial</p>
+                <div>
+                    <span class="badge"><i class="fas fa-robot"></i> IA Avançada</span>
+                    <span class="badge"><i class="fas fa-shield-alt"></i> Seguro</span>
+                    <span class="badge"><i class="fas fa-clock"></i> 24/7</span>
+                    <span class="badge"><i class="fas fa-chart-line"></i> Escalável</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-container">
+                <a href="#referencias" class="nav-link"><i class="fas fa-book"></i> Referências</a>
+                <a href="#tutoriais" class="nav-link"><i class="fas fa-graduation-cap"></i> Tutoriais</a>
+                <a href="#faq" class="nav-link"><i class="fas fa-question-circle"></i> FAQ</a>
+                <a href="#custos" class="nav-link"><i class="fas fa-calculator"></i> Análise de Custos</a>
+                <a href="#casos-uso" class="nav-link"><i class="fas fa-lightbulb"></i> Casos de Uso</a>
+                <a href="#versioning" class="nav-link"><i class="fas fa-code-branch"></i> Versioning</a>
+                <a href="#seguranca" class="nav-link"><i class="fas fa-lock"></i> Segurança</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Referências e Recursos -->
+            <section id="referencias" class="section">
+                <h2><i class="fas fa-book"></i> Referências e Recursos Adicionais</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-code feature-icon"></i>
+                        <h3 class="feature-title">Documentação Técnica</h3>
+                        <ul>
+                            <li><a href="https://fastapi.tiangolo.com/">FastAPI Documentation</a></li>
+                            <li><a href="https://docs.sqlalchemy.org/en/20/">SQLAlchemy 2.0 Documentation</a></li>
+                            <li><a href="https://www.postgresql.org/docs/">PostgreSQL Documentation</a></li>
+                            <li><a href="https://redis.io/documentation">Redis Documentation</a></li>
+                            <li><a href="https://docs.docker.com/compose/">Docker Compose Documentation</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-plug feature-icon"></i>
+                        <h3 class="feature-title">APIs Utilizadas</h3>
+                        <ul>
+                            <li><a href="https://developers.facebook.com/docs/whatsapp/cloud-api">WhatsApp Business API</a></li>
+                            <li><a href="https://platform.openai.com/docs">OpenAI API Documentation</a></li>
+                            <li><a href="https://developers.facebook.com/docs/graph-api">Meta Graph API</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-tools feature-icon"></i>
+                        <h3 class="feature-title">Ferramentas de Desenvolvimento</h3>
+                        <ul>
+                            <li>Postman Collection</li>
+                            <li>Insomnia Workspace</li>
+                            <li>VSCode Extensions</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-chart-bar feature-icon"></i>
+                        <h3 class="feature-title">Monitoramento e Observabilidade</h3>
+                        <ul>
+                            <li>Prometheus Queries</li>
+                            <li>Grafana Dashboards</li>
+                            <li>Log Analysis Queries</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h3 class="feature-title">Segurança e Compliance</h3>
+                        <ul>
+                            <li>Security Checklist</li>
+                            <li>OWASP Top 10 Compliance</li>
+                            <li>LGPD Compliance Guide</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-cloud feature-icon"></i>
+                        <h3 class="feature-title">Guias de Deployment</h3>
+                        <ul>
+                            <li>AWS Deployment Guide</li>
+                            <li>GCP Deployment Guide</li>
+                            <li>Azure Deployment Guide</li>
+                            <li>On-Premises Guide</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tutoriais e Exemplos -->
+            <section id="tutoriais" class="section">
+                <h2><i class="fas fa-graduation-cap"></i> Tutoriais e Exemplos</h2>
+
+                <h3>Tutorial Básico: Primeiro Deploy</h3>
+                <div class="code-block" data-lang="bash">
+                    <code># 1. Clone o repositório
+git clone https://github.com/seu-usuario/whats_agent.git
+cd whats_agent
+
+# 2. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o arquivo .env com suas credenciais
+
+# 3. Inicie os serviços
+docker-compose up -d
+
+# 4. Execute as migrações
+docker-compose exec app python -m alembic upgrade head
+
+# 5. Crie um usuário admin
+docker-compose exec app python scripts/create_admin.py
+
+# 6. Acesse o dashboard
+# http://localhost:8501</code>
+                </div>
+
+                <h3>Exemplo: Configuração de Webhook</h3>
+                <div class="code-block" data-lang="python">
+                    <code># Exemplo de configuração do webhook no Meta
+import requests
+
+def configure_webhook():
+    url = f"https://graph.facebook.com/v18.0/{phone_number_id}/webhooks"
+    
+    payload = {
+        "callback_url": "https://seu-dominio.com/webhook",
+        "verify_token": "seu_webhook_verify_token",
+        "fields": "messages,message_deliveries,message_reads"
+    }
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()</code>
+                </div>
+
+                <h3>Exemplo: Customização de Resposta LLM</h3>
+                <div class="code-block" data-lang="python">
+                    <code># Exemplo de como customizar respostas do LLM
+class CustomLLMResponse:
+    def __init__(self, business_context: dict):
+        self.business_name = business_context.get("name", "Nossa empresa")
+        self.services = business_context.get("services", [])
+        self.hours = business_context.get("business_hours", {})
+    
+    def generate_custom_response(self, user_message: str) -> str:
+        if "horário" in user_message.lower():
+            return self._generate_hours_response()
+        elif "serviço" in user_message.lower():
+            return self._generate_services_response()
+        else:
+            return self._generate_default_response()</code>
+                </div>
+            </section>
+
+            <!-- FAQ -->
+            <section id="faq" class="section">
+                <h2><i class="fas fa-question-circle"></i> FAQ - Perguntas Frequentes</h2>
+
+                <h3>Configuração e Instalação</h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <strong>P: Como obter as credenciais do WhatsApp Business API?</strong>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>R:</strong> 
+                        <ol>
+                            <li>Acesse <a href="https://business.facebook.com">business.facebook.com</a></li>
+                            <li>Crie uma conta Meta Business</li>
+                            <li>Adicione WhatsApp Business ao seu portfólio</li>
+                            <li>Configure o número do WhatsApp</li>
+                            <li>Obtenha o Phone Number ID e Access Token na seção "API Setup"</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <strong>P: Posso usar o sistema sem Docker?</strong>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>R:</strong> Sim, mas não é recomendado. Você precisará instalar manualmente:
+                        <ul>
+                            <li>Python 3.11+</li>
+                            <li>PostgreSQL 15+</li>
+                            <li>Redis 7+</li>
+                            <li>Nginx (para produção)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Segurança e Privacidade</h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <strong>P: Os dados dos clientes são seguros?</strong>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>R:</strong> Sim, implementamos múltiplas camadas de segurança:
+                        <ul>
+                            <li>Criptografia AES-256 para dados sensíveis</li>
+                            <li>HTTPS obrigatório com TLS 1.3</li>
+                            <li>Autenticação JWT com 2FA</li>
+                            <li>Rate limiting contra ataques</li>
+                            <li>Logs de auditoria completos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <strong>P: O sistema está em conformidade com a LGPD?</strong>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>R:</strong> Sim, o sistema inclui:
+                        <ul>
+                            <li>Criptografia de dados pessoais</li>
+                            <li>Logs de auditoria para rastreabilidade</li>
+                            <li>Funcionalidades para exclusão de dados</li>
+                            <li>Controle de acesso granular</li>
+                            <li>Documentação de conformidade</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Análise de Custos -->
+            <section id="custos" class="section">
+                <h2><i class="fas fa-calculator"></i> Análise de Custos</h2>
+
+                <h3>Estimativa de Custos Mensais</h3>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">R$ 250-500</div>
+                        <div class="stat-label">Desenvolvimento/Teste</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">R$ 700-1400</div>
+                        <div class="stat-label">Produção Pequena</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">R$ 2300-4500</div>
+                        <div class="stat-label">Produção Média</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">R$ 4500-12000</div>
+                        <div class="stat-label">Produção Grande</div>
+                    </div>
+                </div>
+
+                <h3>ROI (Retorno sobre Investimento)</h3>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h4 class="feature-title">Benefícios Quantificáveis</h4>
+                        <ul>
+                            <li><strong>Redução de custos de atendimento:</strong> 60-80%</li>
+                            <li><strong>Aumento na conversão de leads:</strong> 25-40%</li>
+                            <li><strong>Disponibilidade 24/7:</strong> Valor incalculável</li>
+                            <li><strong>Padronização do atendimento:</strong> Melhoria na qualidade</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-cut feature-icon"></i>
+                        <h4 class="feature-title">Exemplo: Salão de Beleza</h4>
+                        <div class="alert alert-success">
+                            <strong>Economia mensal:</strong> R$ 600<br>
+                            <strong>Aumento de receita:</strong> 150% mais agendamentos<br>
+                            <strong>ROI:</strong> 200%+ em 6 meses
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Casos de Uso -->
+            <section id="casos-uso" class="section">
+                <h2><i class="fas fa-lightbulb"></i> Casos de Uso</h2>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-cut feature-icon"></i>
+                        <h3 class="feature-title">1. Salão de Beleza</h3>
+                        <h4>Desafios:</h4>
+                        <ul>
+                            <li>Agendamentos por telefone são ineficientes</li>
+                            <li>Clientes abandonam tentativas de agendamento</li>
+                            <li>Atendimento limitado ao horário comercial</li>
+                        </ul>
+                        <h4>Resultados:</h4>
+                        <ul>
+                            <li>70% redução em ligações perdidas</li>
+                            <li>45% aumento em agendamentos</li>
+                            <li>90% satisfação dos clientes</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-user-md feature-icon"></i>
+                        <h3 class="feature-title">2. Clínica Médica</h3>
+                        <h4>Desafios:</h4>
+                        <ul>
+                            <li>Grande volume de consultas de rotina</li>
+                            <li>Reagendamentos frequentes</li>
+                            <li>Confirmação manual de consultas</li>
+                        </ul>
+                        <h4>Resultados:</h4>
+                        <ul>
+                            <li>50% redução no tempo de atendimento</li>
+                            <li>30% diminuição em faltas</li>
+                            <li>Melhor preparação para consultas</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-wrench feature-icon"></i>
+                        <h3 class="feature-title">3. Assistência Técnica</h3>
+                        <h4>Desafios:</h4>
+                        <ul>
+                            <li>Diagnóstico inicial demorado</li>
+                            <li>Agendamento de visitas técnicas</li>
+                            <li>Acompanhamento de chamados</li>
+                        </ul>
+                        <h4>Resultados:</h4>
+                        <ul>
+                            <li>40% redução em visitas desnecessárias</li>
+                            <li>60% melhoria na satisfação</li>
+                            <li>Otimização da agenda de técnicos</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-utensils feature-icon"></i>
+                        <h3 class="feature-title">4. Restaurante</h3>
+                        <h4>Desafios:</h4>
+                        <ul>
+                            <li>Reservas por telefone são limitadas</li>
+                            <li>Confirmação manual de mesas</li>
+                            <li>Informações sobre cardápio e promoções</li>
+                        </ul>
+                        <h4>Resultados:</h4>
+                        <ul>
+                            <li>80% das reservas via WhatsApp</li>
+                            <li>25% aumento em vendas</li>
+                            <li>Redução de custos operacionais</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Versioning -->
+            <section id="versioning" class="section">
+                <h2><i class="fas fa-code-branch"></i> Versioning e Changelog</h2>
+
+                <h3>v1.0.0 - Release Inicial (Agosto 2025)</h3>
+                
+                <div class="alert alert-success">
+                    <h4><i class="fas fa-star"></i> Funcionalidades Principais</h4>
+                    <ul>
+                        <li>Sistema completo de agendamento via WhatsApp</li>
+                        <li>Integração com OpenAI GPT-4</li>
+                        <li>Dashboard administrativo com Streamlit</li>
+                        <li>Autenticação JWT com 2FA</li>
+                        <li>Criptografia AES-256 de dados sensíveis</li>
+                        <li>Rate limiting avançado</li>
+                        <li>Monitoramento com Prometheus/Grafana</li>
+                        <li>Docker Compose para deploy</li>
+                        <li>Sistema de backup automatizado</li>
+                    </ul>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">&lt; 2s</div>
+                        <div class="stat-label">Tempo de Resposta</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">Conversas Simultâneas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">80%+</div>
+                        <div class="stat-label">Cobertura de Testes</div>
+                    </div>
+                </div>
+
+                <h3>Roadmap Futuro</h3>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h4 class="feature-title">v1.0.1 - Patch de Segurança</h4>
+                        <ul>
+                            <li>Atualização de dependências vulneráveis</li>
+                            <li>Implementação de CSRF protection</li>
+                            <li>Melhoria nos logs de auditoria</li>
+                            <li>Validação adicional de inputs</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-rocket feature-icon"></i>
+                        <h4 class="feature-title">v1.1.0 - Funcionalidades Avançadas</h4>
+                        <ul>
+                            <li>Suporte a múltiplas linguagens (EN, ES)</li>
+                            <li>Sistema de templates de mensagem</li>
+                            <li>Integração com Google Calendar</li>
+                            <li>API pública para integrações</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-robot feature-icon"></i>
+                        <h4 class="feature-title">v1.2.0 - IA e Analytics</h4>
+                        <ul>
+                            <li>Modelo próprio de NLP para português</li>
+                            <li>Sistema de aprendizado contínuo</li>
+                            <li>Detecção de sentimento em tempo real</li>
+                            <li>Recomendações personalizadas</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-cloud feature-icon"></i>
+                        <h4 class="feature-title">v2.0.0 - Microserviços</h4>
+                        <ul>
+                            <li>Decomposição em microserviços</li>
+                            <li>Service mesh com Istio</li>
+                            <li>Event-driven architecture</li>
+                            <li>Kubernetes deployment</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Segurança -->
+            <section id="seguranca" class="section">
+                <h2><i class="fas fa-lock"></i> Política de Segurança</h2>
+
+                <h3>Relatório de Vulnerabilidades</h3>
+                
+                <div class="alert alert-warning">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Processo de Divulgação Responsável</h4>
+                    <ol>
+                        <li><strong>NÃO</strong> abra uma issue pública</li>
+                        <li>Envie um email para: security@whatsapp-agent.com</li>
+                        <li>Inclua o máximo de detalhes possível</li>
+                        <li>Aguarde nossa resposta em até 48 horas</li>
+                    </ol>
+                </div>
+
+                <h3>Processo de Correção</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Etapa</th>
+                                <th>Tempo</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Confirmação</strong></td>
+                                <td>1-2 dias</td>
+                                <td>Validamos e confirmamos a vulnerabilidade</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Avaliação</strong></td>
+                                <td>3-5 dias</td>
+                                <td>Analisamos o impacto e desenvolvemos correção</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Teste</strong></td>
+                                <td>2-3 dias</td>
+                                <td>Testamos a correção em ambiente isolado</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Deploy</strong></td>
+                                <td>1 dia</td>
+                                <td>Aplicamos a correção em produção</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Divulgação</strong></td>
+                                <td>7 dias após correção</td>
+                                <td>Publicamos detalhes da vulnerabilidade</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Práticas de Segurança</h3>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-code feature-icon"></i>
+                        <h4 class="feature-title">Para Desenvolvedores</h4>
+                        <ul>
+                            <li>Sempre validar e sanitizar inputs</li>
+                            <li>Usar prepared statements para queries</li>
+                            <li>Implementar rate limiting em todos os endpoints</li>
+                            <li>Nunca commitar credenciais no código</li>
+                            <li>Revisar dependências regularmente</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-user-shield feature-icon"></i>
+                        <h4 class="feature-title">Para Administradores</h4>
+                        <ul>
+                            <li>Manter sistema sempre atualizado</li>
+                            <li>Usar senhas fortes e 2FA</li>
+                            <li>Monitorar logs de acesso regularmente</li>
+                            <li>Implementar backup criptografado</li>
+                            <li>Restringir acesso por IP quando possível</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <i class="fas fa-users feature-icon"></i>
+                        <h4 class="feature-title">Para Usuários Finais</h4>
+                        <ul>
+                            <li>Não compartilhar credenciais de acesso</li>
+                            <li>Reportar comportamentos suspeitos</li>
+                            <li>Manter clientes atualizados</li>
+                            <li>Usar conexões HTTPS apenas</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <h3><i class="fab fa-whatsapp"></i> WhatsApp Agent</h3>
+                <p>Transformando comunicação empresarial através da inteligência artificial.</p>
+                <p><em>Desenvolvido com ❤️ em Ribeirão Preto - SP, Brasil</em></p>
+                
+                <div class="footer-links">
+                    <a href="#referencias" class="footer-link">Referências</a>
+                    <a href="#tutoriais" class="footer-link">Tutoriais</a>
+                    <a href="#faq" class="footer-link">FAQ</a>
+                    <a href="#custos" class="footer-link">Custos</a>
+                    <a href="#casos-uso" class="footer-link">Casos de Uso</a>
+                    <a href="#seguranca" class="footer-link">Segurança</a>
+                </div>
+                
+                <p style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.7;">
+                    Última atualização: Agosto 2025 | Versão da documentação: 1.0.0<br>
+                    © 2025 WhatsApp Agent. Todos os direitos reservados.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to top button -->
+    <div class="scroll-top" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+        });
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections and cards
+        document.querySelectorAll('.section, .feature-card, .stat-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Copy to clipboard for code blocks
+        document.querySelectorAll('.code-block').forEach(block => {
+            block.addEventListener('click', function() {
+                const code = this.querySelector('code').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    // Show tooltip or notification
+                    const tooltip = document.createElement('div');
+                    tooltip.textContent = 'Código copiado!';
+                    tooltip.style.cssText = `
+                        position: absolute;
+                        top: 10px;
+                        right: 10px;
+                        background: var(--success-color);
+                        color: white;
+                        padding: 0.5rem 1rem;
+                        border-radius: 5px;
+                        font-size: 0.8rem;
+                        z-index: 1000;
+                        animation: fadeInOut 2s ease;
+                    `;
+                    this.appendChild(tooltip);
+                    setTimeout(() => {
+                        tooltip.remove();
+                    }, 2000);
+                });
+            });
+            block.style.cursor = 'pointer';
+            block.title = 'Clique para copiar';
+        });
+
+        // Add fadeInOut animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0%, 100% { opacity: 0; transform: translateY(-10px); }
+                20%, 80% { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

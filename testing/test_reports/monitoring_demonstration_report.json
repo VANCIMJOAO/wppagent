@@ -1,0 +1,241 @@
+{
+  "demonstration_timestamp": "2025-08-09T22:26:07.206650",
+  "environment": "development",
+  "api_calls_simulated": 5,
+  "business_events_simulated": 5,
+  "dashboard_data": {
+    "sla_status": {
+      "period_minutes": 60,
+      "metrics": {
+        "response_time": {
+          "current_value": 255.0,
+          "warning_threshold": 1600.0,
+          "critical_threshold": 2000.0,
+          "unit": "ms",
+          "is_healthy": true,
+          "sample_count": 5
+        },
+        "error_rate": {
+          "current_value": 0.0,
+          "warning_threshold": 0.7,
+          "critical_threshold": 1.0,
+          "unit": "%",
+          "is_healthy": true,
+          "sample_count": 5
+        },
+        "uptime": {
+          "current_value": null,
+          "warning_threshold": 99.4,
+          "critical_threshold": 99.5,
+          "unit": "%",
+          "is_healthy": null,
+          "sample_count": 0
+        },
+        "throughput": {
+          "current_value": null,
+          "warning_threshold": 100.0,
+          "critical_threshold": 50.0,
+          "unit": "req/min",
+          "is_healthy": null,
+          "sample_count": 0
+        }
+      },
+      "overall_health": false,
+      "active_alerts": 0,
+      "timestamp": "2025-08-10T01:26:06.604769+00:00"
+    },
+    "business_metrics": {
+      "period_days": 7,
+      "metrics": {
+        "conversations_started": {
+          "current_period": {
+            "average": 0,
+            "total": 0,
+            "sample_count": 0
+          },
+          "trends": {
+            "direction": "stable",
+            "percentage": 0,
+            "daily_values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "totals": {}
+        },
+        "messages_processed": {
+          "current_period": {
+            "average": 0,
+            "total": 0,
+            "sample_count": 0
+          },
+          "trends": {
+            "direction": "stable",
+            "percentage": 0,
+            "daily_values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "totals": {}
+        },
+        "bookings_created": {
+          "current_period": {
+            "average": 0,
+            "total": 0,
+            "sample_count": 0
+          },
+          "trends": {
+            "direction": "stable",
+            "percentage": 0,
+            "daily_values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "totals": {}
+        },
+        "conversion_rate": {
+          "current_period": {
+            "average": 0,
+            "total": 0,
+            "sample_count": 0
+          },
+          "trends": {
+            "direction": "stable",
+            "percentage": 0,
+            "daily_values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "totals": {}
+        },
+        "customer_satisfaction": {
+          "current_period": {
+            "average": 0,
+            "total": 0,
+            "sample_count": 0
+          },
+          "trends": {
+            "direction": "stable",
+            "percentage": 0,
+            "daily_values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "totals": {}
+        },
+        "response_quality": {
+          "current_period": {
+            "average": 0,
+            "total": 0,
+            "sample_count": 0
+          },
+          "trends": {
+            "direction": "stable",
+            "percentage": 0,
+            "daily_values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "totals": {}
+        },
+        "lead_generation": {
+          "current_period": {
+            "average": 0,
+            "total": 0,
+            "sample_count": 0
+          },
+          "trends": {
+            "direction": "stable",
+            "percentage": 0,
+            "daily_values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "totals": {}
+        },
+        "revenue_impact": {
+          "current_period": {
+            "average": 0,
+            "total": 0,
+            "sample_count": 0
+          },
+          "trends": {
+            "direction": "stable",
+            "percentage": 0,
+            "daily_values": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "totals": {}
+        }
+      },
+      "timestamp": "2025-08-10T01:26:06.605191+00:00"
+    },
+    "active_alerts": [],
+    "system_info": {
+      "monitoring_enabled": false,
+      "alerting_enabled": false,
+      "uptime_percentage": 100.0,
+      "config": {
+        "sla_response_time_ms": 2000.0,
+        "sla_uptime_percentage": 99.5,
+        "sla_error_rate_percentage": 1.0
+      }
+    },
+    "timestamp": "2025-08-10T01:26:06.605201+00:00"
+  },
+  "summary": {
+    "total_metrics_collected": 12,
+    "active_alerts": 0,
+    "system_uptime_percentage": 100.0,
+    "monitoring_enabled": false,
+    "alerting_enabled": false
+  }
+}

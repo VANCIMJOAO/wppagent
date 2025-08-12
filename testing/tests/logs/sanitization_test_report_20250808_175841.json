@@ -1,0 +1,319 @@
+{
+  "timestamp": "2025-08-08T17:58:41.393584",
+  "summary": {
+    "total_tests": 44,
+    "passed_tests": 41,
+    "failed_tests": 3,
+    "success_rate": 93.18181818181817
+  },
+  "detailed_results": [
+    {
+      "test": "Número válido: 5511999998888",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Esperado: 5511999998888, Obtido: 5511999998888",
+      "timestamp": "2025-08-08T17:58:41.390356"
+    },
+    {
+      "test": "Número válido: 11999998888",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Esperado: 5511999998888, Obtido: 5511999998888",
+      "timestamp": "2025-08-08T17:58:41.390382"
+    },
+    {
+      "test": "Número válido: +55 (11) 99999-8888",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Esperado: 5511999998888, Obtido: 5511999998888",
+      "timestamp": "2025-08-08T17:58:41.390396"
+    },
+    {
+      "test": "Número válido: 55 11 9 9999-8888",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Esperado: 5511999998888, Obtido: 5511999998888",
+      "timestamp": "2025-08-08T17:58:41.390412"
+    },
+    {
+      "test": "Número válido: (11) 99999-8888",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Esperado: 5511999998888, Obtido: 5511999998888",
+      "timestamp": "2025-08-08T17:58:41.390422"
+    },
+    {
+      "test": "Número inválido: 123456",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Rejeitado corretamente",
+      "timestamp": "2025-08-08T17:58:41.390514"
+    },
+    {
+      "test": "Número inválido: abc123def",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Rejeitado corretamente",
+      "timestamp": "2025-08-08T17:58:41.390565"
+    },
+    {
+      "test": "Número inválido: 5511999@invalid",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Rejeitado corretamente",
+      "timestamp": "2025-08-08T17:58:41.390598"
+    },
+    {
+      "test": "Número inválido: 55119999999999999",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Rejeitado corretamente",
+      "timestamp": "2025-08-08T17:58:41.390625"
+    },
+    {
+      "test": "Número inválido: ",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Rejeitado corretamente",
+      "timestamp": "2025-08-08T17:58:41.390656"
+    },
+    {
+      "test": "Número inválido: None",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Rejeitado corretamente",
+      "timestamp": "2025-08-08T17:58:41.390681"
+    },
+    {
+      "test": "SQL Injection: Olá'; DROP TABLE users; --...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: Olá' TABLE users...",
+      "timestamp": "2025-08-08T17:58:41.391198"
+    },
+    {
+      "test": "SQL Injection: SELECT * FROM users WHERE id=1...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: SELECT * FROM users WHERE id=1...",
+      "timestamp": "2025-08-08T17:58:41.391240"
+    },
+    {
+      "test": "SQL Injection: /* Comentário */ Hello...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: Comentário Hello...",
+      "timestamp": "2025-08-08T17:58:41.391269"
+    },
+    {
+      "test": "XSS: <script>alert('xss')</script>O...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: alert('xss')Olá...",
+      "timestamp": "2025-08-08T17:58:41.391540"
+    },
+    {
+      "test": "XSS: Clique <a href='javascript:ale...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: Clique a href='alert()'aqui/a...",
+      "timestamp": "2025-08-08T17:58:41.391580"
+    },
+    {
+      "test": "XSS: <iframe src='malicious.com'></...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: src='malicious.com'/iframe...",
+      "timestamp": "2025-08-08T17:58:41.391610"
+    },
+    {
+      "test": "XSS: onload='malicious()' Hello...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: 'malicious()' Hello...",
+      "timestamp": "2025-08-08T17:58:41.391638"
+    },
+    {
+      "test": "Mensagem muito longa",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Tamanho original: 5000, Sanitizado: 4096",
+      "timestamp": "2025-08-08T17:58:41.391869"
+    },
+    {
+      "test": "Estrutura do payload preservada",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Estrutura básica mantida após sanitização",
+      "timestamp": "2025-08-08T17:58:41.392004"
+    },
+    {
+      "test": "Conteúdo malicioso removido",
+      "status": "❌ FALHOU",
+      "passed": false,
+      "details": "Scripts e SQL injection removidos",
+      "timestamp": "2025-08-08T17:58:41.392026"
+    },
+    {
+      "test": "Detecção de spam: CLIQUE AQUI AGORA!!! DINHEIRO ...",
+      "status": "❌ FALHOU",
+      "passed": false,
+      "details": "Spam NÃO detectado",
+      "timestamp": "2025-08-08T17:58:41.392343"
+    },
+    {
+      "test": "Detecção de spam: Você é o WINNER de um PRIZE in...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Spam detectado corretamente",
+      "timestamp": "2025-08-08T17:58:41.392360"
+    },
+    {
+      "test": "Detecção de spam: Free money! Limited time! Urge...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Spam detectado corretamente",
+      "timestamp": "2025-08-08T17:58:41.392370"
+    },
+    {
+      "test": "Detecção de spam: http://bit.ly/money-free teleg...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Spam detectado corretamente",
+      "timestamp": "2025-08-08T17:58:41.392377"
+    },
+    {
+      "test": "Detecção de phishing: Your account has been suspende...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Phishing detectado",
+      "timestamp": "2025-08-08T17:58:41.392415"
+    },
+    {
+      "test": "Detecção de phishing: Bank verification required. Ur...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Phishing detectado",
+      "timestamp": "2025-08-08T17:58:41.392509"
+    },
+    {
+      "test": "Detecção de phishing: PayPal confirm your identity. ...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Phishing detectado",
+      "timestamp": "2025-08-08T17:58:41.392519"
+    },
+    {
+      "test": "Detecção de phishing: Amazon security alert. Verify ...",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Phishing detectado",
+      "timestamp": "2025-08-08T17:58:41.392528"
+    },
+    {
+      "test": "Detecção de malware: virus.exe",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: Malware",
+      "timestamp": "2025-08-08T17:58:41.392537"
+    },
+    {
+      "test": "Detecção de malware: malware.bat",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: Malware",
+      "timestamp": "2025-08-08T17:58:41.392545"
+    },
+    {
+      "test": "Detecção de malware: trojan.scr",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: Malware",
+      "timestamp": "2025-08-08T17:58:41.392551"
+    },
+    {
+      "test": "Detecção de malware: safe_document.pdf",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: Seguro",
+      "timestamp": "2025-08-08T17:58:41.392559"
+    },
+    {
+      "test": "Sanitização de contato - wa_id",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "wa_id preservado: 5511999998888",
+      "timestamp": "2025-08-08T17:58:41.392928"
+    },
+    {
+      "test": "Sanitização de contato - nome",
+      "status": "❌ FALHOU",
+      "passed": false,
+      "details": "Nome sanitizado: JoãoscriptalertxssscriptSilva DROP TABLE users --",
+      "timestamp": "2025-08-08T17:58:41.392949"
+    },
+    {
+      "test": "Sanitização de mídia - ID",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "ID sanitizado: ",
+      "timestamp": "2025-08-08T17:58:41.393159"
+    },
+    {
+      "test": "Sanitização de mídia - filename",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Filename: ___etc_passwd",
+      "timestamp": "2025-08-08T17:58:41.393174"
+    },
+    {
+      "test": "Sanitização de mídia - caption",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Caption: >alert('xss')Foto da família",
+      "timestamp": "2025-08-08T17:58:41.393182"
+    },
+    {
+      "test": "Sanitização de mídia - mime_type",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "MIME type: image/jpeg",
+      "timestamp": "2025-08-08T17:58:41.393189"
+    },
+    {
+      "test": "Payload vazio",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Payload vazio tratado corretamente",
+      "timestamp": "2025-08-08T17:58:41.393220"
+    },
+    {
+      "test": "Payload None",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "None rejeitado corretamente",
+      "timestamp": "2025-08-08T17:58:41.393261"
+    },
+    {
+      "test": "Mensagem vazia",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: ''",
+      "timestamp": "2025-08-08T17:58:41.393270"
+    },
+    {
+      "test": "Mensagem None",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Resultado: ''",
+      "timestamp": "2025-08-08T17:58:41.393276"
+    },
+    {
+      "test": "String muito grande",
+      "status": "✅ PASSOU",
+      "passed": true,
+      "details": "Tamanho limitado a 4096 caracteres",
+      "timestamp": "2025-08-08T17:58:41.393524"
+    }
+  ]
+}

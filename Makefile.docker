@@ -1,0 +1,245 @@
+# ==============================
+# MAKEFILE DOCKERFILES OTIMIZADOS
+# WhatsApp Agent v2.0
+# ==============================
+
+.PHONY: help build build-all build-prod build-dev build-slim build-dashboard test docker-clean docker-prune
+
+# Variáveis
+IMAGE_NAME = whatsapp-agent
+TAG ?= latest
+REGISTRY ?= localhost:5000
+BUILD_DATE = $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+VCS_REF = $(shell git rev-parse HEAD)
+
+# Cores para output
+GREEN = \033[0;32m
+YELLOW = \033[1;33m
+RED = \033[0;31m
+NC = \033[0m # No Color
+
+help: ## Mostrar esta ajuda
+	@echo "$(GREEN)🐳 WhatsApp Agent - Docker Commands$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(YELLOW)%-20s$(NC) %s\n", $$1, $$2}'
+
+# ==============================
+# BUILD COMMANDS
+# ==============================
+
+build: build-prod ## Build produção (padrão)
+
+build-all: build-prod build-dev build-slim build-dashboard ## Build todas as imagens
+
+build-prod: ## Build imagem de produção (multi-stage)
+	@echo "$(GREEN)🏗️ Building Production Image...$(NC)"
+	docker build \
+		--target runtime \
+		--tag $(IMAGE_NAME):$(TAG) \
+		--tag $(IMAGE_NAME):production \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg VCS_REF=$(VCS_REF) \
+		--file Dockerfile \
+		.
+	@echo "$(GREEN)✅ Production image built: $(IMAGE_NAME):$(TAG)$(NC)"
+
+build-dev: ## Build imagem de desenvolvimento
+	@echo "$(GREEN)🏗️ Building Development Image...$(NC)"
+	docker build \
+		--tag $(IMAGE_NAME):dev \
+		--tag $(IMAGE_NAME):development \
+		--file Dockerfile.dev \
+		.
+	@echo "$(GREEN)✅ Development image built: $(IMAGE_NAME):dev$(NC)"
+
+build-slim: ## Build imagem slim/microservice
+	@echo "$(GREEN)🏗️ Building Slim Image...$(NC)"
+	docker build \
+		--target slim-runtime \
+		--tag $(IMAGE_NAME):slim \
+		--tag $(IMAGE_NAME):microservice \
+		--file Dockerfile.slim \
+		.
+	@echo "$(GREEN)✅ Slim image built: $(IMAGE_NAME):slim$(NC)"
+
+build-dashboard: ## Build imagem do dashboard
+	@echo "$(GREEN)🏗️ Building Dashboard Image...$(NC)"
+	docker build \
+		--target runtime \
+		--tag $(IMAGE_NAME):dashboard \
+		--tag $(IMAGE_NAME):streamlit \
+		--file Dockerfile.streamlit \
+		.
+	@echo "$(GREEN)✅ Dashboard image built: $(IMAGE_NAME):dashboard$(NC)"
+
+# ==============================
+# OPTIMIZED BUILD COMMANDS
+# ==============================
+
+build-optimized: ## Build com otimizações máximas
+	@echo "$(GREEN)🚀 Building Optimized Production Image...$(NC)"
+	docker build \
+		--target runtime \
+		--tag $(IMAGE_NAME):optimized \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg VCS_REF=$(VCS_REF) \
+		--build-arg BUILDKIT_INLINE_CACHE=1 \
+		--cache-from $(IMAGE_NAME):cache \
+		--file Dockerfile \
+		.
+	@echo "$(GREEN)✅ Optimized image built$(NC)"
+
+build-cache: ## Build com cache para reutilização
+	@echo "$(GREEN)💾 Building Cache Image...$(NC)"
+	docker build \
+		--target builder \
+		--tag $(IMAGE_NAME):cache \
+		--file Dockerfile \
+		.
+
+# ==============================
+# REGISTRY COMMANDS
+# ==============================
+
+push: ## Push imagem para registry
+	@echo "$(GREEN)📤 Pushing to registry...$(NC)"
+	docker tag $(IMAGE_NAME):$(TAG) $(REGISTRY)/$(IMAGE_NAME):$(TAG)
+	docker push $(REGISTRY)/$(IMAGE_NAME):$(TAG)
+
+push-all: ## Push todas as imagens
+	@echo "$(GREEN)📤 Pushing all images...$(NC)"
+	docker tag $(IMAGE_NAME):production $(REGISTRY)/$(IMAGE_NAME):production
+	docker tag $(IMAGE_NAME):dev $(REGISTRY)/$(IMAGE_NAME):dev
+	docker tag $(IMAGE_NAME):slim $(REGISTRY)/$(IMAGE_NAME):slim
+	docker tag $(IMAGE_NAME):dashboard $(REGISTRY)/$(IMAGE_NAME):dashboard
+	docker push $(REGISTRY)/$(IMAGE_NAME):production
+	docker push $(REGISTRY)/$(IMAGE_NAME):dev
+	docker push $(REGISTRY)/$(IMAGE_NAME):slim
+	docker push $(REGISTRY)/$(IMAGE_NAME):dashboard
+
+# ==============================
+# RUN COMMANDS
+# ==============================
+
+run-prod: ## Executar versão de produção
+	@echo "$(GREEN)🚀 Running Production Container...$(NC)"
+	docker run -d \
+		--name whatsapp-agent-prod \
+		--env-file .env.development \
+		-p 8000:8000 \
+		$(IMAGE_NAME):production
+
+run-dev: ## Executar versão de desenvolvimento
+	@echo "$(GREEN)🛠️ Running Development Container...$(NC)"
+	docker run -it \
+		--name whatsapp-agent-dev \
+		--env-file .env.development \
+		-p 8001:8000 \
+		-v $(PWD):/home/developer/app \
+		$(IMAGE_NAME):dev
+
+run-slim: ## Executar versão slim
+	@echo "$(GREEN)⚡ Running Slim Container...$(NC)"
+	docker run -d \
+		--name whatsapp-agent-slim \
+		--env-file .env.development \
+		-p 8002:8000 \
+		$(IMAGE_NAME):slim
+
+run-dashboard: ## Executar dashboard
+	@echo "$(GREEN)📊 Running Dashboard Container...$(NC)"
+	docker run -d \
+		--name whatsapp-dashboard \
+		--env-file .env.development \
+		-p 8501:8501 \
+		$(IMAGE_NAME):dashboard
+
+# ==============================
+# DOCKER COMPOSE COMMANDS
+# ==============================
+
+up: ## Subir com docker-compose v2
+	@echo "$(GREEN)🐳 Starting with Docker Compose v2...$(NC)"
+	docker-compose -f docker-compose.v2.yml up -d
+
+up-dev: ## Subir ambiente de desenvolvimento
+	@echo "$(GREEN)🛠️ Starting Development Environment...$(NC)"
+	docker-compose -f docker-compose.v2.yml --profile development up -d
+
+up-microservice: ## Subir modo microservice
+	@echo "$(GREEN)⚡ Starting Microservice Mode...$(NC)"
+	docker-compose -f docker-compose.v2.yml --profile microservice up -d
+
+down: ## Parar containers
+	@echo "$(GREEN)⏹️ Stopping containers...$(NC)"
+	docker-compose -f docker-compose.v2.yml down
+
+logs: ## Ver logs dos containers
+	docker-compose -f docker-compose.v2.yml logs -f
+
+# ==============================
+# TEST COMMANDS
+# ==============================
+
+test: ## Testar builds
+	@echo "$(GREEN)🧪 Testing Docker builds...$(NC)"
+	docker run --rm $(IMAGE_NAME):$(TAG) python -c "import app; print('✅ Import OK')"
+	@echo "$(GREEN)✅ Tests passed$(NC)"
+
+test-all: ## Testar todas as imagens
+	@echo "$(GREEN)🧪 Testing all images...$(NC)"
+	docker run --rm $(IMAGE_NAME):production python -c "import app; print('✅ Production OK')"
+	docker run --rm $(IMAGE_NAME):dev python -c "import app; print('✅ Development OK')"
+	docker run --rm $(IMAGE_NAME):slim python -c "import app; print('✅ Slim OK')"
+	@echo "$(GREEN)✅ All tests passed$(NC)"
+
+# ==============================
+# MAINTENANCE COMMANDS
+# ==============================
+
+docker-clean: ## Limpar containers parados
+	@echo "$(YELLOW)🧹 Cleaning stopped containers...$(NC)"
+	docker container prune -f
+
+docker-prune: ## Limpeza completa do Docker
+	@echo "$(RED)🗑️ Full Docker cleanup...$(NC)"
+	docker system prune -a -f --volumes
+
+size: ## Mostrar tamanho das imagens
+	@echo "$(GREEN)📏 Image sizes:$(NC)"
+	@docker images $(IMAGE_NAME) --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+
+inspect: ## Inspecionar imagem de produção
+	@echo "$(GREEN)🔍 Inspecting production image...$(NC)"
+	docker inspect $(IMAGE_NAME):production
+
+# ==============================
+# SECURITY COMMANDS
+# ==============================
+
+scan: ## Scan de segurança nas imagens
+	@echo "$(GREEN)🔒 Security scanning...$(NC)"
+	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+		-v $(PWD):/src aquasec/trivy:latest image $(IMAGE_NAME):production
+
+audit: ## Auditoria de dependências
+	@echo "$(GREEN)🔍 Dependency audit...$(NC)"
+	docker run --rm $(IMAGE_NAME):production pip audit
+
+# ==============================
+# INFO COMMANDS
+# ==============================
+
+info: ## Informações das imagens
+	@echo "$(GREEN)📊 Docker Images Information:$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Build Date:$(NC) $(BUILD_DATE)"
+	@echo "$(YELLOW)VCS Ref:$(NC) $(VCS_REF)"
+	@echo "$(YELLOW)Registry:$(NC) $(REGISTRY)"
+	@echo ""
+	@echo "$(GREEN)📏 Image sizes:$(NC)"
+	@docker images $(IMAGE_NAME) --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" 2>/dev/null || echo "Nenhuma imagem encontrada"
+
+status: ## Status dos containers
+	@echo "$(GREEN)📊 Container Status:$(NC)"
+	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

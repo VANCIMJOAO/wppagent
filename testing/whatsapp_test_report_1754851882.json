@@ -1,0 +1,137 @@
+{
+  "start_time": "2025-08-10T15:51:12.283309",
+  "tests": {
+    "conversation_flow": {
+      "total_conversations": 2,
+      "successful_conversations": 0,
+      "success_rate": 0.0,
+      "details": [
+        {
+          "user_id": "test_conv_1754851872_1",
+          "messages_sent": 7,
+          "responses_received": 0,
+          "errors": [
+            "Falha ao enviar mensagem 1: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 2: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 3: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 4: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 5: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 6: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 7: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+          ],
+          "llm_responses": [],
+          "success": false
+        },
+        {
+          "user_id": "test_conv_1754851872_2",
+          "messages_sent": 4,
+          "responses_received": 0,
+          "errors": [
+            "Falha ao enviar mensagem 1: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 2: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 3: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+            "Falha ao enviar mensagem 4: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+          ],
+          "llm_responses": [],
+          "success": false
+        }
+      ]
+    },
+    "appointment_booking": {
+      "total_tests": 2,
+      "successful_appointments": 0,
+      "success_rate": 0.0,
+      "details": [
+        {
+          "user_id": "test_appointment_1754851872_1",
+          "messages_sent": 6,
+          "appointment_created": false,
+          "appointment_details": {},
+          "errors": [
+            "Falha ao enviar: Quero agendar um horário",
+            "Falha ao enviar: Maria Santos",
+            "Falha ao enviar: maria@email.com",
+            "Falha ao enviar: 11987654321",
+            "Falha ao enviar: Corte e escova",
+            "Falha ao enviar: Amanhã às 15h",
+            "Agendamento não foi criado no banco"
+          ],
+          "success": false
+        },
+        {
+          "user_id": "test_appointment_1754851872_2",
+          "messages_sent": 6,
+          "appointment_created": false,
+          "appointment_details": {},
+          "errors": [
+            "Falha ao enviar: Preciso marcar um horário",
+            "Falha ao enviar: Pedro Oliveira",
+            "Falha ao enviar: pedro@gmail.com",
+            "Falha ao enviar: 11876543210",
+            "Falha ao enviar: Barba",
+            "Falha ao enviar: Sexta-feira às 10h",
+            "Agendamento não foi criado no banco"
+          ],
+          "success": false
+        }
+      ]
+    },
+    "appointment_cancellation": {
+      "success": false,
+      "message": "Nenhum agendamento disponível para cancelar"
+    },
+    "data_collection": {
+      "user_id": "test_data_1754851882",
+      "data_collected": {},
+      "collection_successful": false,
+      "errors": [
+        "Falha ao enviar: Olá, preciso de informações",
+        "Falha ao enviar: João da Silva",
+        "Falha ao enviar: joao.silva@email.com",
+        "Falha ao enviar: 11987654321",
+        "Usuário não foi criado no banco"
+      ]
+    },
+    "message_types": {
+      "total_tests": 3,
+      "successful_tests": 0,
+      "success_rate": 0.0,
+      "details": [
+        {
+          "type": "text",
+          "description": "Mensagem de texto básica",
+          "user_id": "test_msgtype_1754851882_235",
+          "message_sent": false,
+          "response_received": false,
+          "response_content": "",
+          "errors": [
+            "Falha ao enviar: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+          ]
+        },
+        {
+          "type": "text",
+          "description": "Mensagem com emojis",
+          "user_id": "test_msgtype_1754851882_336",
+          "message_sent": false,
+          "response_received": false,
+          "response_content": "",
+          "errors": [
+            "Falha ao enviar: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+          ]
+        },
+        {
+          "type": "text",
+          "description": "Mensagem longa com múltiplas perguntas",
+          "user_id": "test_msgtype_1754851882_348",
+          "message_sent": false,
+          "response_received": false,
+          "response_content": "",
+          "errors": [
+            "Falha ao enviar: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+          ]
+        }
+      ]
+    }
+  },
+  "end_time": "2025-08-10T15:51:22.307743"
+}

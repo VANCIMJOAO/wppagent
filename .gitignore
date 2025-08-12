@@ -1,0 +1,126 @@
+# 🚨 SEGURANÇA CRÍTICA - NUNCA COMMITTAR CREDENCIAIS
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+.env.testing
+*.env
+config/production.env
+secrets/
+credentials/
+keys/
+*.key
+*.pem
+*.crt
+
+# Arquivos temporários e logs
+*.log
+logs/
+tmp/
+.tmp/
+.docker-build-timestamp
+.pids/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment Variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Test Results
+test_results/
+
+# Cache
+.cache/
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
+# Secrets Management
+secrets/
+*.secrets
+.env.secrets
+vault_data/
+docker_secrets/
+
+# Cleanup and archive directories
+cleanup_backup/
+archive/
+tmp/
+*.tmp
+*.temp
+
+# Additional Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Logs
+logs/*.log
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

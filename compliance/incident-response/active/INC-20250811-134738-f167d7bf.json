@@ -1,0 +1,58 @@
+{
+  "incident_id": "INC-20250811-134738-f167d7bf",
+  "title": "Sistema apresentando lentid\u00e3o extrema e alguns usu\u00e1rios relatam impossibilidade de acesso. Poss\u00edvel ...",
+  "description": "Sistema apresentando lentid\u00e3o extrema e alguns usu\u00e1rios relatam impossibilidade de acesso. Poss\u00edvel ataque DDoS detectado nos logs de firewall.",
+  "incident_type": "IncidentType.DDOS_ATTACK",
+  "severity": "IncidentSeverity.SEV_3",
+  "status": "IncidentStatus.INVESTIGATING",
+  "reported_by": "ops@company.com",
+  "reported_at": "2025-08-11 13:47:38.282625",
+  "acknowledged_at": null,
+  "resolved_at": null,
+  "assigned_to": "",
+  "escalation_level": "EscalationLevel.L1_OPERATIONS",
+  "affected_systems": [],
+  "impact_assessment": "",
+  "root_cause": "",
+  "timeline": [
+    {
+      "timestamp": "2025-08-11T13:47:38.282625",
+      "event": "Incident reported",
+      "details": "Reported by ops@company.com",
+      "status": "new"
+    },
+    {
+      "timestamp": "2025-08-11T13:47:38.283174",
+      "event": "Action Taken",
+      "details": "Ativada mitiga\u00e7\u00e3o DDoS no firewall",
+      "performed_by": "security@company.com"
+    },
+    {
+      "timestamp": "2025-08-11T13:47:38.283371",
+      "event": "Action Taken",
+      "details": "Implementado rate limiting agressivo",
+      "performed_by": "ops@company.com"
+    },
+    {
+      "timestamp": "2025-08-11T13:47:38.283551",
+      "event": "Status changed: new \u2192 investigating",
+      "details": "Iniciada investiga\u00e7\u00e3o completa do incidente",
+      "updated_by": "security@company.com"
+    }
+  ],
+  "actions_taken": [
+    {
+      "timestamp": "2025-08-11T13:47:38.283171",
+      "action": "Ativada mitiga\u00e7\u00e3o DDoS no firewall",
+      "performed_by": "security@company.com"
+    },
+    {
+      "timestamp": "2025-08-11T13:47:38.283369",
+      "action": "Implementado rate limiting agressivo",
+      "performed_by": "ops@company.com"
+    }
+  ],
+  "lessons_learned": [],
+  "preventive_measures": [],
+  "estimated_impact": {}
+}

@@ -1,0 +1,1088 @@
+2025-08-10 00:56:11,308 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 00:56:11,308 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 00:56:11,308 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 00:56:11,324 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 00:56:11,324 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 00:56:11,341 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 00:56:11,341 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 00:56:11,344 - __main__ - INFO - 📊 ⚙️ Configuração: 0/2 testes passaram (0.0%)
+2025-08-10 00:56:11,345 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 00:56:11,382 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 00:56:11,382 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 00:56:12,466 - __main__ - INFO - 📊 🌐 APIs FastAPI: 2/5 testes passaram (40.0%)
+2025-08-10 00:56:12,466 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 00:56:14,558 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 00:56:14,559 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 00:56:14,567 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 00:56:14,567 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 00:56:14,569 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 00:56:14,569 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 00:56:14,571 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 0/2 testes passaram (0.0%)
+2025-08-10 00:56:14,571 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 00:56:15,323 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 00:56:15,323 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 00:56:15,325 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 00:56:15,325 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 00:56:15,325 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 00:56:15,325 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 00:56:15,331 - __main__ - INFO - 📊 🔍 Health Checks: 0/5 testes passaram (0.0%)
+2025-08-10 00:56:15,331 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 00:56:15,334 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(3) is still referenced from table "customer_data_collection".
+
+2025-08-10 01:06:53,030 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 01:06:53,030 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 01:06:53,030 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 01:06:53,040 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 01:06:53,040 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 01:06:53,053 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 01:06:53,053 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 01:06:53,058 - __main__ - INFO - 📊 ⚙️ Configuração: 0/2 testes passaram (0.0%)
+2025-08-10 01:06:53,058 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 01:06:53,089 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 01:06:53,089 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 01:06:54,406 - __main__ - INFO - 📊 🌐 APIs FastAPI: 4/5 testes passaram (80.0%)
+2025-08-10 01:06:54,406 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 01:06:56,430 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 01:06:56,431 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 01:06:56,446 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 01:06:56,446 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 01:06:56,448 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 01:06:56,448 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 01:06:56,449 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 0/2 testes passaram (0.0%)
+2025-08-10 01:06:56,449 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 01:06:56,727 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 01:06:56,727 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 01:06:56,728 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 01:06:56,728 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 01:06:56,728 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 01:06:56,728 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 01:06:57,331 - __main__ - INFO - 📊 🔍 Health Checks: 1/5 testes passaram (20.0%)
+2025-08-10 01:06:57,332 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 01:06:57,334 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(6) is still referenced from table "customer_data_collection".
+
+2025-08-10 01:11:58,440 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 01:11:58,440 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 01:11:58,440 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 01:11:58,451 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 01:11:58,451 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 01:11:58,453 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 15:51:12,031 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 15:51:12,031 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 15:51:12,031 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 15:51:12,049 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 15:51:12,050 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 15:51:12,078 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 15:51:12,078 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 15:51:12,080 - __main__ - INFO - 📊 ⚙️ Configuração: 0/2 testes passaram (0.0%)
+2025-08-10 15:51:12,080 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 15:51:12,081 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 15:51:12,081 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 15:51:12,084 - __main__ - INFO - 📊 🌐 APIs FastAPI: 0/5 testes passaram (0.0%)
+2025-08-10 15:51:12,084 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 15:51:12,085 - __main__ - INFO - 📊 💬 WhatsApp Integration: 0/2 testes passaram (0.0%)
+2025-08-10 15:51:12,085 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 15:51:12,102 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 15:51:12,102 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 15:51:12,105 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 15:51:12,105 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 15:51:12,106 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 0/2 testes passaram (0.0%)
+2025-08-10 15:51:12,106 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 15:51:12,111 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 15:51:12,111 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 15:51:12,117 - __main__ - INFO - 📊 📝 Logs e Auditoria: 1/2 testes passaram (50.0%)
+2025-08-10 15:51:12,117 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 15:51:12,118 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 15:51:12,118 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 15:51:12,121 - __main__ - INFO - 📊 🔍 Health Checks: 0/5 testes passaram (0.0%)
+2025-08-10 15:51:12,122 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 15:51:12,129 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(71) is still referenced from table "customer_data_collection".
+
+2025-08-10 15:55:32,587 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 15:55:32,587 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 15:55:32,587 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 15:55:32,597 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 15:55:32,597 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 15:55:32,612 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 15:55:32,612 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 15:55:32,619 - __main__ - INFO - 📊 ⚙️ Configuração: 0/2 testes passaram (0.0%)
+2025-08-10 15:55:32,619 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 15:55:32,648 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 15:55:32,648 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 15:55:33,909 - __main__ - INFO - 📊 🌐 APIs FastAPI: 4/5 testes passaram (80.0%)
+2025-08-10 15:55:33,909 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 15:55:35,999 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 15:55:35,999 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 15:55:36,006 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 15:55:36,006 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 15:55:36,008 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 15:55:36,008 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 15:55:36,010 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 0/2 testes passaram (0.0%)
+2025-08-10 15:55:36,010 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 15:55:36,773 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 15:55:36,773 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 15:55:36,775 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 15:55:36,775 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 15:55:36,775 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 15:55:36,775 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 15:55:37,785 - __main__ - INFO - 📊 🔍 Health Checks: 1/5 testes passaram (20.0%)
+2025-08-10 15:55:37,786 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 15:55:37,788 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(9) is still referenced from table "customer_data_collection".
+
+2025-08-10 16:00:38,615 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 16:00:38,616 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 16:00:38,616 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 16:00:38,626 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 16:00:38,626 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 16:00:38,629 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 16:10:49,271 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 16:10:49,271 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 16:10:49,272 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 16:10:49,281 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 16:10:49,281 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 16:10:49,295 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 16:10:49,295 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 16:10:49,302 - __main__ - INFO - 📊 ⚙️ Configuração: 1/2 testes passaram (50.0%)
+2025-08-10 16:10:49,302 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 16:10:49,339 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 16:10:49,339 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 16:10:50,751 - __main__ - INFO - 📊 🌐 APIs FastAPI: 4/5 testes passaram (80.0%)
+2025-08-10 16:10:50,751 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 16:10:52,830 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 16:10:52,830 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 16:10:52,836 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 16:10:52,836 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 16:10:52,838 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 16:10:52,838 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 16:10:52,842 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 16:10:52,842 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 16:10:53,611 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 16:10:53,611 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 16:10:53,613 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 16:10:53,613 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 16:10:53,613 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 16:10:53,613 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 16:10:54,154 - __main__ - INFO - 📊 🔍 Health Checks: 3/5 testes passaram (60.0%)
+2025-08-10 16:10:54,155 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 16:10:54,157 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(12) is still referenced from table "customer_data_collection".
+
+2025-08-10 16:15:55,054 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 16:15:55,054 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 16:15:55,054 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 16:15:55,064 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 16:15:55,064 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 16:15:55,066 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 16:19:19,109 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 16:19:19,109 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 16:19:19,109 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 16:19:19,120 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 16:19:19,120 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 16:19:19,135 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 16:19:19,135 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 16:19:19,142 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 16:19:19,142 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 16:19:19,175 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-10 16:19:19,175 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 16:19:20,120 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-10 16:19:20,120 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 16:19:22,199 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 16:19:22,199 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 16:19:22,205 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 16:19:22,205 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 16:19:22,207 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 16:19:22,207 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 16:19:22,210 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 16:19:22,210 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 16:19:22,981 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 16:19:22,981 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 16:19:22,983 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 16:19:22,983 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 16:19:22,983 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 16:19:22,983 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 16:19:24,094 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 16:19:24,095 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 16:19:24,096 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(15) is still referenced from table "customer_data_collection".
+
+2025-08-10 16:24:25,058 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 16:24:25,058 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 16:24:25,059 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 16:24:25,069 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 16:24:25,069 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 16:24:25,071 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 18:58:28,316 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 18:58:28,316 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 18:58:28,316 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 18:58:28,326 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 18:58:28,327 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 18:58:28,340 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 18:58:28,340 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 18:58:28,347 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 18:58:28,347 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 18:58:28,379 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-10 18:58:28,380 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 18:58:29,788 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-10 18:58:29,789 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 18:58:31,859 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 18:58:31,859 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 18:58:31,875 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 18:58:31,875 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 18:58:31,876 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 18:58:31,876 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 18:58:31,880 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 18:58:31,880 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 18:58:32,735 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 18:58:32,735 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 18:58:32,737 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 18:58:32,737 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 18:58:32,737 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 18:58:32,737 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 18:58:33,783 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 18:58:33,784 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 18:58:33,786 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(18) is still referenced from table "customer_data_collection".
+
+2025-08-10 19:03:34,736 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 19:03:34,737 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 19:03:34,737 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 19:03:34,746 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 19:03:34,746 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 19:03:34,748 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 19:43:08,378 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 19:43:08,378 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 19:43:08,378 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 19:43:08,388 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 19:43:08,388 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 19:43:08,402 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 19:43:08,402 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 19:43:08,406 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 19:43:08,406 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 19:43:08,434 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-10 19:43:08,434 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 19:43:09,843 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-10 19:43:09,843 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 19:43:09,843 - __main__ - INFO - Testando webhook com token: meutoken123
+2025-08-10 19:43:11,877 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 19:43:11,877 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 19:43:11,882 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 19:43:11,882 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 19:43:11,884 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 19:43:11,884 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 19:43:11,887 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 19:43:11,888 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 19:43:12,414 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 19:43:12,414 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 19:43:12,415 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 19:43:12,415 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 19:43:12,415 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 19:43:12,415 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 19:43:13,097 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 19:43:13,098 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 19:43:13,100 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(21) is still referenced from table "customer_data_collection".
+
+2025-08-10 19:46:11,851 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 19:46:11,851 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 19:46:11,851 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 19:46:11,862 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 19:46:11,862 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 19:46:11,876 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 19:46:11,876 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 19:46:11,880 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 19:46:11,880 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 19:46:11,908 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 19:46:11,908 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 19:46:13,019 - __main__ - INFO - 📊 🌐 APIs FastAPI: 1/5 testes passaram (20.0%)
+2025-08-10 19:46:13,019 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 19:46:13,020 - __main__ - INFO - Testando webhook com token: meutoken123
+2025-08-10 19:46:15,055 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 19:46:15,055 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 19:46:15,070 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 19:46:15,070 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 19:46:15,072 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 19:46:15,072 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 19:46:15,075 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 19:46:15,075 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 19:46:16,155 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 19:46:16,155 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 19:46:16,156 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 19:46:16,156 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 19:46:16,157 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 19:46:16,157 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 19:46:16,913 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 19:46:16,914 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 19:46:16,916 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(24) is still referenced from table "customer_data_collection".
+
+2025-08-10 19:51:18,275 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 19:51:18,275 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 19:51:18,275 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 19:51:18,286 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 19:51:18,286 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 19:51:18,288 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 19:52:59,707 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 19:52:59,707 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 19:52:59,707 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 19:52:59,717 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 19:52:59,717 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 19:52:59,730 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 19:52:59,730 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 19:52:59,736 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 19:52:59,736 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 19:52:59,770 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-10 19:52:59,770 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 19:53:01,542 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-10 19:53:01,542 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 19:53:01,542 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 19:53:03,611 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-10 19:53:03,611 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 19:53:03,617 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 19:53:03,617 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 19:53:03,618 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 19:53:03,619 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 19:53:03,622 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 19:53:03,622 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 19:53:04,160 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 19:53:04,160 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 19:53:04,161 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 19:53:04,161 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 19:53:04,162 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 19:53:04,162 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 19:53:05,288 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 19:53:05,289 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 19:53:05,291 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(27) is still referenced from table "customer_data_collection".
+
+2025-08-10 19:58:06,395 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 19:58:06,395 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 19:58:06,395 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 19:58:06,405 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 19:58:06,405 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 19:58:06,408 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 19:59:05,283 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 19:59:05,283 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 19:59:05,283 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 19:59:05,293 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 19:59:05,293 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 19:59:05,307 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 19:59:05,307 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 19:59:05,310 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 19:59:05,310 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 19:59:05,339 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 19:59:05,339 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 19:59:07,277 - __main__ - INFO - 📊 🌐 APIs FastAPI: 2/5 testes passaram (40.0%)
+2025-08-10 19:59:07,277 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 19:59:07,277 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 19:59:09,297 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-10 19:59:09,297 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 19:59:09,312 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 19:59:09,312 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 19:59:09,314 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 19:59:09,314 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 19:59:09,317 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 19:59:09,317 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 19:59:10,050 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 19:59:10,050 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 19:59:10,051 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 19:59:10,051 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 19:59:10,052 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 19:59:10,052 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 19:59:10,058 - __main__ - INFO - 📊 🔍 Health Checks: 1/5 testes passaram (20.0%)
+2025-08-10 19:59:10,059 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 19:59:10,061 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(30) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:04:10,982 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:04:10,982 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 20:04:10,982 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:04:10,992 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:04:10,992 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:04:10,995 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 20:10:16,144 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:10:16,144 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 20:10:16,144 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:10:16,154 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:10:16,154 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 20:10:16,168 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 20:10:16,168 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 20:10:16,177 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 20:10:16,177 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 20:10:16,209 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 20:10:16,209 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 20:10:16,890 - __main__ - INFO - 📊 🌐 APIs FastAPI: 1/5 testes passaram (20.0%)
+2025-08-10 20:10:16,890 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 20:10:16,890 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 20:10:18,962 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-10 20:10:18,962 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 20:10:18,978 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 20:10:18,978 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 20:10:18,980 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 20:10:18,980 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 20:10:18,983 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 20:10:18,983 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 20:10:19,823 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 20:10:19,823 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 20:10:19,824 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 20:10:19,824 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 20:10:19,825 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 20:10:19,825 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 20:10:20,549 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 20:10:20,550 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:10:20,552 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(33) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:15:21,631 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:15:21,631 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 20:15:21,631 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:15:21,641 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:15:21,641 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:15:21,644 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 20:17:13,467 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:17:13,467 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 20:17:13,467 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:17:13,478 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:17:13,478 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 20:17:13,496 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 20:17:13,496 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 20:17:13,504 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 20:17:13,504 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 20:17:13,547 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 20:17:13,547 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 20:17:14,858 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-10 20:17:14,858 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 20:17:14,858 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 20:17:16,965 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 20:17:16,965 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 20:17:16,971 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 20:17:16,972 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 20:17:16,973 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 20:17:16,973 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 20:17:16,976 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 20:17:16,976 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 20:17:17,295 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 20:17:17,295 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 20:17:17,297 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 20:17:17,297 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 20:17:17,297 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 20:17:17,297 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 20:17:18,033 - __main__ - INFO - 📊 🔍 Health Checks: 2/5 testes passaram (40.0%)
+2025-08-10 20:17:18,033 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:17:18,035 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(36) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:22:19,010 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:22:19,010 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 20:22:19,010 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:22:19,021 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:22:19,021 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:22:19,024 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 20:28:26,357 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:28:26,357 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 20:28:26,357 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:28:26,368 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:28:26,368 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 20:28:26,384 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 20:28:26,384 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 20:28:26,392 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 20:28:26,392 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 20:28:26,433 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-10 20:28:26,433 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 20:28:27,644 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-10 20:28:27,644 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 20:28:27,644 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 20:28:29,731 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 20:28:29,732 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 20:28:29,738 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 20:28:29,738 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 20:28:29,740 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 20:28:29,740 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 20:28:29,743 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 20:28:29,743 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 20:28:30,537 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 20:28:30,537 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 20:28:30,538 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 20:28:30,538 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 20:28:30,538 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 20:28:30,538 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 20:28:31,782 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 20:28:31,783 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:28:31,785 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(39) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:33:43,872 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:33:43,872 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 20:33:43,872 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:33:43,883 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:33:43,883 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 20:33:43,897 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 20:33:43,897 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 20:33:43,901 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 20:33:43,901 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 20:33:43,931 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-10 20:33:43,931 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 20:33:45,688 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-10 20:33:45,688 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 20:33:45,688 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 20:33:47,745 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 20:33:47,745 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 20:33:47,751 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 20:33:47,751 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 20:33:47,753 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 20:33:47,753 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 20:33:47,756 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 20:33:47,756 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 20:33:48,781 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 20:33:48,789 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 20:33:48,790 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 20:33:48,790 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 20:33:48,791 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 20:33:48,791 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 20:33:49,611 - __main__ - INFO - 📊 🔍 Health Checks: 3/5 testes passaram (60.0%)
+2025-08-10 20:33:49,612 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:33:49,614 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(42) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:33:50,493 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:33:50,493 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 20:33:50,493 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:33:50,505 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:33:50,505 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:33:50,507 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 20:37:36,315 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:37:36,315 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 20:37:36,315 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:37:36,326 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:37:36,326 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 20:37:36,342 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 20:37:36,342 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 20:37:36,346 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 20:37:36,346 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 20:37:36,384 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 20:37:36,384 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 20:37:37,705 - __main__ - INFO - 📊 🌐 APIs FastAPI: 2/5 testes passaram (40.0%)
+2025-08-10 20:37:37,705 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 20:37:37,705 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 20:37:39,810 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 20:37:39,810 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 20:37:39,816 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 20:37:39,816 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 20:37:39,818 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 20:37:39,818 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 20:37:39,821 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 20:37:39,821 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 20:37:40,180 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 20:37:40,180 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 20:37:40,181 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 20:37:40,181 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 20:37:40,181 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 20:37:40,181 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 20:37:40,197 - __main__ - INFO - 📊 🔍 Health Checks: 2/5 testes passaram (40.0%)
+2025-08-10 20:37:40,198 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:37:40,200 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(45) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:37:41,094 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:37:41,094 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 20:37:41,094 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:37:41,104 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:37:41,104 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:37:41,107 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 20:42:09,635 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:42:09,636 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 20:42:09,636 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:42:09,646 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:42:09,646 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 20:42:09,661 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 20:42:09,661 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 20:42:09,668 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 20:42:09,668 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 20:42:09,709 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-10 20:42:09,709 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 20:42:11,008 - __main__ - INFO - 📊 🌐 APIs FastAPI: 4/5 testes passaram (80.0%)
+2025-08-10 20:42:11,008 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 20:42:11,008 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 20:42:13,094 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 20:42:13,094 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 20:42:13,109 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 20:42:13,110 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 20:42:13,111 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 20:42:13,112 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 20:42:13,115 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 20:42:13,115 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 20:42:13,698 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 20:42:13,698 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 20:42:13,700 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 20:42:13,700 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 20:42:13,700 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 20:42:13,700 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 20:42:13,707 - __main__ - INFO - 📊 🔍 Health Checks: 0/5 testes passaram (0.0%)
+2025-08-10 20:42:13,707 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:42:13,709 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(48) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:42:14,697 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:42:14,697 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 20:42:14,697 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:42:14,707 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:42:14,707 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:42:14,709 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 20:44:44,873 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:44:44,873 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 20:44:44,873 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:44:44,883 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:44:44,883 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 20:44:44,898 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 20:44:44,898 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 20:44:44,906 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 20:44:44,906 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 20:44:44,934 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 20:44:44,934 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 20:44:46,497 - __main__ - INFO - 📊 🌐 APIs FastAPI: 3/5 testes passaram (60.0%)
+2025-08-10 20:44:46,497 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 20:44:46,497 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 20:44:48,577 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 20:44:48,577 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 20:44:48,583 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 20:44:48,583 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 20:44:48,584 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 20:44:48,584 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 20:44:48,588 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 20:44:48,588 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 20:44:49,299 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 20:44:49,299 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 20:44:49,300 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 20:44:49,300 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 20:44:49,301 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 20:44:49,301 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 20:44:50,026 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 20:44:50,027 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:44:50,029 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(51) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:44:51,271 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:44:51,271 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 20:44:51,271 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:44:51,282 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:44:51,282 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:44:51,284 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 20:48:02,895 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:48:02,895 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 20:48:02,895 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:48:02,905 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:48:02,905 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 20:48:02,920 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 20:48:02,920 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 20:48:02,927 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-10 20:48:02,927 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 20:48:02,960 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-10 20:48:02,960 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 20:48:05,157 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-10 20:48:05,157 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 20:48:05,157 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 20:48:07,237 - __main__ - INFO - 📊 💬 WhatsApp Integration: 1/2 testes passaram (50.0%)
+2025-08-10 20:48:07,237 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 20:48:07,243 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 20:48:07,243 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 20:48:07,245 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 20:48:07,245 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 20:48:07,248 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 20:48:07,248 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 20:48:08,267 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 20:48:08,267 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 20:48:08,268 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-10 20:48:08,268 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 20:48:08,268 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 20:48:08,268 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 20:48:09,020 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-10 20:48:09,021 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:48:09,023 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(54) is still referenced from table "customer_data_collection".
+
+2025-08-10 20:48:10,101 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 20:48:10,101 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-10 20:48:10,101 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 20:48:10,111 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 20:48:10,111 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 20:48:10,114 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-10 23:20:11,166 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-10 23:20:11,167 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-10 23:20:11,167 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-10 23:20:11,328 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-10 23:20:11,328 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-10 23:20:11,624 - __main__ - INFO - 📊 🏗️ Infraestrutura: 2/3 testes passaram (66.7%)
+2025-08-10 23:20:11,624 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-10 23:20:11,696 - __main__ - INFO - 📊 ⚙️ Configuração: 0/2 testes passaram (0.0%)
+2025-08-10 23:20:11,696 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-10 23:20:11,699 - __main__ - INFO - 📊 🔒 Segurança: 0/2 testes passaram (0.0%)
+2025-08-10 23:20:11,699 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-10 23:20:11,702 - __main__ - INFO - 📊 🌐 APIs FastAPI: 0/5 testes passaram (0.0%)
+2025-08-10 23:20:11,702 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-10 23:20:11,702 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-10 23:20:11,704 - __main__ - INFO - 📊 💬 WhatsApp Integration: 0/2 testes passaram (0.0%)
+2025-08-10 23:20:11,704 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-10 23:20:11,750 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-10 23:20:11,750 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-10 23:20:11,769 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-10 23:20:11,769 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-10 23:20:11,956 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-10 23:20:11,956 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-10 23:20:12,095 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-10 23:20:12,095 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-10 23:20:12,098 - __main__ - INFO - 📊 📝 Logs e Auditoria: 1/2 testes passaram (50.0%)
+2025-08-10 23:20:12,098 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-10 23:20:12,099 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-10 23:20:12,099 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-10 23:20:12,104 - __main__ - INFO - 📊 🔍 Health Checks: 0/5 testes passaram (0.0%)
+2025-08-10 23:20:12,106 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-10 23:20:12,111 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(56) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:11:09,304 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:11:09,304 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:11:09,304 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:11:09,326 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:11:09,326 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:11:09,371 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:11:09,371 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:11:09,375 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:11:09,375 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:11:09,400 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-11 00:11:09,400 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:11:10,780 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:11:10,780 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:11:10,780 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:11:12,999 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:11:12,999 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:11:13,053 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:11:13,053 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:11:13,064 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:11:13,064 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:11:13,076 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:11:13,076 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:11:13,721 - __main__ - INFO - 📊 📈 Monitoramento: 2/3 testes passaram (66.7%)
+2025-08-11 00:11:13,721 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:11:13,737 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:11:13,737 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:11:13,737 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-11 00:11:13,737 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:11:14,345 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-11 00:11:14,346 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:11:14,349 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(59) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:11:15,514 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:11:15,514 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-11 00:11:15,514 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:11:15,525 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:11:15,525 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:11:15,538 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-11 00:15:59,872 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:15:59,872 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:15:59,872 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:15:59,883 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:15:59,883 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:15:59,898 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:15:59,898 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:15:59,902 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:15:59,902 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:16:00,951 - __main__ - INFO - 📊 🔒 Segurança: 1/2 testes passaram (50.0%)
+2025-08-11 00:16:00,951 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:16:02,141 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:16:02,141 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:16:02,141 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:16:04,183 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:16:04,183 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:16:04,197 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:16:04,197 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:16:04,209 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:16:04,209 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:16:04,213 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:16:04,213 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:16:05,253 - __main__ - INFO - 📊 📈 Monitoramento: 3/3 testes passaram (100.0%)
+2025-08-11 00:16:05,253 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:16:05,255 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:16:05,255 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:16:05,255 - __main__ - INFO - 📊 💾 Backups: 1/2 testes passaram (50.0%)
+2025-08-11 00:16:05,255 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:16:05,927 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-11 00:16:05,928 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:16:05,930 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(62) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:16:07,017 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:16:07,017 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-11 00:16:07,017 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:16:07,027 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:16:07,028 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:16:07,030 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-11 00:20:52,326 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:20:52,326 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:20:52,326 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:20:52,337 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:20:52,337 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:20:52,351 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:20:52,351 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:20:52,357 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:20:52,357 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:20:52,389 - __main__ - INFO - 📊 🔒 Segurança: 2/2 testes passaram (100.0%)
+2025-08-11 00:20:52,389 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:20:53,904 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:20:53,904 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:20:53,904 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:20:55,989 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:20:55,989 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:20:56,086 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:20:56,086 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:20:56,095 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:20:56,095 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:20:56,099 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:20:56,099 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:20:56,587 - __main__ - INFO - 📊 📈 Monitoramento: 3/3 testes passaram (100.0%)
+2025-08-11 00:20:56,587 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:20:56,588 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:20:56,588 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:20:56,588 - __main__ - INFO - 📊 💾 Backups: 2/2 testes passaram (100.0%)
+2025-08-11 00:20:56,588 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:20:57,218 - __main__ - INFO - 📊 🔍 Health Checks: 4/5 testes passaram (80.0%)
+2025-08-11 00:20:57,219 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:20:57,221 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(65) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:20:58,610 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:20:58,610 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-11 00:20:58,611 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:20:58,622 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:20:58,622 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:20:58,624 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-11 00:22:14,541 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:22:14,541 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:22:14,541 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:22:14,552 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:22:14,552 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:22:14,566 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:22:14,567 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:22:14,570 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:22:14,570 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:22:14,595 - __main__ - INFO - 📊 🔒 Segurança: 2/2 testes passaram (100.0%)
+2025-08-11 00:22:14,595 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:22:15,740 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:22:15,740 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:22:15,740 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:22:17,990 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:22:17,990 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:22:18,122 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:22:18,122 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:22:18,135 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:22:18,135 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:22:18,138 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:22:18,139 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:22:18,653 - __main__ - INFO - 📊 📈 Monitoramento: 3/3 testes passaram (100.0%)
+2025-08-11 00:22:18,653 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:22:18,654 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:22:18,654 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:22:18,655 - __main__ - INFO - 📊 💾 Backups: 2/2 testes passaram (100.0%)
+2025-08-11 00:22:18,655 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:22:19,713 - __main__ - INFO - 📊 🔍 Health Checks: 5/5 testes passaram (100.0%)
+2025-08-11 00:22:19,714 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:22:19,715 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(68) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:22:20,383 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:22:20,383 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-11 00:22:20,383 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:22:20,394 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:22:20,394 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:22:20,396 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-11 00:27:32,639 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:27:32,639 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:27:32,639 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:27:32,785 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:27:32,785 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:27:32,800 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:27:32,800 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:27:32,803 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:27:32,803 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:27:32,829 - __main__ - INFO - 📊 🔒 Segurança: 2/2 testes passaram (100.0%)
+2025-08-11 00:27:32,829 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:27:34,425 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:27:34,425 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:27:34,425 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:27:36,634 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:27:36,634 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:27:36,749 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:27:36,749 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:27:36,764 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:27:36,764 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:27:36,768 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:27:36,768 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:27:37,392 - __main__ - INFO - 📊 📈 Monitoramento: 3/3 testes passaram (100.0%)
+2025-08-11 00:27:37,392 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:27:37,393 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:27:37,394 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:27:37,394 - __main__ - INFO - 📊 💾 Backups: 2/2 testes passaram (100.0%)
+2025-08-11 00:27:37,394 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:27:38,102 - __main__ - INFO - 📊 🔍 Health Checks: 5/5 testes passaram (100.0%)
+2025-08-11 00:27:38,102 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:27:38,104 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(71) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:28:07,042 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:28:07,042 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:28:07,043 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:28:07,053 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:28:07,053 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:28:07,067 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:28:07,067 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:28:07,070 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:28:07,070 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:28:07,096 - __main__ - INFO - 📊 🔒 Segurança: 2/2 testes passaram (100.0%)
+2025-08-11 00:28:07,096 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:28:08,546 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:28:08,546 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:28:08,546 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:28:10,873 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:28:10,873 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:28:10,892 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:28:10,892 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:28:10,899 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:28:10,899 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:28:10,903 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:28:10,903 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:28:11,946 - __main__ - INFO - 📊 📈 Monitoramento: 3/3 testes passaram (100.0%)
+2025-08-11 00:28:11,946 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:28:11,947 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:28:11,947 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:28:11,948 - __main__ - INFO - 📊 💾 Backups: 2/2 testes passaram (100.0%)
+2025-08-11 00:28:11,948 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:28:12,990 - __main__ - INFO - 📊 🔍 Health Checks: 5/5 testes passaram (100.0%)
+2025-08-11 00:28:12,991 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:28:12,993 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(74) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:28:14,028 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:28:14,029 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-11 00:28:14,029 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:28:14,039 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:28:14,039 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:28:14,041 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-11 00:30:37,733 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:30:37,733 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:30:37,733 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:30:37,744 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:30:37,744 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:30:37,760 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:30:37,760 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:30:37,763 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:30:37,763 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:30:37,791 - __main__ - INFO - 📊 🔒 Segurança: 2/2 testes passaram (100.0%)
+2025-08-11 00:30:37,792 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:30:39,243 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:30:39,243 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:30:39,243 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:30:41,331 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:30:41,331 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:30:41,495 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:30:41,495 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:30:41,512 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:30:41,512 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:30:41,515 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:30:41,515 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:30:42,287 - __main__ - INFO - 📊 📈 Monitoramento: 3/3 testes passaram (100.0%)
+2025-08-11 00:30:42,287 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:30:42,288 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:30:42,288 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:30:42,289 - __main__ - INFO - 📊 💾 Backups: 2/2 testes passaram (100.0%)
+2025-08-11 00:30:42,289 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:30:42,602 - __main__ - INFO - 📊 🔍 Health Checks: 5/5 testes passaram (100.0%)
+2025-08-11 00:30:42,603 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:30:42,605 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(77) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:30:45,834 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:30:45,834 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-11 00:30:45,834 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:30:45,845 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:30:45,845 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:30:45,847 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-11 00:32:59,042 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:32:59,042 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:32:59,042 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:32:59,055 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:32:59,055 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:32:59,070 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:32:59,070 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:32:59,075 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:32:59,075 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:32:59,099 - __main__ - INFO - 📊 🔒 Segurança: 2/2 testes passaram (100.0%)
+2025-08-11 00:32:59,099 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:33:00,366 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:33:00,367 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:33:00,367 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:33:02,418 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:33:02,418 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:33:02,424 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:33:02,424 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:33:02,426 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:33:02,426 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:33:02,430 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:33:02,430 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:33:03,131 - __main__ - INFO - 📊 📈 Monitoramento: 3/3 testes passaram (100.0%)
+2025-08-11 00:33:03,131 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:33:03,132 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:33:03,132 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:33:03,132 - __main__ - INFO - 📊 💾 Backups: 2/2 testes passaram (100.0%)
+2025-08-11 00:33:03,133 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:33:04,171 - __main__ - INFO - 📊 🔍 Health Checks: 5/5 testes passaram (100.0%)
+2025-08-11 00:33:04,179 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:33:04,181 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(80) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:33:06,548 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:33:06,548 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-11 00:33:06,548 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:33:06,558 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:33:06,559 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:33:06,561 - __main__ - INFO - ✅ Dados de teste limpos
+2025-08-11 00:34:54,633 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:34:54,633 - __main__ - INFO - 🧪 Iniciando execução de todos os testes...
+2025-08-11 00:34:54,633 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:34:54,644 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:34:54,644 - __main__ - INFO - 🔄 Executando: 🏗️ Infraestrutura
+2025-08-11 00:34:54,660 - __main__ - INFO - 📊 🏗️ Infraestrutura: 3/3 testes passaram (100.0%)
+2025-08-11 00:34:54,660 - __main__ - INFO - 🔄 Executando: ⚙️ Configuração
+2025-08-11 00:34:54,663 - __main__ - INFO - 📊 ⚙️ Configuração: 2/2 testes passaram (100.0%)
+2025-08-11 00:34:54,663 - __main__ - INFO - 🔄 Executando: 🔒 Segurança
+2025-08-11 00:34:54,692 - __main__ - INFO - 📊 🔒 Segurança: 2/2 testes passaram (100.0%)
+2025-08-11 00:34:54,692 - __main__ - INFO - 🔄 Executando: 🌐 APIs FastAPI
+2025-08-11 00:34:56,183 - __main__ - INFO - 📊 🌐 APIs FastAPI: 5/5 testes passaram (100.0%)
+2025-08-11 00:34:56,183 - __main__ - INFO - 🔄 Executando: 💬 WhatsApp Integration
+2025-08-11 00:34:56,183 - __main__ - INFO - Testando webhook com token: dev-webhook-token
+2025-08-11 00:34:58,555 - __main__ - INFO - 📊 💬 WhatsApp Integration: 2/2 testes passaram (100.0%)
+2025-08-11 00:34:58,556 - __main__ - INFO - 🔄 Executando: 📅 Sistema de Agendamentos
+2025-08-11 00:34:58,615 - __main__ - INFO - 📊 📅 Sistema de Agendamentos: 3/3 testes passaram (100.0%)
+2025-08-11 00:34:58,615 - __main__ - INFO - 🔄 Executando: 👥 Gestão de Usuários
+2025-08-11 00:34:58,662 - __main__ - INFO - 📊 👥 Gestão de Usuários: 2/2 testes passaram (100.0%)
+2025-08-11 00:34:58,662 - __main__ - INFO - 🔄 Executando: 📊 Dashboard Streamlit
+2025-08-11 00:34:58,666 - __main__ - INFO - 📊 📊 Dashboard Streamlit: 2/2 testes passaram (100.0%)
+2025-08-11 00:34:58,666 - __main__ - INFO - 🔄 Executando: 📈 Monitoramento
+2025-08-11 00:34:59,691 - __main__ - INFO - 📊 📈 Monitoramento: 3/3 testes passaram (100.0%)
+2025-08-11 00:34:59,691 - __main__ - INFO - 🔄 Executando: 📝 Logs e Auditoria
+2025-08-11 00:34:59,692 - __main__ - INFO - 📊 📝 Logs e Auditoria: 2/2 testes passaram (100.0%)
+2025-08-11 00:34:59,692 - __main__ - INFO - 🔄 Executando: 💾 Backups
+2025-08-11 00:34:59,693 - __main__ - INFO - 📊 💾 Backups: 2/2 testes passaram (100.0%)
+2025-08-11 00:34:59,693 - __main__ - INFO - 🔄 Executando: 🔍 Health Checks
+2025-08-11 00:35:00,434 - __main__ - INFO - 📊 🔍 Health Checks: 5/5 testes passaram (100.0%)
+2025-08-11 00:35:00,434 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:35:00,436 - __main__ - ERROR - ❌ Erro ao limpar dados: update or delete on table "users" violates foreign key constraint "customer_data_collection_user_id_fkey" on table "customer_data_collection"
+DETAIL:  Key (id)=(83) is still referenced from table "customer_data_collection".
+
+2025-08-11 00:40:02,565 - __main__ - INFO - 🚀 Inicializando Suite de Testes Completa - Ambiente: development
+2025-08-11 00:40:02,565 - __main__ - INFO - 🧹 Modo limpeza - removendo dados de teste...
+2025-08-11 00:40:02,565 - __main__ - INFO - 🔧 Configurando ambiente de teste...
+2025-08-11 00:40:02,576 - __main__ - INFO - ✅ Ambiente de teste configurado com sucesso
+2025-08-11 00:40:02,576 - __main__ - INFO - 🧹 Limpando dados de teste...
+2025-08-11 00:40:02,578 - __main__ - INFO - ✅ Dados de teste limpos

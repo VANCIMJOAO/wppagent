@@ -1,0 +1,563 @@
+/* 
+===============================================
+ESTILOS PARA SISTEMA DE RATE LIMITING
+===============================================
+Estilos específicos para a interface de monitoramento
+e controle do sistema de rate limiting
+*/
+
+/* ==================== LAYOUT GERAL ==================== */
+.rate-limit-container {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+}
+
+.rate-limit-header {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(220, 53, 69, 0.2);
+}
+
+.rate-limit-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.rate-limit-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* ==================== CARDS DE ESTATÍSTICAS ==================== */
+.rate-limit-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: 50%;
+    transform: translate(30px, -30px);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.danger {
+    border-left-color: #dc3545;
+    background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+}
+
+.stat-card.warning {
+    border-left-color: #ffc107;
+    background: linear-gradient(135deg, #fff 0%, #fffbf0 100%);
+}
+
+.stat-card.success {
+    border-left-color: #28a745;
+    background: linear-gradient(135deg, #fff 0%, #f0fff4 100%);
+}
+
+.stat-card.info {
+    border-left-color: #17a2b8;
+    background: linear-gradient(135deg, #fff 0%, #f0fcff 100%);
+}
+
+.stat-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+/* ==================== TABELAS ==================== */
+.rate-limit-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.rate-limit-table thead {
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+    color: white;
+}
+
+.rate-limit-table thead th {
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rate-limit-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.rate-limit-table tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+}
+
+.rate-limit-table tbody td {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+/* ==================== BADGES E INDICADORES ==================== */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-critical {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.badge-high {
+    background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(253, 126, 20, 0.3);
+}
+
+.badge-medium {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #333;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.badge-low {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.badge-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #333;
+}
+
+.badge-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+    color: white;
+}
+
+/* ==================== IPS BLOQUEADOS ==================== */
+.blocked-ips-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.blocked-ips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.blocked-ip-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.blocked-ip-item:hover {
+    background: linear-gradient(135deg, #f8d7da 0%, #fff5f5 100%);
+    transform: translateX(5px);
+}
+
+.blocked-ip-item code {
+    background: #e9ecef;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+}
+
+/* ==================== BOTÕES DE AÇÃO ==================== */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.action-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.6s ease;
+}
+
+.action-button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-clear {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #333;
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.btn-export {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+}
+
+/* ==================== ALERTAS E NOTIFICAÇÕES ==================== */
+.rate-limit-alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.rate-limit-alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    animation: alertShimmer 2s infinite;
+}
+
+@keyframes alertShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-left-color: #28a745;
+    color: #155724;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-left-color: #ffc107;
+    color: #856404;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-left-color: #dc3545;
+    color: #721c24;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border-left-color: #17a2b8;
+    color: #0c5460;
+}
+
+/* ==================== GRÁFICOS E MÉTRICAS ==================== */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.metric-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.metric-icon {
+    font-size: 1.5rem;
+    color: #6c757d;
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 768px) {
+    .rate-limit-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-button {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .rate-limit-header h1 {
+        font-size: 2rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .rate-limit-container {
+        padding: 1rem;
+    }
+    
+    .rate-limit-header {
+        padding: 1.5rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+}
+
+/* ==================== ANIMAÇÕES ==================== */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+/* ==================== DARK MODE (OPCIONAL) ==================== */
+@media (prefers-color-scheme: dark) {
+    .rate-limit-container {
+        background: linear-gradient(135deg, #212529 0%, #343a40 100%);
+        color: #fff;
+    }
+    
+    .stat-card {
+        background: #2b3035;
+        color: #fff;
+    }
+    
+    .rate-limit-table {
+        background: #2b3035;
+        color: #fff;
+    }
+    
+    .rate-limit-table tbody tr:hover {
+        background-color: #343a40;
+    }
+    
+    .blocked-ip-item {
+        background: linear-gradient(135deg, #2b3035 0%, #343a40 100%);
+        border-color: #495057;
+        color: #fff;
+    }
+    
+    .blocked-ip-item code {
+        background: #495057;
+        color: #fff;
+    }
+}
+
+/* ==================== UTILIDADES ==================== */
+.text-monospace {
+    font-family: 'JetBrains Mono', monospace !important;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-soft {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.border-radius-lg {
+    border-radius: 12px !important;
+}
+
+.border-radius-xl {
+    border-radius: 20px !important;
+}
+
+/* ==================== LOADING STATES ==================== */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

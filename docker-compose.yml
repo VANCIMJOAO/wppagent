@@ -1,0 +1,184 @@
+version: '3.8'
+
+# 🔒 SEGURANÇA: Network Segmentation
+networks:
+  # Rede frontend - apenas nginx e serviços expostos
+  frontend_network:
+    driver: bridge
+  
+  # Rede backend - aplicações internas
+  backend_network:
+    driver: bridge
+  
+  # Rede database - apenas banco de dados
+  database_network:
+    driver: bridge
+    internal: true  # Sem acesso à internet
+
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: whatsapp_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-whatsapp_agent}
+      POSTGRES_USER: ${DB_USER:-vancimj}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_this_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups/database:/backups
+    networks:
+      - database_network
+    restart: unless-stopped
+    # 🔒 SEGURANÇA: Sem exposição de porta externa
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-vancimj} -d ${DB_NAME:-whatsapp_agent}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis para cache e sessões
+  redis:
+    image: redis:7-alpine
+    container_name: whatsapp_redis
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend_network
+    restart: unless-stopped
+    # 🔒 SEGURANÇA: Sem exposição de porta externa
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # 🔒 SEGURANÇA: Aplicação FastAPI (não-root)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatsapp_app
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-vancimj}:${DB_PASSWORD:-change_this_password}@postgres:5432/${DB_NAME:-whatsapp_agent}
+      - REDIS_URL=redis://redis:6379/0
+      - FASTAPI_ENV=production
+    volumes:
+      - ./logs:/home/appuser/app/logs
+      - ./backups:/home/appuser/app/backups
+      - ./config:/home/appuser/app/config
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend_network
+      - database_network
+    restart: unless-stopped
+    # 🔒 SEGURANÇA: Sem exposição de porta externa
+    healthcheck:
+      test: ["CMD", "python", "/home/whatsapp/app/docker_health_check.py"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # 🔒 SEGURANÇA: Dashboard Dash (não-root)
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dash
+    container_name: whatsapp_dashboard
+    ports:
+      - "8050:8050"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-vancimj}:${DB_PASSWORD:-change_this_password}@postgres:5432/${DB_NAME:-whatsapp_agent}
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./logs:/home/dashuser/app/logs
+    networks:
+      - backend_network
+      - database_network
+    restart: unless-stopped
+    # 🔒 SEGURANÇA: Sem exposição de porta externa
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8050/"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # 🔒 SEGURANÇA: Nginx Proxy Reverso (único ponto de entrada)
+  nginx:
+    image: nginx:alpine
+    container_name: whatsapp_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - app
+      - dashboard
+    networks:
+      - frontend_network
+      - backend_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Prometheus para monitoramento
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: whatsapp_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - backend_network
+    restart: unless-stopped
+    # 🔒 SEGURANÇA: Sem exposição de porta externa
+
+  # Grafana para visualização
+  grafana:
+    image: grafana/grafana:latest
+    container_name: whatsapp_grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-os.getenv("ADMIN_PASSWORD", "SECURE_ADMIN_PASSWORD")}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - backend_network
+    restart: unless-stopped
+    # 🔒 SEGURANÇA: Sem exposição de porta externa
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local

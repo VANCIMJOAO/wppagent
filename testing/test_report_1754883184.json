@@ -1,0 +1,459 @@
+{
+  "timestamp": "2025-08-11T00:33:04.178398",
+  "environment": "development",
+  "duration_seconds": 5.136354,
+  "summary": {
+    "total_tests": 33,
+    "passed_tests": 33,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  },
+  "suites": [
+    {
+      "name": "🏗️ Infraestrutura",
+      "total_tests": 3,
+      "passed_tests": 3,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Docker Containers",
+          "status": "✅",
+          "duration": 0.008025884628295898,
+          "message": "Todos os containers estão rodando: ['whatsapp_nginx', 'whatsapp_dashboard', 'whatsapp_app', 'whatsapp_postgres', 'whatsapp_prometheus', 'whatsapp_redis', 'whatsapp_grafana']",
+          "details": {
+            "containers": [
+              "whatsapp_nginx",
+              "whatsapp_dashboard",
+              "whatsapp_app",
+              "whatsapp_postgres",
+              "whatsapp_prometheus",
+              "whatsapp_redis",
+              "whatsapp_grafana"
+            ]
+          }
+        },
+        {
+          "name": "Database Schema",
+          "status": "✅",
+          "duration": 0.005051374435424805,
+          "message": "Schema válido com 17 tabelas",
+          "details": {
+            "version": "PostgreSQL 15.13 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit",
+            "tables": 17
+          }
+        },
+        {
+          "name": "Redis Cache",
+          "status": "✅",
+          "duration": 0.0009744167327880859,
+          "message": "Redis funcionando corretamente",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "name": "⚙️ Configuração",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Configuration System",
+          "status": "✅",
+          "duration": 0.0016396045684814453,
+          "message": "Sistema de configuração funcionando",
+          "details": {
+            "system_active": true,
+            "strategies_count": 4,
+            "global_metrics": {
+              "total_requests": 0,
+              "successful_requests": 0,
+              "failed_requests": 0,
+              "response_times": [],
+              "strategy_usage": {}
+            },
+            "config": {
+              "cache_enabled": true,
+              "fallback_strategy": "hybrid",
+              "max_response_time": 30.0,
+              "enable_metrics": true
+            },
+            "status": "degraded",
+            "warning": "Taxa de sucesso baixa: 0.00%"
+          }
+        },
+        {
+          "name": "Secrets Management",
+          "status": "✅",
+          "duration": 0.003185749053955078,
+          "message": "Sistema de secrets funcionando",
+          "details": {
+            "system_active": true,
+            "strategies_count": 4,
+            "global_metrics": {
+              "total_requests": 0,
+              "successful_requests": 0,
+              "failed_requests": 0,
+              "response_times": [],
+              "strategy_usage": {}
+            },
+            "config": {
+              "cache_enabled": true,
+              "fallback_strategy": "hybrid",
+              "max_response_time": 30.0,
+              "enable_metrics": true
+            },
+            "status": "degraded",
+            "warning": "Taxa de sucesso baixa: 0.00%"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔒 Segurança",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Rate Limiting",
+          "status": "✅",
+          "duration": 0.023421049118041992,
+          "message": "Rate limiting desabilitado em desenvolvimento (esperado)",
+          "details": {}
+        },
+        {
+          "name": "Authentication",
+          "status": "✅",
+          "duration": 0.0010573863983154297,
+          "message": "Endpoints protegidos corretamente",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "name": "🌐 APIs FastAPI",
+      "total_tests": 5,
+      "passed_tests": 5,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "API Health Check",
+          "status": "✅",
+          "duration": 0.0010249614715576172,
+          "message": "HTTP 200",
+          "details": {
+            "status_code": 200
+          }
+        },
+        {
+          "name": "API Detailed Health",
+          "status": "✅",
+          "duration": 0.6416354179382324,
+          "message": "Healthy para desenvolvimento (algumas APIs externas indisponíveis)",
+          "details": {
+            "status_code": 503
+          }
+        },
+        {
+          "name": "API Root Endpoint",
+          "status": "✅",
+          "duration": 0.0012922286987304688,
+          "message": "HTTP 200",
+          "details": {
+            "status_code": 200
+          }
+        },
+        {
+          "name": "API API Documentation",
+          "status": "✅",
+          "duration": 0.0011513233184814453,
+          "message": "HTTP 200",
+          "details": {
+            "status_code": 200
+          }
+        },
+        {
+          "name": "API Prometheus Metrics",
+          "status": "✅",
+          "duration": 0.6216881275177002,
+          "message": "HTTP 200",
+          "details": {
+            "status_code": 200
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 WhatsApp Integration",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Webhook Verification",
+          "status": "✅",
+          "duration": 0.0017712116241455078,
+          "message": "Webhook verification funcionando",
+          "details": {}
+        },
+        {
+          "name": "Message Processing",
+          "status": "✅",
+          "duration": 2.049135208129883,
+          "message": "Mensagem processada e salva no DB",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "name": "📅 Sistema de Agendamentos",
+      "total_tests": 3,
+      "passed_tests": 3,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Create Appointment",
+          "status": "✅",
+          "duration": 0.0043146610260009766,
+          "message": "Agendamento criado: ID 27",
+          "details": {
+            "appointment_id": 27,
+            "user_id": 79
+          }
+        },
+        {
+          "name": "Update Appointment",
+          "status": "✅",
+          "duration": 0.0007379055023193359,
+          "message": "Status atualizado para confirmed",
+          "details": {}
+        },
+        {
+          "name": "Cancel Appointment",
+          "status": "✅",
+          "duration": 0.0010352134704589844,
+          "message": "Agendamento cancelado com sucesso",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "name": "👥 Gestão de Usuários",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Create User",
+          "status": "✅",
+          "duration": 0.0005741119384765625,
+          "message": "Usuário criado: ID 80",
+          "details": {
+            "user_id": 80,
+            "wa_id": "test_wa_1754883182"
+          }
+        },
+        {
+          "name": "User Data Collection",
+          "status": "✅",
+          "duration": 0.0013933181762695312,
+          "message": "Coleta de dados registrada: ID 27",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "name": "📊 Dashboard Streamlit",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Dashboard Access",
+          "status": "✅",
+          "duration": 0.0017962455749511719,
+          "message": "Dashboard acessível",
+          "details": {}
+        },
+        {
+          "name": "Dashboard Health",
+          "status": "✅",
+          "duration": 0.0016112327575683594,
+          "message": "Dashboard health OK",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "name": "📈 Monitoramento",
+      "total_tests": 3,
+      "passed_tests": 3,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Prometheus Monitoring",
+          "status": "✅",
+          "duration": 0.0013098716735839844,
+          "message": "Prometheus funcionando",
+          "details": {}
+        },
+        {
+          "name": "Grafana Dashboard",
+          "status": "✅",
+          "duration": 0.0010802745819091797,
+          "message": "Grafana acessível",
+          "details": {}
+        },
+        {
+          "name": "Application Metrics",
+          "status": "✅",
+          "duration": 0.6982886791229248,
+          "message": "Métricas da aplicação disponíveis",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "name": "📝 Logs e Auditoria",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Log Files",
+          "status": "✅",
+          "duration": 0.0002903938293457031,
+          "message": "Encontrados 13 arquivos de log",
+          "details": {
+            "log_files": 13
+          }
+        },
+        {
+          "name": "Database Logs",
+          "status": "✅",
+          "duration": 0.0008609294891357422,
+          "message": "8 logs recentes no banco",
+          "details": {
+            "recent_logs": 8
+          }
+        }
+      ]
+    },
+    {
+      "name": "💾 Backups",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Backup Structure",
+          "status": "✅",
+          "duration": 0.0002219676971435547,
+          "message": "Estrutura de backup OK, 39 arquivos",
+          "details": {
+            "backup_files": 39
+          }
+        },
+        {
+          "name": "Backup Scripts",
+          "status": "✅",
+          "duration": 1.3828277587890625e-05,
+          "message": "Scripts de backup encontrados",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "name": "🔍 Health Checks",
+      "total_tests": 5,
+      "passed_tests": 5,
+      "failed_tests": 0,
+      "success_rate": 100.0,
+      "tests": [
+        {
+          "name": "Health Basic Health",
+          "status": "✅",
+          "duration": 0.0013592243194580078,
+          "message": "Status: healthy",
+          "details": {
+            "status": "healthy",
+            "timestamp": "2025-08-11T00:33:03.134034",
+            "service": "WhatsApp Agent API"
+          }
+        },
+        {
+          "name": "Health Detailed Health",
+          "status": "✅",
+          "duration": 1.0294020175933838,
+          "message": "Healthy para desenvolvimento",
+          "details": {
+            "endpoint": "/health/detailed"
+          }
+        },
+        {
+          "name": "Health Database Health",
+          "status": "✅",
+          "duration": 0.004878997802734375,
+          "message": "Status: healthy",
+          "details": {
+            "status": "healthy",
+            "response_time_ms": 3.23,
+            "database_size_mb": "8.87",
+            "active_connections": 1,
+            "timestamp": "now"
+          }
+        },
+        {
+          "name": "Health Redis Health",
+          "status": "✅",
+          "duration": 0.0013608932495117188,
+          "message": "Status: healthy",
+          "details": {
+            "status": "healthy",
+            "healthy": true,
+            "cache_type": "Memory",
+            "redis_connected": false,
+            "timestamp": "2025-08-11T00:33:04.169681"
+          }
+        },
+        {
+          "name": "Health External APIs Health",
+          "status": "✅",
+          "duration": 0.001277923583984375,
+          "message": "Status: degraded (esperado em desenvolvimento sem requisições)",
+          "details": {
+            "system_active": true,
+            "strategies_count": 4,
+            "global_metrics": {
+              "total_requests": 0,
+              "successful_requests": 0,
+              "failed_requests": 0,
+              "response_times": [],
+              "strategy_usage": {}
+            },
+            "config": {
+              "cache_enabled": true,
+              "fallback_strategy": "hybrid",
+              "max_response_time": 30.0,
+              "enable_metrics": true
+            },
+            "status": "degraded",
+            "warning": "Taxa de sucesso baixa: 0.00%"
+          }
+        }
+      ]
+    }
+  ]
+}
