@@ -108,11 +108,31 @@ class DatabaseOptimizer:
     async def initialize(self):
         """Inicializa o otimizador com engine otimizado"""
         try:
+            # Obter DATABASE_URL com fallback para asyncpg
+            import os
+            database_url = os.getenv('DATABASE_URL')
+            if not database_url:
+                # Construir URL a partir de variáveis individuais
+                db_host = os.getenv('PGHOST', 'localhost')
+                db_port = os.getenv('PGPORT', '5432')
+                db_name = os.getenv('PGDATABASE', 'whatsapp_agent')
+                db_user = os.getenv('PGUSER', 'postgres')
+                db_pass = os.getenv('PGPASSWORD', '')
+                database_url = f"postgresql+asyncpg://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
+            else:
+                # Garantir que usa asyncpg
+                if database_url.startswith('postgresql://'):
+                    database_url = database_url.replace('postgresql://', 'postgresql+asyncpg://', 1)
+                elif database_url.startswith('postgres://'):
+                    database_url = database_url.replace('postgres://', 'postgresql+asyncpg://', 1)
+            
+            logger.info(f"DatabaseOptimizer usando: {database_url.split('@')[0] if '@' in database_url else 'Invalid URL'}@***")
+            
             # Criar engine otimizado
             self.optimized_engine = create_async_engine(
-                settings.database_url,
+                database_url,
                 **self.pool_config,
-                echo=settings.debug
+                echo=False  # Reduzir logs
             )
             
             # Session factory otimizada
