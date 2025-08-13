@@ -658,7 +658,7 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
                 message_type="text",
                 metadata={
                     "processing_system": "advanced_llm",
-                    "llm_confidence": response.get("confidence", 0),
+                    "llm_confidence": response.confidence if response else 0,
                     "processing_time": processing_time,
                     "sanitized": True
                 }
