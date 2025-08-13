@@ -65,7 +65,7 @@ class WhatsAppSecurityService:
         
     def validate_webhook_signature(self, payload: bytes, signature: str) -> bool:
         """
-        Valida a assinatura do webhook do WhatsApp
+        Validar assinatura do webhook WhatsApp
         
         Args:
             payload: Payload bruto do webhook
@@ -74,13 +74,7 @@ class WhatsAppSecurityService:
         Returns:
             bool: True se assinatura for válida
         """
-        # TEMPORÁRIO: Desabilitar validação de assinatura devido a mismatch de webhook secret
-        # TODO: Configurar o webhook secret correto no Meta Developers Console
-        logger.warning("🚨 Validação de assinatura temporariamente DESABILITADA")
-        logger.info(f"🔍 Signature info - Received: {signature[:20]}..., Secret configured: {bool(self.webhook_secret)}")
-        return True
-        
-        # Código original (reativar após configurar secret correto):
+        # Verificar se temos o webhook secret configurado
         if not self.webhook_secret:
             logger.warning("🔶 WHATSAPP_WEBHOOK_SECRET não configurado - validação de assinatura desabilitada")
             return True

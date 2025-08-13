@@ -205,10 +205,15 @@ async def health_check():
 @app.head("/health")
 async def health_check_head():
     """Endpoint HEAD para health check (usado pelo Railway)"""
-    return Response(status_code=200, headers={
-        "Content-Type": "application/json",
-        "Content-Length": "92"
-    })
+    # HEAD request não deve retornar body, apenas headers
+    return Response(
+        status_code=200, 
+        headers={
+            "Content-Type": "application/json",
+            "Content-Length": "92",
+            "X-Health-Status": "healthy"
+        }
+    )
 
 
 @app.get("/health/detailed")
