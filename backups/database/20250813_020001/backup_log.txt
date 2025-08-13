@@ -1,0 +1,302 @@
+pg_dump: last built-in OID is 16383
+pg_dump: reading extensions
+pg_dump: identifying extension members
+pg_dump: reading schemas
+pg_dump: reading user-defined tables
+pg_dump: reading user-defined functions
+pg_dump: reading user-defined types
+pg_dump: reading procedural languages
+pg_dump: reading user-defined aggregate functions
+pg_dump: reading user-defined operators
+pg_dump: reading user-defined access methods
+pg_dump: reading user-defined operator classes
+pg_dump: reading user-defined operator families
+pg_dump: reading user-defined text search parsers
+pg_dump: reading user-defined text search templates
+pg_dump: reading user-defined text search dictionaries
+pg_dump: reading user-defined text search configurations
+pg_dump: reading user-defined foreign-data wrappers
+pg_dump: reading user-defined foreign servers
+pg_dump: reading default privileges
+pg_dump: reading user-defined collations
+pg_dump: reading user-defined conversions
+pg_dump: reading type casts
+pg_dump: reading transforms
+pg_dump: reading table inheritance information
+pg_dump: reading event triggers
+pg_dump: finding extension tables
+pg_dump: finding inheritance relationships
+pg_dump: reading column info for interesting tables
+pg_dump: finding table default expressions
+pg_dump: finding table check constraints
+pg_dump: flagging inherited columns in subtables
+pg_dump: reading partitioning data
+pg_dump: reading indexes
+pg_dump: flagging indexes in partitioned tables
+pg_dump: reading extended statistics
+pg_dump: reading constraints
+pg_dump: reading triggers
+pg_dump: reading rewrite rules
+pg_dump: reading policies
+pg_dump: reading row-level security policies
+pg_dump: reading publications
+pg_dump: reading publication membership of tables
+pg_dump: reading publication membership of schemas
+pg_dump: reading subscriptions
+pg_dump: reading large objects
+pg_dump: reading dependency data
+pg_dump: saving encoding = UTF8
+pg_dump: saving standard_conforming_strings = on
+pg_dump: saving search_path = 
+pg_dump: saving database definition
+pg_dump: dropping DATABASE whats_agent
+pg_dump: creating DATABASE "whats_agent"
+pg_dump: connecting to new database "whats_agent"
+pg_dump: creating FUNCTION "public.auto_optimize_database()"
+pg_dump: creating FUNCTION "public.backup_critical_conversations(text)"
+pg_dump: creating FUNCTION "public.cleanup_old_data(integer)"
+pg_dump: creating FUNCTION "public.get_conversation_analytics(date, date)"
+pg_dump: creating FUNCTION "public.get_performance_stats()"
+pg_dump: creating TABLE "public.admin_users"
+pg_dump: creating SEQUENCE "public.admin_users_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.admin_users_id_seq"
+pg_dump: creating TABLE "public.admins"
+pg_dump: creating SEQUENCE "public.admins_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.admins_id_seq"
+pg_dump: creating TABLE "public.alembic_version"
+pg_dump: creating TABLE "public.appointments"
+pg_dump: creating SEQUENCE "public.appointments_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.appointments_id_seq"
+pg_dump: creating TABLE "public.available_slots"
+pg_dump: creating SEQUENCE "public.available_slots_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.available_slots_id_seq"
+pg_dump: creating TABLE "public.blocked_times"
+pg_dump: creating SEQUENCE "public.blocked_times_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.blocked_times_id_seq"
+pg_dump: creating TABLE "public.bot_configurations"
+pg_dump: creating SEQUENCE "public.bot_configurations_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.bot_configurations_id_seq"
+pg_dump: creating TABLE "public.business_hours"
+pg_dump: creating COMMENT "public.TABLE business_hours"
+pg_dump: creating SEQUENCE "public.business_hours_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.business_hours_id_seq"
+pg_dump: creating TABLE "public.business_policies"
+pg_dump: creating COMMENT "public.TABLE business_policies"
+pg_dump: creating SEQUENCE "public.business_policies_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.business_policies_id_seq"
+pg_dump: creating TABLE "public.businesses"
+pg_dump: creating SEQUENCE "public.businesses_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.businesses_id_seq"
+pg_dump: creating TABLE "public.company_info"
+pg_dump: creating SEQUENCE "public.company_info_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.company_info_id_seq"
+pg_dump: creating TABLE "public.conversation_contexts"
+pg_dump: creating SEQUENCE "public.conversation_contexts_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.conversation_contexts_id_seq"
+pg_dump: creating TABLE "public.conversations"
+pg_dump: creating SEQUENCE "public.conversations_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.conversations_id_seq"
+pg_dump: creating TABLE "public.customer_data_collection"
+pg_dump: creating SEQUENCE "public.customer_data_collection_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.customer_data_collection_id_seq"
+pg_dump: creating TABLE "public.login_sessions"
+pg_dump: creating SEQUENCE "public.login_sessions_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.login_sessions_id_seq"
+pg_dump: creating TABLE "public.message_templates"
+pg_dump: creating SEQUENCE "public.message_templates_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.message_templates_id_seq"
+pg_dump: creating TABLE "public.messages"
+pg_dump: creating SEQUENCE "public.messages_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.messages_id_seq"
+pg_dump: creating TABLE "public.meta_logs"
+pg_dump: creating SEQUENCE "public.meta_logs_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.meta_logs_id_seq"
+pg_dump: creating TABLE "public.payment_methods"
+pg_dump: creating COMMENT "public.TABLE payment_methods"
+pg_dump: creating SEQUENCE "public.payment_methods_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.payment_methods_id_seq"
+pg_dump: creating TABLE "public.services"
+pg_dump: creating SEQUENCE "public.services_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.services_id_seq"
+pg_dump: creating TABLE "public.users"
+pg_dump: creating SEQUENCE "public.users_id_seq"
+pg_dump: creating SEQUENCE OWNED BY "public.users_id_seq"
+pg_dump: creating DEFAULT "public.admin_users id"
+pg_dump: creating DEFAULT "public.admins id"
+pg_dump: creating DEFAULT "public.appointments id"
+pg_dump: creating DEFAULT "public.available_slots id"
+pg_dump: creating DEFAULT "public.blocked_times id"
+pg_dump: creating DEFAULT "public.bot_configurations id"
+pg_dump: creating DEFAULT "public.business_hours id"
+pg_dump: creating DEFAULT "public.business_policies id"
+pg_dump: creating DEFAULT "public.businesses id"
+pg_dump: creating DEFAULT "public.company_info id"
+pg_dump: creating DEFAULT "public.conversation_contexts id"
+pg_dump: creating DEFAULT "public.conversations id"
+pg_dump: creating DEFAULT "public.customer_data_collection id"
+pg_dump: creating DEFAULT "public.login_sessions id"
+pg_dump: creating DEFAULT "public.message_templates id"
+pg_dump: creating DEFAULT "public.messages id"
+pg_dump: creating DEFAULT "public.meta_logs id"
+pg_dump: creating DEFAULT "public.payment_methods id"
+pg_dump: creating DEFAULT "public.services id"
+pg_dump: creating DEFAULT "public.users id"
+pg_dump: processing data for table "public.admin_users"
+pg_dump: dumping contents of table "public.admin_users"
+pg_dump: processing data for table "public.admins"
+pg_dump: dumping contents of table "public.admins"
+pg_dump: processing data for table "public.alembic_version"
+pg_dump: dumping contents of table "public.alembic_version"
+pg_dump: processing data for table "public.appointments"
+pg_dump: dumping contents of table "public.appointments"
+pg_dump: processing data for table "public.available_slots"
+pg_dump: dumping contents of table "public.available_slots"
+pg_dump: processing data for table "public.blocked_times"
+pg_dump: dumping contents of table "public.blocked_times"
+pg_dump: processing data for table "public.bot_configurations"
+pg_dump: dumping contents of table "public.bot_configurations"
+pg_dump: processing data for table "public.business_hours"
+pg_dump: dumping contents of table "public.business_hours"
+pg_dump: processing data for table "public.business_policies"
+pg_dump: dumping contents of table "public.business_policies"
+pg_dump: processing data for table "public.businesses"
+pg_dump: dumping contents of table "public.businesses"
+pg_dump: processing data for table "public.company_info"
+pg_dump: dumping contents of table "public.company_info"
+pg_dump: processing data for table "public.conversation_contexts"
+pg_dump: dumping contents of table "public.conversation_contexts"
+pg_dump: processing data for table "public.conversations"
+pg_dump: dumping contents of table "public.conversations"
+pg_dump: processing data for table "public.customer_data_collection"
+pg_dump: dumping contents of table "public.customer_data_collection"
+pg_dump: processing data for table "public.login_sessions"
+pg_dump: dumping contents of table "public.login_sessions"
+pg_dump: processing data for table "public.message_templates"
+pg_dump: dumping contents of table "public.message_templates"
+pg_dump: processing data for table "public.messages"
+pg_dump: dumping contents of table "public.messages"
+pg_dump: processing data for table "public.meta_logs"
+pg_dump: dumping contents of table "public.meta_logs"
+pg_dump: processing data for table "public.payment_methods"
+pg_dump: dumping contents of table "public.payment_methods"
+pg_dump: processing data for table "public.services"
+pg_dump: dumping contents of table "public.services"
+pg_dump: processing data for table "public.users"
+pg_dump: dumping contents of table "public.users"
+pg_dump: executing SEQUENCE SET admin_users_id_seq
+pg_dump: executing SEQUENCE SET admins_id_seq
+pg_dump: executing SEQUENCE SET appointments_id_seq
+pg_dump: executing SEQUENCE SET available_slots_id_seq
+pg_dump: executing SEQUENCE SET blocked_times_id_seq
+pg_dump: executing SEQUENCE SET bot_configurations_id_seq
+pg_dump: executing SEQUENCE SET business_hours_id_seq
+pg_dump: executing SEQUENCE SET business_policies_id_seq
+pg_dump: executing SEQUENCE SET businesses_id_seq
+pg_dump: executing SEQUENCE SET company_info_id_seq
+pg_dump: executing SEQUENCE SET conversation_contexts_id_seq
+pg_dump: executing SEQUENCE SET conversations_id_seq
+pg_dump: executing SEQUENCE SET customer_data_collection_id_seq
+pg_dump: executing SEQUENCE SET login_sessions_id_seq
+pg_dump: executing SEQUENCE SET message_templates_id_seq
+pg_dump: executing SEQUENCE SET messages_id_seq
+pg_dump: executing SEQUENCE SET meta_logs_id_seq
+pg_dump: executing SEQUENCE SET payment_methods_id_seq
+pg_dump: executing SEQUENCE SET services_id_seq
+pg_dump: executing SEQUENCE SET users_id_seq
+pg_dump: creating CONSTRAINT "public.admin_users admin_users_pkey"
+pg_dump: creating CONSTRAINT "public.admins admins_email_key"
+pg_dump: creating CONSTRAINT "public.admins admins_pkey"
+pg_dump: creating CONSTRAINT "public.admins admins_username_key"
+pg_dump: creating CONSTRAINT "public.alembic_version alembic_version_pkc"
+pg_dump: creating CONSTRAINT "public.appointments appointments_pkey"
+pg_dump: creating CONSTRAINT "public.available_slots available_slots_pkey"
+pg_dump: creating CONSTRAINT "public.blocked_times blocked_times_pkey"
+pg_dump: creating CONSTRAINT "public.bot_configurations bot_configurations_pkey"
+pg_dump: creating CONSTRAINT "public.business_hours business_hours_pkey"
+pg_dump: creating CONSTRAINT "public.business_policies business_policies_pkey"
+pg_dump: creating CONSTRAINT "public.businesses businesses_pkey"
+pg_dump: creating CONSTRAINT "public.company_info company_info_pkey"
+pg_dump: creating CONSTRAINT "public.conversation_contexts conversation_contexts_pkey"
+pg_dump: creating CONSTRAINT "public.conversations conversations_pkey"
+pg_dump: creating CONSTRAINT "public.customer_data_collection customer_data_collection_pkey"
+pg_dump: creating CONSTRAINT "public.login_sessions login_sessions_pkey"
+pg_dump: creating CONSTRAINT "public.message_templates message_templates_pkey"
+pg_dump: creating CONSTRAINT "public.messages messages_pkey"
+pg_dump: creating CONSTRAINT "public.meta_logs meta_logs_pkey"
+pg_dump: creating CONSTRAINT "public.payment_methods payment_methods_pkey"
+pg_dump: creating CONSTRAINT "public.services services_pkey"
+pg_dump: creating CONSTRAINT "public.users users_pkey"
+pg_dump: creating INDEX "public.idx_admin_users_username"
+pg_dump: creating INDEX "public.idx_admin_users_username_active"
+pg_dump: creating INDEX "public.idx_appointments_datetime_status"
+pg_dump: creating INDEX "public.idx_appointments_service_date"
+pg_dump: creating INDEX "public.idx_appointments_status_created"
+pg_dump: creating INDEX "public.idx_business_hours_business_day"
+pg_dump: creating INDEX "public.idx_business_policies_business_type"
+pg_dump: creating INDEX "public.idx_conversations_last_message"
+pg_dump: creating INDEX "public.idx_conversations_status_updated"
+pg_dump: creating INDEX "public.idx_conversations_user_created"
+pg_dump: creating INDEX "public.idx_conversations_user_status"
+pg_dump: creating INDEX "public.idx_login_sessions_admin_expires"
+pg_dump: creating INDEX "public.idx_messages_content_search"
+pg_dump: creating INDEX "public.idx_messages_created_at"
+pg_dump: creating INDEX "public.idx_messages_direction"
+pg_dump: creating INDEX "public.idx_messages_user_conversation"
+pg_dump: creating INDEX "public.idx_meta_logs_created_at"
+pg_dump: creating INDEX "public.idx_meta_logs_created_direction"
+pg_dump: creating INDEX "public.idx_meta_logs_endpoint_status"
+pg_dump: creating INDEX "public.idx_meta_logs_error_analysis"
+pg_dump: creating INDEX "public.idx_payment_methods_business"
+pg_dump: creating INDEX "public.idx_test_optimization"
+pg_dump: creating INDEX "public.idx_users_created_at"
+pg_dump: creating INDEX "public.idx_users_email"
+pg_dump: creating INDEX "public.idx_users_telefone"
+pg_dump: creating INDEX "public.idx_users_wa_id"
+pg_dump: creating INDEX "public.ix_admin_users_email"
+pg_dump: creating INDEX "public.ix_admin_users_id"
+pg_dump: creating INDEX "public.ix_admin_users_username"
+pg_dump: creating INDEX "public.ix_admins_id"
+pg_dump: creating INDEX "public.ix_appointments_date_time"
+pg_dump: creating INDEX "public.ix_appointments_id"
+pg_dump: creating INDEX "public.ix_appointments_status"
+pg_dump: creating INDEX "public.ix_available_slots_id"
+pg_dump: creating INDEX "public.ix_blocked_times_id"
+pg_dump: creating INDEX "public.ix_bot_configurations_id"
+pg_dump: creating INDEX "public.ix_businesses_id"
+pg_dump: creating INDEX "public.ix_company_info_id"
+pg_dump: creating INDEX "public.ix_conversation_contexts_id"
+pg_dump: creating INDEX "public.ix_conversations_id"
+pg_dump: creating INDEX "public.ix_conversations_last_message_at"
+pg_dump: creating INDEX "public.ix_conversations_status"
+pg_dump: creating INDEX "public.ix_customer_data_collection_id"
+pg_dump: creating INDEX "public.ix_login_sessions_id"
+pg_dump: creating INDEX "public.ix_login_sessions_session_token"
+pg_dump: creating INDEX "public.ix_message_templates_id"
+pg_dump: creating INDEX "public.ix_messages_created_at"
+pg_dump: creating INDEX "public.ix_messages_direction"
+pg_dump: creating INDEX "public.ix_messages_id"
+pg_dump: creating INDEX "public.ix_messages_message_id"
+pg_dump: creating INDEX "public.ix_messages_message_type"
+pg_dump: creating INDEX "public.ix_meta_logs_id"
+pg_dump: creating INDEX "public.ix_services_id"
+pg_dump: creating INDEX "public.ix_users_id"
+pg_dump: creating INDEX "public.ix_users_wa_id"
+pg_dump: creating FK CONSTRAINT "public.appointments appointments_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.appointments appointments_service_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.appointments appointments_user_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.available_slots available_slots_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.available_slots available_slots_service_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.blocked_times blocked_times_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.bot_configurations bot_configurations_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.business_hours business_hours_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.business_policies business_policies_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.company_info company_info_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.conversation_contexts conversation_contexts_conversation_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.conversations conversations_user_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.customer_data_collection customer_data_collection_user_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.login_sessions login_sessions_admin_user_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.message_templates message_templates_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.messages messages_conversation_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.messages messages_user_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.payment_methods payment_methods_business_id_fkey"
+pg_dump: creating FK CONSTRAINT "public.services services_business_id_fkey"

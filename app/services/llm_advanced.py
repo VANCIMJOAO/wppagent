@@ -695,7 +695,30 @@ class AdvancedLLMService:
     """Serviço LLM Avançado e Estruturado"""
     
     def __init__(self):
-        self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
+        # Configuração do cliente OpenAI com fallback robusto
+        try:
+            api_key = settings.openai_api_key
+            if not api_key or len(str(api_key)) < 20:
+                # Fallback direto para variável de ambiente
+                import os
+                api_key = os.getenv('OPENAI_API_KEY')
+                logger.warning("🔄 Usando fallback para OPENAI_API_KEY da variável de ambiente")
+            
+            if not api_key:
+                raise ValueError("OpenAI API key não encontrada")
+                
+            self.client = openai.AsyncOpenAI(api_key=api_key)
+            logger.info(f"✅ Cliente OpenAI inicializado com sucesso (key: {str(api_key)[:20]}...)")
+        except Exception as e:
+            logger.error(f"❌ Erro ao inicializar cliente OpenAI: {e}")
+            # Fallback direto para variável de ambiente
+            import os
+            api_key = os.getenv('OPENAI_API_KEY')
+            if api_key:
+                self.client = openai.AsyncOpenAI(api_key=api_key)
+                logger.warning(f"🔄 Cliente OpenAI inicializado via fallback (key: {api_key[:20]}...)")
+            else:
+                raise ValueError("OpenAI API key não disponível em nenhuma fonte")
         
         # Componentes principais
         self.intent_detector = IntentDetector(self.client)

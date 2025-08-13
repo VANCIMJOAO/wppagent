@@ -1,0 +1,10 @@
+BACKUP WHATSAPP AGENT
+====================
+
+Data: qua 13 ago 2025 02:00:01 -03
+Servidor: vancim
+Usuário: vancim
+Banco: whats_agent
+Host: localhost:5432
+Usuário DB: vancimj
+

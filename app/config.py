@@ -33,14 +33,26 @@ class CompatibilitySettings:
         }
         
         if name in mapping:
-            return mapping[name]()
+            try:
+                return mapping[name]()
+            except Exception as e:
+                # Se falhar, tentar acessar diretamente da variável de ambiente
+                if name == 'openai_api_key':
+                    import os
+                    return os.getenv('OPENAI_API_KEY')
+                return None
         
         # Tentar acessar diretamente no config
         if hasattr(self._config, name):
             attr = getattr(self._config, name)
             # Se for SecretStr, retornar o valor
             if hasattr(attr, 'get_secret_value'):
-                return attr.get_secret_value()
+                try:
+                    return attr.get_secret_value()
+                except Exception:
+                    # Fallback para variável de ambiente
+                    import os
+                    return os.getenv(name.upper())
             return attr
         
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
