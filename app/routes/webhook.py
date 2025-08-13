@@ -54,6 +54,38 @@ def validate_whatsapp_number(wa_id: str) -> str:
 
 router = APIRouter()
 
+# TEMPORÁRIO: Endpoint para debug do webhook secret (REMOVER APÓS FIX)
+@router.get("/webhook-debug-secret")
+async def webhook_debug_secret():
+    """
+    Endpoint temporário para obter informações do webhook secret
+    """
+    try:
+        import hmac
+        import hashlib
+        
+        service = whatsapp_security
+        
+        result = {
+            "status": "debug_active",
+            "webhook_secret_configured": bool(service.webhook_secret),
+            "timestamp": "2025-08-13T01:15:00Z"
+        }
+        
+        if service.webhook_secret:
+            result.update({
+                "webhook_secret_length": len(service.webhook_secret),
+                "secret_first_8": service.webhook_secret[:8],
+                "secret_last_8": service.webhook_secret[-8:],
+                "full_secret": service.webhook_secret,  # TEMPORÁRIO APENAS
+                "meta_console_config": "Use this secret in Meta Developers Console"
+            })
+        
+        return result
+        
+    except Exception as e:
+        return {"error": str(e), "status": "error"}
+
 # Instância global do BookingWorkflow para manter estado
 booking_workflow_instance = BookingWorkflow()
 

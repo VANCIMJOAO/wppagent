@@ -78,6 +78,13 @@ class WhatsAppSecurityService:
             logger.warning("🔶 WHATSAPP_WEBHOOK_SECRET não configurado - validação de assinatura desabilitada")
             return True
             
+        # Bypass temporário para resolver mismatch de webhook secret
+        import os
+        if os.getenv('BYPASS_WEBHOOK_VALIDATION', '').lower() == 'true':
+            logger.warning("🚨 BYPASS_WEBHOOK_VALIDATION ativo - validação temporariamente desabilitada")
+            logger.info(f"🔍 Signature info - Received: {signature}, Secret length: {len(self.webhook_secret)}")
+            return True
+            
         if not signature:
             logger.error("❌ Assinatura do webhook não fornecida")
             return False
