@@ -160,7 +160,11 @@ app.add_middleware(MetricsMiddleware)
 # Incluir rotas
 app.include_router(webhook_router, tags=["webhook"])
 
-# 🔒 Incluir rotas de autenticação e segurança
+# � Debug webhook (TEMPORÁRIO - remover em produção)
+from app.routes.debug_webhook import router as debug_webhook_router
+app.include_router(debug_webhook_router, tags=["Debug"])
+
+# �🔒 Incluir rotas de autenticação e segurança
 from app.routes.auth import router as auth_router
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 
