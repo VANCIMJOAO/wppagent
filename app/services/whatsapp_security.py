@@ -37,7 +37,13 @@ class WhatsAppSecurityService:
     """Serviço de segurança para WhatsApp"""
     
     def __init__(self):
-        self.webhook_secret = settings.whatsapp_webhook_secret
+        # Obter webhook_secret garantindo que seja uma string
+        webhook_secret_raw = settings.whatsapp_webhook_secret
+        if webhook_secret_raw and hasattr(webhook_secret_raw, 'get_secret_value'):
+            self.webhook_secret = webhook_secret_raw.get_secret_value()
+        else:
+            self.webhook_secret = webhook_secret_raw
+            
         self.access_token = getattr(settings, 'whatsapp_token', None)
         if self.access_token and hasattr(self.access_token, 'get_secret_value'):
             self.access_token = self.access_token.get_secret_value()
