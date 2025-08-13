@@ -22,7 +22,7 @@ class WhatsAppService:
     def __init__(self):
         self.base_url = settings.whatsapp_api_url
         self.phone_number_id = settings.whatsapp_phone_id
-        self.access_token = settings.whatsapp_token.get_secret_value() if settings.whatsapp_token else None
+        self.access_token = settings.meta_access_token
         
         self.headers = {
             "Authorization": f"Bearer {self.access_token}",

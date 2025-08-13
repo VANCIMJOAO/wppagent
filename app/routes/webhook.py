@@ -587,8 +587,9 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
                 return
         
         # ====== VERIFICAÇÃO DE HANDOFF INTELIGENTE ======
-        handoff_decision = await intelligent_handoff_service.should_handoff_to_human(
-            user_message=content,
+        handoff_decision = await intelligent_handoff_service.analyze_message_for_handoff(
+            user_id=user.wa_id,
+            message=content,
             conversation_history=[],  # Simplificado para exemplo
             user_context={"wa_id": user.wa_id, "nome": user.nome}
         )

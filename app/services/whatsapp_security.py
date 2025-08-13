@@ -44,7 +44,7 @@ class WhatsAppSecurityService:
         else:
             self.webhook_secret = webhook_secret_raw
             
-        self.access_token = getattr(settings, 'whatsapp_token', None)
+        self.access_token = getattr(settings, 'meta_access_token', None)
         if self.access_token and hasattr(self.access_token, 'get_secret_value'):
             self.access_token = self.access_token.get_secret_value()
         self.phone_number_id = getattr(settings, 'whatsapp_phone_id', None)
