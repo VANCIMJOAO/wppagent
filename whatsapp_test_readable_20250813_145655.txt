@@ -1,0 +1,376 @@
+🧪 RELATÓRIO DE TESTE - WHATSAPP AGENT
+==================================================
+
+📊 RESUMO EXECUTIVO
+--------------------
+Duração do teste: 145.54 segundos
+Total de mensagens: 49
+Taxa de sucesso: 0.0%
+Mensagens com sucesso: 0
+Mensagens com erro: 49
+
+🎬 RESULTADOS POR CENÁRIO
+-------------------------
+
+BASIC_GREETING:
+  Total: 3
+  Sucessos: 0
+  Falhas: 3
+  Taxa de sucesso: 0.0%
+
+SERVICE_INQUIRY:
+  Total: 5
+  Sucessos: 0
+  Falhas: 5
+  Taxa de sucesso: 0.0%
+
+APPOINTMENT_BOOKING:
+  Total: 6
+  Sucessos: 0
+  Falhas: 6
+  Taxa de sucesso: 0.0%
+
+APPOINTMENT_CHANGES:
+  Total: 6
+  Sucessos: 0
+  Falhas: 6
+  Taxa de sucesso: 0.0%
+
+COMPLEX_INQUIRY:
+  Total: 6
+  Sucessos: 0
+  Falhas: 6
+  Taxa de sucesso: 0.0%
+
+COMPLAINT_HANDLING:
+  Total: 5
+  Sucessos: 0
+  Falhas: 5
+  Taxa de sucesso: 0.0%
+
+BUSINESS_HOURS:
+  Total: 5
+  Sucessos: 0
+  Falhas: 5
+  Taxa de sucesso: 0.0%
+
+MULTI_TOPIC_CONVERSATION:
+  Total: 7
+  Sucessos: 0
+  Falhas: 7
+  Taxa de sucesso: 0.0%
+
+EDGE_CASES:
+  Total: 6
+  Sucessos: 0
+  Falhas: 6
+  Taxa de sucesso: 0.0%
+
+
+📱 DETALHES DAS MENSAGENS
+-------------------------
+
+1. [2025-08-13T14:54:31.599930]
+   Mensagem: Olá!
+   Status: 403
+   Tipo: text
+
+2. [2025-08-13T14:54:33.747779]
+   Mensagem: Bom dia! Como você está?
+   Status: 403
+   Tipo: text
+
+3. [2025-08-13T14:54:35.892227]
+   Mensagem: Gostaria de conhecer seus serviços
+   Status: 403
+   Tipo: text
+
+4. [2025-08-13T14:54:40.035542]
+   Mensagem: Quais serviços vocês oferecem?
+   Status: 403
+   Tipo: text
+
+5. [2025-08-13T14:54:42.184380]
+   Mensagem: Quanto custa uma limpeza de pele?
+   Status: 403
+   Tipo: text
+
+6. [2025-08-13T14:54:44.327806]
+   Mensagem: Vocês fazem massagem relaxante?
+   Status: 403
+   Tipo: text
+
+7. [2025-08-13T14:54:46.472608]
+   Mensagem: Qual a duração do hidrofacial?
+   Status: 403
+   Tipo: text
+
+8. [2025-08-13T14:54:48.618463]
+   Mensagem: Têm desconto para pacotes?
+   Status: 403
+   Tipo: text
+
+9. [2025-08-13T14:54:52.772729]
+   Mensagem: Quero agendar um horário
+   Status: 403
+   Tipo: text
+
+10. [2025-08-13T14:54:55.914105]
+   Mensagem: Limpeza de pele profunda
+   Status: 403
+   Tipo: text
+
+11. [2025-08-13T14:54:59.059101]
+   Mensagem: Amanhã de manhã seria possível?
+   Status: 403
+   Tipo: text
+
+12. [2025-08-13T14:55:02.202536]
+   Mensagem: Às 10h está bom
+   Status: 403
+   Tipo: text
+
+13. [2025-08-13T14:55:05.349972]
+   Mensagem: Meu nome é João Silva
+   Status: 403
+   Tipo: text
+
+14. [2025-08-13T14:55:08.496525]
+   Mensagem: Sim, confirmo o agendamento
+   Status: 403
+   Tipo: text
+
+15. [2025-08-13T14:55:13.661656]
+   Mensagem: Preciso cancelar meu agendamento de amanhã
+   Status: 403
+   Tipo: text
+
+16. [2025-08-13T14:55:16.307066]
+   Mensagem: Surgiu um imprevisto no trabalho
+   Status: 403
+   Tipo: text
+
+17. [2025-08-13T14:55:18.954459]
+   Mensagem: Posso reagendar para outro dia?
+   Status: 403
+   Tipo: text
+
+18. [2025-08-13T14:55:21.600269]
+   Mensagem: Que tal na sexta-feira?
+   Status: 403
+   Tipo: text
+
+19. [2025-08-13T14:55:24.246505]
+   Mensagem: De tarde, por volta das 14h
+   Status: 403
+   Tipo: text
+
+20. [2025-08-13T14:55:26.892816]
+   Mensagem: Perfeito, confirmo o reagendamento
+   Status: 403
+   Tipo: text
+
+21. [2025-08-13T14:55:31.542865]
+   Mensagem: Estou planejando um dia de spa para minha mãe
+   Status: 403
+   Tipo: text
+
+22. [2025-08-13T14:55:34.688758]
+   Mensagem: Ela tem 65 anos e pele sensível
+   Status: 403
+   Tipo: text
+
+23. [2025-08-13T14:55:37.837385]
+   Mensagem: Quais tratamentos vocês recomendam?
+   Status: 403
+   Tipo: text
+
+24. [2025-08-13T14:55:40.985966]
+   Mensagem: Quanto ficaria um pacote completo?
+   Status: 403
+   Tipo: text
+
+25. [2025-08-13T14:55:44.128632]
+   Mensagem: Vocês têm estacionamento?
+   Status: 403
+   Tipo: text
+
+26. [2025-08-13T14:55:47.270817]
+   Mensagem: E desconto para idosos?
+   Status: 403
+   Tipo: text
+
+27. [2025-08-13T14:55:52.412967]
+   Mensagem: Estou insatisfeito com o atendimento da semana passada
+   Status: 403
+   Tipo: text
+
+28. [2025-08-13T14:55:55.557028]
+   Mensagem: A profissional chegou 30 minutos atrasada
+   Status: 403
+   Tipo: text
+
+29. [2025-08-13T14:55:58.701676]
+   Mensagem: E o tratamento não ficou como esperado
+   Status: 403
+   Tipo: text
+
+30. [2025-08-13T14:56:01.841275]
+   Mensagem: Gostaria de uma solução para isso
+   Status: 403
+   Tipo: text
+
+31. [2025-08-13T14:56:04.990986]
+   Mensagem: Sim, aceito um desconto no próximo atendimento
+   Status: 403
+   Tipo: text
+
+32. [2025-08-13T14:56:10.140660]
+   Mensagem: Vocês funcionam aos sábados?
+   Status: 403
+   Tipo: text
+
+33. [2025-08-13T14:56:12.282158]
+   Mensagem: E domingo?
+   Status: 403
+   Tipo: text
+
+34. [2025-08-13T14:56:14.431165]
+   Mensagem: Qual o horário de almoço?
+   Status: 403
+   Tipo: text
+
+35. [2025-08-13T14:56:16.577860]
+   Mensagem: Onde vocês ficam localizados?
+   Status: 403
+   Tipo: text
+
+36. [2025-08-13T14:56:18.723093]
+   Mensagem: Como chegar de transporte público?
+   Status: 403
+   Tipo: text
+
+37. [2025-08-13T14:56:22.870475]
+   Mensagem: Oi! Queria saber sobre massagem
+   Status: 403
+   Tipo: text
+
+38. [2025-08-13T14:56:25.011006]
+   Mensagem: Mas antes, vocês fazem sobrancelha?
+   Status: 403
+   Tipo: text
+
+39. [2025-08-13T14:56:27.156444]
+   Mensagem: Voltando à massagem, qual o preço?
+   Status: 403
+   Tipo: text
+
+40. [2025-08-13T14:56:29.302279]
+   Mensagem: E depilação, vocês fazem também?
+   Status: 403
+   Tipo: text
+
+41. [2025-08-13T14:56:31.455609]
+   Mensagem: Ok, mas sobre a massagem, posso agendar para hoje?
+   Status: 403
+   Tipo: text
+
+42. [2025-08-13T14:56:33.599825]
+   Mensagem: Na verdade, prefiro agendar a sobrancelha mesmo
+   Status: 403
+   Tipo: text
+
+43. [2025-08-13T14:56:35.744913]
+   Mensagem: Para amanhã de manhã
+   Status: 403
+   Tipo: text
+
+44. [2025-08-13T14:56:39.896668]
+   Mensagem: asdfghjkl
+   Status: 403
+   Tipo: text
+
+45. [2025-08-13T14:56:42.042178]
+   Mensagem: 😀😃😄😁😆😅😂🤣
+   Status: 403
+   Tipo: text
+
+46. [2025-08-13T14:56:44.187659]
+   Mensagem: QUERO AGENDAR AGORA!!!!!
+   Status: 403
+   Tipo: text
+
+47. [2025-08-13T14:56:46.328470]
+   Mensagem: vocês fazem botox? e preenchimento? e harmonização facial?
+   Status: 403
+   Tipo: text
+
+48. [2025-08-13T14:56:48.479970]
+   Mensagem: 123456789
+   Status: 403
+   Tipo: text
+
+49. [2025-08-13T14:56:50.634394]
+   Mensagem: Obrigado pela atenção, até logo!
+   Status: 403
+   Tipo: text
+
+
+📈 MÉTRICAS DO SISTEMA
+--------------------
+{
+  "system_metrics": {
+    "status_code": 200,
+    "data": {
+      "system": {
+        "uptime": "2025-08-13T14:56:55.559535",
+        "service": "WhatsApp Agent API",
+        "version": "1.0.0"
+      },
+      "health_checks": {
+        "database": {
+          "status": "healthy",
+          "response_time": 0.027413,
+          "last_check": "2025-08-13T14:56:54.732026"
+        },
+        "whatsapp_api": {
+          "status": "unhealthy",
+          "response_time": null,
+          "last_check": "2025-08-13T14:56:55.559336"
+        },
+        "openai_api": {
+          "status": "unhealthy",
+          "response_time": null,
+          "last_check": "2025-08-13T14:56:54.837126"
+        },
+        "circuit_breakers": {
+          "status": "healthy",
+          "response_time": null,
+          "last_check": "2025-08-13T14:56:54.724596"
+        }
+      },
+      "circuit_breakers": {
+        "whatsapp_api": {
+          "state": "not_initialized"
+        }
+      }
+    }
+  },
+  "conversation_analytics": {
+    "status_code": 401,
+    "data": {
+      "error": "Authentication failed",
+      "message": "Missing or invalid authorization header"
+    }
+  },
+  "llm_analytics": {
+    "status_code": 401,
+    "data": {
+      "error": "Authentication failed",
+      "message": "Missing or invalid authorization header"
+    }
+  },
+  "test_duration": 145.540909,
+  "total_messages": 49,
+  "success_rate": 0.0
+}
