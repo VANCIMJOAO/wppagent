@@ -249,17 +249,37 @@ class BusinessDataService:
                             "summary": "Segunda a Sexta: 9h às 18h, Sábado: 9h às 16h, Domingo: Fechado"
                         }
                     else:
-                        self._business_hours_cache = {
-                            "hours_by_day": {},
-                            "formatted_text": "Horários não disponíveis",
-                            "summary": "Entre em contato para consultar horários"
-                        }
+                        # Retornar dados padrão se não há registros
+                        self._business_hours_cache = self._get_default_business_hours()
                     
                     logger.info("✅ Horários de funcionamento carregados da database")
                     
                 except Exception as e:
                     logger.error(f"❌ Erro ao buscar horários: {e}")
-                    self._business_hours_cache = None
+                    # Se a tabela não existe, retornar dados padrão
+                    if "does not exist" in str(e):
+                        logger.warning("⚠️  Tabela business_hours não existe, usando dados padrão")
+                        self._business_hours_cache = self._get_default_business_hours()
+                    else:
+                        self._business_hours_cache = None
+
+        return self._business_hours_cache
+    
+    def _get_default_business_hours(self) -> Dict:
+        """Retorna horários padrão quando a tabela não existe"""
+        return {
+            "hours_by_day": {
+                "Segunda": {"open": "09:00:00", "close": "18:00:00", "is_open": True},
+                "Terça": {"open": "09:00:00", "close": "18:00:00", "is_open": True},
+                "Quarta": {"open": "09:00:00", "close": "18:00:00", "is_open": True},
+                "Quinta": {"open": "09:00:00", "close": "18:00:00", "is_open": True},
+                "Sexta": {"open": "09:00:00", "close": "18:00:00", "is_open": True},
+                "Sábado": {"is_open": False},
+                "Domingo": {"is_open": False}
+            },
+            "formatted_text": "Segunda a Sexta: 09:00 às 18:00\nSábado: Fechado\nDomingo: Fechado",
+            "summary": "Segunda a Sexta: 9h às 18h, Fins de semana: Fechado"
+        }
         
         return self._business_hours_cache
     
@@ -303,7 +323,12 @@ class BusinessDataService:
                     
                 except Exception as e:
                     logger.error(f"❌ Erro ao buscar formas de pagamento: {e}")
-                    self._payment_methods_cache = []
+                    # Se a tabela não existe, usar dados padrão
+                    if "does not exist" in str(e):
+                        logger.warning("⚠️  Tabela payment_methods não existe, usando dados padrão")
+                        self._payment_methods_cache = self._get_default_payment_methods()
+                    else:
+                        self._payment_methods_cache = []
         
         return self._payment_methods_cache
     
@@ -348,10 +373,47 @@ class BusinessDataService:
                     
                 except Exception as e:
                     logger.error(f"❌ Erro ao buscar políticas: {e}")
-                    self._policies_cache = []
+                    # Se a tabela não existe, usar dados padrão
+                    if "does not exist" in str(e):
+                        logger.warning("⚠️  Tabela business_policies não existe, usando dados padrão")
+                        self._policies_cache = self._get_default_business_policies()
+                    else:
+                        self._policies_cache = []
         
         return self._policies_cache
     
+    def _get_default_payment_methods(self) -> List[Dict]:
+        """Retorna formas de pagamento padrão quando a tabela não existe"""
+        return [
+            {"name": "Dinheiro", "description": "Pagamento em espécie", "additional_info": None},
+            {"name": "PIX", "description": "Transferência instantânea", "additional_info": "Chave PIX disponível"},
+            {"name": "Cartão de Débito", "description": "Cartão de débito", "additional_info": None},
+            {"name": "Cartão de Crédito", "description": "Cartão de crédito", "additional_info": "Parcelamento disponível"}
+        ]
+    
+    def _get_default_business_policies(self) -> List[Dict]:
+        """Retorna políticas padrão quando a tabela não existe"""
+        return [
+            {
+                "type": "cancellation",
+                "title": "Política de Cancelamento", 
+                "description": "Cancelamentos devem ser feitos com pelo menos 24 horas de antecedência.",
+                "rules": {"min_hours": 24, "refund": False}
+            },
+            {
+                "type": "rescheduling",
+                "title": "Política de Reagendamento",
+                "description": "Reagendamentos podem ser feitos até 2 horas antes do horário marcado.",
+                "rules": {"min_hours": 2, "max_reschedules": 2}
+            },
+            {
+                "type": "no_show", 
+                "title": "Política de Falta",
+                "description": "Faltas sem aviso prévio resultam em cobrança de taxa.",
+                "rules": {"fee_percentage": 50, "grace_period": 15}
+            }
+        ]
+
     async def get_complete_business_info(self) -> Dict:
         """
         Busca informações completas do negócio incluindo novos dados
@@ -423,6 +485,4 @@ async def get_database_services_formatted() -> str:
 
 async def find_database_service(service_name: str) -> Optional[ServiceData]:
     """Função de conveniência para buscar um serviço específico da database"""
-    return await business_data_service.find_service_by_name(service_name)
-    """Função de conveniência para buscar serviço específico da database"""
     return await business_data_service.find_service_by_name(service_name)
