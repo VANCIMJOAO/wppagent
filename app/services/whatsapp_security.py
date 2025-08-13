@@ -80,8 +80,15 @@ class WhatsAppSecurityService:
             
         try:
             # Remove o prefixo 'sha256=' se presente
+            original_signature = signature
             if signature.startswith('sha256='):
                 signature = signature[7:]
+            
+            logger.info(f"🔍 Debug signature validation:")
+            logger.info(f"  - Original signature: {original_signature[:20]}...")
+            logger.info(f"  - Cleaned signature: {signature[:20]}...")
+            logger.info(f"  - Payload length: {len(payload)}")
+            logger.info(f"  - Webhook secret configured: {bool(self.webhook_secret)}")
             
             # Calcula HMAC SHA256
             expected_signature = hmac.new(
@@ -90,6 +97,8 @@ class WhatsAppSecurityService:
                 hashlib.sha256
             ).hexdigest()
             
+            logger.info(f"  - Expected signature: {expected_signature[:20]}...")
+            
             # Comparação segura
             is_valid = hmac.compare_digest(signature, expected_signature)
             
@@ -97,6 +106,8 @@ class WhatsAppSecurityService:
                 logger.info("✅ Assinatura do webhook validada com sucesso")
             else:
                 logger.error("❌ Assinatura do webhook inválida")
+                logger.error(f"   Received: {signature}")
+                logger.error(f"   Expected: {expected_signature}")
                 
             return is_valid
             
