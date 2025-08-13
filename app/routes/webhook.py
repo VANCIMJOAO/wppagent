@@ -10,7 +10,7 @@ from app.database import get_db
 from app.utils.logger import get_logger
 from app.services.whatsapp import whatsapp_service
 logger = get_logger(__name__)
-from app.services.llm_advanced import advanced_llm_service
+from app.services.llm_advanced import get_advanced_llm_service
 from app.services.strategy_compatibility import hybrid_service
 from app.services.hybrid_llm_crew import HybridLLMCrewService
 from app.services.service_validator import service_validator
@@ -631,6 +631,7 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
         
         # ====== PROCESSAMENTO COM LLM AVANÇADO ======
         start_time = time.time()
+        advanced_llm_service = get_advanced_llm_service()
         response = await advanced_llm_service.process_message(
             user_id=user.wa_id,
             message=content,  # Já sanitizado
