@@ -555,7 +555,7 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
         
         # ====== VERIFICAÇÃO DE CACHE DE RESPOSTA ======
         if message_type == "text" and content:
-            cached_response = cache_service.get(
+            cached_response = await cache_service.get_cached_response(
                 message=content,
                 user_id=user.wa_id
             )

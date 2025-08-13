@@ -225,10 +225,18 @@ class HealthChecker:
                 }
             
             # Test Meta API connectivity
+            phone_number_id = getattr(settings, 'whatsapp_phone_id', None)
+            if not phone_number_id:
+                return {
+                    "status": "unhealthy",
+                    "error": "WHATSAPP_PHONE_ID not configured",
+                    "details": "Missing phone number ID configuration"
+                }
+                
             async with httpx.AsyncClient(timeout=10.0) as client:
                 start = time.time()
                 response = await client.get(
-                    f"https://graph.facebook.com/v18.0/{settings.phone_number_id}",
+                    f"https://graph.facebook.com/v18.0/{phone_number_id}",
                     headers={"Authorization": f"Bearer {settings.meta_access_token}"}
                 )
                 response_time = time.time() - start
@@ -237,7 +245,7 @@ class HealthChecker:
                     return {
                         "status": "healthy",
                         "response_time_ms": round(response_time * 1000, 2),
-                        "phone_number_id": settings.phone_number_id,
+                        "phone_number_id": phone_number_id,
                         "details": "WhatsApp API connection successful"
                     }
                 else:

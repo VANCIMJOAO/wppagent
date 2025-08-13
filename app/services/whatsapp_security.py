@@ -416,7 +416,11 @@ class WhatsAppSecurityService:
         Returns:
             Resposta da API ou None se falhar
         """
-        phone_number_id = getattr(settings, 'whatsapp_phone_number_id', settings.phone_number_id)
+        phone_number_id = getattr(settings, 'whatsapp_phone_id', None)
+        
+        if not phone_number_id:
+            logger.error("❌ WHATSAPP_PHONE_ID não configurado")
+            return None
         
         data = {
             "messaging_product": "whatsapp",
