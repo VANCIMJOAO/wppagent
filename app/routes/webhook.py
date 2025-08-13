@@ -2,6 +2,7 @@
 Rotas do webhook para receber mensagens do WhatsApp COM SANITIZAÇÃO ROBUSTA E SEGURANÇA
 """
 import json
+import time
 from datetime import datetime
 from fastapi import APIRouter, Request, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,6 +25,9 @@ from app.services.rate_limiter import whatsapp_rate_limiter
 from app.services.cache_service import cache_service
 from app.models.database import MetaLog
 from app.config import settings
+
+# Prometheus metrics integration
+from app.utils.metrics import metrics_collector, webhook_timer
 
 # 🛡️ IMPORTAÇÕES DE SEGURANÇA E SANITIZAÇÃO
 from app.utils.whatsapp_sanitizer import (
@@ -293,8 +297,10 @@ async def _process_single_message_secure(db: AsyncSession, message: dict, contac
         contact_info: Informações do contato (já sanitizadas)
     """
     try:
-        raw_wa_id = message.get("from")
-        message_id = message.get("id")
+        # Record webhook processing metrics
+        with webhook_timer():
+            raw_wa_id = message.get("from")
+            message_id = message.get("id")
         message_type = message.get("type")
         timestamp = message.get("timestamp")
         
@@ -590,6 +596,7 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
             return
         
         # ====== PROCESSAMENTO COM LLM AVANÇADO ======
+        start_time = time.time()
         response = await advanced_llm_service.process_message(
             user_id=user.wa_id,
             message=content,  # Já sanitizado
@@ -600,6 +607,10 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
         if response and response.get("content"):
             # 🛡️ Sanitizar resposta do LLM
             safe_response = sanitize_message(response["content"], "text")
+            
+            # Record processing time
+            processing_time = time.time() - start_time
+            metrics_collector.record_webhook_processing("success", processing_time)
             
             await whatsapp_service.send_text_message(user.wa_id, safe_response)
             
@@ -613,14 +624,23 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
                 metadata={
                     "processing_system": "advanced_llm",
                     "llm_confidence": response.get("confidence", 0),
+                    "processing_time": processing_time,
                     "sanitized": True
                 }
             )
             
             logger.info(f"✅ Resposta segura do LLM enviada para {user.wa_id}")
+        else:
+            # Record failed processing
+            processing_time = time.time() - start_time
+            metrics_collector.record_webhook_processing("failed", processing_time)
         
     except Exception as e:
         logger.error(f"❌ Erro no processamento seguro para {user.wa_id}: {e}")
+        
+        # Record error metrics
+        processing_time = time.time() - start_time if 'start_time' in locals() else 0
+        metrics_collector.record_webhook_processing("error", processing_time)
         
         # Resposta de erro sanitizada
         error_message = sanitize_message(

@@ -22,8 +22,12 @@ from app.services.lead_scoring import lead_scoring_service
 from app.services.conversation_flow import conversation_flow_service
 from app.services.cache_service import cache_service
 
-# � Sistema de Autenticação e Autorização
+# Sistema de Autenticação e Autorização
 from app.auth import AuthMiddleware
+
+# Prometheus Metrics Integration
+from app.utils.metrics import metrics_collector, get_metrics_response
+from app.middleware.metrics import MetricsMiddleware
 
 # �🚀 Sistemas de Performance e Escalabilidade
 from app.services.database_optimizer import DatabaseOptimizer
@@ -137,7 +141,21 @@ else:
 app.add_middleware(AuthMiddleware)
 
 # Adicionar rate limiting middleware baseado na configuração
-app.add_middleware(RateLimitMiddleware, enabled=settings.rate_limit_enabled)
+# Usar middleware corrigido que garante sempre retornar uma resposta
+try:
+    if hasattr(settings, 'rate_limit_enabled') and settings.rate_limit_enabled:
+        app.add_middleware(RateLimitMiddleware, enabled=True)
+        logger.info("Rate limiting middleware added and enabled")
+    else:
+        app.add_middleware(RateLimitMiddleware, enabled=False)
+        logger.info("Rate limiting middleware added but disabled")
+except Exception as e:
+    logger.error(f"Failed to add rate limiting middleware: {e}")
+    # Adicionar middleware desabilitado como fallback
+    app.add_middleware(RateLimitMiddleware, enabled=False)
+
+# Adicionar middleware de métricas (último para capturar todas as requests)
+app.add_middleware(MetricsMiddleware)
 
 # Incluir rotas
 app.include_router(webhook_router, tags=["webhook"])
@@ -226,7 +244,20 @@ async def detailed_health_check():
 
 @app.get("/metrics")
 async def get_metrics():
-    """Endpoint para métricas do sistema"""
+    """Endpoint para métricas Prometheus"""
+    try:
+        return get_metrics_response()
+    except Exception as e:
+        logger.error(f"Erro ao obter métricas Prometheus: {e}")
+        return JSONResponse(
+            content={"error": "Failed to generate metrics"},
+            status_code=500
+        )
+
+
+@app.get("/metrics/system")
+async def get_system_metrics():
+    """Endpoint para métricas do sistema (legacy)"""
     try:
         # Executar health checks para obter métricas atuais
         checks = await health_checker.run_all_checks()
