@@ -590,12 +590,13 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
         handoff_decision = await intelligent_handoff_service.analyze_message_for_handoff(
             user_id=user.wa_id,
             message=content,
-            conversation_history=[],  # Simplificado para exemplo
-            user_context={"wa_id": user.wa_id, "nome": user.nome}
+            conversation_history=[]  # Simplificado para exemplo
         )
         
-        if handoff_decision.get("should_handoff", False):
-            reason = handoff_decision.get("reason", "Necessário atendimento humano")
+        should_handoff, handoff_reason, handoff_config = handoff_decision
+        
+        if should_handoff:
+            reason = str(handoff_reason.value) if handoff_reason else "Necessário atendimento humano"
             logger.info(f"🔄 Handoff para humano: {user.wa_id} - {reason}")
             
             # Atualizar status da conversa
