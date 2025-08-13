@@ -639,9 +639,9 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
             message_type=message_type
         )
         
-        if response and response.get("content"):
+        if response and response.text:
             # 🛡️ Sanitizar resposta do LLM
-            safe_response = sanitize_message(response["content"], "text")
+            safe_response = sanitize_message(response.text, "text")
             
             # Record processing time
             processing_time = time.time() - start_time

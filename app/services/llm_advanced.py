@@ -710,13 +710,6 @@ class AdvancedLLMService:
         
         # Sistema de plugins (será importado dinamicamente para evitar dependência circular)
         self.plugin_manager = None
-    
-    @property
-    def state_manager(self):
-        """Propriedade lazy para state_manager"""
-        if self._state_manager is None:
-            self._state_manager = self.get_state_manager()
-        return self._state_manager
         self._init_plugins()
         
         # Cache para otimização
@@ -726,6 +719,13 @@ class AdvancedLLMService:
         # Flag para controle de cleanup automático
         self._cleanup_task = None
         self._start_cleanup_on_first_use = True
+    
+    @property
+    def state_manager(self):
+        """Propriedade lazy para state_manager"""
+        if self._state_manager is None:
+            self._state_manager = self.get_state_manager()
+        return self._state_manager
     
     def _init_plugins(self):
         """Inicializa sistema de plugins"""
