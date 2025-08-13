@@ -15,7 +15,7 @@ import json
 import asyncio
 import time
 from typing import Optional, Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, Request
 from app.config import settings
 from app.utils.logger import get_logger
@@ -280,13 +280,13 @@ class WhatsAppSecurityService:
     def _is_rate_limited(self) -> bool:
         """Verifica se estamos em rate limit"""
         if self.rate_limit_reset_time:
-            return datetime.utcnow() < self.rate_limit_reset_time
+            return datetime.now(timezone.utc) < self.rate_limit_reset_time
         return False
     
     async def _wait_for_rate_limit_reset(self):
         """Aguarda o reset do rate limit"""
         if self.rate_limit_reset_time:
-            wait_time = (self.rate_limit_reset_time - datetime.utcnow()).total_seconds()
+            wait_time = (self.rate_limit_reset_time - datetime.now(timezone.utc)).total_seconds()
             if wait_time > 0:
                 logger.info(f"⏰ Aguardando {wait_time:.1f}s para reset do rate limit")
                 await asyncio.sleep(min(wait_time, 60))  # Máximo 1 minuto
@@ -315,19 +315,19 @@ class WhatsAppSecurityService:
             # Tentar obter tempo de reset dos headers
             retry_after = headers.get('Retry-After')
             if retry_after:
-                reset_time = datetime.utcnow() + timedelta(seconds=int(retry_after))
+                reset_time = datetime.now(timezone.utc) + timedelta(seconds=int(retry_after))
                 self.rate_limit_reset_time = reset_time
                 self.api_status = MetaAPIStatus.RATE_LIMITED
                 logger.warning(f"⏰ Rate limit até {reset_time}")
             else:
                 # Fallback: aguardar 1 hora
-                self.rate_limit_reset_time = datetime.utcnow() + timedelta(hours=1)
+                self.rate_limit_reset_time = datetime.now(timezone.utc) + timedelta(hours=1)
                 self.api_status = MetaAPIStatus.RATE_LIMITED
                 
         except Exception as e:
             logger.error(f"Erro ao processar rate limit: {e}")
             # Fallback conservador
-            self.rate_limit_reset_time = datetime.utcnow() + timedelta(hours=1)
+            self.rate_limit_reset_time = datetime.now(timezone.utc) + timedelta(hours=1)
     
     def _calculate_retry_delay(self, attempt: int) -> float:
         """Calcula delay para retry com exponential backoff"""
@@ -349,7 +349,7 @@ class WhatsAppSecurityService:
             'endpoint': endpoint,
             'data': data,
             'params': params,
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'attempts': 0
         }
         
