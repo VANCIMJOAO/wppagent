@@ -1,0 +1,30 @@
+FROM grafana/grafana:latest
+
+# Install plugins
+ENV GF_INSTALL_PLUGINS=grafana-piechart-panel
+
+# Set security and server configuration
+ENV GF_SECURITY_ALLOW_EMBEDDING=true
+ENV GF_AUTH_ANONYMOUS_ENABLED=false
+ENV GF_SERVER_ROOT_URL=https://${RAILWAY_PUBLIC_DOMAIN}
+
+# Copy provisioning files
+COPY grafana/datasources/ /etc/grafana/provisioning/datasources/
+COPY grafana/dashboards/ /etc/grafana/provisioning/dashboards/
+
+# Copy dashboard files
+COPY grafana/whatsapp_agent_dashboard.json /var/lib/grafana/dashboards/
+
+# Create directories and set permissions
+USER root
+RUN mkdir -p /var/lib/grafana/dashboards && \
+    mkdir -p /etc/grafana/provisioning/datasources && \
+    mkdir -p /etc/grafana/provisioning/dashboards && \
+    chown -R grafana:grafana /var/lib/grafana && \
+    chown -R grafana:grafana /etc/grafana/provisioning
+
+# Switch back to grafana user
+USER grafana
+
+# Expose port
+EXPOSE 3000
