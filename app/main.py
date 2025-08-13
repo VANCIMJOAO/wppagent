@@ -193,6 +193,7 @@ app.include_router(db_optimization_router, tags=["Database Optimization"])
 
 
 @app.get("/health")
+@app.head("/health")
 async def health_check():
     """Endpoint básico de health check"""
     return {
