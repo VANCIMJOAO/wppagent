@@ -8,7 +8,7 @@ from datetime import datetime
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from app.config import settings
 from app.utils.logger import get_logger
 from app.routes.webhook import router as webhook_router
@@ -193,7 +193,6 @@ app.include_router(db_optimization_router, tags=["Database Optimization"])
 
 
 @app.get("/health")
-@app.head("/health")
 async def health_check():
     """Endpoint básico de health check"""
     return {
@@ -201,6 +200,15 @@ async def health_check():
         "timestamp": datetime.now().isoformat(),
         "service": "WhatsApp Agent API"
     }
+
+
+@app.head("/health")
+async def health_check_head():
+    """Endpoint HEAD para health check (usado pelo Railway)"""
+    return Response(status_code=200, headers={
+        "Content-Type": "application/json",
+        "Content-Length": "92"
+    })
 
 
 @app.get("/health/detailed")
