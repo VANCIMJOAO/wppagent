@@ -32,7 +32,7 @@ class WhatsAppSanitizer:
     PATTERNS = {
         'phone_number': r'^55\d{2}9?\d{8}$',  # Formato brasileiro WhatsApp
         'message_id': r'^[a-zA-Z0-9_\-]{1,100}$',
-        'safe_text': r'^[a-zA-Z0-9\s\u00C0-\u024F\u1E00-\u1EFF.,!?:;\-_@#$%&*()\[\]{}="\'\/\\+\n\r\t]{0,4096}$',
+        'safe_text': r'^[a-zA-Z0-9\s\u00C0-\u024F\u1E00-\u1EFF\U0001F000-\U0001F9FF\U00002000-\U000027BF\U0000FE00-\U0000FE0F.,!?:;\-_@#$%&*()\[\]{}="\'\/\\+\n\r\t•]{0,4096}$',
         'url': r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$',
         'email': r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
         'filename': r'^[a-zA-Z0-9._\-]{1,255}$'
@@ -478,8 +478,8 @@ class WhatsAppSanitizer:
         
         # Validar caracteres permitidos
         if not re.match(cls.PATTERNS['safe_text'], text):
-            # Remover caracteres não permitidos
-            text = re.sub(r'[^\w\s\u00C0-\u024F\u1E00-\u1EFF.,!?:;\-_@#$%&*()\[\]{}="\'\/\\+\n\r\t]', '', text)
+            # Remover caracteres não permitidos (mantendo emojis)
+            text = re.sub(r'[^\w\s\u00C0-\u024F\u1E00-\u1EFF\U0001F000-\U0001F9FF\U00002000-\U000027BF\U0000FE00-\U0000FE0F.,!?:;\-_@#$%&*()\[\]{}="\'\/\\+\n\r\t•]', '', text)
         
         # Limitar tamanho
         if len(text) > cls.LIMITS['text_message']:
