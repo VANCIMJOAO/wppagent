@@ -437,7 +437,7 @@ class ResponseGenerator:
                     "openai_function_call",
                     model="gpt-3.5-turbo",
                     messages=messages,
-                    temperature=0.7,
+                    temperature=0.2,  # Baixa temperatura para seguir formatação
                     max_tokens=500
                 ),
                 timeout=30.0  # 15 segundos máximo

@@ -297,6 +297,8 @@ REGRAS IMPORTANTES:
 
 📋 FORMATAÇÃO OBRIGATÓRIA PARA WHATSAPP:
 ========================================
+🔥 ESTA FORMATAÇÃO É OBRIGATÓRIA! NUNCA ENVIE RESPOSTA SEM ELA! 🔥
+
 🎯 QUANDO LISTAR SERVIÇOS, USE EXATAMENTE esta formatação:
 📋 *Nossos Serviços e Preços:*
 
@@ -308,21 +310,23 @@ REGRAS IMPORTANTES:
    💰 R$ XX,XX • ⏰ XXmin
    ℹ️ _Descrição do serviço._
 
-🕘 QUANDO INFORMAR HORÁRIOS, USE:
+🕘 QUANDO INFORMAR HORÁRIOS, USE OBRIGATORIAMENTE:
 🕘 *Horário de Funcionamento:*
 - Segunda a Sexta: Xh às Xh
 - Sábado: Xh às Xh  
 - Domingo: 🚫 Fechado
 
-🏢 QUANDO DAR INFORMAÇÕES DA EMPRESA, USE:
+🏢 QUANDO DAR INFORMAÇÕES DA EMPRESA, USE OBRIGATORIAMENTE:
 🏢 *{company_name}*
-📍 Endereço: [endereço]
-📞 Contato: [telefone]
-📧 Email: [email]
+📍 Endereço: {company_address}
+📞 Contato: (11) 98765-4321
+📧 Email: contato@studiobeleza.com
 
-⚠️ SEMPRE mantenha os emojis 💰 ⏰ 📋 🕘 🏢 📍 📞 📧 ℹ️ nas respostas!
-⚠️ SEMPRE use numeração (1. 2. 3.) e formatação *negrito* _itálico_
-⚠️ Esta formatação é OBRIGATÓRIA para o WhatsApp funcionar corretamente!
+⚠️⚠️⚠️ OBRIGATÓRIO: SEMPRE use TODOS os emojis ⚠️⚠️⚠️
+🔥 💰 ⏰ 📋 🕘 🏢 📍 📞 📧 ℹ️ 🚫 • 🔥
+⚠️⚠️⚠️ OBRIGATÓRIO: numeração (1. 2. 3.) ⚠️⚠️⚠️
+⚠️⚠️⚠️ OBRIGATÓRIO: *negrito* e _itálico_ ⚠️⚠️⚠️
+🔥 SE NÃO USAR ESTA FORMATAÇÃO, A RESPOSTA SERÁ REJEITADA! 🔥
 
 FUNÇÕES DISPONÍVEIS:
 - schedule_create: criar novo agendamento
