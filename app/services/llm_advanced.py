@@ -208,18 +208,18 @@ class IntentDetector:
                 retry_handler.execute_with_retry(
                     self.client.chat.completions.create,
                     "openai_intent_detection",
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",
                     messages=messages,
                     temperature=0.3,
                     max_tokens=300
                 ),
-                timeout=15.0  # 15 segundos máximo
+                timeout=30.0  # 30 segundos máximo
             )
             
             # Track API usage
             if hasattr(response, 'usage'):
                 cost_tracker.track_usage(
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",
                     input_tokens=response.usage.prompt_tokens,
                     output_tokens=response.usage.completion_tokens
                 )
@@ -316,18 +316,18 @@ class DataCollector:
                 retry_handler.execute_with_retry(
                     self.client.chat.completions.create,
                     "openai_response_generation",
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",
                     messages=messages,
                     temperature=0.2,
                     max_tokens=200
                 ),
-                timeout=15.0  # 15 segundos máximo
+                timeout=30.0  # 15 segundos máximo
             )
             
             # Track API usage
             if hasattr(response, 'usage'):
                 cost_tracker.track_usage(
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",
                     input_tokens=response.usage.prompt_tokens,
                     output_tokens=response.usage.completion_tokens
                 )
@@ -435,18 +435,18 @@ class ResponseGenerator:
                 retry_handler.execute_with_retry(
                     self.client.chat.completions.create,
                     "openai_function_call",
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",
                     messages=messages,
                     temperature=0.7,
                     max_tokens=500
                 ),
-                timeout=15.0  # 15 segundos máximo
+                timeout=30.0  # 15 segundos máximo
             )
             
             # Track API usage
             if hasattr(response, 'usage'):
                 cost_tracker.track_usage(
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",
                     input_tokens=response.usage.prompt_tokens,
                     output_tokens=response.usage.completion_tokens
                 )
