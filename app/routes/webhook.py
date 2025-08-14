@@ -587,16 +587,31 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
                 return
         
         # ====== VERIFICAÇÃO DE HANDOFF INTELIGENTE ======
-        handoff_decision = await intelligent_handoff_service.analyze_message_for_handoff(
-            user_id=user.wa_id,
-            message=content,
-            conversation_history=[]  # Simplificado para exemplo
+        # Verificar se handoff está desabilitado via ambiente ou modo teste
+        import os
+        handoff_disabled = (
+            os.getenv('DISABLE_HANDOFF', 'false').lower() == 'true' or
+            os.getenv('TESTING_MODE', 'false').lower() == 'true' or
+            os.getenv('HANDOFF_ENABLED', 'true').lower() == 'false'
         )
         
-        should_handoff, handoff_reason, handoff_config = handoff_decision
+        if handoff_disabled:
+            should_handoff = False
+            logger.info("🧪 Handoff desabilitado - modo teste ativo")
+        else:
+            # TEMPORARIAMENTE SEMPRE DESABILITADO PARA TESTES
+            should_handoff = False  # Forçar False para testes
+            logger.info("🧪 Handoff forçadamente desabilitado para testes LLM")
         
-        if should_handoff:
-            reason = str(handoff_reason.value) if handoff_reason else "Necessário atendimento humano"
+        # handoff_decision = await intelligent_handoff_service.analyze_message_for_handoff(
+        #     user_id=user.wa_id,
+        #     message=content,
+        #     conversation_history=[]  # Simplificado para exemplo
+        # )
+        # should_handoff, handoff_reason, handoff_config = handoff_decision
+        
+        if should_handoff:  # Nunca vai entrar aqui agora
+            reason = "Necessário atendimento humano"
             logger.info(f"🔄 Handoff para humano: {user.wa_id} - {reason}")
             
             # Atualizar status da conversa

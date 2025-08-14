@@ -1,0 +1,39 @@
+🧪 RELATÓRIO COMPLETO DE TESTE - WHATSAPP AGENT
+=======================================================
+
+📊 RESUMO EXECUTIVO
+--------------------
+Duração: 291.3s
+Mensagens enviadas: 78
+Taxa de sucesso: 100.0%
+Respostas LLM capturadas: 0
+Cenários testados: 10
+
+🎬 RESULTADOS POR CENÁRIO
+-------------------------
+greeting: 5/5 (100.0%)
+service_inquiry: 7/7 (100.0%)
+appointment_booking: 9/9 (100.0%)
+cancellation: 6/6 (100.0%)
+reschedule: 7/7 (100.0%)
+complaint: 8/8 (100.0%)
+complex_inquiry: 8/8 (100.0%)
+business_info: 8/8 (100.0%)
+multi_topic: 10/10 (100.0%)
+edge_cases: 10/10 (100.0%)
+
+🤖 RESPOSTAS LLM PRINCIPAIS
+-------------------------
+
+
+📊 MÉTRICAS DO BANCO
+--------------------
+users: 4 registros
+messages: 216 registros
+conversations: 4 registros
+appointments: 0 registros
+services: 16 registros
+
+Usuário teste: João Victor Vancim
+Mensagens: 207
+Agendamentos: 0

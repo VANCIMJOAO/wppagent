@@ -14,6 +14,15 @@ keys/
 *.pem
 *.crt
 
+# Arquivos com chaves de API (BLOQUEADOS PELO GITHUB)
+configure_apis.py
+test_final_with_apis.py
+cred.py
+whatsapp_test_config.json
+*_config.json
+*api_key*
+*access_token*
+
 # Arquivos temporários e logs
 *.log
 logs/

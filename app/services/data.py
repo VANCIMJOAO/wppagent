@@ -84,7 +84,9 @@ class ConversationService:
             .where(Conversation.status.in_(["active", "human"]))
             .order_by(desc(Conversation.created_at))
         )
-        conversation = result.scalar_one_or_none()
+        conversation = result.first()
+        if conversation:
+            conversation = conversation[0]  # Extrair o objeto da tupla
         
         if not conversation:
             # Criar nova conversa

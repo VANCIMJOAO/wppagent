@@ -1,0 +1,111 @@
+🧪 RELATÓRIO COMPLETO DE TESTE - WHATSAPP AGENT
+=======================================================
+
+📊 RESUMO EXECUTIVO
+--------------------
+Duração: 351.3s
+Mensagens enviadas: 78
+Taxa de sucesso: 100.0%
+Respostas LLM capturadas: 12
+Cenários testados: 10
+
+🎬 RESULTADOS POR CENÁRIO
+-------------------------
+greeting: 5/5 (100.0%)
+service_inquiry: 7/7 (100.0%)
+appointment_booking: 9/9 (100.0%)
+cancellation: 6/6 (100.0%)
+reschedule: 7/7 (100.0%)
+complaint: 8/8 (100.0%)
+complex_inquiry: 8/8 (100.0%)
+business_info: 8/8 (100.0%)
+multi_topic: 10/10 (100.0%)
+edge_cases: 10/10 (100.0%)
+
+🤖 RESPOSTAS LLM PRINCIPAIS
+-------------------------
+
+1. [greeting]
+   Usuário: Olá!
+   LLM: Olá! Como posso ajudar você hoje?...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+2. [greeting]
+   Usuário: Bom dia! Como está?
+   LLM: Bom dia! Estou aqui para ajudar. Como posso auxiliar você hoje?...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+3. [greeting]
+   Usuário: Gostaria de conhecer seus serviços
+   LLM: Claro, ficarei feliz em ajudá-lo! Nossa Empresa oferece uma variedade de serviços. Por favor, aguarde um momento enquanto carrego as informações da no...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+4. [greeting]
+   Usuário: Vocês trabalham com o quê?
+   LLM: Nossa Empresa oferece uma variedade de serviços. Por favor, aguarde um momento enquanto carrego as informações da nossa base de dados...[carregando da...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+5. [greeting]
+   Usuário: Que legal! Me conte mais
+   LLM: Claro! Vou detalhar um pouco mais sobre nossos serviços para você:1 Serviço A: Este é um de nossos serviços mais requisitados. [Insira mais detalhes s...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+6. [service_inquiry]
+   Usuário: Quais serviços vocês oferecem?
+   LLM: Nossa Empresa oferece uma ampla gama de serviços. Permita-me um momento para buscar essas informações em nossa base de dados...[carregando dados...]Aq...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+7. [service_inquiry]
+   Usuário: Quanto custa uma limpeza de pele?
+   LLM: Permita-me um momento para buscar essa informação em nossa base de dados...[carregando dados...]A limpeza de pele em nossa empresa tem um custo de [pr...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+8. [service_inquiry]
+   Usuário: E massagem relaxante, fazem?
+   LLM: Sim, nós oferecemos o serviço de massagem relaxante! É um dos nossos serviços mais populares. Permita-me um momento para buscar o preço deste serviço ...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+9. [service_inquiry]
+   Usuário: Qual a duração da limpeza de pele?
+   LLM: Permita-me buscar essa informação em nossa base de dados...[carregando dados...]Nossa sessão de limpeza de pele tem duração de [duração]. Este tempo p...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+10. [service_inquiry]
+   Usuário: Vocês fazem depilação também?
+   LLM: Sim, nós oferecemos o serviço de depilação! Este é um dos serviços que nossos clientes mais solicitam. Permita-me um momento para buscar informações s...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+11. [service_inquiry]
+   Usuário: Têm algum pacote promocional?
+   LLM: Sim, nós oferecemos pacotes promocionais para nossos clientes! Vamos ver quais estão disponíveis atualmente...[carregando dados...]Aqui estão alguns d...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+12. [service_inquiry]
+   Usuário: E desconto para primeira vez?
+   LLM: Entendi que você precisa de um atendimento mais personalizado. Um de nossos atendentes entrará em contato em breve. Motivo: outside_business_hours...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+
+📊 MÉTRICAS DO BANCO
+--------------------
+users: 4 registros
+messages: 139 registros
+conversations: 4 registros
+appointments: 0 registros
+services: 16 registros
+
+Usuário teste: João Victor Vancim
+Mensagens: 130
+Agendamentos: 0

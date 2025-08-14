@@ -1,0 +1,105 @@
+🧪 RELATÓRIO COMPLETO DE TESTE - WHATSAPP AGENT
+=======================================================
+
+📊 RESUMO EXECUTIVO
+--------------------
+Duração: 492.5s
+Mensagens enviadas: 78
+Taxa de sucesso: 98.7%
+Respostas LLM capturadas: 11
+Cenários testados: 10
+
+🎬 RESULTADOS POR CENÁRIO
+-------------------------
+greeting: 4/5 (80.0%)
+service_inquiry: 7/7 (100.0%)
+appointment_booking: 9/9 (100.0%)
+cancellation: 6/6 (100.0%)
+reschedule: 7/7 (100.0%)
+complaint: 8/8 (100.0%)
+complex_inquiry: 8/8 (100.0%)
+business_info: 8/8 (100.0%)
+multi_topic: 10/10 (100.0%)
+edge_cases: 10/10 (100.0%)
+
+🤖 RESPOSTAS LLM PRINCIPAIS
+-------------------------
+
+1. [greeting]
+   Usuário: Olá!
+   LLM: Olá! Como posso ajudar você hoje?...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+2. [greeting]
+   Usuário: Bom dia! Como está?
+   LLM: Bom dia! Estou aqui para ajudar. Como posso auxiliá-lo hoje?...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+3. [greeting]
+   Usuário: Gostaria de conhecer seus serviços
+   LLM: Com certeza! Aqui estão alguns dos serviços que oferecemos:1 Limpeza de pele2 Depilação3 Massagem relaxante4 Manicure e pedicure5 Tratamentos faciaisC...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+4. [greeting]
+   Usuário: Vocês trabalham com o quê?
+   LLM: Nós oferecemos uma variedade de serviços para atender às suas necessidades. Aqui estão alguns deles:1 Limpeza de pele2 Depilação3 Massagem relaxante4 ...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+5. [service_inquiry]
+   Usuário: Quais serviços vocês oferecem?
+   LLM: Claro, ficarei feliz em ajudar! Nossa Empresa oferece uma variedade de serviços, incluindo:1. Serviço A: descrição e preço2. Serviço B: descrição e pr...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+6. [service_inquiry]
+   Usuário: Quanto custa uma limpeza de pele?
+   LLM: Desculpe-me, mas eu não tenho acesso à base de dados de preços neste momento. No entanto, posso garantir que nossos preços são competitivos e nosso se...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+7. [service_inquiry]
+   Usuário: E massagem relaxante, fazem?
+   LLM: Sim, fazemos massagem relaxante! É um dos nossos serviços mais populares. Ela é perfeita para aliviar o estresse e a tensão muscular, promovendo um pr...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+8. [service_inquiry]
+   Usuário: Qual a duração da limpeza de pele?
+   LLM: A limpeza de pele geralmente leva cerca de 60 a 90 minutos, dependendo das necessidades específicas da sua pele. Este tempo inclui a consulta inicial,...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+9. [service_inquiry]
+   Usuário: Vocês fazem depilação também?
+   LLM: Sim, nós oferecemos serviço de depilação! Trabalhamos para proporcionar um ambiente confortável e utilizamos produtos de alta qualidade para assegurar...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+10. [service_inquiry]
+   Usuário: Têm algum pacote promocional?
+   LLM: Sim, temos alguns pacotes promocionais disponíveis no momento. Aqui estão alguns deles:1. Pacote A: descrição e preço2. Pacote B: descrição e preço3. ...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+11. [service_inquiry]
+   Usuário: E desconto para primeira vez?
+   LLM: Entendi que você precisa de um atendimento mais personalizado. Um de nossos atendentes entrará em contato em breve. Motivo: outside_business_hours...
+   Sistema: whatsapp_agent
+   Confiança: 1.0
+
+
+📊 MÉTRICAS DO BANCO
+--------------------
+users: 4 registros
+messages: 311 registros
+conversations: 4 registros
+appointments: 0 registros
+services: 16 registros
+
+Usuário teste: João Victor Vancim
+Mensagens: 302
+Agendamentos: 0

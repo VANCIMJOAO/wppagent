@@ -1,0 +1,418 @@
+{
+  "test_info": {
+    "start_time": "2025-08-13T16:22:21.090963",
+    "end_time": "2025-08-13T16:22:52.600729",
+    "duration_seconds": 31.50887,
+    "test_phone": "5516991022255",
+    "railway_url": "https://wppagent-production.up.railway.app",
+    "test_endpoint": "https://wppagent-production.up.railway.app/webhook/test-send"
+  },
+  "summary": {
+    "total_conversations": 2,
+    "total_messages": 4,
+    "total_responses": 4,
+    "successful_messages": 4,
+    "failed_messages": 0,
+    "success_rate_percent": 100.0,
+    "response_rate_percent": 100.0,
+    "message_ids_count": 4
+  },
+  "conversations": [
+    {
+      "scenario": "teste_de_saudação",
+      "scenario_name": "Teste de Saudação",
+      "messages": [
+        {
+          "timestamp": "2025-08-13T16:22:21.091177",
+          "type": "sent",
+          "message": "Olá! Como está?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjU2NDU2NTk5ODY0NTc0OTdBNgA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjU2NDU2NTk5ODY0NTc0OTdBNgA="
+        },
+        {
+          "timestamp": "2025-08-13T16:22:28.404295",
+          "type": "received",
+          "message": "🤖 Olá! Recebi sua mensagem e estou aqui para ajudar com agendamentos e informações sobre nossos serviços de beleza.",
+          "role": "assistant",
+          "source": "simulated_response",
+          "preview": "Assistente virtual respondendo"
+        },
+        {
+          "timestamp": "2025-08-13T16:22:29.405723",
+          "type": "sent",
+          "message": "Estou bem, obrigado!",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY0NEM4NDg2NTY2RUYxMUFDNgA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY0NEM4NDg2NTY2RUYxMUFDNgA="
+        },
+        {
+          "timestamp": "2025-08-13T16:22:36.005757",
+          "type": "received",
+          "message": "🤖 Olá! Recebi sua mensagem e estou aqui para ajudar com agendamentos e informações sobre nossos serviços de beleza.",
+          "role": "assistant",
+          "source": "simulated_response",
+          "preview": "Assistente virtual respondendo"
+        }
+      ],
+      "start_time": "2025-08-13T16:22:21.091177",
+      "end_time": "2025-08-13T16:22:36.005757",
+      "message_count": 2,
+      "response_count": 2
+    },
+    {
+      "scenario": "consulta_servicos",
+      "scenario_name": "Consulta de Serviços",
+      "messages": [
+        {
+          "timestamp": "2025-08-13T16:22:37.007326",
+          "type": "sent",
+          "message": "Quais serviços vocês oferecem?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk4MUE1QjVEMjY2QjAxQkEyNwA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk4MUE1QjVEMjY2QjAxQkEyNwA="
+        },
+        {
+          "timestamp": "2025-08-13T16:22:43.719131",
+          "type": "received",
+          "message": "🤖 Olá! Recebi sua mensagem e estou aqui para ajudar com agendamentos e informações sobre nossos serviços de beleza.",
+          "role": "assistant",
+          "source": "simulated_response",
+          "preview": "Assistente virtual respondendo"
+        },
+        {
+          "timestamp": "2025-08-13T16:22:44.720589",
+          "type": "sent",
+          "message": "Quanto custa uma limpeza de pele?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0QTcyMTlBNUFEQkE3NDhEMQA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0QTcyMTlBNUFEQkE3NDhEMQA="
+        },
+        {
+          "timestamp": "2025-08-13T16:22:51.338099",
+          "type": "received",
+          "message": "🤖 Olá! Recebi sua mensagem e estou aqui para ajudar com agendamentos e informações sobre nossos serviços de beleza.",
+          "role": "assistant",
+          "source": "simulated_response",
+          "preview": "Assistente virtual respondendo"
+        }
+      ],
+      "start_time": "2025-08-13T16:22:37.007326",
+      "end_time": "2025-08-13T16:22:51.338099",
+      "message_count": 2,
+      "response_count": 2
+    }
+  ],
+  "test_results": [],
+  "messages_sent": [
+    {
+      "timestamp": "2025-08-13T16:22:21.091177",
+      "type": "sent",
+      "message": "Olá! Como está?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjU2NDU2NTk5ODY0NTc0OTdBNgA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjU2NDU2NTk5ODY0NTc0OTdBNgA="
+    },
+    {
+      "timestamp": "2025-08-13T16:22:29.405723",
+      "type": "sent",
+      "message": "Estou bem, obrigado!",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY0NEM4NDg2NTY2RUYxMUFDNgA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY0NEM4NDg2NTY2RUYxMUFDNgA="
+    },
+    {
+      "timestamp": "2025-08-13T16:22:37.007326",
+      "type": "sent",
+      "message": "Quais serviços vocês oferecem?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk4MUE1QjVEMjY2QjAxQkEyNwA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk4MUE1QjVEMjY2QjAxQkEyNwA="
+    },
+    {
+      "timestamp": "2025-08-13T16:22:44.720589",
+      "type": "sent",
+      "message": "Quanto custa uma limpeza de pele?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0QTcyMTlBNUFEQkE3NDhEMQA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0QTcyMTlBNUFEQkE3NDhEMQA="
+    }
+  ],
+  "responses_received": [
+    {
+      "timestamp": "2025-08-13T16:22:28.404295",
+      "type": "received",
+      "message": "🤖 Olá! Recebi sua mensagem e estou aqui para ajudar com agendamentos e informações sobre nossos serviços de beleza.",
+      "role": "assistant",
+      "source": "simulated_response",
+      "preview": "Assistente virtual respondendo"
+    },
+    {
+      "timestamp": "2025-08-13T16:22:36.005757",
+      "type": "received",
+      "message": "🤖 Olá! Recebi sua mensagem e estou aqui para ajudar com agendamentos e informações sobre nossos serviços de beleza.",
+      "role": "assistant",
+      "source": "simulated_response",
+      "preview": "Assistente virtual respondendo"
+    },
+    {
+      "timestamp": "2025-08-13T16:22:43.719131",
+      "type": "received",
+      "message": "🤖 Olá! Recebi sua mensagem e estou aqui para ajudar com agendamentos e informações sobre nossos serviços de beleza.",
+      "role": "assistant",
+      "source": "simulated_response",
+      "preview": "Assistente virtual respondendo"
+    },
+    {
+      "timestamp": "2025-08-13T16:22:51.338099",
+      "type": "received",
+      "message": "🤖 Olá! Recebi sua mensagem e estou aqui para ajudar com agendamentos e informações sobre nossos serviços de beleza.",
+      "role": "assistant",
+      "source": "simulated_response",
+      "preview": "Assistente virtual respondendo"
+    }
+  ],
+  "message_ids": [
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjU2NDU2NTk5ODY0NTc0OTdBNgA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY0NEM4NDg2NTY2RUYxMUFDNgA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk4MUE1QjVEMjY2QjAxQkEyNwA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0QTcyMTlBNUFEQkE3NDhEMQA="
+  ],
+  "final_metrics": {
+    "system_metrics": {
+      "status_code": 200,
+      "data": {
+        "system": {
+          "uptime": "2025-08-13T16:22:52.512515",
+          "service": "WhatsApp Agent API",
+          "version": "1.0.0"
+        },
+        "health_checks": {
+          "database": {
+            "status": "healthy",
+            "response_time": 0.038837,
+            "last_check": "2025-08-13T16:22:52.441758"
+          },
+          "whatsapp_api": {
+            "status": "unhealthy",
+            "response_time": null,
+            "last_check": "2025-08-13T16:22:52.512299"
+          },
+          "openai_api": {
+            "status": "unhealthy",
+            "response_time": null,
+            "last_check": "2025-08-13T16:22:52.480918"
+          },
+          "circuit_breakers": {
+            "status": "healthy",
+            "response_time": null,
+            "last_check": "2025-08-13T16:22:52.427941"
+          }
+        },
+        "circuit_breakers": {
+          "whatsapp_api": {
+            "state": "not_initialized"
+          }
+        }
+      }
+    },
+    "test_duration": 31.50887,
+    "total_messages": 4,
+    "total_responses": 4,
+    "successful_messages": 4,
+    "failed_messages": 0,
+    "success_rate": 100.0,
+    "response_rate": 100.0,
+    "message_ids": [
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjU2NDU2NTk5ODY0NTc0OTdBNgA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY0NEM4NDg2NTY2RUYxMUFDNgA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk4MUE1QjVEMjY2QjAxQkEyNwA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0QTcyMTlBNUFEQkE3NDhEMQA="
+    ],
+    "conversations_count": 1
+  }
+}

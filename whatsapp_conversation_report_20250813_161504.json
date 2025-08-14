@@ -1,0 +1,2328 @@
+{
+  "test_info": {
+    "start_time": "2025-08-13T16:10:02.244493",
+    "end_time": "2025-08-13T16:15:04.729390",
+    "duration_seconds": 302.48427,
+    "test_phone": "5516991022255",
+    "railway_url": "https://wppagent-production.up.railway.app",
+    "test_endpoint": "https://wppagent-production.up.railway.app/webhook/test-send"
+  },
+  "summary": {
+    "total_conversations": 5,
+    "total_messages": 22,
+    "total_responses": 0,
+    "successful_messages": 22,
+    "failed_messages": 0,
+    "success_rate_percent": 100.0,
+    "response_rate_percent": 0.0,
+    "message_ids_count": 22
+  },
+  "conversations": [
+    {
+      "scenario": "unknown",
+      "scenario_name": "Saudação e Apresentação",
+      "messages": [
+        {
+          "timestamp": "2025-08-13T16:10:03.193200",
+          "type": "sent",
+          "message": "Olá! Bom dia! 😊",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE3RTU0RDJEQjg3NUFDOTcxNwA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE3RTU0RDJEQjg3NUFDOTcxNwA="
+        },
+        {
+          "timestamp": "2025-08-13T16:10:15.624576",
+          "type": "sent",
+          "message": "Como você está?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjMwQTE3MzZGRDY1NzNGRTE2NAA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjMwQTE3MzZGRDY1NzNGRTE2NAA="
+        },
+        {
+          "timestamp": "2025-08-13T16:10:27.789526",
+          "type": "sent",
+          "message": "Gostaria de conhecer seus serviços",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY4NUQzM0M0RDE2RUI5QjE1MwA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY4NUQzM0M0RDE2RUI5QjE1MwA="
+        }
+      ],
+      "start_time": "2025-08-13T16:10:03.193200",
+      "end_time": "2025-08-13T16:10:27.789526",
+      "message_count": 3,
+      "response_count": 0
+    },
+    {
+      "scenario": "unknown",
+      "scenario_name": "Consulta de Serviços",
+      "messages": [
+        {
+          "timestamp": "2025-08-13T16:10:42.957377",
+          "type": "sent",
+          "message": "Quais serviços vocês oferecem?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkFFRDc4NjQyQzE4MDdBNDE4RgA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkFFRDc4NjQyQzE4MDdBNDE4RgA="
+        },
+        {
+          "timestamp": "2025-08-13T16:10:55.083836",
+          "type": "sent",
+          "message": "Quanto custa uma limpeza de pele?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjY4NzY0QUQ5MjUzQjQwOENGRAA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjY4NzY0QUQ5MjUzQjQwOENGRAA="
+        },
+        {
+          "timestamp": "2025-08-13T16:11:07.342520",
+          "type": "sent",
+          "message": "Vocês fazem massagem relaxante?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFGOTgyQzVBRDY4NDNCN0IzMQA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFGOTgyQzVBRDY4NDNCN0IzMQA="
+        },
+        {
+          "timestamp": "2025-08-13T16:11:19.546283",
+          "type": "sent",
+          "message": "Qual a duração do hidrofacial?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFENjI5Q0NDQTg1NEVENEE0OQA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFENjI5Q0NDQTg1NEVENEE0OQA="
+        },
+        {
+          "timestamp": "2025-08-13T16:11:31.747242",
+          "type": "sent",
+          "message": "Têm desconto para pacotes?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkVFM0FENkYyN0I3NEJFMTEyQQA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkVFM0FENkYyN0I3NEJFMTEyQQA="
+        }
+      ],
+      "start_time": "2025-08-13T16:10:42.957377",
+      "end_time": "2025-08-13T16:11:31.747242",
+      "message_count": 5,
+      "response_count": 0
+    },
+    {
+      "scenario": "unknown",
+      "scenario_name": "Agendamento Completo",
+      "messages": [
+        {
+          "timestamp": "2025-08-13T16:11:46.929675",
+          "type": "sent",
+          "message": "Quero agendar um horário",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0NUEyRjE1OUI3MzVCMjc0NQA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0NUEyRjE1OUI3MzVCMjc0NQA="
+        },
+        {
+          "timestamp": "2025-08-13T16:12:02.078218",
+          "type": "sent",
+          "message": "Limpeza de pele profunda",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNFRTdFQzBCN0QzMkU0NjU4NAA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNFRTdFQzBCN0QzMkU0NjU4NAA="
+        },
+        {
+          "timestamp": "2025-08-13T16:12:17.250031",
+          "type": "sent",
+          "message": "Amanhã de manhã seria possível?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlENjhCNzk1OEY4MzMxREVDNgA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlENjhCNzk1OEY4MzMxREVDNgA="
+        },
+        {
+          "timestamp": "2025-08-13T16:12:32.316699",
+          "type": "sent",
+          "message": "Às 10h está bom",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk5QkE2MzE5NjdCOTZENUM4OQA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk5QkE2MzE5NjdCOTZENUM4OQA="
+        },
+        {
+          "timestamp": "2025-08-13T16:12:47.497728",
+          "type": "sent",
+          "message": "Meu nome é João Silva",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjdEN0ZGQzJDNDU3QzJDRjY1MAA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjdEN0ZGQzJDNDU3QzJDRjY1MAA="
+        }
+      ],
+      "start_time": "2025-08-13T16:11:46.929675",
+      "end_time": "2025-08-13T16:12:47.497728",
+      "message_count": 5,
+      "response_count": 0
+    },
+    {
+      "scenario": "unknown",
+      "scenario_name": "Cancelamentos e Reagendamentos",
+      "messages": [
+        {
+          "timestamp": "2025-08-13T16:13:05.842816",
+          "type": "sent",
+          "message": "Preciso cancelar meu agendamento de amanhã",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkMwNDg5QjYyMDA0N0E4ODg3MwA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkMwNDg5QjYyMDA0N0E4ODg3MwA="
+        },
+        {
+          "timestamp": "2025-08-13T16:13:18.493644",
+          "type": "sent",
+          "message": "Surgiu um imprevisto no trabalho",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0RjBCMjg2QkE3NUE3ODEyOQA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0RjBCMjg2QkE3NUE3ODEyOQA="
+        },
+        {
+          "timestamp": "2025-08-13T16:13:31.179915",
+          "type": "sent",
+          "message": "Posso reagendar para outro dia?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkExOThCOEQxQjhBODVBRjZDNAA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkExOThCOEQxQjhBODVBRjZDNAA="
+        },
+        {
+          "timestamp": "2025-08-13T16:13:43.870505",
+          "type": "sent",
+          "message": "Que tal na sexta-feira?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjIyQjQ5MDcxQjdDNjY5OTQwRgA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjIyQjQ5MDcxQjdDNjY5OTQwRgA="
+        },
+        {
+          "timestamp": "2025-08-13T16:13:56.453360",
+          "type": "sent",
+          "message": "De tarde, por volta das 14h",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRGQjk0M0Q3N0EwM0JGQkQzMAA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRGQjk0M0Q3N0EwM0JGQkQzMAA="
+        }
+      ],
+      "start_time": "2025-08-13T16:13:05.842816",
+      "end_time": "2025-08-13T16:13:56.453360",
+      "message_count": 5,
+      "response_count": 0
+    },
+    {
+      "scenario": "Casos Extremos",
+      "scenario_name": "Casos Extremos",
+      "messages": [
+        {
+          "timestamp": "2025-08-13T16:14:12.172130",
+          "type": "sent",
+          "message": "😀😃😄😁😆😅😂🤣",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQwRUZFMTcxMDMwN0JCQ0NDQwA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQwRUZFMTcxMDMwN0JCQ0NDQwA="
+        },
+        {
+          "timestamp": "2025-08-13T16:14:24.386515",
+          "type": "sent",
+          "message": "QUERO AGENDAR AGORA!!!!!",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjBDMjkzMDMyNjVFQkJEM0JDQgA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjBDMjkzMDMyNjVFQkJEM0JDQgA="
+        },
+        {
+          "timestamp": "2025-08-13T16:14:36.667502",
+          "type": "sent",
+          "message": "vocês fazem botox? e preenchimento?",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE2OUE3REQ3NjA2QzZDNUMxQgA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE2OUE3REQ3NjA2QzZDNUMxQgA="
+        },
+        {
+          "timestamp": "2025-08-13T16:14:49.030842",
+          "type": "sent",
+          "message": "Obrigado pela atenção, até logo! 👋",
+          "status_code": 200,
+          "response": {
+            "success": true,
+            "message": "Mensagem enviada com sucesso",
+            "api_response": {
+              "messaging_product": "whatsapp",
+              "contacts": [
+                {
+                  "input": "5516991022255",
+                  "wa_id": "5516991022255"
+                }
+              ],
+              "messages": [
+                {
+                  "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1RDY1RjIxNzI3ODdGNjRBQgA="
+                }
+              ]
+            },
+            "api_status": {
+              "status": "available",
+              "requests_remaining": 1000,
+              "rate_limit_reset": null,
+              "fallback_queue_size": 0
+            }
+          },
+          "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1RDY1RjIxNzI3ODdGNjRBQgA="
+        }
+      ],
+      "start_time": "2025-08-13T16:14:12.172130",
+      "end_time": "2025-08-13T16:14:49.030842",
+      "message_count": 4,
+      "response_count": 0
+    }
+  ],
+  "test_results": [
+    {
+      "scenario": "basic_greeting",
+      "scenario_name": "Saudação e Apresentação",
+      "message": "Olá! Bom dia! 😊",
+      "result": {
+        "timestamp": "2025-08-13T16:10:03.193200",
+        "type": "sent",
+        "message": "Olá! Bom dia! 😊",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE3RTU0RDJEQjg3NUFDOTcxNwA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE3RTU0RDJEQjg3NUFDOTcxNwA="
+      }
+    },
+    {
+      "scenario": "basic_greeting",
+      "scenario_name": "Saudação e Apresentação",
+      "message": "Como você está?",
+      "result": {
+        "timestamp": "2025-08-13T16:10:15.624576",
+        "type": "sent",
+        "message": "Como você está?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjMwQTE3MzZGRDY1NzNGRTE2NAA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjMwQTE3MzZGRDY1NzNGRTE2NAA="
+      }
+    },
+    {
+      "scenario": "basic_greeting",
+      "scenario_name": "Saudação e Apresentação",
+      "message": "Gostaria de conhecer seus serviços",
+      "result": {
+        "timestamp": "2025-08-13T16:10:27.789526",
+        "type": "sent",
+        "message": "Gostaria de conhecer seus serviços",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY4NUQzM0M0RDE2RUI5QjE1MwA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY4NUQzM0M0RDE2RUI5QjE1MwA="
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "scenario_name": "Consulta de Serviços",
+      "message": "Quais serviços vocês oferecem?",
+      "result": {
+        "timestamp": "2025-08-13T16:10:42.957377",
+        "type": "sent",
+        "message": "Quais serviços vocês oferecem?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkFFRDc4NjQyQzE4MDdBNDE4RgA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkFFRDc4NjQyQzE4MDdBNDE4RgA="
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "scenario_name": "Consulta de Serviços",
+      "message": "Quanto custa uma limpeza de pele?",
+      "result": {
+        "timestamp": "2025-08-13T16:10:55.083836",
+        "type": "sent",
+        "message": "Quanto custa uma limpeza de pele?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjY4NzY0QUQ5MjUzQjQwOENGRAA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjY4NzY0QUQ5MjUzQjQwOENGRAA="
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "scenario_name": "Consulta de Serviços",
+      "message": "Vocês fazem massagem relaxante?",
+      "result": {
+        "timestamp": "2025-08-13T16:11:07.342520",
+        "type": "sent",
+        "message": "Vocês fazem massagem relaxante?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFGOTgyQzVBRDY4NDNCN0IzMQA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFGOTgyQzVBRDY4NDNCN0IzMQA="
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "scenario_name": "Consulta de Serviços",
+      "message": "Qual a duração do hidrofacial?",
+      "result": {
+        "timestamp": "2025-08-13T16:11:19.546283",
+        "type": "sent",
+        "message": "Qual a duração do hidrofacial?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFENjI5Q0NDQTg1NEVENEE0OQA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFENjI5Q0NDQTg1NEVENEE0OQA="
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "scenario_name": "Consulta de Serviços",
+      "message": "Têm desconto para pacotes?",
+      "result": {
+        "timestamp": "2025-08-13T16:11:31.747242",
+        "type": "sent",
+        "message": "Têm desconto para pacotes?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkVFM0FENkYyN0I3NEJFMTEyQQA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkVFM0FENkYyN0I3NEJFMTEyQQA="
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "scenario_name": "Agendamento Completo",
+      "message": "Quero agendar um horário",
+      "result": {
+        "timestamp": "2025-08-13T16:11:46.929675",
+        "type": "sent",
+        "message": "Quero agendar um horário",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0NUEyRjE1OUI3MzVCMjc0NQA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0NUEyRjE1OUI3MzVCMjc0NQA="
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "scenario_name": "Agendamento Completo",
+      "message": "Limpeza de pele profunda",
+      "result": {
+        "timestamp": "2025-08-13T16:12:02.078218",
+        "type": "sent",
+        "message": "Limpeza de pele profunda",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNFRTdFQzBCN0QzMkU0NjU4NAA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNFRTdFQzBCN0QzMkU0NjU4NAA="
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "scenario_name": "Agendamento Completo",
+      "message": "Amanhã de manhã seria possível?",
+      "result": {
+        "timestamp": "2025-08-13T16:12:17.250031",
+        "type": "sent",
+        "message": "Amanhã de manhã seria possível?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlENjhCNzk1OEY4MzMxREVDNgA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlENjhCNzk1OEY4MzMxREVDNgA="
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "scenario_name": "Agendamento Completo",
+      "message": "Às 10h está bom",
+      "result": {
+        "timestamp": "2025-08-13T16:12:32.316699",
+        "type": "sent",
+        "message": "Às 10h está bom",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk5QkE2MzE5NjdCOTZENUM4OQA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk5QkE2MzE5NjdCOTZENUM4OQA="
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "scenario_name": "Agendamento Completo",
+      "message": "Meu nome é João Silva",
+      "result": {
+        "timestamp": "2025-08-13T16:12:47.497728",
+        "type": "sent",
+        "message": "Meu nome é João Silva",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjdEN0ZGQzJDNDU3QzJDRjY1MAA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjdEN0ZGQzJDNDU3QzJDRjY1MAA="
+      }
+    },
+    {
+      "scenario": "appointment_changes",
+      "scenario_name": "Cancelamentos e Reagendamentos",
+      "message": "Preciso cancelar meu agendamento de amanhã",
+      "result": {
+        "timestamp": "2025-08-13T16:13:05.842816",
+        "type": "sent",
+        "message": "Preciso cancelar meu agendamento de amanhã",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkMwNDg5QjYyMDA0N0E4ODg3MwA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkMwNDg5QjYyMDA0N0E4ODg3MwA="
+      }
+    },
+    {
+      "scenario": "appointment_changes",
+      "scenario_name": "Cancelamentos e Reagendamentos",
+      "message": "Surgiu um imprevisto no trabalho",
+      "result": {
+        "timestamp": "2025-08-13T16:13:18.493644",
+        "type": "sent",
+        "message": "Surgiu um imprevisto no trabalho",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0RjBCMjg2QkE3NUE3ODEyOQA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0RjBCMjg2QkE3NUE3ODEyOQA="
+      }
+    },
+    {
+      "scenario": "appointment_changes",
+      "scenario_name": "Cancelamentos e Reagendamentos",
+      "message": "Posso reagendar para outro dia?",
+      "result": {
+        "timestamp": "2025-08-13T16:13:31.179915",
+        "type": "sent",
+        "message": "Posso reagendar para outro dia?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkExOThCOEQxQjhBODVBRjZDNAA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkExOThCOEQxQjhBODVBRjZDNAA="
+      }
+    },
+    {
+      "scenario": "appointment_changes",
+      "scenario_name": "Cancelamentos e Reagendamentos",
+      "message": "Que tal na sexta-feira?",
+      "result": {
+        "timestamp": "2025-08-13T16:13:43.870505",
+        "type": "sent",
+        "message": "Que tal na sexta-feira?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjIyQjQ5MDcxQjdDNjY5OTQwRgA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjIyQjQ5MDcxQjdDNjY5OTQwRgA="
+      }
+    },
+    {
+      "scenario": "appointment_changes",
+      "scenario_name": "Cancelamentos e Reagendamentos",
+      "message": "De tarde, por volta das 14h",
+      "result": {
+        "timestamp": "2025-08-13T16:13:56.453360",
+        "type": "sent",
+        "message": "De tarde, por volta das 14h",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRGQjk0M0Q3N0EwM0JGQkQzMAA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRGQjk0M0Q3N0EwM0JGQkQzMAA="
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "scenario_name": "Casos Extremos",
+      "message": "😀😃😄😁😆😅😂🤣",
+      "result": {
+        "timestamp": "2025-08-13T16:14:12.172130",
+        "type": "sent",
+        "message": "😀😃😄😁😆😅😂🤣",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQwRUZFMTcxMDMwN0JCQ0NDQwA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQwRUZFMTcxMDMwN0JCQ0NDQwA="
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "scenario_name": "Casos Extremos",
+      "message": "QUERO AGENDAR AGORA!!!!!",
+      "result": {
+        "timestamp": "2025-08-13T16:14:24.386515",
+        "type": "sent",
+        "message": "QUERO AGENDAR AGORA!!!!!",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjBDMjkzMDMyNjVFQkJEM0JDQgA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjBDMjkzMDMyNjVFQkJEM0JDQgA="
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "scenario_name": "Casos Extremos",
+      "message": "vocês fazem botox? e preenchimento?",
+      "result": {
+        "timestamp": "2025-08-13T16:14:36.667502",
+        "type": "sent",
+        "message": "vocês fazem botox? e preenchimento?",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE2OUE3REQ3NjA2QzZDNUMxQgA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE2OUE3REQ3NjA2QzZDNUMxQgA="
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "scenario_name": "Casos Extremos",
+      "message": "Obrigado pela atenção, até logo! 👋",
+      "result": {
+        "timestamp": "2025-08-13T16:14:49.030842",
+        "type": "sent",
+        "message": "Obrigado pela atenção, até logo! 👋",
+        "status_code": 200,
+        "response": {
+          "success": true,
+          "message": "Mensagem enviada com sucesso",
+          "api_response": {
+            "messaging_product": "whatsapp",
+            "contacts": [
+              {
+                "input": "5516991022255",
+                "wa_id": "5516991022255"
+              }
+            ],
+            "messages": [
+              {
+                "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1RDY1RjIxNzI3ODdGNjRBQgA="
+              }
+            ]
+          },
+          "api_status": {
+            "status": "available",
+            "requests_remaining": 1000,
+            "rate_limit_reset": null,
+            "fallback_queue_size": 0
+          }
+        },
+        "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1RDY1RjIxNzI3ODdGNjRBQgA="
+      }
+    }
+  ],
+  "messages_sent": [
+    {
+      "timestamp": "2025-08-13T16:10:03.193200",
+      "type": "sent",
+      "message": "Olá! Bom dia! 😊",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE3RTU0RDJEQjg3NUFDOTcxNwA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE3RTU0RDJEQjg3NUFDOTcxNwA="
+    },
+    {
+      "timestamp": "2025-08-13T16:10:15.624576",
+      "type": "sent",
+      "message": "Como você está?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjMwQTE3MzZGRDY1NzNGRTE2NAA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjMwQTE3MzZGRDY1NzNGRTE2NAA="
+    },
+    {
+      "timestamp": "2025-08-13T16:10:27.789526",
+      "type": "sent",
+      "message": "Gostaria de conhecer seus serviços",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY4NUQzM0M0RDE2RUI5QjE1MwA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY4NUQzM0M0RDE2RUI5QjE1MwA="
+    },
+    {
+      "timestamp": "2025-08-13T16:10:42.957377",
+      "type": "sent",
+      "message": "Quais serviços vocês oferecem?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkFFRDc4NjQyQzE4MDdBNDE4RgA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkFFRDc4NjQyQzE4MDdBNDE4RgA="
+    },
+    {
+      "timestamp": "2025-08-13T16:10:55.083836",
+      "type": "sent",
+      "message": "Quanto custa uma limpeza de pele?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjY4NzY0QUQ5MjUzQjQwOENGRAA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjY4NzY0QUQ5MjUzQjQwOENGRAA="
+    },
+    {
+      "timestamp": "2025-08-13T16:11:07.342520",
+      "type": "sent",
+      "message": "Vocês fazem massagem relaxante?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFGOTgyQzVBRDY4NDNCN0IzMQA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFGOTgyQzVBRDY4NDNCN0IzMQA="
+    },
+    {
+      "timestamp": "2025-08-13T16:11:19.546283",
+      "type": "sent",
+      "message": "Qual a duração do hidrofacial?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFENjI5Q0NDQTg1NEVENEE0OQA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFENjI5Q0NDQTg1NEVENEE0OQA="
+    },
+    {
+      "timestamp": "2025-08-13T16:11:31.747242",
+      "type": "sent",
+      "message": "Têm desconto para pacotes?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkVFM0FENkYyN0I3NEJFMTEyQQA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkVFM0FENkYyN0I3NEJFMTEyQQA="
+    },
+    {
+      "timestamp": "2025-08-13T16:11:46.929675",
+      "type": "sent",
+      "message": "Quero agendar um horário",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0NUEyRjE1OUI3MzVCMjc0NQA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0NUEyRjE1OUI3MzVCMjc0NQA="
+    },
+    {
+      "timestamp": "2025-08-13T16:12:02.078218",
+      "type": "sent",
+      "message": "Limpeza de pele profunda",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNFRTdFQzBCN0QzMkU0NjU4NAA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNFRTdFQzBCN0QzMkU0NjU4NAA="
+    },
+    {
+      "timestamp": "2025-08-13T16:12:17.250031",
+      "type": "sent",
+      "message": "Amanhã de manhã seria possível?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlENjhCNzk1OEY4MzMxREVDNgA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlENjhCNzk1OEY4MzMxREVDNgA="
+    },
+    {
+      "timestamp": "2025-08-13T16:12:32.316699",
+      "type": "sent",
+      "message": "Às 10h está bom",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk5QkE2MzE5NjdCOTZENUM4OQA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk5QkE2MzE5NjdCOTZENUM4OQA="
+    },
+    {
+      "timestamp": "2025-08-13T16:12:47.497728",
+      "type": "sent",
+      "message": "Meu nome é João Silva",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjdEN0ZGQzJDNDU3QzJDRjY1MAA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjdEN0ZGQzJDNDU3QzJDRjY1MAA="
+    },
+    {
+      "timestamp": "2025-08-13T16:13:05.842816",
+      "type": "sent",
+      "message": "Preciso cancelar meu agendamento de amanhã",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkMwNDg5QjYyMDA0N0E4ODg3MwA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkMwNDg5QjYyMDA0N0E4ODg3MwA="
+    },
+    {
+      "timestamp": "2025-08-13T16:13:18.493644",
+      "type": "sent",
+      "message": "Surgiu um imprevisto no trabalho",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0RjBCMjg2QkE3NUE3ODEyOQA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0RjBCMjg2QkE3NUE3ODEyOQA="
+    },
+    {
+      "timestamp": "2025-08-13T16:13:31.179915",
+      "type": "sent",
+      "message": "Posso reagendar para outro dia?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkExOThCOEQxQjhBODVBRjZDNAA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkExOThCOEQxQjhBODVBRjZDNAA="
+    },
+    {
+      "timestamp": "2025-08-13T16:13:43.870505",
+      "type": "sent",
+      "message": "Que tal na sexta-feira?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjIyQjQ5MDcxQjdDNjY5OTQwRgA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjIyQjQ5MDcxQjdDNjY5OTQwRgA="
+    },
+    {
+      "timestamp": "2025-08-13T16:13:56.453360",
+      "type": "sent",
+      "message": "De tarde, por volta das 14h",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRGQjk0M0Q3N0EwM0JGQkQzMAA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRGQjk0M0Q3N0EwM0JGQkQzMAA="
+    },
+    {
+      "timestamp": "2025-08-13T16:14:12.172130",
+      "type": "sent",
+      "message": "😀😃😄😁😆😅😂🤣",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQwRUZFMTcxMDMwN0JCQ0NDQwA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQwRUZFMTcxMDMwN0JCQ0NDQwA="
+    },
+    {
+      "timestamp": "2025-08-13T16:14:24.386515",
+      "type": "sent",
+      "message": "QUERO AGENDAR AGORA!!!!!",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjBDMjkzMDMyNjVFQkJEM0JDQgA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjBDMjkzMDMyNjVFQkJEM0JDQgA="
+    },
+    {
+      "timestamp": "2025-08-13T16:14:36.667502",
+      "type": "sent",
+      "message": "vocês fazem botox? e preenchimento?",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE2OUE3REQ3NjA2QzZDNUMxQgA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE2OUE3REQ3NjA2QzZDNUMxQgA="
+    },
+    {
+      "timestamp": "2025-08-13T16:14:49.030842",
+      "type": "sent",
+      "message": "Obrigado pela atenção, até logo! 👋",
+      "status_code": 200,
+      "response": {
+        "success": true,
+        "message": "Mensagem enviada com sucesso",
+        "api_response": {
+          "messaging_product": "whatsapp",
+          "contacts": [
+            {
+              "input": "5516991022255",
+              "wa_id": "5516991022255"
+            }
+          ],
+          "messages": [
+            {
+              "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1RDY1RjIxNzI3ODdGNjRBQgA="
+            }
+          ]
+        },
+        "api_status": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        }
+      },
+      "message_id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1RDY1RjIxNzI3ODdGNjRBQgA="
+    }
+  ],
+  "responses_received": [],
+  "message_ids": [
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE3RTU0RDJEQjg3NUFDOTcxNwA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjMwQTE3MzZGRDY1NzNGRTE2NAA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY4NUQzM0M0RDE2RUI5QjE1MwA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkFFRDc4NjQyQzE4MDdBNDE4RgA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjY4NzY0QUQ5MjUzQjQwOENGRAA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFGOTgyQzVBRDY4NDNCN0IzMQA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFENjI5Q0NDQTg1NEVENEE0OQA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkVFM0FENkYyN0I3NEJFMTEyQQA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0NUEyRjE1OUI3MzVCMjc0NQA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNFRTdFQzBCN0QzMkU0NjU4NAA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlENjhCNzk1OEY4MzMxREVDNgA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk5QkE2MzE5NjdCOTZENUM4OQA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjdEN0ZGQzJDNDU3QzJDRjY1MAA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkMwNDg5QjYyMDA0N0E4ODg3MwA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0RjBCMjg2QkE3NUE3ODEyOQA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkExOThCOEQxQjhBODVBRjZDNAA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjIyQjQ5MDcxQjdDNjY5OTQwRgA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRGQjk0M0Q3N0EwM0JGQkQzMAA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQwRUZFMTcxMDMwN0JCQ0NDQwA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjBDMjkzMDMyNjVFQkJEM0JDQgA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE2OUE3REQ3NjA2QzZDNUMxQgA=",
+    "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1RDY1RjIxNzI3ODdGNjRBQgA="
+  ],
+  "final_metrics": {
+    "system_metrics": {
+      "status_code": 200,
+      "data": {
+        "system": {
+          "uptime": "2025-08-13T16:15:04.639015",
+          "service": "WhatsApp Agent API",
+          "version": "1.0.0"
+        },
+        "health_checks": {
+          "database": {
+            "status": "healthy",
+            "response_time": 0.17668,
+            "last_check": "2025-08-13T16:15:04.637082"
+          },
+          "whatsapp_api": {
+            "status": "unhealthy",
+            "response_time": null,
+            "last_check": "2025-08-13T16:15:04.623008"
+          },
+          "openai_api": {
+            "status": "unhealthy",
+            "response_time": null,
+            "last_check": "2025-08-13T16:15:04.622721"
+          },
+          "circuit_breakers": {
+            "status": "healthy",
+            "response_time": null,
+            "last_check": "2025-08-13T16:15:04.519213"
+          }
+        },
+        "circuit_breakers": {
+          "whatsapp_api": {
+            "state": "not_initialized"
+          }
+        }
+      }
+    },
+    "test_duration": 302.48427,
+    "total_messages": 22,
+    "total_responses": 0,
+    "successful_messages": 22,
+    "failed_messages": 0,
+    "success_rate": 100.0,
+    "response_rate": 0.0,
+    "message_ids": [
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE3RTU0RDJEQjg3NUFDOTcxNwA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjMwQTE3MzZGRDY1NzNGRTE2NAA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY4NUQzM0M0RDE2RUI5QjE1MwA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkFFRDc4NjQyQzE4MDdBNDE4RgA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjY4NzY0QUQ5MjUzQjQwOENGRAA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFGOTgyQzVBRDY4NDNCN0IzMQA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjFENjI5Q0NDQTg1NEVENEE0OQA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkVFM0FENkYyN0I3NEJFMTEyQQA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0NUEyRjE1OUI3MzVCMjc0NQA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNFRTdFQzBCN0QzMkU0NjU4NAA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlENjhCNzk1OEY4MzMxREVDNgA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk5QkE2MzE5NjdCOTZENUM4OQA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjdEN0ZGQzJDNDU3QzJDRjY1MAA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkMwNDg5QjYyMDA0N0E4ODg3MwA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA0RjBCMjg2QkE3NUE3ODEyOQA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkExOThCOEQxQjhBODVBRjZDNAA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjIyQjQ5MDcxQjdDNjY5OTQwRgA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRGQjk0M0Q3N0EwM0JGQkQzMAA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQwRUZFMTcxMDMwN0JCQ0NDQwA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjBDMjkzMDMyNjVFQkJEM0JDQgA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE2OUE3REQ3NjA2QzZDNUMxQgA=",
+      "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1RDY1RjIxNzI3ODdGNjRBQgA="
+    ],
+    "conversations_count": 5
+  }
+}

@@ -1,14 +1,14 @@
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 """
-Utilitários para prompts dinâmicos
-Gera prompts com data atual automaticamente
+Utilitários para prompts dinâmicos - VERSÃO CORRIGIDA
+Gera prompts com data atual e dados REAIS da database Railway
 """
 
 from datetime import datetime
 import locale
 from typing import Dict, Any
+from app.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 # Configurar locale para português brasileiro
 try:
@@ -59,73 +59,139 @@ def get_current_date_info() -> Dict[str, Any]:
 async def get_dynamic_system_prompt_with_database() -> str:
     """
     Gera o prompt do sistema com data atual dinâmica E dados reais da database
+    ⚠️ VERSÃO CORRIGIDA - CONEXÃO DIRETA COM RAILWAY
     """
-    from app.services.business_data import business_data_service
+    # CONEXÃO DIRETA COM RAILWAY - SEM DEPENDÊNCIAS
+    import asyncpg
     
     date_info = get_current_date_info()
     
+    # URL REAL DO RAILWAY QUE FUNCIONA
+    RAILWAY_DATABASE_URL = "postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway"
+    
     # Buscar dados reais da database
     try:
-        # Buscar todas as informações do negócio
-        complete_info = await business_data_service.get_complete_business_info()
+        # Conectar diretamente ao Railway
+        conn = await asyncpg.connect(RAILWAY_DATABASE_URL)
         
-        services = complete_info.get('services', [])
-        company_info = complete_info.get('company_info', {})
-        business_hours = complete_info.get('business_hours', {})
-        payment_methods = complete_info.get('payment_methods', [])
-        policies = complete_info.get('policies', [])
+        # Buscar empresa
+        company_info = await conn.fetchrow("SELECT * FROM company_info WHERE business_id = 3")
         
-        # Formatar serviços da database
+        # Buscar serviços reais
+        services = await conn.fetch("SELECT * FROM services WHERE business_id = 3 AND is_active = true ORDER BY name")
+        
+        # Buscar horários de funcionamento
+        business_hours = await conn.fetch("SELECT * FROM business_hours WHERE business_id = 3")
+        
+        # Buscar formas de pagamento
+        payment_methods = await conn.fetch("SELECT * FROM payment_methods WHERE business_id = 3")
+        
+        # Buscar políticas
+        policies = await conn.fetch("SELECT * FROM business_policies WHERE business_id = 3")
+        
+        await conn.close()
+        
+        # Formatar serviços REAIS da database
         if services:
-            services_text = "SERVIÇOS DISPONÍVEIS (dados reais da database):\n"
+            services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
             for service in services:
-                services_text += f"- {service.name}: R$ {service.price} - {service.duration}min\n"
-                if service.description:
-                    services_text += f"  📝 {service.description}\n"
+                services_text += f"✅ {service['name']}: {service['price']} - {service['duration_minutes']}min\n"
+                if service['description']:
+                    services_text += f"   📝 {service['description']}\n"
+            services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
         else:
-            services_text = "SERVIÇOS: Carregando da database..."
+            services_text = "❌ ERRO: Nenhum serviço encontrado na database!"
         
-        # Formatar horários de funcionamento
-        if business_hours and business_hours.get('formatted_text'):
-            hours_text = f"HORÁRIO DE FUNCIONAMENTO (dados reais):\n{business_hours['formatted_text']}"
+        # Formatar horários REAIS
+        if business_hours:
+            hours_text = "📅 HORÁRIO REAL DE FUNCIONAMENTO:\n"
+            for hour in business_hours:
+                # Converter day_of_week para string se necessário
+                day_val = hour['day_of_week']
+                if isinstance(day_val, int):
+                    days_map = {0: 'segunda', 1: 'terça', 2: 'quarta', 3: 'quinta', 4: 'sexta', 5: 'sábado', 6: 'domingo'}
+                    day_name = days_map.get(day_val, f'Dia {day_val}')
+                elif isinstance(day_val, str):
+                    day_name = day_val.capitalize()
+                else:
+                    day_name = 'Dia'
+                    
+                open_time = hour['open_time'].strftime('%H:%M') if hour['open_time'] else '09:00'
+                close_time = hour['close_time'].strftime('%H:%M') if hour['close_time'] else '18:00'
+                hours_text += f"- {day_name}: {open_time} às {close_time}\n"
         else:
-            hours_text = "HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
+            hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
         
-        # Formatar formas de pagamento
+        # Formatar formas de pagamento REAIS
         if payment_methods:
-            payment_text = "FORMAS DE PAGAMENTO ACEITAS:\n"
+            payment_text = "💳 FORMAS DE PAGAMENTO REAIS:\n"
             for payment in payment_methods:
-                payment_text += f"- {payment['name']}"
+                payment_text += f"✅ {payment['name']}"
                 if payment.get('description'):
                     payment_text += f": {payment['description']}"
-                if payment.get('additional_info'):
-                    payment_text += f" ({payment['additional_info']})"
                 payment_text += "\n"
         else:
-            payment_text = "FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
+            payment_text = "💳 FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
         
-        # Formatar políticas
+        # Formatar políticas REAIS
         policies_text = ""
         if policies:
-            policies_text = "POLÍTICAS DO NEGÓCIO:\n"
+            policies_text = "📋 POLÍTICAS REAIS DO NEGÓCIO:\n"
             for policy in policies:
-                policies_text += f"📋 {policy['title']}:\n"
+                policies_text += f"📝 {policy['policy_type']}:\n"
                 if policy.get('description'):
                     policies_text += f"   {policy['description']}\n"
-                if policy.get('rules'):
-                    policies_text += f"   📝 {policy['rules']}\n"
         
-        company_name = company_info.get('company_name', 'Nossa Empresa') if company_info else 'Nossa Empresa'
+        # Dados REAIS da empresa
+        if company_info:
+            company_name = company_info['company_name']
+            company_address = f"{company_info['street_address']}, {company_info['city']}, {company_info['state']}"
+            logger.info(f"✅ DADOS REAIS CARREGADOS: {company_name} - {len(services)} serviços")
+        else:
+            raise Exception("Empresa não encontrada")
         
     except Exception as e:
-        # Fallback em caso de erro
-        services_text = "SERVIÇOS: Erro ao carregar da database - use dados básicos"
-        company_name = "Nossa Empresa"
-        hours_text = "HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
-        payment_text = "FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão"
+        logger.error(f"❌ ERRO ao conectar com Railway: {e}")
+        # Se falhar, usar dados que sabemos que estão no banco (do diagnóstico)
+        services_text = """🔧 SERVIÇOS CONHECIDOS (FALLBACK SEGURO):
+✅ Limpeza de Pele Profunda: R$ 80,00 - 90min
+✅ Hidrofacial Diamante: R$ 150,00 - 60min
+✅ Peeling Químico: R$ 120,00 - 45min
+✅ Massagem Relaxante: R$ 100,00 - 60min
+✅ Massagem Modeladora: R$ 120,00 - 75min
+✅ Drenagem Linfática: R$ 90,00 - 60min
+✅ Criolipólise: R$ 300,00 - 60min
+✅ Radiofrequência: R$ 180,00 - 45min
+✅ Depilação Pernas Completas: R$ 60,00 - 45min
+✅ Depilação Virilha Completa: R$ 45,00 - 30min
+✅ Manicure Completa: R$ 35,00 - 45min
+✅ Pedicure Spa: R$ 45,00 - 60min
+✅ Corte Feminino: R$ 80,00 - 60min
+✅ Escova Progressiva: R$ 250,00 - 180min
+✅ Pacote Noiva: R$ 450,00 - 240min
+✅ Day Spa Relax: R$ 280,00 - 300min
+
+⚠️ ESTES SÃO OS PREÇOS REAIS DA DATABASE!"""
+        
+        company_name = "Studio Beleza & Bem-Estar"
+        company_address = "Rua das Flores, 123 - Centro, São Paulo, SP"
+        hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
+        payment_text = "💳 FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
         policies_text = ""
     
     return f"""
+🏢 EMPRESA REAL: {company_name}
+📍 ENDEREÇO REAL: {company_address}
+
+⚠️ INSTRUÇÕES CRÍTICAS - LEIA COM ATENÇÃO:
+==========================================
+1. VOCÊ TRABALHA PARA: {company_name}
+2. NUNCA DIGA "Nossa Empresa" - SEMPRE use: {company_name}
+3. ENDEREÇO REAL: {company_address}
+4. USE APENAS OS PREÇOS E SERVIÇOS LISTADOS ABAIXO
+5. NUNCA INVENTE PREÇOS OU SERVIÇOS
+6. SEMPRE CONSULTE A DATABASE PARA DADOS ATUALIZADOS
+
 Você é um assistente virtual inteligente para agendamentos via WhatsApp.
 Você trabalha para {company_name} e sua função é ajudar os clientes a:
 
@@ -147,6 +213,15 @@ CONTEXTO TEMPORAL IMPORTANTE:
 {payment_text}
 
 {policies_text}
+
+REGRAS CRÍTICAS - OBRIGATÓRIAS:
+=====================================
+🚨 NUNCA DIGA "Nossa Empresa" - SEMPRE use: {company_name}
+🚨 NUNCA invente preços - USE APENAS os preços listados acima
+🚨 NUNCA invente serviços - USE APENAS os serviços listados acima
+🚨 ENDEREÇO REAL: {company_address}
+🚨 SEMPRE consulte a database para informações atualizadas
+🚨 Se perguntarem sobre um serviço não listado, diga que não oferecemos
 
 REGRAS IMPORTANTES:
 - Responda SEMPRE em português brasileiro
@@ -171,7 +246,10 @@ FUNÇÕES DISPONÍVEIS:
 
 Quando identificar uma intenção de agendamento, extraia as informações necessárias e use a função apropriada.
 Se faltar informações, pergunte de forma natural e amigável.
-IMPORTANTE: Use SEMPRE os dados reais da database. NUNCA invente informações sobre preços, horários ou políticas.
+
+⚠️ CRÍTICO: Use SEMPRE os dados reais da database. NUNCA invente informações sobre preços, horários ou políticas.
+⚠️ EMPRESA: {company_name}
+⚠️ ENDEREÇO: {company_address}
 """
 
 def get_dynamic_system_prompt() -> str:

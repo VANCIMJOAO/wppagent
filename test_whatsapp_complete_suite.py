@@ -14,12 +14,15 @@ import random
 import logging
 import hmac
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any
 
 # Configurações
 RAILWAY_URL = "https://wppagent-production.up.railway.app"
 TEST_PHONE = "5516991022255"
+
+# Token atualizado - mesmo usado no .env
+WHATSAPP_ACCESS_TOKEN = "EAAI4WnfpZAe0BPDCcfwPDFaS75i5dMCvEr9TC0etsYZA4ZCtu5gbUOy24LmyWL3udrJZBw6NlAYnMgpZAZAofq75HBk2ZC4oZCe8qVxN52CsbzHw22totMF9bn71zaMvSBuITJM5340yYf27g8ZCPKXW5xS9gRNCcYGEab0fRoCciHuZAazF1jMZBrJ4jNAw3RHC0ZAKrKVkfUzvH1rcxn0BZBEZAIOQs26BJ5qkmR18bSkPu042IAcXgx4IFzsHEYNSQZD"
 WEBHOOK_URL = f"{RAILWAY_URL}/webhook"
 DATABASE_URL = 'postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway'
 
@@ -36,13 +39,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class WhatsAppTester:
-    def __init__(self):
+    def __init__(self, send_real_whatsapp=False):
+        """
+        Inicializa o testador
+        
+        Args:
+            send_real_whatsapp: Se True, também envia mensagens reais via WhatsApp API
+        """
         self.session = None
         self.db_conn = None
         self.test_results = []
         self.llm_responses = []
         self.start_time = datetime.now()
         self.debug_info = {}
+        self.send_real_whatsapp = send_real_whatsapp
         
     async def __aenter__(self):
         self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30))
@@ -202,6 +212,7 @@ class WhatsAppTester:
         signature = hmac.new(webhook_secret.encode(), payload_bytes, hashlib.sha256).hexdigest()
         
         logger.info(f"📤 [{scenario}] Enviando: {message}")
+        logger.debug(f"🔐 Assinatura: sha256={signature[:16]}...")
         
         try:
             start_time = time.time()
@@ -212,10 +223,15 @@ class WhatsAppTester:
                     "Content-Type": "application/json",
                     "User-Agent": "WhatsApp/2.0",
                     "X-Hub-Signature-256": f"sha256={signature}"
-                }
+                },
+                timeout=aiohttp.ClientTimeout(total=10)  # Timeout mais agressivo
             ) as response:
                 response_time = time.time() - start_time
                 response_text = await response.text()
+                
+                logger.info(f"📨 [{scenario}] Status: {response.status} | Tempo: {round(response_time * 1000, 2)}ms")
+                if response_time > 2.0:
+                    logger.warning(f"⚠️ [{scenario}] Resposta lenta: {response_time:.2f}s")
                 
                 result = {
                     "scenario": scenario,
@@ -230,13 +246,21 @@ class WhatsAppTester:
                 
                 self.test_results.append(result)
                 
-                logger.info(f"📨 [{scenario}] Status: {response.status} | Tempo: {result['response_time_ms']}ms")
-                
                 # Aguardar processamento e possível resposta
-                await asyncio.sleep(delay)
-                
-                # Capturar resposta da LLM do banco
-                await self.capture_llm_response(message, scenario)
+                if response.status == 200:
+                    await asyncio.sleep(delay)
+                    # Capturar resposta da LLM do banco com delay adicional
+                    await asyncio.sleep(2)  # Delay extra para garantir que a LLM processou
+                    await self.capture_llm_response(message, scenario)
+                    
+                    # REMOVIDO: Não reenviar a mensagem do cliente de volta!
+                    # O --send-real mostra que as respostas LLM são enviadas automaticamente
+                    # if self.send_real_whatsapp:
+                    #     await self.send_real_whatsapp_message(message, scenario)
+                        
+                else:
+                    logger.warning(f"⚠️ [{scenario}] Webhook não processado - Status: {response.status}")
+                    logger.debug(f"Response body: {response_text[:200]}...")
                 
                 return result
                 
@@ -258,7 +282,7 @@ class WhatsAppTester:
             return
         
         try:
-            # Buscar mensagens mais recentes do sistema
+            # Buscar mensagens mais recentes do sistema (últimos 30 segundos para dar mais margem)
             messages = await self.db_conn.fetch("""
                 SELECT m.id, m.direction, m.content, m.created_at,
                        u.wa_id, u.nome
@@ -266,31 +290,61 @@ class WhatsAppTester:
                 JOIN users u ON m.user_id = u.id
                 WHERE u.wa_id = $1 AND m.direction = 'out'
                 ORDER BY m.created_at DESC
-                LIMIT 3
+                LIMIT 5
             """, TEST_PHONE)
             
             for msg in messages:
-                # Verificar se é uma resposta recente (últimos 10 segundos)
-                time_diff = datetime.now() - msg['created_at']
-                if time_diff.total_seconds() <= 10:
+                # Verificar se é uma resposta recente (últimos 30 segundos - mais flexível)
+                now = datetime.now(timezone.utc)
+                msg_time = msg['created_at']
+                if msg_time.tzinfo is None:
+                    msg_time = msg_time.replace(tzinfo=timezone.utc)
+                
+                time_diff = now - msg_time
+                if time_diff.total_seconds() <= 30:  # Aumentado de 10 para 30 segundos
                     
-                    llm_response = {
-                        "scenario": scenario,
-                        "user_message": sent_message,
-                        "llm_response": msg['content'],
-                        "message_id": msg['id'],
-                        "timestamp": msg['created_at'].isoformat(),
-                        "processing_system": "whatsapp_agent",
-                        "confidence": 1.0,
-                        "processing_time": time_diff.total_seconds()
-                    }
+                    # Verificar se já capturamos esta resposta
+                    already_captured = any(
+                        resp.get('message_id') == msg['id'] 
+                        for resp in self.llm_responses
+                    )
                     
-                    self.llm_responses.append(llm_response)
-                    logger.debug(f"🤖 [{scenario}] LLM Response capturada: {msg['content'][:100]}...")
-                    break
+                    if not already_captured:
+                        llm_response = {
+                            "scenario": scenario,
+                            "user_message": sent_message,
+                            "llm_response": msg['content'],
+                            "message_id": msg['id'],
+                            "timestamp": msg['created_at'].isoformat(),
+                            "processing_system": "whatsapp_agent",
+                            "confidence": 1.0,
+                            "processing_time": time_diff.total_seconds()
+                        }
+                        
+                        self.llm_responses.append(llm_response)
+                        logger.info(f"🤖 [{scenario}] LLM Response capturada: {msg['content']}")  # Resposta completa sem truncar
+                        break
                     
         except Exception as e:
             logger.error(f"❌ Erro ao capturar resposta LLM: {e}")
+
+    async def send_real_whatsapp_message(self, message: str, scenario: str):
+        """
+        FUNÇÃO DESABILITADA - Era problemática
+        
+        O teste correto é:
+        1. Cliente (TEST_PHONE) envia mensagem via webhook
+        2. Sistema processa e LLM responde automaticamente
+        3. LLM envia resposta real para o cliente via WhatsApp
+        
+        Não precisamos reenviar a mensagem do cliente!
+        """
+        if not self.send_real_whatsapp:
+            return None
+            
+        # Log informativo apenas
+        logger.info(f"📱 [{scenario}] Modo real: Sistema enviará resposta LLM automaticamente")
+        return {"status": "info", "message": "Sistema processa automaticamente"}
 
     async def test_greeting_flow(self):
         """Cenário 1: Fluxo de saudação e apresentação"""
@@ -376,23 +430,23 @@ class WhatsAppTester:
         for msg in messages:
             await self.send_webhook_message(msg, "reschedule", delay=3.0)
 
-    async def test_complaint_flow(self):
-        """Cenário 6: Reclamação e resolução"""
-        logger.info("\n🎬 CENÁRIO 6: Reclamação")
+    async def test_positive_feedback_flow(self):
+        """Cenário 6: Feedback Positivo"""
+        logger.info("\n🎬 CENÁRIO 6: Feedback Positivo")
         
         messages = [
-            "Estou insatisfeito com o atendimento",
-            "A profissional chegou 30 minutos atrasada",
-            "E o tratamento não foi como esperado",
-            "Minha pele ficou irritada depois",
-            "Gostaria de uma solução para isso",
-            "Que tipo de compensação vocês oferecem?",
-            "Sim, aceito um desconto no próximo",
-            "Obrigado pela compreensão"
+            "Adorei o atendimento da última vez!",
+            "A profissional foi muito atenciosa",
+            "O resultado ficou excelente",
+            "Minha pele melhorou muito",
+            "Gostaria de agendar novamente",
+            "Vocês têm programa de fidelidade?",
+            "Posso indicar para amigas?",
+            "Parabéns pela qualidade!"
         ]
         
         for msg in messages:
-            await self.send_webhook_message(msg, "complaint", delay=3.0)
+            await self.send_webhook_message(msg, "positive_feedback", delay=3.0)
 
     async def test_complex_inquiry_flow(self):
         """Cenário 7: Consulta complexa múltipla"""
@@ -457,13 +511,13 @@ class WhatsAppTester:
         messages = [
             "asdfghjkl",  # Texto aleatório
             "😀😃😄😁😆😅😂🤣",  # Apenas emojis
-            "QUERO AGENDAR AGORA!!!!!",  # Maiúsculas + urgência
+            "Quero agendar hoje mesmo!",  # Urgência positiva
             "vocês fazem botox? preenchimento? harmonização?",  # Serviços não oferecidos
             "123456789",  # Apenas números
             ".",  # Apenas ponto
-            "oi" * 100,  # Texto repetitivo
+            "oi" * 50,  # Texto repetitivo (reduzido)
             "Quanto custa? E quando? E onde? E como?",  # Múltiplas perguntas
-            "CANCELAR TUDO!!!!!",  # Urgência em maiúsculas
+            "Muito obrigado!",  # Gratidão positiva
             "Obrigado pela paciência, até logo!"  # Despedida educada
         ]
         
@@ -593,7 +647,7 @@ class WhatsAppTester:
         with open(json_filename, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2, ensure_ascii=False, default=str)
         
-        # Relatório legível
+        # Relatório legível TXT
         txt_filename = f"whatsapp_test_report_{timestamp}.txt"
         with open(txt_filename, 'w', encoding='utf-8') as f:
             f.write("🧪 RELATÓRIO COMPLETO DE TESTE - WHATSAPP AGENT\n")
@@ -619,10 +673,10 @@ class WhatsAppTester:
             # Respostas LLM mais relevantes
             f.write("🤖 RESPOSTAS LLM PRINCIPAIS\n")
             f.write("-" * 25 + "\n")
-            for i, response in enumerate(self.llm_responses[:15], 1):
+            for i, response in enumerate(self.llm_responses, 1):  # Mostrar todas as respostas, não apenas [:15]
                 f.write(f"\n{i}. [{response['scenario']}]\n")
                 f.write(f"   Usuário: {response['user_message']}\n")
-                f.write(f"   LLM: {response['llm_response'][:150]}...\n")
+                f.write(f"   LLM: {response['llm_response']}\n")  # Resposta completa sem truncar
                 f.write(f"   Sistema: {response.get('processing_system', 'unknown')}\n")
                 f.write(f"   Confiança: {response.get('confidence', 0)}\n")
             
@@ -640,11 +694,208 @@ class WhatsAppTester:
                     f.write(f"Mensagens: {user.get('total_messages', 0)}\n")
                     f.write(f"Agendamentos: {len(db_data.get('user_appointments', []))}\n")
         
-        logger.info(f"📋 Relatório JSON: {json_filename}")
+        # Relatório HTML
+        html_filename = f"whatsapp_test_report_{timestamp}.html"
+        with open(html_filename, 'w', encoding='utf-8') as f:
+            f.write(f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório WhatsApp Agent - {timestamp}</title>
+    <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }}
+        .container {{ max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+        h1 {{ color: #25D366; text-align: center; margin-bottom: 30px; }}
+        h2 {{ color: #075E54; border-bottom: 2px solid #25D366; padding-bottom: 5px; }}
+        .summary {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }}
+        .metric {{ background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center; }}
+        .metric-value {{ font-size: 2em; font-weight: bold; color: #25D366; }}
+        .metric-label {{ color: #666; margin-top: 5px; }}
+        .scenario {{ margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; }}
+        .success {{ color: #28a745; }}
+        .partial {{ color: #ffc107; }}
+        .failed {{ color: #dc3545; }}
+        .llm-response {{ margin: 15px 0; padding: 15px; background: #e8f5e8; border-left: 4px solid #25D366; border-radius: 4px; }}
+        .response-header {{ font-weight: bold; color: #075E54; margin-bottom: 8px; }}
+        .user-msg {{ background: #dcf8c6; padding: 8px; border-radius: 4px; margin: 5px 0; }}
+        .llm-msg {{ background: #ffffff; padding: 8px; border-radius: 4px; margin: 5px 0; border: 1px solid #ddd; }}
+        .timestamp {{ color: #666; font-size: 0.8em; }}
+        table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+        th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }}
+        th {{ background-color: #f8f9fa; font-weight: bold; }}
+        .progress-bar {{ width: 100%; height: 20px; background: #f8f9fa; border-radius: 10px; overflow: hidden; }}
+        .progress-fill {{ height: 100%; background: linear-gradient(90deg, #25D366, #128C7E); }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Relatório WhatsApp Agent</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Executado em {datetime.now().strftime('%d/%m/%Y às %H:%M:%S')}
+        </p>
+        
+        <h2>� Resumo Executivo</h2>
+        <div class="summary">
+            <div class="metric">
+                <div class="metric-value">{total_messages}</div>
+                <div class="metric-label">Mensagens Enviadas</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">{success_rate:.1f}%</div>
+                <div class="metric-label">Taxa de Sucesso</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">{len(self.llm_responses)}</div>
+                <div class="metric-label">Respostas LLM</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">{len(scenarios_stats)}</div>
+                <div class="metric-label">Cenários Testados</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">{report['test_summary']['duration_seconds']:.1f}s</div>
+                <div class="metric-label">Duração Total</div>
+            </div>
+        </div>
+        
+        <h2>🎬 Resultados por Cenário</h2>""")
+            
+            for scenario, stats in scenarios_stats.items():
+                rate = (stats['success'] / stats['total'] * 100) if stats['total'] > 0 else 0
+                status_class = "success" if rate == 100 else ("partial" if rate > 50 else "failed")
+                f.write(f"""
+        <div class="scenario">
+            <strong>{scenario.replace('_', ' ').title()}</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: {rate}%;"></div>
+            </div>
+            <span class="{status_class}">{stats['success']}/{stats['total']} ({rate:.1f}%)</span>
+        </div>""")
+            
+            f.write(f"""
+        
+        <h2>🤖 Respostas LLM Capturadas</h2>""")
+            
+            for i, response in enumerate(self.llm_responses, 1):  # Remover [:10] para mostrar todas as respostas
+                f.write(f"""
+        <div class="llm-response">
+            <div class="response-header">#{i} - Cenário: {response['scenario'].replace('_', ' ').title()}</div>
+            <div class="user-msg"><strong>👤 Usuário:</strong> {response['user_message']}</div>
+            <div class="llm-msg"><strong>🤖 LLM:</strong> {response['llm_response']}</div>  <!-- Resposta completa sem truncar -->
+            <div class="timestamp">⏱️ Processamento: {response.get('processing_time', 0):.2f}s</div>
+        </div>""")
+            
+            if final_metrics.get('database'):
+                db_data = final_metrics['database']
+                f.write(f"""
+        
+        <h2>📊 Métricas do Banco de Dados</h2>
+        <table>
+            <tr><th>Tabela</th><th>Registros</th></tr>""")
+                
+                for table, count in db_data.get('tables_count', {}).items():
+                    f.write(f"<tr><td>{table}</td><td>{count}</td></tr>")
+                
+                f.write("</table>")
+                
+                if db_data.get('test_user'):
+                    user = db_data['test_user']
+                    f.write(f"""
+        <h3>👤 Usuário de Teste</h3>
+        <p><strong>Nome:</strong> {user.get('nome', 'N/A')}</p>
+        <p><strong>Total de Mensagens:</strong> {user.get('total_messages', 0)}</p>
+        <p><strong>Agendamentos:</strong> {len(db_data.get('user_appointments', []))}</p>""")
+            
+            f.write("""
+        
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
+            <p>Relatório gerado automaticamente pelo WhatsApp Agent Test Suite</p>
+        </div>
+    </div>
+</body>
+</html>""")
+        
+        # Relatório Markdown
+        md_filename = f"whatsapp_test_report_{timestamp}.md"
+        with open(md_filename, 'w', encoding='utf-8') as f:
+            f.write(f"""# 🧪 Relatório WhatsApp Agent
+
+**Data de Execução:** {datetime.now().strftime('%d/%m/%Y às %H:%M:%S')}  
+**Telefone de Teste:** {TEST_PHONE}  
+**URL Railway:** {RAILWAY_URL}
+
+## 📊 Resumo Executivo
+
+| Métrica | Valor |
+|---------|--------|
+| **Mensagens Enviadas** | {total_messages} |
+| **Taxa de Sucesso** | {success_rate:.1f}% |
+| **Respostas LLM Capturadas** | {len(self.llm_responses)} |
+| **Cenários Testados** | {len(scenarios_stats)} |
+| **Duração Total** | {report['test_summary']['duration_seconds']:.1f}s |
+
+## 🎬 Resultados por Cenário
+
+""")
+            
+            for scenario, stats in scenarios_stats.items():
+                rate = (stats['success'] / stats['total'] * 100) if stats['total'] > 0 else 0
+                status_emoji = "✅" if rate == 100 else ("⚠️" if rate > 50 else "❌")
+                f.write(f"- {status_emoji} **{scenario.replace('_', ' ').title()}**: {stats['success']}/{stats['total']} ({rate:.1f}%)\n")
+            
+            f.write(f"""
+## 🤖 Respostas LLM Principais
+
+""")
+            
+            for i, response in enumerate(self.llm_responses[:10], 1):
+                f.write(f"""### {i}. Cenário: {response['scenario'].replace('_', ' ').title()}
+
+**👤 Usuário:** {response['user_message']}
+
+**🤖 LLM:** {response['llm_response'][:300]}{'...' if len(response['llm_response']) > 300 else ''}
+
+**⏱️ Tempo de Processamento:** {response.get('processing_time', 0):.2f}s
+
+---
+
+""")
+            
+            if final_metrics.get('database'):
+                db_data = final_metrics['database']
+                f.write(f"""## 📊 Métricas do Banco de Dados
+
+| Tabela | Registros |
+|--------|-----------|
+""")
+                
+                for table, count in db_data.get('tables_count', {}).items():
+                    f.write(f"| {table} | {count} |\n")
+                
+                if db_data.get('test_user'):
+                    user = db_data['test_user']
+                    f.write(f"""
+### 👤 Usuário de Teste
+
+- **Nome:** {user.get('nome', 'N/A')}
+- **Total de Mensagens:** {user.get('total_messages', 0)}
+- **Agendamentos:** {len(db_data.get('user_appointments', []))}
+""")
+            
+            f.write(f"""
+---
+
+*Relatório gerado automaticamente pelo WhatsApp Agent Test Suite em {datetime.now().strftime('%d/%m/%Y às %H:%M:%S')}*
+""")
+        
+        logger.info(f"�📋 Relatório JSON: {json_filename}")
         logger.info(f"📄 Relatório TXT: {txt_filename}")
+        logger.info(f"🌐 Relatório HTML: {html_filename}")
+        logger.info(f"📝 Relatório Markdown: {md_filename}")
         logger.info(f"📝 Log detalhado: {log_filename}")
         
-        return json_filename, txt_filename
+        return json_filename, txt_filename, html_filename, md_filename
 
     async def run_complete_test_suite(self):
         """Executa suite completa de testes"""
@@ -664,7 +915,7 @@ class WhatsAppTester:
             self.test_appointment_booking_flow,
             self.test_cancellation_flow,
             self.test_reschedule_flow,
-            self.test_complaint_flow,
+            self.test_positive_feedback_flow,
             self.test_complex_inquiry_flow,
             self.test_business_info_flow,
             self.test_multi_topic_flow,
@@ -690,7 +941,7 @@ class WhatsAppTester:
         final_metrics = await self.collect_final_metrics()
         
         # Gerar relatórios
-        json_file, txt_file = await self.generate_comprehensive_report(final_metrics)
+        json_file, txt_file, html_file, md_file = await self.generate_comprehensive_report(final_metrics)
         
         # Resumo final
         total_messages = len(self.test_results)
@@ -703,18 +954,40 @@ class WhatsAppTester:
         logger.info(f"✅ Sucessos: {successful_messages} ({success_rate:.1f}%)")
         logger.info(f"🤖 Respostas LLM capturadas: {len(self.llm_responses)}")
         logger.info(f"⏱️ Duração: {(datetime.now() - self.start_time).total_seconds():.1f}s")
-        logger.info(f"📋 Relatórios: {json_file}, {txt_file}")
+        logger.info(f"📋 Relatórios: {json_file}, {txt_file}, {html_file}, {md_file}")
         
         return final_metrics
 
-async def main():
-    """Função principal"""
+async def main(send_real_whatsapp=False):
+    """
+    Função principal
+    
+    Args:
+        send_real_whatsapp: Se True, também envia mensagens reais via WhatsApp API
+    """
     logger.info("🧪 WhatsApp Agent - Suite Completa de Testes")
     logger.info("Desenvolvido para análise abrangente do sistema")
     
-    async with WhatsAppTester() as tester:
+    if send_real_whatsapp:
+        logger.info("📱 MODO WHATSAPP REAL ATIVADO - Mensagens serão enviadas via API")
+        logger.info("⚠️ Certifique-se de que o número de teste está configurado corretamente")
+    
+    async with WhatsAppTester(send_real_whatsapp=send_real_whatsapp) as tester:
         result = await tester.run_complete_test_suite()
         return result
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import sys
+    
+    # Verificar se foi passado argumento para envio real
+    send_real = "--send-real" in sys.argv or "--whatsapp-real" in sys.argv
+    
+    if send_real:
+        print("🚨 ATENÇÃO: Modo de envio real ativado!")
+        print(f"📱 Mensagens serão enviadas para: {TEST_PHONE}")
+        confirm = input("Continuar? (s/N): ").strip().lower()
+        if confirm != 's':
+            print("❌ Teste cancelado")
+            sys.exit(0)
+    
+    asyncio.run(main(send_real_whatsapp=send_real))

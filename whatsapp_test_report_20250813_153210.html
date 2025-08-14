@@ -1,0 +1,830 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Teste - WhatsApp Agent</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #25D366;
+        }
+        .success-rate {
+            color: #25D366 !important;
+        }
+        .scenarios {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .scenarios h2 {
+            background: #128C7E;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+        }
+        .scenario {
+            border-bottom: 1px solid #eee;
+            padding: 20px;
+        }
+        .scenario:last-child {
+            border-bottom: none;
+        }
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .scenario-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .scenario-stats {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .messages {
+            margin-top: 15px;
+        }
+        .message {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #25D366;
+        }
+        .message.error {
+            border-left-color: #e74c3c;
+            background: #fdf2f2;
+        }
+        .message-text {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .message-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .message-id {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+        .details {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        .details h2 {
+            color: #128C7E;
+            border-bottom: 2px solid #128C7E;
+            padding-bottom: 10px;
+        }
+        .details table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .details th, .details td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .details th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            color: #666;
+            margin-top: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 Relatório de Teste - WhatsApp Agent</h1>
+        <p>Teste completo de produção com mensagens reais</p>
+        <p>📅 13/08/2025 às 15:32:10</p>
+    </div>
+
+    <div class="summary">
+        <div class="summary-card">
+            <h3>Total de Mensagens</h3>
+            <div class="value">48</div>
+        </div>
+        <div class="summary-card">
+            <h3>Mensagens Enviadas</h3>
+            <div class="value">47</div>
+        </div>
+        <div class="summary-card">
+            <h3>Falhas</h3>
+            <div class="value">1</div>
+        </div>
+        <div class="summary-card">
+            <h3>Taxa de Sucesso</h3>
+            <div class="value success-rate">97.9%</div>
+        </div>
+        <div class="summary-card">
+            <h3>Duração</h3>
+            <div class="value">220.8s</div>
+        </div>
+        <div class="summary-card">
+            <h3>Cenários</h3>
+            <div class="value">9</div>
+        </div>
+    </div>
+
+    <div class="scenarios">
+        <h2>🎬 Resultados por Cenário</h2>
+        
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Saudação e Apresentação</div>
+                <div class="scenario-stats">
+                    3/3 mensagens 
+                    (100.0% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"Olá! Bom dia! 😊"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjREQTRENjI2RDZEMzk2RjIwOAA=</span>
+                        | 2025-08-13T15:28:32
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Como você está?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjRCRDU1MEZEMDg0MEU0RkFFOQA=</span>
+                        | 2025-08-13T15:28:35
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Gostaria de conhecer seus serviços"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjAzMUUxMjAyNENCRjE4OTJFQgA=</span>
+                        | 2025-08-13T15:28:39
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Consulta de Serviços</div>
+                <div class="scenario-stats">
+                    5/5 mensagens 
+                    (100.0% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"Quais serviços vocês oferecem?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjJCMDlDODlBODlDNEU3QTE1NQA=</span>
+                        | 2025-08-13T15:28:45
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Quanto custa uma limpeza de pele?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkNGOUIwMTM3QkJDRkFEQTU2MQA=</span>
+                        | 2025-08-13T15:28:49
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Vocês fazem massagem relaxante?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkJGRTNBNEZBRUUyMEFEOTA0NQA=</span>
+                        | 2025-08-13T15:28:53
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Qual a duração do hidrofacial?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjI5NDcwQzYwMDk0OTFEQUNCQwA=</span>
+                        | 2025-08-13T15:28:56
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Têm desconto para pacotes?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkQxNTUxMEU1MUU4MTlDQkQ5NwA=</span>
+                        | 2025-08-13T15:29:00
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Agendamento Completo</div>
+                <div class="scenario-stats">
+                    5/6 mensagens 
+                    (83.3% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"Quero agendar um horário"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjRCRTMxNDc3Q0M5QUNENTZDOQA=</span>
+                        | 2025-08-13T15:29:06
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Limpeza de pele profunda"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY5NEQ0MzIzMUNGMUY0MkVCMgA=</span>
+                        | 2025-08-13T15:29:11
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Amanhã de manhã seria possível?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE5NThGRTNBOTIxOUFBRjhFMAA=</span>
+                        | 2025-08-13T15:29:16
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Às 10h está bom"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjI3RDg4NjEyMTA2RUY2MTI4MAA=</span>
+                        | 2025-08-13T15:29:21
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Meu nome é João Silva"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjZBODYyMTIxN0UyRjlCMkFBQQA=</span>
+                        | 2025-08-13T15:29:25
+                    </div>
+                </div>
+                
+                <div class="message error">
+                    <div class="message-text">"Sim, confirmo o agendamento"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-error">Erro</span>
+                        Status: 500
+                        
+                        | 2025-08-13T15:29:30
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Cancelamentos e Reagendamentos</div>
+                <div class="scenario-stats">
+                    6/6 mensagens 
+                    (100.0% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"Preciso cancelar meu agendamento de amanhã"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjEzMzIxM0FDQzUyQjk4MjQ5OAA=</span>
+                        | 2025-08-13T15:29:33
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Surgiu um imprevisto no trabalho"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjU4RUU3NzVCMzQ1RjBEMDUzNAA=</span>
+                        | 2025-08-13T15:29:37
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Posso reagendar para outro dia?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjg4N0YxNEQ3N0ExMDVDOEExMgA=</span>
+                        | 2025-08-13T15:29:42
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Que tal na sexta-feira?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkRCRjJBMjBERjI4NkJEQTE3MwA=</span>
+                        | 2025-08-13T15:29:46
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"De tarde, por volta das 14h"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkNEQ0FCNzRGNjhEODUxRDhGRQA=</span>
+                        | 2025-08-13T15:29:50
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Perfeito, confirmo o reagendamento"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjg0M0M2MjAyQUVFREQwMkI5MQA=</span>
+                        | 2025-08-13T15:29:55
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Consulta Complexa</div>
+                <div class="scenario-stats">
+                    6/6 mensagens 
+                    (100.0% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"Estou planejando um dia de spa para minha mãe"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE4NThFRTc5NTZGOUY1OTA0OQA=</span>
+                        | 2025-08-13T15:30:01
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Ela tem 65 anos e pele sensível"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjhBQTM5RjQ1REM0MzZCNzIwNgA=</span>
+                        | 2025-08-13T15:30:06
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Quais tratamentos vocês recomendam?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk4N0UzRjNCOTlERTE2OTYwMQA=</span>
+                        | 2025-08-13T15:30:11
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Quanto ficaria um pacote completo?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjc4QkQwRjNCRjU5NUQ0RkJBNAA=</span>
+                        | 2025-08-13T15:30:16
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Vocês têm estacionamento?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjYzMkY4RjczNkI3RUIwNTMyNwA=</span>
+                        | 2025-08-13T15:30:21
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"E desconto para idosos?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjNCRDMzOEREMDI4OTlBQTMzMAA=</span>
+                        | 2025-08-13T15:30:26
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Tratamento de Reclamações</div>
+                <div class="scenario-stats">
+                    5/5 mensagens 
+                    (100.0% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"Estou insatisfeito com o atendimento da semana passada"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjkzQkQzM0EwRDJBQzY2NUU2MwA=</span>
+                        | 2025-08-13T15:30:32
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"A profissional chegou 30 minutos atrasada"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjM4MDg2QzYwRjFFRUY5OTBGRgA=</span>
+                        | 2025-08-13T15:30:37
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"E o tratamento não ficou como esperado"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkI1QjM2MDQ3OEVGNkQ5RUZBNwA=</span>
+                        | 2025-08-13T15:30:42
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Gostaria de uma solução para isso"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjVCRkU2REI1OEQ2N0QzMDJCMQA=</span>
+                        | 2025-08-13T15:30:47
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Sim, aceito um desconto no próximo atendimento"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlBQjcwNTYzQjBERTdBRDYzMQA=</span>
+                        | 2025-08-13T15:30:52
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Horários e Funcionamento</div>
+                <div class="scenario-stats">
+                    5/5 mensagens 
+                    (100.0% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"Vocês funcionam aos sábados?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjc1OUExMUU3NkJGRUYxQzk5NQA=</span>
+                        | 2025-08-13T15:30:59
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"E domingo?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkE5QzRFMzMxMkMwMUU0NjRBQgA=</span>
+                        | 2025-08-13T15:31:02
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Qual o horário de almoço?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjQxMzQ2MEE1Mjc1NjZDQkU1QQA=</span>
+                        | 2025-08-13T15:31:06
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Onde vocês ficam localizados?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkIyOEIwNzQ0QkYyNTg5MkE4NgA=</span>
+                        | 2025-08-13T15:31:10
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Como chegar de transporte público?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkM1NkJEM0E2NTYwMUY4QjMwOQA=</span>
+                        | 2025-08-13T15:31:14
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Conversa Multi-Tópicos</div>
+                <div class="scenario-stats">
+                    7/7 mensagens 
+                    (100.0% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"Oi! Queria saber sobre massagem"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkIwODVBNTYzQTVDMDY4MTI4OAA=</span>
+                        | 2025-08-13T15:31:20
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Mas antes, vocês fazem sobrancelha?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjczQ0IwNDQyRDgzREE5QkQ0RQA=</span>
+                        | 2025-08-13T15:31:24
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Voltando à massagem, qual o preço?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjE1NzZGNzdFQ0U0NTM2MURGNwA=</span>
+                        | 2025-08-13T15:31:27
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"E depilação, vocês fazem também?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY0RUM1NzdGNDQwOUYwNDQwMAA=</span>
+                        | 2025-08-13T15:31:33
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Ok, mas sobre a massagem, posso agendar para hoje?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjAyMjUyODVGNzQ5MjU3MkU4RQA=</span>
+                        | 2025-08-13T15:31:36
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Na verdade, prefiro agendar a sobrancelha mesmo"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjlFQzgwREI5NzIzNzcyNjY3RgA=</span>
+                        | 2025-08-13T15:31:40
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Para amanhã de manhã"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjA3MjJGRDY2MTc4Nzk0NDEzMwA=</span>
+                        | 2025-08-13T15:31:44
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+        <div class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-title">Casos Extremos</div>
+                <div class="scenario-stats">
+                    5/5 mensagens 
+                    (100.0% sucesso)
+                </div>
+            </div>
+            <div class="messages">
+            
+                <div class="message">
+                    <div class="message-text">"😀😃😄😁😆😅😂🤣"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjYzODk4NTA1MDlBRkNDMjhBMQA=</span>
+                        | 2025-08-13T15:31:50
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"QUERO AGENDAR AGORA!!!!!"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkY1Q0I1QTYxNjRDNkE4ODkxQQA=</span>
+                        | 2025-08-13T15:31:54
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"vocês fazem botox? e preenchimento?"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk4OEEwRDlENTJDMDZDMjU0NgA=</span>
+                        | 2025-08-13T15:31:57
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"123456789"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjUxMjNBOTRFRjZFNUUxNzdDMQA=</span>
+                        | 2025-08-13T15:32:01
+                    </div>
+                </div>
+                
+                <div class="message">
+                    <div class="message-text">"Obrigado pela atenção, até logo! 👋"</div>
+                    <div class="message-details">
+                        <span class="status-badge status-success">Enviada</span>
+                        Status: 200
+                         | ID: <span class="message-id">wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEkI3RjlGNUJGQUVCRkY2NUEzQgA=</span>
+                        | 2025-08-13T15:32:05
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+            
+    </div>
+
+    <div class="details">
+        <h2>📊 Detalhes Técnicos</h2>
+        <table>
+            <tr><th>Configuração</th><th>Valor</th></tr>
+            <tr><td>URL do Sistema</td><td>https://wppagent-production.up.railway.app</td></tr>
+            <tr><td>Número de Teste</td><td>5516991022255</td></tr>
+            <tr><td>Início do Teste</td><td>13/08/2025 15:28:30</td></tr>
+            <tr><td>Fim do Teste</td><td>13/08/2025 15:32:10</td></tr>
+            <tr><td>IDs de Mensagem</td><td>47 mensagens com ID válido</td></tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Relatório gerado automaticamente pelo WhatsApp Agent Test Suite</p>
+        <p>Sistema de Teste Produção v1.0 - Studio Beleza & Bem-Estar</p>
+    </div>
+</body>
+</html>
+        

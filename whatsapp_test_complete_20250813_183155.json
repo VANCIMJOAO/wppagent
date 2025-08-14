@@ -1,0 +1,3958 @@
+{
+  "test_summary": {
+    "start_time": "2025-08-13T18:27:04.238288",
+    "end_time": "2025-08-13T18:31:55.553520",
+    "duration_seconds": 291.315234,
+    "test_phone": "5516991022255",
+    "railway_url": "https://wppagent-production.up.railway.app",
+    "total_messages": 78,
+    "successful_messages": 78,
+    "failed_messages": 0,
+    "success_rate_percent": 100.0,
+    "total_llm_responses": 0,
+    "scenarios_tested": 10
+  },
+  "debug_info": {
+    "health_check": {
+      "status": 200,
+      "data": {
+        "status": "healthy",
+        "timestamp": "2025-08-13T18:27:04.922603",
+        "service": "WhatsApp Agent API"
+      },
+      "timestamp": "2025-08-13T18:27:05.001853"
+    },
+    "detailed_health": {
+      "status": 503,
+      "data": {
+        "overall_status": "unhealthy",
+        "checks": {
+          "database": {
+            "status": "healthy",
+            "message": "Database connection OK",
+            "timestamp": "2025-08-13T18:27:05.097582",
+            "response_time": 0.028154,
+            "details": null
+          },
+          "whatsapp_api": {
+            "status": "unhealthy",
+            "message": "Invalid or expired WhatsApp access token",
+            "timestamp": "2025-08-13T18:27:05.181451",
+            "response_time": null,
+            "details": {
+              "token_valid": false
+            }
+          },
+          "openai_api": {
+            "status": "unhealthy",
+            "message": "Invalid OpenAI API key",
+            "timestamp": "2025-08-13T18:27:05.142209",
+            "response_time": null,
+            "details": null
+          },
+          "circuit_breakers": {
+            "status": "healthy",
+            "message": "All circuit breakers normal",
+            "timestamp": "2025-08-13T18:27:05.089568",
+            "response_time": null,
+            "details": {
+              "state": "not_initialized"
+            }
+          }
+        },
+        "timestamp": "2025-08-13T18:27:05.181705"
+      },
+      "timestamp": "2025-08-13T18:27:05.261223"
+    },
+    "webhook_status": {
+      "status": 200,
+      "data": {
+        "webhook_status": "active",
+        "meta_api": {
+          "status": "unavailable",
+          "requests_remaining": 100,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 13
+        },
+        "security": {
+          "signature_validation": "enabled",
+          "user_agent_validation": "enabled"
+        },
+        "timestamp": "2025-08-13T21:27:05.334674"
+      },
+      "timestamp": "2025-08-13T18:27:05.416075"
+    },
+    "database_check": {
+      "status": "connected",
+      "timestamp": "2025-08-13T18:27:06.849021"
+    },
+    "user_check": {
+      "exists": true,
+      "user_id": 2,
+      "name": "João Victor Vancim",
+      "created": "2025-08-13T04:32:53.404724+00:00"
+    },
+    "rate_limit_check": {
+      "status": 401,
+      "data": {
+        "error": "Authentication failed",
+        "message": "Missing or invalid authorization header"
+      },
+      "timestamp": "2025-08-13T18:27:07.274774"
+    }
+  },
+  "scenarios_breakdown": {
+    "greeting": {
+      "total": 5,
+      "success": 5,
+      "failed": 0
+    },
+    "service_inquiry": {
+      "total": 7,
+      "success": 7,
+      "failed": 0
+    },
+    "appointment_booking": {
+      "total": 9,
+      "success": 9,
+      "failed": 0
+    },
+    "cancellation": {
+      "total": 6,
+      "success": 6,
+      "failed": 0
+    },
+    "reschedule": {
+      "total": 7,
+      "success": 7,
+      "failed": 0
+    },
+    "complaint": {
+      "total": 8,
+      "success": 8,
+      "failed": 0
+    },
+    "complex_inquiry": {
+      "total": 8,
+      "success": 8,
+      "failed": 0
+    },
+    "business_info": {
+      "total": 8,
+      "success": 8,
+      "failed": 0
+    },
+    "multi_topic": {
+      "total": 10,
+      "success": 10,
+      "failed": 0
+    },
+    "edge_cases": {
+      "total": 10,
+      "success": 10,
+      "failed": 0
+    }
+  },
+  "detailed_results": [
+    {
+      "scenario": "greeting",
+      "message": "Olá!",
+      "message_id": "wamid.test_17551204276849",
+      "timestamp": "2025-08-13T18:27:07.478282",
+      "status_code": 200,
+      "response_time_ms": 202.91,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204276849",
+                      "timestamp": "1755120427",
+                      "type": "text",
+                      "text": {
+                        "body": "Olá!"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "greeting",
+      "message": "Bom dia! Como está?",
+      "message_id": "wamid.test_17551204303629",
+      "timestamp": "2025-08-13T18:27:10.459060",
+      "status_code": 200,
+      "response_time_ms": 191.9,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204303629",
+                      "timestamp": "1755120430",
+                      "type": "text",
+                      "text": {
+                        "body": "Bom dia! Como está?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "greeting",
+      "message": "Gostaria de conhecer seus serviços",
+      "message_id": "wamid.test_17551204335408",
+      "timestamp": "2025-08-13T18:27:13.318132",
+      "status_code": 200,
+      "response_time_ms": 217.3,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204335408",
+                      "timestamp": "1755120433",
+                      "type": "text",
+                      "text": {
+                        "body": "Gostaria de conhecer seus serviços"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "greeting",
+      "message": "Vocês trabalham com o quê?",
+      "message_id": "wamid.test_17551204352545",
+      "timestamp": "2025-08-13T18:27:16.150933",
+      "status_code": 200,
+      "response_time_ms": 190.0,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204352545",
+                      "timestamp": "1755120435",
+                      "type": "text",
+                      "text": {
+                        "body": "Vocês trabalham com o quê?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "greeting",
+      "message": "Que legal! Me conte mais",
+      "message_id": "wamid.test_17551204382540",
+      "timestamp": "2025-08-13T18:27:18.987223",
+      "status_code": 200,
+      "response_time_ms": 194.53,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204382540",
+                      "timestamp": "1755120438",
+                      "type": "text",
+                      "text": {
+                        "body": "Que legal! Me conte mais"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "message": "Quais serviços vocês oferecem?",
+      "message_id": "wamid.test_17551204464639",
+      "timestamp": "2025-08-13T18:27:26.819136",
+      "status_code": 200,
+      "response_time_ms": 187.87,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204464639",
+                      "timestamp": "1755120446",
+                      "type": "text",
+                      "text": {
+                        "body": "Quais serviços vocês oferecem?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "message": "Quanto custa uma limpeza de pele?",
+      "message_id": "wamid.test_17551204491486",
+      "timestamp": "2025-08-13T18:27:30.278948",
+      "status_code": 200,
+      "response_time_ms": 319.57,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204491486",
+                      "timestamp": "1755120449",
+                      "type": "text",
+                      "text": {
+                        "body": "Quanto custa uma limpeza de pele?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "message": "E massagem relaxante, fazem?",
+      "message_id": "wamid.test_17551204536134",
+      "timestamp": "2025-08-13T18:27:33.614129",
+      "status_code": 200,
+      "response_time_ms": 192.5,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204536134",
+                      "timestamp": "1755120453",
+                      "type": "text",
+                      "text": {
+                        "body": "E massagem relaxante, fazem?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "message": "Qual a duração da limpeza de pele?",
+      "message_id": "wamid.test_17551204566542",
+      "timestamp": "2025-08-13T18:27:36.960330",
+      "status_code": 200,
+      "response_time_ms": 203.16,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204566542",
+                      "timestamp": "1755120456",
+                      "type": "text",
+                      "text": {
+                        "body": "Qual a duração da limpeza de pele?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "message": "Vocês fazem depilação também?",
+      "message_id": "wamid.test_17551204604554",
+      "timestamp": "2025-08-13T18:27:40.314367",
+      "status_code": 200,
+      "response_time_ms": 213.72,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204604554",
+                      "timestamp": "1755120460",
+                      "type": "text",
+                      "text": {
+                        "body": "Vocês fazem depilação também?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "message": "Têm algum pacote promocional?",
+      "message_id": "wamid.test_17551204635565",
+      "timestamp": "2025-08-13T18:27:43.637787",
+      "status_code": 200,
+      "response_time_ms": 182.45,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204635565",
+                      "timestamp": "1755120463",
+                      "type": "text",
+                      "text": {
+                        "body": "Têm algum pacote promocional?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "service_inquiry",
+      "message": "E desconto para primeira vez?",
+      "message_id": "wamid.test_17551204662140",
+      "timestamp": "2025-08-13T18:27:46.968350",
+      "status_code": 200,
+      "response_time_ms": 189.62,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204662140",
+                      "timestamp": "1755120466",
+                      "type": "text",
+                      "text": {
+                        "body": "E desconto para primeira vez?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Quero agendar um horário",
+      "message_id": "wamid.test_17551204757681",
+      "timestamp": "2025-08-13T18:27:55.317756",
+      "status_code": 200,
+      "response_time_ms": 204.88,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204757681",
+                      "timestamp": "1755120475",
+                      "type": "text",
+                      "text": {
+                        "body": "Quero agendar um horário"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Limpeza de pele profunda",
+      "message_id": "wamid.test_17551204785205",
+      "timestamp": "2025-08-13T18:27:59.159494",
+      "status_code": 200,
+      "response_time_ms": 200.31,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204785205",
+                      "timestamp": "1755120478",
+                      "type": "text",
+                      "text": {
+                        "body": "Limpeza de pele profunda"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Para quando vocês têm disponibilidade?",
+      "message_id": "wamid.test_17551204822762",
+      "timestamp": "2025-08-13T18:28:02.992377",
+      "status_code": 200,
+      "response_time_ms": 190.71,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204822762",
+                      "timestamp": "1755120482",
+                      "type": "text",
+                      "text": {
+                        "body": "Para quando vocês têm disponibilidade?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Amanhã de manhã seria possível?",
+      "message_id": "wamid.test_17551204869241",
+      "timestamp": "2025-08-13T18:28:06.820184",
+      "status_code": 200,
+      "response_time_ms": 190.44,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204869241",
+                      "timestamp": "1755120486",
+                      "type": "text",
+                      "text": {
+                        "body": "Amanhã de manhã seria possível?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Às 10h da manhã está bom?",
+      "message_id": "wamid.test_17551204909889",
+      "timestamp": "2025-08-13T18:28:10.687441",
+      "status_code": 200,
+      "response_time_ms": 223.45,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204909889",
+                      "timestamp": "1755120490",
+                      "type": "text",
+                      "text": {
+                        "body": "Às 10h da manhã está bom?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Perfeito! Meu nome é João Silva",
+      "message_id": "wamid.test_17551204946569",
+      "timestamp": "2025-08-13T18:28:14.524188",
+      "status_code": 200,
+      "response_time_ms": 196.41,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204946569",
+                      "timestamp": "1755120494",
+                      "type": "text",
+                      "text": {
+                        "body": "Perfeito! Meu nome é João Silva"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Meu telefone é 16 99102-2255",
+      "message_id": "wamid.test_17551204988224",
+      "timestamp": "2025-08-13T18:28:18.368229",
+      "status_code": 200,
+      "response_time_ms": 201.62,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551204988224",
+                      "timestamp": "1755120498",
+                      "type": "text",
+                      "text": {
+                        "body": "Meu telefone é 16 99102-2255"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Sim, confirmo o agendamento",
+      "message_id": "wamid.test_17551205022279",
+      "timestamp": "2025-08-13T18:28:22.211084",
+      "status_code": 200,
+      "response_time_ms": 189.94,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205022279",
+                      "timestamp": "1755120502",
+                      "type": "text",
+                      "text": {
+                        "body": "Sim, confirmo o agendamento"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "appointment_booking",
+      "message": "Obrigado!",
+      "message_id": "wamid.test_17551205059483",
+      "timestamp": "2025-08-13T18:28:26.042623",
+      "status_code": 200,
+      "response_time_ms": 190.46,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205059483",
+                      "timestamp": "1755120505",
+                      "type": "text",
+                      "text": {
+                        "body": "Obrigado!"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "cancellation",
+      "message": "Oi, preciso cancelar meu agendamento",
+      "message_id": "wamid.test_17551205141177",
+      "timestamp": "2025-08-13T18:28:34.889293",
+      "status_code": 200,
+      "response_time_ms": 190.89,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205141177",
+                      "timestamp": "1755120514",
+                      "type": "text",
+                      "text": {
+                        "body": "Oi, preciso cancelar meu agendamento"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "cancellation",
+      "message": "É o agendamento de amanhã às 10h",
+      "message_id": "wamid.test_17551205173720",
+      "timestamp": "2025-08-13T18:28:37.711414",
+      "status_code": 200,
+      "response_time_ms": 182.64,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205173720",
+                      "timestamp": "1755120517",
+                      "type": "text",
+                      "text": {
+                        "body": "É o agendamento de amanhã às 10h"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "cancellation",
+      "message": "Surgiu um imprevisto no trabalho",
+      "message_id": "wamid.test_17551205204869",
+      "timestamp": "2025-08-13T18:28:40.546957",
+      "status_code": 200,
+      "response_time_ms": 196.48,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205204869",
+                      "timestamp": "1755120520",
+                      "type": "text",
+                      "text": {
+                        "body": "Surgiu um imprevisto no trabalho"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "cancellation",
+      "message": "Não consigo ir mesmo",
+      "message_id": "wamid.test_17551205233092",
+      "timestamp": "2025-08-13T18:28:43.415199",
+      "status_code": 200,
+      "response_time_ms": 230.47,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205233092",
+                      "timestamp": "1755120523",
+                      "type": "text",
+                      "text": {
+                        "body": "Não consigo ir mesmo"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "cancellation",
+      "message": "Sim, confirmo o cancelamento",
+      "message_id": "wamid.test_17551205268626",
+      "timestamp": "2025-08-13T18:28:46.329713",
+      "status_code": 200,
+      "response_time_ms": 273.36,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205268626",
+                      "timestamp": "1755120526",
+                      "type": "text",
+                      "text": {
+                        "body": "Sim, confirmo o cancelamento"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "cancellation",
+      "message": "Desculpa pelo transtorno",
+      "message_id": "wamid.test_17551205288378",
+      "timestamp": "2025-08-13T18:28:49.166497",
+      "status_code": 200,
+      "response_time_ms": 195.65,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205288378",
+                      "timestamp": "1755120528",
+                      "type": "text",
+                      "text": {
+                        "body": "Desculpa pelo transtorno"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "reschedule",
+      "message": "Na verdade, posso reagendar?",
+      "message_id": "wamid.test_17551205363044",
+      "timestamp": "2025-08-13T18:28:56.985926",
+      "status_code": 200,
+      "response_time_ms": 177.27,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205363044",
+                      "timestamp": "1755120536",
+                      "type": "text",
+                      "text": {
+                        "body": "Na verdade, posso reagendar?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "reschedule",
+      "message": "Prefiro não cancelar completamente",
+      "message_id": "wamid.test_17551205408074",
+      "timestamp": "2025-08-13T18:29:00.327905",
+      "status_code": 200,
+      "response_time_ms": 199.84,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205408074",
+                      "timestamp": "1755120540",
+                      "type": "text",
+                      "text": {
+                        "body": "Prefiro não cancelar completamente"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "reschedule",
+      "message": "Que tal na sexta-feira?",
+      "message_id": "wamid.test_17551205439778",
+      "timestamp": "2025-08-13T18:29:03.657289",
+      "status_code": 200,
+      "response_time_ms": 187.44,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205439778",
+                      "timestamp": "1755120543",
+                      "type": "text",
+                      "text": {
+                        "body": "Que tal na sexta-feira?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "reschedule",
+      "message": "De tarde seria melhor",
+      "message_id": "wamid.test_17551205464374",
+      "timestamp": "2025-08-13T18:29:06.996511",
+      "status_code": 200,
+      "response_time_ms": 194.95,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205464374",
+                      "timestamp": "1755120546",
+                      "type": "text",
+                      "text": {
+                        "body": "De tarde seria melhor"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "reschedule",
+      "message": "Às 14h está disponível?",
+      "message_id": "wamid.test_17551205508678",
+      "timestamp": "2025-08-13T18:29:10.312426",
+      "status_code": 200,
+      "response_time_ms": 175.92,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205508678",
+                      "timestamp": "1755120550",
+                      "type": "text",
+                      "text": {
+                        "body": "Às 14h está disponível?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "reschedule",
+      "message": "Perfeito! Confirmo o reagendamento",
+      "message_id": "wamid.test_17551205531716",
+      "timestamp": "2025-08-13T18:29:13.643298",
+      "status_code": 200,
+      "response_time_ms": 189.48,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205531716",
+                      "timestamp": "1755120553",
+                      "type": "text",
+                      "text": {
+                        "body": "Perfeito! Confirmo o reagendamento"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "reschedule",
+      "message": "Sexta às 14h então",
+      "message_id": "wamid.test_17551205566032",
+      "timestamp": "2025-08-13T18:29:16.974245",
+      "status_code": 200,
+      "response_time_ms": 186.59,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205566032",
+                      "timestamp": "1755120556",
+                      "type": "text",
+                      "text": {
+                        "body": "Sexta às 14h então"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complaint",
+      "message": "Estou insatisfeito com o atendimento",
+      "message_id": "wamid.test_17551205657860",
+      "timestamp": "2025-08-13T18:29:25.300971",
+      "status_code": 200,
+      "response_time_ms": 182.02,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205657860",
+                      "timestamp": "1755120565",
+                      "type": "text",
+                      "text": {
+                        "body": "Estou insatisfeito com o atendimento"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complaint",
+      "message": "A profissional chegou 30 minutos atrasada",
+      "message_id": "wamid.test_17551205688996",
+      "timestamp": "2025-08-13T18:29:28.631033",
+      "status_code": 200,
+      "response_time_ms": 190.15,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205688996",
+                      "timestamp": "1755120568",
+                      "type": "text",
+                      "text": {
+                        "body": "A profissional chegou 30 minutos atrasada"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complaint",
+      "message": "E o tratamento não foi como esperado",
+      "message_id": "wamid.test_17551205715647",
+      "timestamp": "2025-08-13T18:29:31.956757",
+      "status_code": 200,
+      "response_time_ms": 184.1,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205715647",
+                      "timestamp": "1755120571",
+                      "type": "text",
+                      "text": {
+                        "body": "E o tratamento não foi como esperado"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complaint",
+      "message": "Minha pele ficou irritada depois",
+      "message_id": "wamid.test_17551205759378",
+      "timestamp": "2025-08-13T18:29:35.279961",
+      "status_code": 200,
+      "response_time_ms": 183.08,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205759378",
+                      "timestamp": "1755120575",
+                      "type": "text",
+                      "text": {
+                        "body": "Minha pele ficou irritada depois"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complaint",
+      "message": "Gostaria de uma solução para isso",
+      "message_id": "wamid.test_17551205787708",
+      "timestamp": "2025-08-13T18:29:38.602285",
+      "status_code": 200,
+      "response_time_ms": 179.1,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205787708",
+                      "timestamp": "1755120578",
+                      "type": "text",
+                      "text": {
+                        "body": "Gostaria de uma solução para isso"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complaint",
+      "message": "Que tipo de compensação vocês oferecem?",
+      "message_id": "wamid.test_17551205811241",
+      "timestamp": "2025-08-13T18:29:41.943980",
+      "status_code": 200,
+      "response_time_ms": 201.45,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205811241",
+                      "timestamp": "1755120581",
+                      "type": "text",
+                      "text": {
+                        "body": "Que tipo de compensação vocês oferecem?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complaint",
+      "message": "Sim, aceito um desconto no próximo",
+      "message_id": "wamid.test_17551205856508",
+      "timestamp": "2025-08-13T18:29:45.274063",
+      "status_code": 200,
+      "response_time_ms": 186.28,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205856508",
+                      "timestamp": "1755120585",
+                      "type": "text",
+                      "text": {
+                        "body": "Sim, aceito um desconto no próximo"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complaint",
+      "message": "Obrigado pela compreensão",
+      "message_id": "wamid.test_17551205882782",
+      "timestamp": "2025-08-13T18:29:48.600780",
+      "status_code": 200,
+      "response_time_ms": 186.2,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205882782",
+                      "timestamp": "1755120588",
+                      "type": "text",
+                      "text": {
+                        "body": "Obrigado pela compreensão"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complex_inquiry",
+      "message": "Estou organizando um evento para minha empresa",
+      "message_id": "wamid.test_17551205967392",
+      "timestamp": "2025-08-13T18:29:56.928022",
+      "status_code": 200,
+      "response_time_ms": 181.57,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551205967392",
+                      "timestamp": "1755120596",
+                      "type": "text",
+                      "text": {
+                        "body": "Estou organizando um evento para minha empresa"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complex_inquiry",
+      "message": "Precisamos de serviços para 10 pessoas",
+      "message_id": "wamid.test_17551206002200",
+      "timestamp": "2025-08-13T18:30:00.760890",
+      "status_code": 200,
+      "response_time_ms": 191.56,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206002200",
+                      "timestamp": "1755120600",
+                      "type": "text",
+                      "text": {
+                        "body": "Precisamos de serviços para 10 pessoas"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complex_inquiry",
+      "message": "Seria um day spa corporativo",
+      "message_id": "wamid.test_17551206047827",
+      "timestamp": "2025-08-13T18:30:04.594108",
+      "status_code": 200,
+      "response_time_ms": 192.69,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206047827",
+                      "timestamp": "1755120604",
+                      "type": "text",
+                      "text": {
+                        "body": "Seria um day spa corporativo"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complex_inquiry",
+      "message": "Quais pacotes vocês recomendam?",
+      "message_id": "wamid.test_17551206082611",
+      "timestamp": "2025-08-13T18:30:08.422832",
+      "status_code": 200,
+      "response_time_ms": 188.05,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206082611",
+                      "timestamp": "1755120608",
+                      "type": "text",
+                      "text": {
+                        "body": "Quais pacotes vocês recomendam?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complex_inquiry",
+      "message": "Vocês fazem desconto para grupos?",
+      "message_id": "wamid.test_17551206129658",
+      "timestamp": "2025-08-13T18:30:12.256736",
+      "status_code": 200,
+      "response_time_ms": 191.49,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206129658",
+                      "timestamp": "1755120612",
+                      "type": "text",
+                      "text": {
+                        "body": "Vocês fazem desconto para grupos?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complex_inquiry",
+      "message": "E se for num sábado, funciona?",
+      "message_id": "wamid.test_17551206153305",
+      "timestamp": "2025-08-13T18:30:16.107017",
+      "status_code": 200,
+      "response_time_ms": 210.05,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206153305",
+                      "timestamp": "1755120615",
+                      "type": "text",
+                      "text": {
+                        "body": "E se for num sábado, funciona?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complex_inquiry",
+      "message": "Precisaria ser em dezembro",
+      "message_id": "wamid.test_17551206195770",
+      "timestamp": "2025-08-13T18:30:19.948907",
+      "status_code": 200,
+      "response_time_ms": 199.02,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206195770",
+                      "timestamp": "1755120619",
+                      "type": "text",
+                      "text": {
+                        "body": "Precisaria ser em dezembro"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "complex_inquiry",
+      "message": "Quanto ficaria o orçamento total?",
+      "message_id": "wamid.test_17551206231675",
+      "timestamp": "2025-08-13T18:30:23.773510",
+      "status_code": 200,
+      "response_time_ms": 183.21,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206231675",
+                      "timestamp": "1755120623",
+                      "type": "text",
+                      "text": {
+                        "body": "Quanto ficaria o orçamento total?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "business_info",
+      "message": "Vocês funcionam aos sábados?",
+      "message_id": "wamid.test_17551206329736",
+      "timestamp": "2025-08-13T18:30:32.611892",
+      "status_code": 200,
+      "response_time_ms": 190.37,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206329736",
+                      "timestamp": "1755120632",
+                      "type": "text",
+                      "text": {
+                        "body": "Vocês funcionam aos sábados?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "business_info",
+      "message": "E domingo?",
+      "message_id": "wamid.test_17551206349552",
+      "timestamp": "2025-08-13T18:30:34.937377",
+      "status_code": 200,
+      "response_time_ms": 185.16,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206349552",
+                      "timestamp": "1755120634",
+                      "type": "text",
+                      "text": {
+                        "body": "E domingo?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "business_info",
+      "message": "Qual o horário de funcionamento?",
+      "message_id": "wamid.test_17551206376610",
+      "timestamp": "2025-08-13T18:30:37.261564",
+      "status_code": 200,
+      "response_time_ms": 184.01,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206376610",
+                      "timestamp": "1755120637",
+                      "type": "text",
+                      "text": {
+                        "body": "Qual o horário de funcionamento?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "business_info",
+      "message": "Onde vocês ficam localizados?",
+      "message_id": "wamid.test_17551206399776",
+      "timestamp": "2025-08-13T18:30:39.598157",
+      "status_code": 200,
+      "response_time_ms": 195.37,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206399776",
+                      "timestamp": "1755120639",
+                      "type": "text",
+                      "text": {
+                        "body": "Onde vocês ficam localizados?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "business_info",
+      "message": "Tem estacionamento?",
+      "message_id": "wamid.test_17551206414574",
+      "timestamp": "2025-08-13T18:30:41.922571",
+      "status_code": 200,
+      "response_time_ms": 186.5,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206414574",
+                      "timestamp": "1755120641",
+                      "type": "text",
+                      "text": {
+                        "body": "Tem estacionamento?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "business_info",
+      "message": "Como chegar de ônibus?",
+      "message_id": "wamid.test_17551206447902",
+      "timestamp": "2025-08-13T18:30:44.274017",
+      "status_code": 200,
+      "response_time_ms": 211.5,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206447902",
+                      "timestamp": "1755120644",
+                      "type": "text",
+                      "text": {
+                        "body": "Como chegar de ônibus?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "business_info",
+      "message": "Vocês têm Instagram?",
+      "message_id": "wamid.test_17551206462886",
+      "timestamp": "2025-08-13T18:30:46.610842",
+      "status_code": 200,
+      "response_time_ms": 196.1,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206462886",
+                      "timestamp": "1755120646",
+                      "type": "text",
+                      "text": {
+                        "body": "Vocês têm Instagram?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "business_info",
+      "message": "Aceitam cartão?",
+      "message_id": "wamid.test_17551206488916",
+      "timestamp": "2025-08-13T18:30:48.937713",
+      "status_code": 200,
+      "response_time_ms": 187.29,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206488916",
+                      "timestamp": "1755120648",
+                      "type": "text",
+                      "text": {
+                        "body": "Aceitam cartão?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "Oi! Queria saber sobre massagem",
+      "message_id": "wamid.test_17551206568939",
+      "timestamp": "2025-08-13T18:30:56.283256",
+      "status_code": 200,
+      "response_time_ms": 197.32,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206568939",
+                      "timestamp": "1755120656",
+                      "type": "text",
+                      "text": {
+                        "body": "Oi! Queria saber sobre massagem"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "Mas antes, vocês fazem sobrancelha?",
+      "message_id": "wamid.test_17551206585914",
+      "timestamp": "2025-08-13T18:30:59.137366",
+      "status_code": 200,
+      "response_time_ms": 212.1,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206585914",
+                      "timestamp": "1755120658",
+                      "type": "text",
+                      "text": {
+                        "body": "Mas antes, vocês fazem sobrancelha?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "E unhas também?",
+      "message_id": "wamid.test_17551206618360",
+      "timestamp": "2025-08-13T18:31:01.991786",
+      "status_code": 200,
+      "response_time_ms": 212.37,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206618360",
+                      "timestamp": "1755120661",
+                      "type": "text",
+                      "text": {
+                        "body": "E unhas também?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "Voltando à massagem, qual o preço?",
+      "message_id": "wamid.test_17551206646835",
+      "timestamp": "2025-08-13T18:31:04.825895",
+      "status_code": 200,
+      "response_time_ms": 194.5,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206646835",
+                      "timestamp": "1755120664",
+                      "type": "text",
+                      "text": {
+                        "body": "Voltando à massagem, qual o preço?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "É relaxante ou tem outras?",
+      "message_id": "wamid.test_17551206678460",
+      "timestamp": "2025-08-13T18:31:07.649404",
+      "status_code": 200,
+      "response_time_ms": 184.27,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206678460",
+                      "timestamp": "1755120667",
+                      "type": "text",
+                      "text": {
+                        "body": "É relaxante ou tem outras?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "Ah, e sobre a sobrancelha...",
+      "message_id": "wamid.test_17551206706924",
+      "timestamp": "2025-08-13T18:31:10.476041",
+      "status_code": 200,
+      "response_time_ms": 185.4,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206706924",
+                      "timestamp": "1755120670",
+                      "type": "text",
+                      "text": {
+                        "body": "Ah, e sobre a sobrancelha..."
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "Vocês fazem design?",
+      "message_id": "wamid.test_17551206734825",
+      "timestamp": "2025-08-13T18:31:13.304017",
+      "status_code": 200,
+      "response_time_ms": 188.59,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206734825",
+                      "timestamp": "1755120673",
+                      "type": "text",
+                      "text": {
+                        "body": "Vocês fazem design?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "Ok, mas a massagem é hoje mesmo?",
+      "message_id": "wamid.test_17551206753999",
+      "timestamp": "2025-08-13T18:31:16.169489",
+      "status_code": 200,
+      "response_time_ms": 224.69,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206753999",
+                      "timestamp": "1755120675",
+                      "type": "text",
+                      "text": {
+                        "body": "Ok, mas a massagem é hoje mesmo?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "Prefiro agendar a sobrancelha então",
+      "message_id": "wamid.test_17551206783224",
+      "timestamp": "2025-08-13T18:31:18.997743",
+      "status_code": 200,
+      "response_time_ms": 189.02,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206783224",
+                      "timestamp": "1755120678",
+                      "type": "text",
+                      "text": {
+                        "body": "Prefiro agendar a sobrancelha então"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "multi_topic",
+      "message": "Para amanhã de manhã",
+      "message_id": "wamid.test_17551206812415",
+      "timestamp": "2025-08-13T18:31:21.828385",
+      "status_code": 200,
+      "response_time_ms": 189.85,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206812415",
+                      "timestamp": "1755120681",
+                      "type": "text",
+                      "text": {
+                        "body": "Para amanhã de manhã"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "asdfghjkl",
+      "message_id": "wamid.test_17551206891035",
+      "timestamp": "2025-08-13T18:31:29.655372",
+      "status_code": 200,
+      "response_time_ms": 183.79,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206891035",
+                      "timestamp": "1755120689",
+                      "type": "text",
+                      "text": {
+                        "body": "asdfghjkl"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "😀😃😄😁😆😅😂🤣",
+      "message_id": "wamid.test_17551206919937",
+      "timestamp": "2025-08-13T18:31:31.998758",
+      "status_code": 200,
+      "response_time_ms": 200.68,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206919937",
+                      "timestamp": "1755120691",
+                      "type": "text",
+                      "text": {
+                        "body": "😀😃😄😁😆😅😂🤣"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "QUERO AGENDAR AGORA!!!!!",
+      "message_id": "wamid.test_17551206949951",
+      "timestamp": "2025-08-13T18:31:34.302672",
+      "status_code": 200,
+      "response_time_ms": 162.93,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206949951",
+                      "timestamp": "1755120694",
+                      "type": "text",
+                      "text": {
+                        "body": "QUERO AGENDAR AGORA!!!!!"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "vocês fazem botox? preenchimento? harmonização?",
+      "message_id": "wamid.test_17551206963300",
+      "timestamp": "2025-08-13T18:31:36.635024",
+      "status_code": 200,
+      "response_time_ms": 190.41,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206963300",
+                      "timestamp": "1755120696",
+                      "type": "text",
+                      "text": {
+                        "body": "vocês fazem botox? preenchimento? harmonização?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "123456789",
+      "message_id": "wamid.test_17551206987070",
+      "timestamp": "2025-08-13T18:31:38.962538",
+      "status_code": 200,
+      "response_time_ms": 186.08,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551206987070",
+                      "timestamp": "1755120698",
+                      "type": "text",
+                      "text": {
+                        "body": "123456789"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": ".",
+      "message_id": "wamid.test_17551207015246",
+      "timestamp": "2025-08-13T18:31:41.290999",
+      "status_code": 200,
+      "response_time_ms": 187.48,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551207015246",
+                      "timestamp": "1755120701",
+                      "type": "text",
+                      "text": {
+                        "body": "."
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "oioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioi",
+      "message_id": "wamid.test_17551207036455",
+      "timestamp": "2025-08-13T18:31:43.615202",
+      "status_code": 200,
+      "response_time_ms": 185.23,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551207036455",
+                      "timestamp": "1755120703",
+                      "type": "text",
+                      "text": {
+                        "body": "oioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioioi"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "Quanto custa? E quando? E onde? E como?",
+      "message_id": "wamid.test_17551207053602",
+      "timestamp": "2025-08-13T18:31:45.948979",
+      "status_code": 200,
+      "response_time_ms": 192.28,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551207053602",
+                      "timestamp": "1755120705",
+                      "type": "text",
+                      "text": {
+                        "body": "Quanto custa? E quando? E onde? E como?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "CANCELAR TUDO!!!!!",
+      "message_id": "wamid.test_17551207081794",
+      "timestamp": "2025-08-13T18:31:48.277470",
+      "status_code": 200,
+      "response_time_ms": 187.63,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551207081794",
+                      "timestamp": "1755120708",
+                      "type": "text",
+                      "text": {
+                        "body": "CANCELAR TUDO!!!!!"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "edge_cases",
+      "message": "Obrigado pela paciência, até logo!",
+      "message_id": "wamid.test_17551207107798",
+      "timestamp": "2025-08-13T18:31:50.603558",
+      "status_code": 200,
+      "response_time_ms": 183.71,
+      "response_body": "{\"status\":\"ok\"}",
+      "webhook_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "24386792860950513",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "15550987654",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Testador Sistema"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_17551207107798",
+                      "timestamp": "1755120710",
+                      "type": "text",
+                      "text": {
+                        "body": "Obrigado pela paciência, até logo!"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "llm_responses_captured": [],
+  "system_metrics": {
+    "system_metrics": {
+      "system": {
+        "uptime": "2025-08-13T18:31:52.950633",
+        "service": "WhatsApp Agent API",
+        "version": "1.0.0"
+      },
+      "health_checks": {
+        "database": {
+          "status": "healthy",
+          "response_time": 0.021522,
+          "last_check": "2025-08-13T18:31:52.835476"
+        },
+        "whatsapp_api": {
+          "status": "unhealthy",
+          "response_time": null,
+          "last_check": "2025-08-13T18:31:52.920811"
+        },
+        "openai_api": {
+          "status": "unhealthy",
+          "response_time": null,
+          "last_check": "2025-08-13T18:31:52.950420"
+        },
+        "circuit_breakers": {
+          "status": "healthy",
+          "response_time": null,
+          "last_check": "2025-08-13T18:31:52.830429"
+        }
+      },
+      "circuit_breakers": {
+        "whatsapp_api": {
+          "state": "not_initialized"
+        }
+      }
+    },
+    "database": {
+      "tables_count": {
+        "users": 4,
+        "messages": 216,
+        "conversations": 4,
+        "appointments": 0,
+        "services": 16
+      },
+      "test_user": {
+        "id": 2,
+        "wa_id": "5516991022255",
+        "nome": "João Victor Vancim",
+        "created_at": "2025-08-13 04:32:53.404724+00:00",
+        "total_messages": 207,
+        "incoming": 178,
+        "outgoing": 29
+      },
+      "user_appointments": []
+    }
+  }
+}

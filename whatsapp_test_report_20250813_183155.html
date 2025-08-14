@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório WhatsApp Agent - 20250813_183155</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #25D366; text-align: center; margin-bottom: 30px; }
+        h2 { color: #075E54; border-bottom: 2px solid #25D366; padding-bottom: 5px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .metric { background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center; }
+        .metric-value { font-size: 2em; font-weight: bold; color: #25D366; }
+        .metric-label { color: #666; margin-top: 5px; }
+        .scenario { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .success { color: #28a745; }
+        .partial { color: #ffc107; }
+        .failed { color: #dc3545; }
+        .llm-response { margin: 15px 0; padding: 15px; background: #e8f5e8; border-left: 4px solid #25D366; border-radius: 4px; }
+        .response-header { font-weight: bold; color: #075E54; margin-bottom: 8px; }
+        .user-msg { background: #dcf8c6; padding: 8px; border-radius: 4px; margin: 5px 0; }
+        .llm-msg { background: #ffffff; padding: 8px; border-radius: 4px; margin: 5px 0; border: 1px solid #ddd; }
+        .timestamp { color: #666; font-size: 0.8em; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; font-weight: bold; }
+        .progress-bar { width: 100%; height: 20px; background: #f8f9fa; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #25D366, #128C7E); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Relatório WhatsApp Agent</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Executado em 13/08/2025 às 18:31:55
+        </p>
+        
+        <h2>� Resumo Executivo</h2>
+        <div class="summary">
+            <div class="metric">
+                <div class="metric-value">78</div>
+                <div class="metric-label">Mensagens Enviadas</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">100.0%</div>
+                <div class="metric-label">Taxa de Sucesso</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">0</div>
+                <div class="metric-label">Respostas LLM</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">10</div>
+                <div class="metric-label">Cenários Testados</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">291.3s</div>
+                <div class="metric-label">Duração Total</div>
+            </div>
+        </div>
+        
+        <h2>🎬 Resultados por Cenário</h2>
+        <div class="scenario">
+            <strong>Greeting</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">5/5 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Service Inquiry</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">7/7 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Appointment Booking</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">9/9 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Cancellation</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">6/6 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Reschedule</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">7/7 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Complaint</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">8/8 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Complex Inquiry</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">8/8 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Business Info</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">8/8 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Multi Topic</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">10/10 (100.0%)</span>
+        </div>
+        <div class="scenario">
+            <strong>Edge Cases</strong>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: 100.0%;"></div>
+            </div>
+            <span class="success">10/10 (100.0%)</span>
+        </div>
+        
+        <h2>🤖 Respostas LLM Capturadas</h2>
+        
+        <h2>📊 Métricas do Banco de Dados</h2>
+        <table>
+            <tr><th>Tabela</th><th>Registros</th></tr><tr><td>users</td><td>4</td></tr><tr><td>messages</td><td>216</td></tr><tr><td>conversations</td><td>4</td></tr><tr><td>appointments</td><td>0</td></tr><tr><td>services</td><td>16</td></tr></table>
+        <h3>👤 Usuário de Teste</h3>
+        <p><strong>Nome:</strong> João Victor Vancim</p>
+        <p><strong>Total de Mensagens:</strong> 207</p>
+        <p><strong>Agendamentos:</strong> 0</p>
+        
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
+            <p>Relatório gerado automaticamente pelo WhatsApp Agent Test Suite</p>
+        </div>
+    </div>
+</body>
+</html>
