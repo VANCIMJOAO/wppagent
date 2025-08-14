@@ -91,36 +91,50 @@ async def get_dynamic_system_prompt_with_database() -> str:
         
         await conn.close()
         
-        # Formatar serviços REAIS da database
-        if services:
-            services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
-            for service in services:
-                services_text += f"✅ {service['name']}: {service['price']} - {service['duration_minutes']}min\n"
-                if service['description']:
-                    services_text += f"   📝 {service['description']}\n"
+        # Usar formatação melhorada dos serviços
+        from app.services.business_data import get_database_services_formatted
+        try:
+            services_text = await get_database_services_formatted()
+            services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n" + services_text
             services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
-        else:
-            services_text = "❌ ERRO: Nenhum serviço encontrado na database!"
+        except Exception as e:
+            logger.error(f"Erro ao formatar serviços: {e}")
+            # Fallback para formatação básica
+            if services:
+                services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
+                for service in services:
+                    services_text += f"✅ {service['name']}: {service['price']} - {service['duration_minutes']}min\n"
+                    if service['description']:
+                        services_text += f"   📝 {service['description']}\n"
+                services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
+            else:
+                services_text = "❌ ERRO: Nenhum serviço encontrado na database!"
         
-        # Formatar horários REAIS
-        if business_hours:
-            hours_text = "📅 HORÁRIO REAL DE FUNCIONAMENTO:\n"
-            for hour in business_hours:
-                # Converter day_of_week para string se necessário
-                day_val = hour['day_of_week']
-                if isinstance(day_val, int):
-                    days_map = {0: 'segunda', 1: 'terça', 2: 'quarta', 3: 'quinta', 4: 'sexta', 5: 'sábado', 6: 'domingo'}
-                    day_name = days_map.get(day_val, f'Dia {day_val}')
-                elif isinstance(day_val, str):
-                    day_name = day_val.capitalize()
-                else:
-                    day_name = 'Dia'
-                    
-                open_time = hour['open_time'].strftime('%H:%M') if hour['open_time'] else '09:00'
-                close_time = hour['close_time'].strftime('%H:%M') if hour['close_time'] else '18:00'
-                hours_text += f"- {day_name}: {open_time} às {close_time}\n"
-        else:
-            hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
+        # Usar formatação melhorada dos horários
+        from app.services.business_data import business_data_service
+        try:
+            hours_text = await business_data_service.get_business_hours_formatted_text()
+        except Exception as e:
+            logger.error(f"Erro ao formatar horários: {e}")
+            # Fallback para formatação básica
+            if business_hours:
+                hours_text = "📅 HORÁRIO REAL DE FUNCIONAMENTO:\n"
+                for hour in business_hours:
+                    # Converter day_of_week para string se necessário
+                    day_val = hour['day_of_week']
+                    if isinstance(day_val, int):
+                        days_map = {0: 'segunda', 1: 'terça', 2: 'quarta', 3: 'quinta', 4: 'sexta', 5: 'sábado', 6: 'domingo'}
+                        day_name = days_map.get(day_val, f'Dia {day_val}')
+                    elif isinstance(day_val, str):
+                        day_name = day_val.capitalize()
+                    else:
+                        day_name = 'Dia'
+                        
+                    open_time = hour['open_time'].strftime('%H:%M') if hour['open_time'] else '09:00'
+                    close_time = hour['close_time'].strftime('%H:%M') if hour['close_time'] else '18:00'
+                    hours_text += f"- {day_name}: {open_time} às {close_time}\n"
+            else:
+                hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
         
         # Formatar formas de pagamento REAIS
         if payment_methods:
