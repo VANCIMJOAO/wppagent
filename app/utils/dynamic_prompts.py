@@ -311,16 +311,17 @@ REGRAS IMPORTANTES:
    ℹ️ _Descrição do serviço._
 
 🕘 QUANDO INFORMAR HORÁRIOS, USE OBRIGATORIAMENTE:
+🏢 *{company_name}*
 🕘 *Horário de Funcionamento:*
-- Segunda a Sexta: Xh às Xh
-- Sábado: Xh às Xh  
-- Domingo: 🚫 Fechado
+- _Segunda a Sexta_: Xh às Xh
+- _Sábado_: Xh às Xh  
+- _Domingo_: 🚫 Fechado
 
 🏢 QUANDO DAR INFORMAÇÕES DA EMPRESA, USE OBRIGATORIAMENTE:
 🏢 *{company_name}*
-📍 Endereço: {company_address}
+📍 Endereço: _{company_address}_
 📞 Contato: (11) 98765-4321
-📧 Email: contato@studiobeleza.com
+📧 Email: _contato@studiobeleza.com_
 
 ⚠️⚠️⚠️ OBRIGATÓRIO: SEMPRE use TODOS os emojis ⚠️⚠️⚠️
 🔥 💰 ⏰ 📋 🕘 🏢 📍 📞 📧 ℹ️ 🚫 • 🔥

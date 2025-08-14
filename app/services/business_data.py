@@ -179,26 +179,21 @@ class BusinessDataService:
         company_info = await self.get_company_info()
         
         if not company_info:
-            return "🏢 *Studio Beleza & Bem-Estar*\n📍 Rua das Flores, 123 - Centro, São Paulo, SP\n📞 Entre em contato conosco!"
+            return "🏢 *Studio Beleza & Bem-Estar*\n📍 Endereço: _Rua das Flores, 123 - Centro, São Paulo, SP_\n📞 Contato: (11) 98765-4321\n📧 Email: _contato@studiobeleza.com_"
         
-        text = f"🏢 *{company_info.get('name', 'Studio Beleza & Bem-Estar')}*\n\n"
+        text = f"🏢 *{company_info.get('name', 'Studio Beleza & Bem-Estar')}*\n"
         
         if company_info.get('address'):
-            text += f"📍 *Endereço:*\n{company_info['address']}\n\n"
+            text += f"📍 Endereço: _{company_info['address']}_\n"
         
         if company_info.get('phone'):
-            text += f"📞 *Telefone:* {company_info['phone']}\n"
+            text += f"📞 Contato: {company_info['phone']}\n"
         
         if company_info.get('email'):
-            text += f"📧 *E-mail:* {company_info['email']}\n"
+            text += f"📧 Email: _{company_info['email']}_\n"
         
         if company_info.get('website'):
-            text += f"🌐 *Site:* {company_info['website']}\n"
-        
-        # Adicionar horário de funcionamento
-        text += "\n"
-        hours_text = await self.get_business_hours_formatted_text()
-        text += hours_text
+            text += f"🌐 Site: _{company_info['website']}_\n"
         
         return text.strip()
     
@@ -341,25 +336,39 @@ class BusinessDataService:
         """
         hours_data = await self.get_business_hours()
         
+        # Buscar nome da empresa para incluir no template
+        company_info = await self.get_company_info()
+        company_name = "Studio Beleza & Bem-Estar"  # Default
+        if company_info and company_info.get('name'):
+            company_name = company_info['name']
+        
         if not hours_data:
-            return "📅 *Horário de Funcionamento:*\n\n🕘 Segunda a Sexta: 9h às 18h\n🕘 Sábado: 9h às 16h\n🚫 Domingo: Fechado"
+            return f"🏢 *{company_name}*\n� *Horário de Funcionamento:*\n- _Segunda a Sexta_: 9h às 18h\n- _Sábado_: 9h às 16h\n- _Domingo_: 🚫 Fechado"
         
         # Usar o texto formatado do cache se disponível
         if "formatted_text" in hours_data and hours_data["formatted_text"]:
-            text = "📅 *Horário de Funcionamento:*\n\n"
+            text = f"🏢 *{company_name}*\n� *Horário de Funcionamento:*\n"
             
-            # Quebrar por linhas e reformatar
+            # Quebrar por linhas e reformatar com itálicos
             lines = hours_data["formatted_text"].split('\n')
             for line in lines:
                 if "Fechado" in line:
-                    text += f"🚫 {line}\n"
+                    # Extrair o dia da semana e colocar em itálico
+                    day_part = line.split(':')[0].strip()
+                    text += f"- _{day_part}_: 🚫 Fechado\n"
                 else:
-                    text += f"🕘 {line}\n"
+                    # Extrair o dia da semana e horário, colocar dia em itálico
+                    if ':' in line:
+                        day_part = line.split(':')[0].strip()
+                        time_part = ':'.join(line.split(':')[1:]).strip()
+                        text += f"- _{day_part}_: {time_part}\n"
+                    else:
+                        text += f"🕘 {line}\n"
             
             return text.strip()
         
-        # Fallback para formato padrão
-        return "📅 *Horário de Funcionamento:*\n\n🕘 Segunda a Sexta: 9h às 18h\n🕘 Sábado: 9h às 16h\n🚫 Domingo: Fechado"
+        # Fallback para formato padrão com nova formatação
+        return f"🏢 *{company_name}*\n� *Horário de Funcionamento:*\n- _Segunda a Sexta_: 9h às 18h\n- _Sábado_: 9h às 16h\n- _Domingo_: 🚫 Fechado"
         
         return self._business_hours_cache
     
