@@ -1,0 +1,96 @@
+{
+  "railway_endpoints": {
+    "/health": {
+      "status": 200,
+      "success": true,
+      "response": "{\"status\":\"healthy\",\"timestamp\":\"2025-08-13T23:51:45.647729\",\"service\":\"WhatsApp Agent API\"}"
+    },
+    "/webhook/status": {
+      "status": 200,
+      "success": true,
+      "response": "{\"webhook_status\":\"active\",\"meta_api\":{\"status\":\"available\",\"requests_remaining\":1000,\"rate_limit_reset\":null,\"fallback_queue_size\":0},\"security\":{\"signature_validation\":\"enabled\",\"user_agent_validation\":\"enabled\"},\"timestamp\":\"2025-08-14T02:51:45.793640\"}"
+    },
+    "/metrics/system": {
+      "status": 200,
+      "success": true,
+      "response": "{\"system\":{\"uptime\":\"2025-08-13T23:51:46.091906\",\"service\":\"WhatsApp Agent API\",\"version\":\"1.0.0\"},\"health_checks\":{\"database\":{\"status\":\"healthy\",\"response_time\":0.051516,\"last_check\":\"2025-08-13T23:51:45.992191\"},\"whatsapp_api\":{\"status\":\"unhealthy\",\"response_time\":null,\"last_check\":\"2025-08-13T23:51:46.030286\"},\"openai_api\":{\"status\":\"unhealthy\",\"response_time\":null,\"last_check\":\"2025-08-13T23:51:46.091416\"},\"circuit_breakers\":{\"status\":\"healthy\",\"response_time\":null,\"last_check\":\"2025-08-13T"
+    },
+    "/rate-limit/stats": {
+      "status": 401,
+      "success": false,
+      "response": "{\"error\":\"Authentication failed\",\"message\":\"Missing or invalid authorization header\"}"
+    }
+  },
+  "railway_status": {
+    "health": {
+      "success": false,
+      "status": 503
+    },
+    "webhook": {
+      "success": true,
+      "data": {
+        "webhook_status": "active",
+        "meta_api": {
+          "status": "available",
+          "requests_remaining": 1000,
+          "rate_limit_reset": null,
+          "fallback_queue_size": 0
+        },
+        "security": {
+          "signature_validation": "enabled",
+          "user_agent_validation": "enabled"
+        },
+        "timestamp": "2025-08-14T02:51:47.633585"
+      }
+    }
+  },
+  "meta_api_direct": {
+    "token_valid": true,
+    "direct_message": {
+      "success": true,
+      "status": 200,
+      "response": {
+        "messaging_product": "whatsapp",
+        "contacts": [
+          {
+            "input": "5516991022255",
+            "wa_id": "5516991022255"
+          }
+        ],
+        "messages": [
+          {
+            "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjZFMURDMjI5OUQyQjhERjdCOQA="
+          }
+        ]
+      }
+    }
+  },
+  "railway_send": {
+    "status": 200,
+    "success": true,
+    "response": {
+      "success": true,
+      "message": "Mensagem enviada com sucesso",
+      "api_response": {
+        "messaging_product": "whatsapp",
+        "contacts": [
+          {
+            "input": "5516991022255",
+            "wa_id": "5516991022255"
+          }
+        ],
+        "messages": [
+          {
+            "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjAxNjc3MEFFNjEyM0U2MjY5MQA="
+          }
+        ]
+      },
+      "api_status": {
+        "status": "available",
+        "requests_remaining": 1000,
+        "rate_limit_reset": null,
+        "fallback_queue_size": 0
+      }
+    }
+  }
+}

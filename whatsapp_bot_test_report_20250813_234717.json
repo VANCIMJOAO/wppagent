@@ -1,0 +1,405 @@
+{
+  "test_summary": {
+    "timestamp": "2025-08-13T23:47:17.272622",
+    "total_tests": 5,
+    "successful_webhook_requests": 5,
+    "received_whatsapp_responses": 0,
+    "webhook_success_rate": 100.0,
+    "whatsapp_response_rate": 0.0,
+    "average_response_time": 0.77,
+    "tester_phone": "5516991022255",
+    "webhook_url": "https://wppagent-production.up.railway.app/webhook"
+  },
+  "detailed_results": [
+    {
+      "timestamp": "2025-08-13T23:45:46.900545",
+      "message_sent": "Olá! Como você está?",
+      "message_type": "text",
+      "phone_used": "5516991022255",
+      "webhook_url": "https://wppagent-production.up.railway.app/webhook",
+      "request_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "728348237027885",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "16991022255",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Victor"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_1755139546",
+                      "timestamp": "1755139546",
+                      "type": "text",
+                      "text": {
+                        "body": "Olá! Como você está?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      },
+      "request_headers": {
+        "Content-Type": "application/json",
+        "User-Agent": "facebookexternalua",
+        "X-Hub-Signature-256": "sha256=5ba404b48d6e9f1feb673f7bfe7f512afd2a9bc46fca4ba351b9bd7cbb642ae1"
+      },
+      "response_status": 200,
+      "response_headers": {
+        "Content-Length": "15",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+        "Content-Type": "application/json",
+        "Date": "Thu, 14 Aug 2025 02:45:46 GMT",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Server": "railway-edge",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "X-Railway-Edge": "railway/us-east4-eqdc4a",
+        "X-Railway-Request-Id": "exCxbX5dS8KBxNMQozsQ6Q",
+        "X-Ratelimit-Limit": "unknown",
+        "X-Ratelimit-Remaining": "99",
+        "X-Ratelimit-Reset": "1755139606",
+        "X-Xss-Protection": "1; mode=block"
+      },
+      "response_body": "{\"status\":\"ok\"}",
+      "response_time_seconds": 0.781,
+      "success": true,
+      "error": null,
+      "whatsapp_response_received": false,
+      "whatsapp_response_content": null
+    },
+    {
+      "timestamp": "2025-08-13T23:46:13.657567",
+      "message_sent": "Gostaria de agendar um corte de cabelo",
+      "message_type": "text",
+      "phone_used": "5516991022255",
+      "webhook_url": "https://wppagent-production.up.railway.app/webhook",
+      "request_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "728348237027885",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "16991022255",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Victor"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_1755139572",
+                      "timestamp": "1755139572",
+                      "type": "text",
+                      "text": {
+                        "body": "Gostaria de agendar um corte de cabelo"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      },
+      "request_headers": {
+        "Content-Type": "application/json",
+        "User-Agent": "facebookexternalua",
+        "X-Hub-Signature-256": "sha256=12419b5845452e128eed01333f0e8a18012c51d56e06a202bf27f00dce5bb92a"
+      },
+      "response_status": 200,
+      "response_headers": {
+        "Content-Length": "15",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+        "Content-Type": "application/json",
+        "Date": "Thu, 14 Aug 2025 02:46:13 GMT",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Server": "railway-edge",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "X-Railway-Edge": "railway/us-east4-eqdc4a",
+        "X-Railway-Request-Id": "zU3MgnwQSq6YeksCozsQ6Q",
+        "X-Ratelimit-Limit": "unknown",
+        "X-Ratelimit-Remaining": "99",
+        "X-Ratelimit-Reset": "1755139633",
+        "X-Xss-Protection": "1; mode=block"
+      },
+      "response_body": "{\"status\":\"ok\"}",
+      "response_time_seconds": 0.777,
+      "success": true,
+      "error": null,
+      "whatsapp_response_received": false,
+      "whatsapp_response_content": null
+    },
+    {
+      "timestamp": "2025-08-13T23:46:28.824353",
+      "message_sent": "Qual o horário de funcionamento?",
+      "message_type": "text",
+      "phone_used": "5516991022255",
+      "webhook_url": "https://wppagent-production.up.railway.app/webhook",
+      "request_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "728348237027885",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "16991022255",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Victor"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_1755139588",
+                      "timestamp": "1755139588",
+                      "type": "text",
+                      "text": {
+                        "body": "Qual o horário de funcionamento?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      },
+      "request_headers": {
+        "Content-Type": "application/json",
+        "User-Agent": "facebookexternalua",
+        "X-Hub-Signature-256": "sha256=3c6a4ac00a85bcc1765446c193ad83a469bdb2f74998a8e7edb862cfe0566c46"
+      },
+      "response_status": 200,
+      "response_headers": {
+        "Content-Length": "15",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+        "Content-Type": "application/json",
+        "Date": "Thu, 14 Aug 2025 02:46:28 GMT",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Server": "railway-edge",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "X-Railway-Edge": "railway/us-east4-eqdc4a",
+        "X-Railway-Request-Id": "dsQFTja9RY-dnXY_woOzXw",
+        "X-Ratelimit-Limit": "unknown",
+        "X-Ratelimit-Remaining": "98",
+        "X-Ratelimit-Reset": "1755139648",
+        "X-Xss-Protection": "1; mode=block"
+      },
+      "response_body": "{\"status\":\"ok\"}",
+      "response_time_seconds": 0.723,
+      "success": true,
+      "error": null,
+      "whatsapp_response_received": false,
+      "whatsapp_response_content": null
+    },
+    {
+      "timestamp": "2025-08-13T23:46:47.266885",
+      "message_sent": "Quanto custa um corte?",
+      "message_type": "text",
+      "phone_used": "5516991022255",
+      "webhook_url": "https://wppagent-production.up.railway.app/webhook",
+      "request_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "728348237027885",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "16991022255",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Victor"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_1755139606",
+                      "timestamp": "1755139606",
+                      "type": "text",
+                      "text": {
+                        "body": "Quanto custa um corte?"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      },
+      "request_headers": {
+        "Content-Type": "application/json",
+        "User-Agent": "facebookexternalua",
+        "X-Hub-Signature-256": "sha256=297a976cc98c934bcaf415dbf95a42a5d2b88039bb18fb572126edb527e348c5"
+      },
+      "response_status": 200,
+      "response_headers": {
+        "Content-Length": "15",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+        "Content-Type": "application/json",
+        "Date": "Thu, 14 Aug 2025 02:46:46 GMT",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Server": "railway-edge",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "X-Railway-Edge": "railway/us-east4-eqdc4a",
+        "X-Railway-Request-Id": "JbS7q0kGQTOguB0dCx5-qw",
+        "X-Ratelimit-Limit": "unknown",
+        "X-Ratelimit-Remaining": "99",
+        "X-Ratelimit-Reset": "1755139667",
+        "X-Xss-Protection": "1; mode=block"
+      },
+      "response_body": "{\"status\":\"ok\"}",
+      "response_time_seconds": 0.702,
+      "success": true,
+      "error": null,
+      "whatsapp_response_received": false,
+      "whatsapp_response_content": null
+    },
+    {
+      "timestamp": "2025-08-13T23:47:04.987626",
+      "message_sent": "Obrigado!",
+      "message_type": "text",
+      "phone_used": "5516991022255",
+      "webhook_url": "https://wppagent-production.up.railway.app/webhook",
+      "request_payload": {
+        "object": "whatsapp_business_account",
+        "entry": [
+          {
+            "id": "728348237027885",
+            "changes": [
+              {
+                "value": {
+                  "messaging_product": "whatsapp",
+                  "metadata": {
+                    "display_phone_number": "16991022255",
+                    "phone_number_id": "728348237027885"
+                  },
+                  "contacts": [
+                    {
+                      "profile": {
+                        "name": "João Victor"
+                      },
+                      "wa_id": "5516991022255"
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "from": "5516991022255",
+                      "id": "wamid.test_1755139624",
+                      "timestamp": "1755139624",
+                      "type": "text",
+                      "text": {
+                        "body": "Obrigado!"
+                      }
+                    }
+                  ]
+                },
+                "field": "messages"
+              }
+            ]
+          }
+        ]
+      },
+      "request_headers": {
+        "Content-Type": "application/json",
+        "User-Agent": "facebookexternalua",
+        "X-Hub-Signature-256": "sha256=bce2f38453d24eb1ff194d27a2873c0375d122c68e7f3d907c496e3efd805e4e"
+      },
+      "response_status": 200,
+      "response_headers": {
+        "Content-Length": "15",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+        "Content-Type": "application/json",
+        "Date": "Thu, 14 Aug 2025 02:47:04 GMT",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Server": "railway-edge",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "X-Railway-Edge": "railway/us-east4-eqdc4a",
+        "X-Railway-Request-Id": "SPSeuR-QQ2GmTXG8BT7zVQ",
+        "X-Ratelimit-Limit": "unknown",
+        "X-Ratelimit-Remaining": "99",
+        "X-Ratelimit-Reset": "1755139684",
+        "X-Xss-Protection": "1; mode=block"
+      },
+      "response_body": "{\"status\":\"ok\"}",
+      "response_time_seconds": 0.868,
+      "success": true,
+      "error": null,
+      "whatsapp_response_received": false,
+      "whatsapp_response_content": null
+    }
+  ],
+  "configuration": {
+    "webhook_secret_configured": true,
+    "signature_validation": true,
+    "test_environment": "railway_production"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "timestamp": "2025-08-13T23:56:50.704664",
+  "phone": "5516991022255",
+  "available_endpoints": {
+    "/conversation/flow/5516991022255": {
+      "status": 401,
+      "method": "GET",
+      "available": true,
+      "response_preview": "{\"error\":\"Authentication failed\",\"message\":\"Missing or invalid authorization header\"}"
+    },
+    "/conversation/reset/5516991022255": {
+      "status": 401,
+      "method": "GET",
+      "available": true,
+      "response_preview": "{\"error\":\"Authentication failed\",\"message\":\"Missing or invalid authorization header\"}"
+    },
+    "/conversation/analytics": {
+      "status": 401,
+      "method": "GET",
+      "available": true,
+      "response_preview": "{\"error\":\"Authentication failed\",\"message\":\"Missing or invalid authorization header\"}"
+    },
+    "/health": {
+      "status": 200,
+      "method": "GET",
+      "available": true,
+      "response_preview": "{\"status\":\"healthy\",\"timestamp\":\"2025-08-13T23:56:51.698061\",\"service\":\"WhatsApp Agent API\"}"
+    }
+  },
+  "current_status": {
+    "success": false,
+    "error": "HTTP 401"
+  },
+  "official_reset": {
+    "success": false,
+    "error": "HTTP 401"
+  },
+  "alternative_reset": {
+    "success": false,
+    "message": "Nenhum endpoint de reset funcionou"
+  },
+  "final_status": {
+    "success": false,
+    "error": "HTTP 401"
+  },
+  "test_message": {
+    "success": true,
+    "response": {
+      "success": true,
+      "message": "Mensagem enviada com sucesso",
+      "api_response": {
+        "messaging_product": "whatsapp",
+        "contacts": [
+          {
+            "input": "5516991022255",
+            "wa_id": "5516991022255"
+          }
+        ],
+        "messages": [
+          {
+            "id": "wamid.HBgNNTUxNjk5MTAyMjI1NRUCABEYEjk0OEE4MTI4MjQyMEUzN0Y3QwA="
+          }
+        ]
+      },
+      "api_status": {
+        "status": "available",
+        "requests_remaining": 1000,
+        "rate_limit_reset": null,
+        "fallback_queue_size": 0
+      }
+    }
+  }
+}

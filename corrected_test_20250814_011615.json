@@ -1,0 +1,52 @@
+{
+  "session": "corrected_test_1755144834",
+  "start_time": "2025-08-14T01:13:54.616980",
+  "messages_sent": 3,
+  "bot_responses": 5,
+  "conversation_log": [
+    {
+      "type": "user_sent",
+      "content": "Teste automatizado - Oi!",
+      "timestamp": "2025-08-14T01:13:58.525328",
+      "method": "webhook_simulation"
+    },
+    {
+      "type": "bot_response",
+      "content": "Olá! Como posso ajudar você hoje?",
+      "timestamp": "2025-08-14T04:13:58.422005+00:00"
+    },
+    {
+      "type": "user_sent",
+      "content": "Quanto custa um corte?",
+      "timestamp": "2025-08-14T01:14:49.902707",
+      "method": "webhook_simulation"
+    },
+    {
+      "type": "bot_response",
+      "content": "Para fornecer a informação correta, preciso acessar nossa base de dados para verificar o valor atual do serviço de corte. Por favor, aguarde um momento.",
+      "timestamp": "2025-08-14T04:14:49.814850+00:00"
+    },
+    {
+      "type": "bot_response",
+      "content": "Olá! Como posso ajudar você hoje?",
+      "timestamp": "2025-08-14T04:13:58.422005+00:00"
+    },
+    {
+      "type": "user_sent",
+      "content": "Qual o horário de funcionamento?",
+      "timestamp": "2025-08-14T01:15:42.327078",
+      "method": "webhook_simulation"
+    },
+    {
+      "type": "bot_response",
+      "content": "Nossa Empresa opera de segunda a sábado. No entanto, os horários específicos podem variar. Poderia me informar o dia específico para o qual você gostaria de saber o horário de funcionamento?",
+      "timestamp": "2025-08-14T04:15:42.240519+00:00"
+    },
+    {
+      "type": "bot_response",
+      "content": "Para fornecer a informação correta, preciso acessar nossa base de dados para verificar o valor atual do serviço de corte. Por favor, aguarde um momento.",
+      "timestamp": "2025-08-14T04:14:49.814850+00:00"
+    }
+  ],
+  "webhook_tests": []
+}

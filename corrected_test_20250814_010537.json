@@ -1,0 +1,15 @@
+{
+  "session": "corrected_test_1755144300",
+  "start_time": "2025-08-14T01:05:00.370971",
+  "messages_sent": 1,
+  "bot_responses": 0,
+  "conversation_log": [
+    {
+      "type": "user_sent",
+      "content": "Teste automatizado - Oi!",
+      "timestamp": "2025-08-14T01:05:07.959229",
+      "method": "webhook_simulation"
+    }
+  ],
+  "webhook_tests": []
+}

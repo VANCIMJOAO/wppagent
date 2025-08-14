@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-08-14T00:00:27.364096",
+  "phone": "5516991022255",
+  "methods_tried": [
+    "admin_endpoints",
+    "webhook_commands",
+    "sql_endpoints",
+    "direct_database"
+  ],
+  "admin_endpoints": {
+    "success": false,
+    "message": "Nenhum endpoint administrativo funcionou"
+  },
+  "webhook_commands": {
+    "success": false,
+    "message": "Nenhum comando especial funcionou"
+  },
+  "sql_endpoints": {
+    "success": false,
+    "message": "Endpoints SQL não disponíveis"
+  },
+  "direct_database": {
+    "success": false,
+    "message": "Conexão direta não funcionou"
+  }
+}

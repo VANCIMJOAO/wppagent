@@ -1,0 +1,82 @@
+{
+  "session_id": "auto_test_1755142272",
+  "start_time": "2025-08-14T00:31:12.863789",
+  "conversations_tested": [
+    {
+      "name": "Agendamento Simples",
+      "messages": [],
+      "start_time": "2025-08-14T00:31:14.242682",
+      "success": false,
+      "bot_response_count": 0,
+      "end_time": "2025-08-14T00:31:23.558548"
+    },
+    {
+      "name": "Consulta de Preços",
+      "messages": [],
+      "start_time": "2025-08-14T00:31:38.571732",
+      "success": false,
+      "bot_response_count": 0,
+      "end_time": "2025-08-14T00:31:47.818992"
+    },
+    {
+      "name": "Informações Gerais",
+      "messages": [],
+      "start_time": "2025-08-14T00:32:02.830441",
+      "success": false,
+      "bot_response_count": 0,
+      "end_time": "2025-08-14T00:32:12.153860"
+    }
+  ],
+  "messages_sent": 0,
+  "bot_responses": 0,
+  "performance_metrics": {
+    "total_duration_seconds": 59.44,
+    "successful_conversations": 0,
+    "total_conversations": 3,
+    "success_rate": 0.0,
+    "response_rate": 0.0,
+    "average_responses_per_conversation": 0.0,
+    "messages_per_minute": 0.0,
+    "end_time": "2025-08-14T00:32:12.299519"
+  },
+  "errors": [
+    {
+      "step": "webhook_send",
+      "error": "HTTP 404: {\"status\":\"error\",\"code\":404,\"message\":\"Application not found\",\"request_id\":\"N_2HXINtSC6NMYrIozsQ6Q\"}",
+      "message": "Oi! Gostaria de agendar um corte",
+      "timestamp": "2025-08-14T00:31:14.890451"
+    },
+    {
+      "step": "webhook_send",
+      "error": "HTTP 404: {\"status\":\"error\",\"code\":404,\"message\":\"Application not found\",\"request_id\":\"LiqX-11iSwy8ULULwoOzXw\"}",
+      "message": "Para amanhã às 14h se possível",
+      "timestamp": "2025-08-14T00:31:23.558308"
+    },
+    {
+      "step": "webhook_send",
+      "error": "HTTP 404: {\"status\":\"error\",\"code\":404,\"message\":\"Application not found\",\"request_id\":\"qAco84roQ7u9BENlBT7zVQ\"}",
+      "message": "Olá, quanto custa um corte de cabelo?",
+      "timestamp": "2025-08-14T00:31:39.231260"
+    },
+    {
+      "step": "webhook_send",
+      "error": "HTTP 404: {\"status\":\"error\",\"code\":404,\"message\":\"Application not found\",\"request_id\":\"YBnGIdNTRXWNirzGwoOzXw\"}",
+      "message": "E vocês fazem barba também?",
+      "timestamp": "2025-08-14T00:31:47.818831"
+    },
+    {
+      "step": "webhook_send",
+      "error": "HTTP 404: {\"status\":\"error\",\"code\":404,\"message\":\"Application not found\",\"request_id\":\"hSvVt8wkTXiEL2OLg4a9AQ\"}",
+      "message": "Oi, gostaria de saber o horário de funcionamento",
+      "timestamp": "2025-08-14T00:32:03.477986"
+    },
+    {
+      "step": "webhook_send",
+      "error": "HTTP 404: {\"status\":\"error\",\"code\":404,\"message\":\"Application not found\",\"request_id\":\"ec2bRkvRSu2-cYOUPvyhXg\"}",
+      "message": "Onde vocês ficam localizados?",
+      "timestamp": "2025-08-14T00:32:12.153712"
+    }
+  ],
+  "full_conversation_log": [],
+  "final_message_count": 575
+}

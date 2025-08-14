@@ -1,0 +1,32 @@
+{
+  "session": "test_1755142422",
+  "messages_sent": 6,
+  "bot_responses": 0,
+  "conversations": [
+    {
+      "name": "Agendamento",
+      "success": true,
+      "messages_sent": 2,
+      "bot_responses": 0,
+      "start_time": "2025-08-14T00:33:44.279533",
+      "end_time": "2025-08-14T00:34:21.792938"
+    },
+    {
+      "name": "Preços",
+      "success": true,
+      "messages_sent": 2,
+      "bot_responses": 0,
+      "start_time": "2025-08-14T00:34:31.796862",
+      "end_time": "2025-08-14T00:35:08.882581"
+    },
+    {
+      "name": "Informações",
+      "success": true,
+      "messages_sent": 2,
+      "bot_responses": 0,
+      "start_time": "2025-08-14T00:35:18.888990",
+      "end_time": "2025-08-14T00:35:55.965758"
+    }
+  ],
+  "total_duration": 133.24
+}

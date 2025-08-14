@@ -1,0 +1,1001 @@
+{
+  "session": "comprehensive_test_1755145566",
+  "start_time": "2025-08-14T01:26:06.805422",
+  "total_scenarios": 10,
+  "scenarios_tested": 10,
+  "messages_sent": 40,
+  "bot_responses": 84,
+  "handoff_avoided": 0,
+  "failed_scenarios": [],
+  "detailed_results": {
+    "1_basic_greeting": {
+      "name": "Saudações Básicas",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 9,
+      "pattern_matches": 23,
+      "success_rate": 225.0,
+      "details": [
+        {
+          "message_sent": "Oi",
+          "response_received": "Olá! Como posso ajudar você hoje? Você gostaria de agendar um serviço, cancelar um agendamento existente, reagendar um compromisso ou precisa de informações gerais sobre nossos serviços?",
+          "patterns_found": [
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:16.799595+00:00"
+        },
+        {
+          "message_sent": "Olá",
+          "response_received": "Olá! Como posso ajudar você hoje?",
+          "patterns_found": [
+            "olá",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:29.595762+00:00"
+        },
+        {
+          "message_sent": "Olá",
+          "response_received": "Olá! Como posso ajudar você hoje? Você gostaria de agendar um serviço, cancelar um agendamento existente, reagendar um compromisso ou precisa de informações gerais sobre nossos serviços?",
+          "patterns_found": [
+            "olá",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:16.799595+00:00"
+        },
+        {
+          "message_sent": "Bom dia",
+          "response_received": "Bom dia! Como posso ajudar você hoje?",
+          "patterns_found": [
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:42.527635+00:00"
+        },
+        {
+          "message_sent": "Bom dia",
+          "response_received": "Olá! Como posso ajudar você hoje?",
+          "patterns_found": [
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:29.595762+00:00"
+        },
+        {
+          "message_sent": "Bom dia",
+          "response_received": "Olá! Como posso ajudar você hoje? Você gostaria de agendar um serviço, cancelar um agendamento existente, reagendar um compromisso ou precisa de informações gerais sobre nossos serviços?",
+          "patterns_found": [
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:16.799595+00:00"
+        },
+        {
+          "message_sent": "Boa tarde",
+          "response_received": "Boa tarde! Como posso auxiliar você hoje? Você gostaria de agendar um serviço, cancelar um agendamento existente, reagendar um compromisso ou precisa de informações gerais sobre nossos serviços?",
+          "patterns_found": [
+            "como posso",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:56.011341+00:00"
+        },
+        {
+          "message_sent": "Boa tarde",
+          "response_received": "Bom dia! Como posso ajudar você hoje?",
+          "patterns_found": [
+            "como posso",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:42.527635+00:00"
+        },
+        {
+          "message_sent": "Boa tarde",
+          "response_received": "Olá! Como posso ajudar você hoje?",
+          "patterns_found": [
+            "como posso",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T04:26:29.595762+00:00"
+        }
+      ]
+    },
+    "2_service_inquiry": {
+      "name": "Consulta de Serviços",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 8,
+      "pattern_matches": 9,
+      "success_rate": 200.0,
+      "details": [
+        {
+          "message_sent": "Quais serviços vocês oferecem?",
+          "response_received": "Oferecemos uma variedade de serviços, incluindo:1. Corte de cabelo2. Coloração3. Tratamento capilar4. Manicure e pedicure5. DepilaçãoPor favor, me avise se você gostaria de agendar algum desses serviços ou se precisar de mais informações.",
+          "patterns_found": [
+            "serviços",
+            "oferecemos",
+            "serviços"
+          ],
+          "timestamp": "2025-08-14T04:27:21.001174+00:00"
+        },
+        {
+          "message_sent": "Quais serviços vocês oferecem?",
+          "response_received": "Boa tarde! Como posso auxiliar você hoje? Você gostaria de agendar um serviço, cancelar um agendamento existente, reagendar um compromisso ou precisa de informações gerais sobre nossos serviços?",
+          "patterns_found": [
+            "serviços",
+            "oferecemos",
+            "serviços"
+          ],
+          "timestamp": "2025-08-14T04:26:56.011341+00:00"
+        },
+        {
+          "message_sent": "Que tipos de tratamento fazem?",
+          "response_received": "Nós oferecemos uma variedade de tratamentos capilares, incluindo:1. Hidratação Profunda2. Reconstrução Capilar3. Nutrição Capilar4. Botox Capilar5. CauterizaçãoCada um destes tratamentos serve para um propósito específico, dependendo das necessidades do seu cabelo. Se você gostaria de saber mais sobre algum deles, ou se quiser agendar um horário, por favor, me avise.",
+          "patterns_found": [
+            "oferecemos",
+            "serviços",
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T04:27:35.919756+00:00"
+        },
+        {
+          "message_sent": "Que tipos de tratamento fazem?",
+          "response_received": "Oferecemos uma variedade de serviços, incluindo:1. Corte de cabelo2. Coloração3. Tratamento capilar4. Manicure e pedicure5. DepilaçãoPor favor, me avise se você gostaria de agendar algum desses serviços ou se precisar de mais informações.",
+          "patterns_found": [
+            "oferecemos",
+            "serviços",
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T04:27:21.001174+00:00"
+        },
+        {
+          "message_sent": "O que tem disponível para hoje?",
+          "response_received": "Para verificar a disponibilidade para hoje, preciso que me informe o serviço que você deseja agendar. Você poderia me fornecer essa informação, por favor?",
+          "patterns_found": [
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T04:27:49.680859+00:00"
+        },
+        {
+          "message_sent": "O que tem disponível para hoje?",
+          "response_received": "Nós oferecemos uma variedade de tratamentos capilares, incluindo:1. Hidratação Profunda2. Reconstrução Capilar3. Nutrição Capilar4. Botox Capilar5. CauterizaçãoCada um destes tratamentos serve para um propósito específico, dependendo das necessidades do seu cabelo. Se você gostaria de saber mais sobre algum deles, ou se quiser agendar um horário, por favor, me avise.",
+          "patterns_found": [
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T04:27:35.919756+00:00"
+        },
+        {
+          "message_sent": "Menu de serviços",
+          "response_received": "Claro, aqui estão os serviços que oferecemos:1. Serviço A - Duração: 1h - Preço: R100,002. Serviço B - Duração: 2h - Preço: R200,003. Serviço C - Duração: 1h30 - Preço: R150,004. Serviço D - Duração: 3h - Preço: R300,00Por favor, informe qual serviço você gostaria de agendar.",
+          "patterns_found": [
+            "serviços",
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T04:28:07.217336+00:00"
+        },
+        {
+          "message_sent": "Menu de serviços",
+          "response_received": "Para verificar a disponibilidade para hoje, preciso que me informe o serviço que você deseja agendar. Você poderia me fornecer essa informação, por favor?",
+          "patterns_found": [
+            "serviços",
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T04:27:49.680859+00:00"
+        }
+      ]
+    },
+    "3_pricing_inquiry": {
+      "name": "Consulta de Preços",
+      "handoff_risk": "MEDIUM",
+      "messages_tested": 4,
+      "responses_received": 8,
+      "pattern_matches": 6,
+      "success_rate": 200.0,
+      "details": [
+        {
+          "message_sent": "Quanto custa uma limpeza de pele?",
+          "response_received": "Para fornecer a informação correta, preciso acessar nossa base de dados para verificar o valor atual do serviço de limpeza de pele. Por favor, aguarde um momento.",
+          "patterns_found": [
+            "valor",
+            "preço"
+          ],
+          "timestamp": "2025-08-14T04:28:31.383090+00:00"
+        },
+        {
+          "message_sent": "Quanto custa uma limpeza de pele?",
+          "response_received": "Claro, aqui estão os serviços que oferecemos:1. Serviço A - Duração: 1h - Preço: R100,002. Serviço B - Duração: 2h - Preço: R200,003. Serviço C - Duração: 1h30 - Preço: R150,004. Serviço D - Duração: 3h - Preço: R300,00Por favor, informe qual serviço você gostaria de agendar.",
+          "patterns_found": [
+            "valor",
+            "preço"
+          ],
+          "timestamp": "2025-08-14T04:28:07.217336+00:00"
+        },
+        {
+          "message_sent": "Qual o valor do hidrofacial?",
+          "response_received": "Desculpe pela confusão, mas parece que não oferecemos o serviço de hidrofacial em nossa empresa. Nossos principais serviços são relacionados ao cabelo e unhas. Se precisar de mais informações sobre esses serviços, ficarei feliz em ajudar!",
+          "patterns_found": [
+            "valor"
+          ],
+          "timestamp": "2025-08-14T04:28:45.831649+00:00"
+        },
+        {
+          "message_sent": "Qual o valor do hidrofacial?",
+          "response_received": "Para fornecer a informação correta, preciso acessar nossa base de dados para verificar o valor atual do serviço de limpeza de pele. Por favor, aguarde um momento.",
+          "patterns_found": [
+            "valor"
+          ],
+          "timestamp": "2025-08-14T04:28:31.383090+00:00"
+        },
+        {
+          "message_sent": "Preços dos serviços",
+          "response_received": "Peço desculpas, mas como assistente virtual, não tenho acesso a dados específicos da base de dados em tempo real. No entanto, nossos preços variam de acordo com o serviço escolhido. Eles são sempre informados e acordados antes de finalizarmos o agendamento. Se você me disser qual serviço está interessado, posso ajudá-lo a agendar e obter todas as informações necessárias, incluindo o preço.",
+          "patterns_found": [
+            "preço"
+          ],
+          "timestamp": "2025-08-14T04:29:01.375657+00:00"
+        },
+        {
+          "message_sent": "Preços dos serviços",
+          "response_received": "Desculpe pela confusão, mas parece que não oferecemos o serviço de hidrofacial em nossa empresa. Nossos principais serviços são relacionados ao cabelo e unhas. Se precisar de mais informações sobre esses serviços, ficarei feliz em ajudar!",
+          "patterns_found": [
+            "preço"
+          ],
+          "timestamp": "2025-08-14T04:28:45.831649+00:00"
+        },
+        {
+          "message_sent": "Tabela de valores",
+          "response_received": "Claro, aqui estão os valores dos nossos serviços:1. Corte de cabelo: R50,002. Coloração: R80,00 a R120,00 (dependendo da técnica e do comprimento do cabelo)3. Tratamento capilar: - Hidratação Profunda: R60,00 - Reconstrução Capilar: R70,00 - Nutrição Capilar: R60,00 - Botox Capilar: R80,00 - Cauterização: R90,004. Manicure: R30,005. Pedicure: R35,006. Depilação: varia conforme a área a ser depilada, começando em R25,00.Lembrando que esses são os valores padrão e podem variar dependendo das especificidades do serviço. Se tiver interesse em algum deles, posso ajudá-lo a agendar um horário.",
+          "patterns_found": [
+            "valor",
+            "preço"
+          ],
+          "timestamp": "2025-08-14T04:29:19.969083+00:00"
+        },
+        {
+          "message_sent": "Tabela de valores",
+          "response_received": "Peço desculpas, mas como assistente virtual, não tenho acesso a dados específicos da base de dados em tempo real. No entanto, nossos preços variam de acordo com o serviço escolhido. Eles são sempre informados e acordados antes de finalizarmos o agendamento. Se você me disser qual serviço está interessado, posso ajudá-lo a agendar e obter todas as informações necessárias, incluindo o preço.",
+          "patterns_found": [
+            "valor",
+            "preço"
+          ],
+          "timestamp": "2025-08-14T04:29:01.375657+00:00"
+        }
+      ]
+    },
+    "4_scheduling_basic": {
+      "name": "Agendamento Básico",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 9,
+      "pattern_matches": 15,
+      "success_rate": 225.0,
+      "details": [
+        {
+          "message_sent": "Quero agendar uma limpeza de pele",
+          "response_received": "Claro! Ficaria feliz em ajudar com o seu agendamento para uma limpeza de pele. Para isso, preciso que me informe o dia e o horário que prefere. Por favor, lembre-se de que estamos fechados aos domingos.",
+          "patterns_found": [
+            "horário",
+            "agendar",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:29:43.711152+00:00"
+        },
+        {
+          "message_sent": "Quero agendar uma limpeza de pele",
+          "response_received": "Claro, aqui estão os valores dos nossos serviços:1. Corte de cabelo: R50,002. Coloração: R80,00 a R120,00 (dependendo da técnica e do comprimento do cabelo)3. Tratamento capilar: - Hidratação Profunda: R60,00 - Reconstrução Capilar: R70,00 - Nutrição Capilar: R60,00 - Botox Capilar: R80,00 - Cauterização: R90,004. Manicure: R30,005. Pedicure: R35,006. Depilação: varia conforme a área a ser depilada, começando em R25,00.Lembrando que esses são os valores padrão e podem variar dependendo das especificidades do serviço. Se tiver interesse em algum deles, posso ajudá-lo a agendar um horário.",
+          "patterns_found": [
+            "horário",
+            "agendar",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:29:19.969083+00:00"
+        },
+        {
+          "message_sent": "Gostaria de marcar um horário",
+          "response_received": "Claro! Ficarei feliz em ajudá-lo a agendar um horário. Poderia me dizer qual serviço você gostaria de agendar e qual seria a data e horário de sua preferência?",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:29:58.187179+00:00"
+        },
+        {
+          "message_sent": "Gostaria de marcar um horário",
+          "response_received": "Claro! Ficaria feliz em ajudar com o seu agendamento para uma limpeza de pele. Para isso, preciso que me informe o dia e o horário que prefere. Por favor, lembre-se de que estamos fechados aos domingos.",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:29:43.711152+00:00"
+        },
+        {
+          "message_sent": "Tem vaga para amanhã?",
+          "response_received": "Claro, posso verificar isso para você. Mas, para ajudar melhor, você poderia me informar qual serviço deseja agendar e em que horário prefere?",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "agendar",
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:30:11.314768+00:00"
+        },
+        {
+          "message_sent": "Tem vaga para amanhã?",
+          "response_received": "Claro! Ficarei feliz em ajudá-lo a agendar um horário. Poderia me dizer qual serviço você gostaria de agendar e qual seria a data e horário de sua preferência?",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "agendar",
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:29:58.187179+00:00"
+        },
+        {
+          "message_sent": "Tem vaga para amanhã?",
+          "response_received": "Claro! Ficaria feliz em ajudar com o seu agendamento para uma limpeza de pele. Para isso, preciso que me informe o dia e o horário que prefere. Por favor, lembre-se de que estamos fechados aos domingos.",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "agendar",
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:29:43.711152+00:00"
+        },
+        {
+          "message_sent": "Como faço para agendar?",
+          "response_received": "Para agendar uma limpeza de pele conosco, por favor, siga os passos a seguir:1. Informe a data e horário que prefere para o seu agendamento.2. Irei verificar a disponibilidade e confirmar com você.3. Uma vez confirmado, seu agendamento estará completo. Por favor, note que estamos fechados aos domingos e nosso horário de funcionamento pode variar. Você já tem uma data e horário em mente?",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "agendar",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:30:27.564103+00:00"
+        },
+        {
+          "message_sent": "Como faço para agendar?",
+          "response_received": "Claro, posso verificar isso para você. Mas, para ajudar melhor, você poderia me informar qual serviço deseja agendar e em que horário prefere?",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "agendar",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:30:11.314768+00:00"
+        }
+      ]
+    },
+    "5_business_info": {
+      "name": "Informações da Empresa",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 8,
+      "pattern_matches": 10,
+      "success_rate": 200.0,
+      "details": [
+        {
+          "message_sent": "Qual o horário de funcionamento?",
+          "response_received": "Nossa empresa funciona de segunda a sábado. No entanto, estamos fechados aos domingos. Por favor, note que os horários específicos podem variar. Qual serviço você gostaria de agendar? Assim posso fornecer uma informação mais precisa.",
+          "patterns_found": [
+            "horário",
+            "segunda",
+            "horário",
+            "funcionamento"
+          ],
+          "timestamp": "2025-08-14T04:30:51.154932+00:00"
+        },
+        {
+          "message_sent": "Qual o horário de funcionamento?",
+          "response_received": "Para agendar uma limpeza de pele conosco, por favor, siga os passos a seguir:1. Informe a data e horário que prefere para o seu agendamento.2. Irei verificar a disponibilidade e confirmar com você.3. Uma vez confirmado, seu agendamento estará completo. Por favor, note que estamos fechados aos domingos e nosso horário de funcionamento pode variar. Você já tem uma data e horário em mente?",
+          "patterns_found": [
+            "horário",
+            "segunda",
+            "horário",
+            "funcionamento"
+          ],
+          "timestamp": "2025-08-14T04:30:27.564103+00:00"
+        },
+        {
+          "message_sent": "Onde vocês ficam?",
+          "response_received": "Nossa Empresa está localizada na Rua Principal, número 123, no Bairro Central. Por favor, confirme a data e o horário que você deseja agendar sua limpeza de pele para que eu possa verificar a disponibilidade.",
+          "patterns_found": [
+            "horário",
+            "horário",
+            "segunda"
+          ],
+          "timestamp": "2025-08-14T04:31:06.219655+00:00"
+        },
+        {
+          "message_sent": "Onde vocês ficam?",
+          "response_received": "Nossa empresa funciona de segunda a sábado. No entanto, estamos fechados aos domingos. Por favor, note que os horários específicos podem variar. Qual serviço você gostaria de agendar? Assim posso fornecer uma informação mais precisa.",
+          "patterns_found": [
+            "horário",
+            "horário",
+            "segunda"
+          ],
+          "timestamp": "2025-08-14T04:30:51.154932+00:00"
+        },
+        {
+          "message_sent": "Endereço do studio",
+          "response_received": "Nossa Empresa está localizada na Rua Principal, número 123, no Bairro Central. Estamos ansiosos para atendê-lo em nosso estúdio! Agora, vamos prosseguir com o seu agendamento para a limpeza de pele. Você já tem uma data e horário em mente?",
+          "patterns_found": [
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:31:21.261989+00:00"
+        },
+        {
+          "message_sent": "Endereço do studio",
+          "response_received": "Nossa Empresa está localizada na Rua Principal, número 123, no Bairro Central. Por favor, confirme a data e o horário que você deseja agendar sua limpeza de pele para que eu possa verificar a disponibilidade.",
+          "patterns_found": [
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:31:06.219655+00:00"
+        },
+        {
+          "message_sent": "Telefone para contato",
+          "response_received": "Desculpe, mas como assistente virtual, não posso fornecer um número de telefone. No entanto, posso ajudá-lo com todas as suas necessidades aqui mesmo, incluindo o agendamento de serviços. Caso prefira falar com um humano, posso transferir a conversa para um membro da nossa equipe. Você gostaria que eu fizesse isso?",
+          "patterns_found": [
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:31:36.606913+00:00"
+        },
+        {
+          "message_sent": "Telefone para contato",
+          "response_received": "Nossa Empresa está localizada na Rua Principal, número 123, no Bairro Central. Estamos ansiosos para atendê-lo em nosso estúdio! Agora, vamos prosseguir com o seu agendamento para a limpeza de pele. Você já tem uma data e horário em mente?",
+          "patterns_found": [
+            "horário"
+          ],
+          "timestamp": "2025-08-14T04:31:21.261989+00:00"
+        }
+      ]
+    },
+    "6_payment_methods": {
+      "name": "Formas de Pagamento",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 9,
+      "pattern_matches": 40,
+      "success_rate": 225.0,
+      "details": [
+        {
+          "message_sent": "Quais formas de pagamento aceitam?",
+          "response_received": "Aceitamos as seguintes formas de pagamento:1. Dinheiro: Pagamento em espécie2. PIX: Transferência instantânea3. Cartão de Débito4. Cartão de CréditoPor favor, escolha o método de pagamento que melhor se adequa a você.",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:32:01.578992+00:00"
+        },
+        {
+          "message_sent": "Quais formas de pagamento aceitam?",
+          "response_received": "Desculpe, mas como assistente virtual, não posso fornecer um número de telefone. No entanto, posso ajudá-lo com todas as suas necessidades aqui mesmo, incluindo o agendamento de serviços. Caso prefira falar com um humano, posso transferir a conversa para um membro da nossa equipe. Você gostaria que eu fizesse isso?",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:31:36.606913+00:00"
+        },
+        {
+          "message_sent": "Posso pagar com cartão?",
+          "response_received": "Sim, aceitamos pagamento com cartão de débito e crédito. Também aceitamos pagamento em dinheiro e PIX. Agora, vamos prosseguir com o seu agendamento para a limpeza de pele. Você já tem uma data e horário em mente?",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:32:17.715518+00:00"
+        },
+        {
+          "message_sent": "Posso pagar com cartão?",
+          "response_received": "Aceitamos as seguintes formas de pagamento:1. Dinheiro: Pagamento em espécie2. PIX: Transferência instantânea3. Cartão de Débito4. Cartão de CréditoPor favor, escolha o método de pagamento que melhor se adequa a você.",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:32:01.578992+00:00"
+        },
+        {
+          "message_sent": "Tem PIX?",
+          "response_received": "Sim, nós aceitamos PIX como uma das formas de pagamento. Além do PIX, também aceitamos dinheiro, cartão de débito e cartão de crédito. Fique à vontade para escolher a opção que for mais conveniente para você.",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:32:31.474383+00:00"
+        },
+        {
+          "message_sent": "Tem PIX?",
+          "response_received": "Sim, aceitamos pagamento com cartão de débito e crédito. Também aceitamos pagamento em dinheiro e PIX. Agora, vamos prosseguir com o seu agendamento para a limpeza de pele. Você já tem uma data e horário em mente?",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:32:17.715518+00:00"
+        },
+        {
+          "message_sent": "Aceitam dinheiro?",
+          "response_received": "Sim, aceitamos pagamento em dinheiro. Também aceitamos cartão de débito, cartão de crédito e PIX. Agora, vamos prosseguir com o seu agendamento para a limpeza de pele. Você já tem uma data e horário em mente?",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:32:45.233221+00:00"
+        },
+        {
+          "message_sent": "Aceitam dinheiro?",
+          "response_received": "Sim, nós aceitamos PIX como uma das formas de pagamento. Além do PIX, também aceitamos dinheiro, cartão de débito e cartão de crédito. Fique à vontade para escolher a opção que for mais conveniente para você.",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:32:31.474383+00:00"
+        },
+        {
+          "message_sent": "Aceitam dinheiro?",
+          "response_received": "Sim, aceitamos pagamento com cartão de débito e crédito. Também aceitamos pagamento em dinheiro e PIX. Agora, vamos prosseguir com o seu agendamento para a limpeza de pele. Você já tem uma data e horário em mente?",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T04:32:17.715518+00:00"
+        }
+      ]
+    },
+    "7_complex_scenarios": {
+      "name": "Cenários Complexos (Evitando Handoff)",
+      "handoff_risk": "MEDIUM",
+      "messages_tested": 4,
+      "responses_received": 8,
+      "pattern_matches": 4,
+      "success_rate": 200.0,
+      "details": [
+        {
+          "message_sent": "Estou interessada em saber sobre promoções",
+          "response_received": "Claro, estou aqui para te ajudar! No momento, estamos oferecendo um desconto de 20% na limpeza de pele para os clientes que agendarem dentro deste mês. Além disso, temos uma promoção de pacotes de serviços, onde você pode obter um desconto adicional ao agendar mais de um serviço de uma vez. Gostaria de agendar um horário agora?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T04:33:11.868181+00:00"
+        },
+        {
+          "message_sent": "Estou interessada em saber sobre promoções",
+          "response_received": "Sim, aceitamos pagamento em dinheiro. Também aceitamos cartão de débito, cartão de crédito e PIX. Agora, vamos prosseguir com o seu agendamento para a limpeza de pele. Você já tem uma data e horário em mente?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T04:32:45.233221+00:00"
+        },
+        {
+          "message_sent": "Gostaria de informações sobre agendamentos especiais",
+          "response_received": "Claro, posso ajudá-la com isso. Nossa Empresa oferece a opção de agendamentos especiais para ocasiões como aniversários, casamentos, formaturas e outros eventos. Estes pacotes especiais incluem uma combinação de nossos serviços a um preço reduzido. Se você tiver um evento específico em mente, posso fornecer mais detalhes. Ou, se preferir, posso transferir para um membro da nossa equipe para discussões mais detalhadas. O que você prefere?",
+          "patterns_found": [
+            "detalhes"
+          ],
+          "timestamp": "2025-08-14T04:33:27.227206+00:00"
+        },
+        {
+          "message_sent": "Gostaria de informações sobre agendamentos especiais",
+          "response_received": "Claro, estou aqui para te ajudar! No momento, estamos oferecendo um desconto de 20% na limpeza de pele para os clientes que agendarem dentro deste mês. Além disso, temos uma promoção de pacotes de serviços, onde você pode obter um desconto adicional ao agendar mais de um serviço de uma vez. Gostaria de agendar um horário agora?",
+          "patterns_found": [
+            "detalhes"
+          ],
+          "timestamp": "2025-08-14T04:33:11.868181+00:00"
+        },
+        {
+          "message_sent": "Preciso de detalhes sobre os preços dos tratamentos",
+          "response_received": "Desculpe, houve um erro técnico. Nossa equipe foi notificada. Pode tentar novamente?",
+          "patterns_found": [
+            "detalhes"
+          ],
+          "timestamp": "2025-08-14T04:33:53.797739+00:00"
+        },
+        {
+          "message_sent": "Preciso de detalhes sobre os preços dos tratamentos",
+          "response_received": "Claro, posso ajudá-la com isso. Nossa Empresa oferece a opção de agendamentos especiais para ocasiões como aniversários, casamentos, formaturas e outros eventos. Estes pacotes especiais incluem uma combinação de nossos serviços a um preço reduzido. Se você tiver um evento específico em mente, posso fornecer mais detalhes. Ou, se preferir, posso transferir para um membro da nossa equipe para discussões mais detalhadas. O que você prefere?",
+          "patterns_found": [
+            "detalhes"
+          ],
+          "timestamp": "2025-08-14T04:33:27.227206+00:00"
+        },
+        {
+          "message_sent": "Quero entender melhor como funciona o atendimento",
+          "response_received": "Claro, eu ficaria feliz em explicar! Nossos atendimentos funcionam por meio de agendamentos para garantir que cada cliente receba a atenção dedicada que merecem. Você pode escolher o serviço que deseja, a data e o horário que mais lhe convém. As formas de pagamento aceitas são dinheiro, PIX, cartão de débito e crédito.Temos algumas políticas importantes:1. Cancelamentos: devem ser feitos com pelo menos 24 horas de antecedência. Não oferecemos reembolso para cancelamentos.2. Faltas: cobramos uma taxa de 50% do valor do serviço se você não comparecer sem aviso prévio. Temos um período de carência de 15 minutos.3. Reagendamentos: podem ser feitos até 2 horas antes do horário marcado. Você pode reagendar até duas vezes.Nossa meta é fornecer um atendimento de qualidade e garantir que você tenha uma experiência maravilhosa conosco!Por favor, me informe se há algo mais que você gostaria de saber. Estou aqui para ajudar!",
+          "patterns_found": [
+            "explicar",
+            "funciona"
+          ],
+          "timestamp": "2025-08-14T04:34:12.916535+00:00"
+        },
+        {
+          "message_sent": "Quero entender melhor como funciona o atendimento",
+          "response_received": "Desculpe, houve um erro técnico. Nossa equipe foi notificada. Pode tentar novamente?",
+          "patterns_found": [
+            "explicar",
+            "funciona"
+          ],
+          "timestamp": "2025-08-14T04:33:53.797739+00:00"
+        }
+      ]
+    },
+    "8_interactive_buttons": {
+      "name": "Teste de Botões (se houver)",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 8,
+      "pattern_matches": 4,
+      "success_rate": 200.0,
+      "details": [
+        {
+          "message_sent": "Menu",
+          "response_received": "Claro! Aqui estão as opções que posso ajudá-lo:1. Agendar um serviço2. Cancelar um agendamento3. Reagendar um compromisso4. ℹ Fornecer informações gerais sobre serviços, horários, formas de pagamento e políticasPor favor, diga qual opção você gostaria de escolher.",
+          "patterns_found": [
+            "opções"
+          ],
+          "timestamp": "2025-08-14T04:34:37.345985+00:00"
+        },
+        {
+          "message_sent": "Menu",
+          "response_received": "Claro, eu ficaria feliz em explicar! Nossos atendimentos funcionam por meio de agendamentos para garantir que cada cliente receba a atenção dedicada que merecem. Você pode escolher o serviço que deseja, a data e o horário que mais lhe convém. As formas de pagamento aceitas são dinheiro, PIX, cartão de débito e crédito.Temos algumas políticas importantes:1. Cancelamentos: devem ser feitos com pelo menos 24 horas de antecedência. Não oferecemos reembolso para cancelamentos.2. Faltas: cobramos uma taxa de 50% do valor do serviço se você não comparecer sem aviso prévio. Temos um período de carência de 15 minutos.3. Reagendamentos: podem ser feitos até 2 horas antes do horário marcado. Você pode reagendar até duas vezes.Nossa meta é fornecer um atendimento de qualidade e garantir que você tenha uma experiência maravilhosa conosco!Por favor, me informe se há algo mais que você gostaria de saber. Estou aqui para ajudar!",
+          "patterns_found": [
+            "opções"
+          ],
+          "timestamp": "2025-08-14T04:34:12.916535+00:00"
+        },
+        {
+          "message_sent": "Opções",
+          "response_received": "Claro, aqui estão algumas opções que você pode escolher:1. Agendar um serviço: você pode agendar qualquer um dos nossos serviços disponíveis.2. Cancelar um agendamento: se você já tem um compromisso marcado e precisa cancelar.3. Reagendar um compromisso: se você já tem um compromisso e gostaria de mudar a data ou o horário.4. Informações gerais: informações sobre nossos serviços, horários, formas de pagamento e políticas.Por favor, informe a opção que deseja prosseguir.",
+          "patterns_found": [
+            "opções",
+            "opções"
+          ],
+          "timestamp": "2025-08-14T04:34:53.529472+00:00"
+        },
+        {
+          "message_sent": "Opções",
+          "response_received": "Claro! Aqui estão as opções que posso ajudá-lo:1. Agendar um serviço2. Cancelar um agendamento3. Reagendar um compromisso4. ℹ Fornecer informações gerais sobre serviços, horários, formas de pagamento e políticasPor favor, diga qual opção você gostaria de escolher.",
+          "patterns_found": [
+            "opções",
+            "opções"
+          ],
+          "timestamp": "2025-08-14T04:34:37.345985+00:00"
+        },
+        {
+          "message_sent": "Ajuda",
+          "response_received": "Claro, estou aqui para ajudar! Aqui estão algumas coisas que posso fazer por você:1. Agendar um serviço: posso ajudar a agendar qualquer um dos nossos serviços disponíveis.2. Cancelar um agendamento: se você já tem um compromisso marcado e precisa cancelar, posso ajudar com isso.3. Reagendar um compromisso: se você já tem um compromisso e gostaria de mudar a data ou o horário, posso ajudar com isso.4. Informações gerais: posso fornecer informações sobre nossos serviços, horários, formas de pagamento e políticas.Por favor, informe o que você gostaria de fazer.",
+          "patterns_found": [
+            "opções"
+          ],
+          "timestamp": "2025-08-14T04:35:11.072562+00:00"
+        },
+        {
+          "message_sent": "Ajuda",
+          "response_received": "Claro, aqui estão algumas opções que você pode escolher:1. Agendar um serviço: você pode agendar qualquer um dos nossos serviços disponíveis.2. Cancelar um agendamento: se você já tem um compromisso marcado e precisa cancelar.3. Reagendar um compromisso: se você já tem um compromisso e gostaria de mudar a data ou o horário.4. Informações gerais: informações sobre nossos serviços, horários, formas de pagamento e políticas.Por favor, informe a opção que deseja prosseguir.",
+          "patterns_found": [
+            "opções"
+          ],
+          "timestamp": "2025-08-14T04:34:53.529472+00:00"
+        },
+        {
+          "message_sent": "Ver serviços",
+          "response_received": "Claro! Aqui está a lista de serviços que oferecemos:1. Limpeza de pele2. Massagem relaxante3. Drenagem linfática4. Tratamento facial5. Tratamento capilar6. Manicure e pedicure7. DepilaçãoCada serviço tem uma duração e preço específicos. Se você desejar mais detalhes sobre algum serviço, é só me dizer. E então, gostaria de agendar algum destes serviços?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T04:35:27.688645+00:00"
+        },
+        {
+          "message_sent": "Ver serviços",
+          "response_received": "Claro, estou aqui para ajudar! Aqui estão algumas coisas que posso fazer por você:1. Agendar um serviço: posso ajudar a agendar qualquer um dos nossos serviços disponíveis.2. Cancelar um agendamento: se você já tem um compromisso marcado e precisa cancelar, posso ajudar com isso.3. Reagendar um compromisso: se você já tem um compromisso e gostaria de mudar a data ou o horário, posso ajudar com isso.4. Informações gerais: posso fornecer informações sobre nossos serviços, horários, formas de pagamento e políticas.Por favor, informe o que você gostaria de fazer.",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T04:35:11.072562+00:00"
+        }
+      ]
+    },
+    "9_appointment_flow": {
+      "name": "Fluxo Completo de Agendamento",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 10,
+      "pattern_matches": 15,
+      "success_rate": 250.0,
+      "details": [
+        {
+          "message_sent": "Quero agendar um hidrofacial",
+          "response_received": "Ótimo! Vamos agendar seu hidrofacial. Para isso, eu preciso de algumas informações:1. A data que você prefere.2. O horário que mais lhe convém.Lembrando que estamos abertos de segunda a sábado. Aguardo suas preferências para prosseguirmos com o agendamento!",
+          "patterns_found": [
+            "agendar",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T04:35:51.720196+00:00"
+        },
+        {
+          "message_sent": "Quero agendar um hidrofacial",
+          "response_received": "Claro! Aqui está a lista de serviços que oferecemos:1. Limpeza de pele2. Massagem relaxante3. Drenagem linfática4. Tratamento facial5. Tratamento capilar6. Manicure e pedicure7. DepilaçãoCada serviço tem uma duração e preço específicos. Se você desejar mais detalhes sobre algum serviço, é só me dizer. E então, gostaria de agendar algum destes serviços?",
+          "patterns_found": [
+            "agendar",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T04:35:27.688645+00:00"
+        },
+        {
+          "message_sent": "Para quinta-feira se possível",
+          "response_received": "Claro, posso fazer isso para você. Mas preciso saber qual serviço você gostaria de agendar para quinta-feira. Pode me informar, por favor?",
+          "patterns_found": [
+            "agendar",
+            "quinta",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T04:36:04.914065+00:00"
+        },
+        {
+          "message_sent": "Para quinta-feira se possível",
+          "response_received": "Ótimo! Vamos agendar seu hidrofacial. Para isso, eu preciso de algumas informações:1. A data que você prefere.2. O horário que mais lhe convém.Lembrando que estamos abertos de segunda a sábado. Aguardo suas preferências para prosseguirmos com o agendamento!",
+          "patterns_found": [
+            "agendar",
+            "quinta",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T04:35:51.720196+00:00"
+        },
+        {
+          "message_sent": "De manhã seria melhor",
+          "response_received": "Claro, posso ajudar com isso. Você poderia me dizer qual serviço gostaria de agendar e para qual data? Assim, poderei verificar a disponibilidade do horário da manhã para você.",
+          "patterns_found": [
+            "agendar",
+            "manhã",
+            "agendar",
+            "quinta",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T04:36:18.840623+00:00"
+        },
+        {
+          "message_sent": "De manhã seria melhor",
+          "response_received": "Claro, posso fazer isso para você. Mas preciso saber qual serviço você gostaria de agendar para quinta-feira. Pode me informar, por favor?",
+          "patterns_found": [
+            "agendar",
+            "manhã",
+            "agendar",
+            "quinta",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T04:36:04.914065+00:00"
+        },
+        {
+          "message_sent": "De manhã seria melhor",
+          "response_received": "Ótimo! Vamos agendar seu hidrofacial. Para isso, eu preciso de algumas informações:1. A data que você prefere.2. O horário que mais lhe convém.Lembrando que estamos abertos de segunda a sábado. Aguardo suas preferências para prosseguirmos com o agendamento!",
+          "patterns_found": [
+            "agendar",
+            "manhã",
+            "agendar",
+            "quinta",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T04:35:51.720196+00:00"
+        },
+        {
+          "message_sent": "Pode ser às 10h?",
+          "response_received": "Posso verificar isso para você, mas primeiro preciso saber qual serviço você gostaria de agendar e para qual dia. Poderia me informar esses detalhes, por favor?",
+          "patterns_found": [
+            "agendar",
+            "agendar",
+            "manhã",
+            "agendar",
+            "quinta"
+          ],
+          "timestamp": "2025-08-14T04:36:32.749086+00:00"
+        },
+        {
+          "message_sent": "Pode ser às 10h?",
+          "response_received": "Claro, posso ajudar com isso. Você poderia me dizer qual serviço gostaria de agendar e para qual data? Assim, poderei verificar a disponibilidade do horário da manhã para você.",
+          "patterns_found": [
+            "agendar",
+            "agendar",
+            "manhã",
+            "agendar",
+            "quinta"
+          ],
+          "timestamp": "2025-08-14T04:36:18.840623+00:00"
+        },
+        {
+          "message_sent": "Pode ser às 10h?",
+          "response_received": "Claro, posso fazer isso para você. Mas preciso saber qual serviço você gostaria de agendar para quinta-feira. Pode me informar, por favor?",
+          "patterns_found": [
+            "agendar",
+            "agendar",
+            "manhã",
+            "agendar",
+            "quinta"
+          ],
+          "timestamp": "2025-08-14T04:36:04.914065+00:00"
+        }
+      ]
+    },
+    "10_edge_cases": {
+      "name": "Casos Especiais (Não Handoff)",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 7,
+      "pattern_matches": 6,
+      "success_rate": 175.0,
+      "details": [
+        {
+          "message_sent": "Primeira vez aqui, como funciona?",
+          "response_received": "Seja bem-vindo(a) à Nossa Empresa! Ficamos felizes em ter você aqui.Aqui está um breve resumo de como funcionam nossos serviços:1. Agendamento de Serviços: Você pode agendar um de nossos serviços para um horário que seja conveniente para você. Para isso, eu precisarei saber qual serviço você deseja, bem como a data e o horário preferidos.2. Cancelamento de Agendamentos: Se precisar cancelar um agendamento, podemos fazer isso desde que seja solicitado com pelo menos 24 horas de antecedência. 3. Reagendamento de Compromissos: Se precisar alterar a data ou o horário de um compromisso, podemos fazer isso até 2 horas antes do horário originalmente agendado.4. ℹ Informações Gerais: Estou aqui para responder a qualquer dúvida que você tenha sobre nossos serviços, horários, formas de pagamento e políticas.Se você já sabe qual serviço gostaria de agendar, pode me informar agora. Se ainda tiver dúvidas, ficarei feliz em ajudar a esclarecê-las.",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T04:37:01.658256+00:00"
+        },
+        {
+          "message_sent": "Sou novo cliente, o que recomendam?",
+          "response_received": "Seja bem-vindo! Como novo cliente, o hidrofacial é uma ótima escolha! Este tratamento é adequado para todos os tipos de pele e é conhecido por melhorar a saúde e a aparência da pele.Além disso, se você estiver buscando um cuidado completo, recomendo também o nosso Serviço B que inclui uma massagem relaxante após o hidrofacial. Muitos de nossos clientes adoram essa combinação!Por favor, me informe se você gostaria de seguir com o agendamento do hidrofacial ou se tem interesse em algum dos nossos outros serviços. Estou aqui para ajudar!",
+          "patterns_found": [
+            "novo",
+            "recomendo"
+          ],
+          "timestamp": "2025-08-14T04:37:17.009306+00:00"
+        },
+        {
+          "message_sent": "Sou novo cliente, o que recomendam?",
+          "response_received": "Seja bem-vindo(a) à Nossa Empresa! Ficamos felizes em ter você aqui.Aqui está um breve resumo de como funcionam nossos serviços:1. Agendamento de Serviços: Você pode agendar um de nossos serviços para um horário que seja conveniente para você. Para isso, eu precisarei saber qual serviço você deseja, bem como a data e o horário preferidos.2. Cancelamento de Agendamentos: Se precisar cancelar um agendamento, podemos fazer isso desde que seja solicitado com pelo menos 24 horas de antecedência. 3. Reagendamento de Compromissos: Se precisar alterar a data ou o horário de um compromisso, podemos fazer isso até 2 horas antes do horário originalmente agendado.4. ℹ Informações Gerais: Estou aqui para responder a qualquer dúvida que você tenha sobre nossos serviços, horários, formas de pagamento e políticas.Se você já sabe qual serviço gostaria de agendar, pode me informar agora. Se ainda tiver dúvidas, ficarei feliz em ajudar a esclarecê-las.",
+          "patterns_found": [
+            "novo",
+            "recomendo"
+          ],
+          "timestamp": "2025-08-14T04:37:01.658256+00:00"
+        },
+        {
+          "message_sent": "Qual a diferença entre os tratamentos?",
+          "response_received": "Lamento, mas sem detalhes sobre os serviços específicos que oferecemos, não posso fornecer uma comparação precisa. Normalmente, a diferença entre os tratamentos está no objetivo, duração, técnicas utilizadas e resultados esperados. Se você me fornecer os nomes dos tratamentos que está interessado, eu posso dar mais informações, ou se preferir, posso transferir para um de nossos especialistas para esclarecer suas dúvidas. O que você prefere?",
+          "patterns_found": [
+            "diferença",
+            "novo",
+            "recomendo"
+          ],
+          "timestamp": "2025-08-14T04:37:32.490974+00:00"
+        },
+        {
+          "message_sent": "Qual a diferença entre os tratamentos?",
+          "response_received": "Seja bem-vindo! Como novo cliente, o hidrofacial é uma ótima escolha! Este tratamento é adequado para todos os tipos de pele e é conhecido por melhorar a saúde e a aparência da pele.Além disso, se você estiver buscando um cuidado completo, recomendo também o nosso Serviço B que inclui uma massagem relaxante após o hidrofacial. Muitos de nossos clientes adoram essa combinação!Por favor, me informe se você gostaria de seguir com o agendamento do hidrofacial ou se tem interesse em algum dos nossos outros serviços. Estou aqui para ajudar!",
+          "patterns_found": [
+            "diferença",
+            "novo",
+            "recomendo"
+          ],
+          "timestamp": "2025-08-14T04:37:17.009306+00:00"
+        },
+        {
+          "message_sent": "Muito obrigada pelas informações!",
+          "response_received": "De nada! Se tiver mais alguma dúvida ou precisar de mais alguma informação, é só me dizer. Estou aqui para ajudar!",
+          "patterns_found": [
+            "diferença"
+          ],
+          "timestamp": "2025-08-14T04:37:45.434075+00:00"
+        },
+        {
+          "message_sent": "Muito obrigada pelas informações!",
+          "response_received": "Lamento, mas sem detalhes sobre os serviços específicos que oferecemos, não posso fornecer uma comparação precisa. Normalmente, a diferença entre os tratamentos está no objetivo, duração, técnicas utilizadas e resultados esperados. Se você me fornecer os nomes dos tratamentos que está interessado, eu posso dar mais informações, ou se preferir, posso transferir para um de nossos especialistas para esclarecer suas dúvidas. O que você prefere?",
+          "patterns_found": [
+            "diferença"
+          ],
+          "timestamp": "2025-08-14T04:37:32.490974+00:00"
+        }
+      ]
+    }
+  },
+  "conversation_log": []
+}

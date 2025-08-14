@@ -1,0 +1,47 @@
+{
+  "session_id": "test_1755141359",
+  "start_time": "2025-08-14T00:15:59.293348",
+  "messages_sent": 0,
+  "responses_received": 0,
+  "llm_responses": [],
+  "database_records": [],
+  "api_calls": [],
+  "errors": [
+    {
+      "step": "send_message",
+      "error": "HTTP 401: {\"error\":{\"message\":\"Got unexpected null\",\"type\":\"OAuthException\",\"code\":190,\"fbtrace_id\":\"AC4T1iDzro_gLSLgk-FeIsW\"}}",
+      "message": "Oi! Gostaria de agendar um corte de cabelo",
+      "timestamp": "2025-08-14T00:16:01.304029"
+    },
+    {
+      "step": "send_message",
+      "error": "HTTP 401: {\"error\":{\"message\":\"Got unexpected null\",\"type\":\"OAuthException\",\"code\":190,\"fbtrace_id\":\"A6aZpSBrOi_pM96COAkmlcZ\"}}",
+      "message": "Para amanhã às 14h, se possível",
+      "timestamp": "2025-08-14T00:16:11.506414"
+    }
+  ],
+  "performance_metrics": {
+    "total_duration_seconds": 12.5,
+    "messages_per_minute": 0.0,
+    "response_rate": 0.0,
+    "average_response_time": "calculated_from_db_timestamps",
+    "success_rate": -200.0,
+    "end_time": "2025-08-14T00:16:11.788708"
+  },
+  "conversation_flow": [],
+  "initial_conversation_status": {
+    "conversation_id": 2,
+    "status": "active",
+    "last_message_at": "2025-08-14T06:08:05.084345+00:00",
+    "created_at": "2025-08-13T04:32:53.418014+00:00",
+    "user_phone": "5516991022255"
+  },
+  "final_conversation_status": {
+    "conversation_id": 2,
+    "status": "active",
+    "last_message_at": "2025-08-14T06:08:05.084345+00:00",
+    "created_at": "2025-08-13T04:32:53.418014+00:00",
+    "user_phone": "5516991022255"
+  },
+  "final_message_count": 567
+}

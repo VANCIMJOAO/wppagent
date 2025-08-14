@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Teste - WhatsApp LLM Bot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border-left: 5px solid #25D366;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #25D366;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #128C7E;
+            border-bottom: 2px solid #25D366;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .conversation {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .message.sent {
+            background: #dcf8c6;
+            border-left: 4px solid #25D366;
+            margin-left: 20px;
+        }
+        
+        .message.received {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            margin-right: 20px;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        .direction {
+            font-weight: bold;
+        }
+        
+        .message-content {
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+        
+        .message-type {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .json-display {
+            background: #f4f4f4;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .error-item {
+            background: #ffe6e6;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .no-errors {
+            text-align: center;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .message.sent {
+                margin-left: 10px;
+            }
+            .message.received {
+                margin-right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Relatório de Teste</h1>
+            <h2>WhatsApp LLM Bot</h2>
+            <p>Sessão: test_1755141359</p>
+            <p>Executado em: 14/08/2025 às 00:16:11</p>
+        </div>
+        
+        <div class="content">
+            <!-- Métricas Principais -->
+            <div class="section">
+                <h2>📊 Métricas de Performance</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">0</div>
+                        <div class="metric-label">Mensagens Enviadas</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">0</div>
+                        <div class="metric-label">Respostas da LLM</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">0.0%</div>
+                        <div class="metric-label">Taxa de Resposta</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">12.5s</div>
+                        <div class="metric-label">Duração Total</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">2</div>
+                        <div class="metric-label">Erros Detectados</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">-200.0%</div>
+                        <div class="metric-label">Taxa de Sucesso</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Histórico da Conversa -->
+            <div class="section">
+                <h2>💬 Histórico da Conversa</h2>
+                <div class="conversation">
+                    <p>Nenhuma conversa registrada.</p>
+                </div>
+            </div>
+            
+            <!-- Status das Conversas -->
+            <div class="section">
+                <h2>📋 Status das Conversas</h2>
+                <div class="json-display">
+<strong>Status Inicial:</strong>
+{
+  "conversation_id": 2,
+  "status": "active",
+  "last_message_at": "2025-08-14T06:08:05.084345+00:00",
+  "created_at": "2025-08-13T04:32:53.418014+00:00",
+  "user_phone": "5516991022255"
+}
+
+<strong>Status Final:</strong>
+{
+  "conversation_id": 2,
+  "status": "active",
+  "last_message_at": "2025-08-14T06:08:05.084345+00:00",
+  "created_at": "2025-08-13T04:32:53.418014+00:00",
+  "user_phone": "5516991022255"
+}
+                </div>
+            </div>
+            
+            <!-- Verificação do Sistema LLM -->
+            <div class="section">
+                <h2>🤖 Verificação do Sistema LLM</h2>
+                <div class="json-display">
+{}
+                </div>
+            </div>
+            
+            <!-- Chamadas da API -->
+            <div class="section">
+                <h2>🔌 Chamadas da API</h2>
+                <div class="json-display">
+[]
+                </div>
+            </div>
+            
+            <!-- Erros Detectados -->
+            <div class="section">
+                <h2>❌ Erros Detectados</h2>
+                
+                <div class="error-item">
+                    <strong>Etapa:</strong> send_message<br>
+                    <strong>Erro:</strong> HTTP 401: {"error":{"message":"Got unexpected null","type":"OAuthException","code":190,"fbtrace_id":"AC4T1iDzro_gLSLgk-FeIsW"}}<br>
+                    <strong>Timestamp:</strong> 2025-08-14T00:16:01.304029
+                </div>
+                
+                <div class="error-item">
+                    <strong>Etapa:</strong> send_message<br>
+                    <strong>Erro:</strong> HTTP 401: {"error":{"message":"Got unexpected null","type":"OAuthException","code":190,"fbtrace_id":"A6aZpSBrOi_pM96COAkmlcZ"}}<br>
+                    <strong>Timestamp:</strong> 2025-08-14T00:16:11.506414
+                </div>
+                
+            </div>
+            
+            <!-- Dados Brutos -->
+            <div class="section">
+                <h2>🗄️ Dados Completos do Teste</h2>
+                <details>
+                    <summary>Clique para ver dados completos (JSON)</summary>
+                    <div class="json-display">
+{
+  "session_id": "test_1755141359",
+  "start_time": "2025-08-14T00:15:59.293348",
+  "messages_sent": 0,
+  "responses_received": 0,
+  "llm_responses": [],
+  "database_records": [],
+  "api_calls": [],
+  "errors": [
+    {
+      "step": "send_message",
+      "error": "HTTP 401: {\"error\":{\"message\":\"Got unexpected null\",\"type\":\"OAuthException\",\"code\":190,\"fbtrace_id\":\"AC4T1iDzro_gLSLgk-FeIsW\"}}",
+      "message": "Oi! Gostaria de agendar um corte de cabelo",
+      "timestamp": "2025-08-14T00:16:01.304029"
+    },
+    {
+      "step": "send_message",
+      "error": "HTTP 401: {\"error\":{\"message\":\"Got unexpected null\",\"type\":\"OAuthException\",\"code\":190,\"fbtrace_id\":\"A6aZpSBrOi_pM96COAkmlcZ\"}}",
+      "message": "Para amanhã às 14h, se possível",
+      "timestamp": "2025-08-14T00:16:11.506414"
+    }
+  ],
+  "performance_metrics": {
+    "total_duration_seconds": 12.5,
+    "messages_per_minute": 0.0,
+    "response_rate": 0.0,
+    "average_response_time": "calculated_from_db_timestamps",
+    "success_rate": -200.0,
+    "end_time": "2025-08-14T00:16:11.788708"
+  },
+  "conversation_flow": [],
+  "initial_conversation_status": {
+    "conversation_id": 2,
+    "status": "active",
+    "last_message_at": "2025-08-14T06:08:05.084345+00:00",
+    "created_at": "2025-08-13T04:32:53.418014+00:00",
+    "user_phone": "5516991022255"
+  },
+  "final_conversation_status": {
+    "conversation_id": 2,
+    "status": "active",
+    "last_message_at": "2025-08-14T06:08:05.084345+00:00",
+    "created_at": "2025-08-13T04:32:53.418014+00:00",
+    "user_phone": "5516991022255"
+  },
+  "final_message_count": 567
+}
+                    </div>
+                </details>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Relatório gerado automaticamente pelo WhatsApp LLM Tester</p>
+            <p>Timestamp: 2025-08-14T00:16:11.788829</p>
+        </div>
+    </div>
+</body>
+</html>
+        
