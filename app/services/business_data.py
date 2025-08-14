@@ -548,7 +548,7 @@ class BusinessDataService:
 
 
 # Instância global do serviço
-business_data_service = BusinessDataService(business_id=1)
+business_data_service = BusinessDataService(business_id=3)
 
 
 async def get_database_services() -> List[ServiceData]:
