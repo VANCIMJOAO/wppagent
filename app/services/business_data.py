@@ -132,6 +132,7 @@ class BusinessDataService:
     async def get_services_formatted_text(self) -> str:
         """
         Retorna texto formatado com serviços e preços da database
+        Formatação otimizada para WhatsApp com quebras de linha adequadas
         
         Returns:
             String formatada com lista de serviços
@@ -139,24 +140,60 @@ class BusinessDataService:
         services = await self.get_active_services()
         
         if not services:
-            return "No momento não temos serviços cadastrados. Entre em contato conosco!"
+            return "🔍 No momento não temos serviços cadastrados.\n📞 Entre em contato conosco!"
         
         text = "📋 *Nossos Serviços e Preços:*\n\n"
         
-        for service in services:
-            text += f"• *{service.name}*: {service.price}"
+        for i, service in enumerate(services, 1):
+            # Formatação WhatsApp-friendly com numeração clara
+            text += f"{i}. *{service.name}*\n"
+            text += f"   💰 {service.price}"
             if service.duration:
-                text += f" - {service.duration}min"
+                text += f" • ⏰ {service.duration}min"
+            text += "\n"
             if service.description:
-                text += f"\n  _{service.description}_"
-            text += "\n\n"
+                text += f"   ℹ️ _{service.description}_\n"
+            text += "\n"  # Linha extra entre serviços para melhor separação
         
-        text += "📞 Para agendar, me informe:\n"
-        text += "- Qual serviço deseja\n"
-        text += "- Data e horário preferido\n"
-        text += "- Seu nome completo"
+        text += "📞 *Para agendar:*\n"
+        text += "• Qual serviço deseja\n"
+        text += "• Data e horário preferido\n"
+        text += "• Seu nome completo"
         
         return text
+    
+    async def get_company_info_formatted_text(self) -> str:
+        """
+        Retorna informações da empresa formatadas para WhatsApp
+        
+        Returns:
+            String formatada com informações da empresa
+        """
+        company_info = await self.get_company_info()
+        
+        if not company_info:
+            return "🏢 *Studio Beleza & Bem-Estar*\n📍 Rua das Flores, 123 - Centro, São Paulo, SP\n📞 Entre em contato conosco!"
+        
+        text = f"🏢 *{company_info.get('name', 'Studio Beleza & Bem-Estar')}*\n\n"
+        
+        if company_info.get('address'):
+            text += f"📍 *Endereço:*\n{company_info['address']}\n\n"
+        
+        if company_info.get('phone'):
+            text += f"📞 *Telefone:* {company_info['phone']}\n"
+        
+        if company_info.get('email'):
+            text += f"📧 *E-mail:* {company_info['email']}\n"
+        
+        if company_info.get('website'):
+            text += f"🌐 *Site:* {company_info['website']}\n"
+        
+        # Adicionar horário de funcionamento
+        text += "\n"
+        hours_text = await self.get_business_hours_formatted_text()
+        text += hours_text
+        
+        return text.strip()
     
     async def find_service_by_name(self, service_name: str) -> Optional[ServiceData]:
         """
@@ -280,6 +317,35 @@ class BusinessDataService:
             "formatted_text": "Segunda a Sexta: 09:00 às 18:00\nSábado: Fechado\nDomingo: Fechado",
             "summary": "Segunda a Sexta: 9h às 18h, Fins de semana: Fechado"
         }
+    
+    async def get_business_hours_formatted_text(self) -> str:
+        """
+        Retorna horários de funcionamento formatados para WhatsApp
+        
+        Returns:
+            String formatada com horários de funcionamento
+        """
+        hours_data = await self.get_business_hours()
+        
+        if not hours_data:
+            return "📅 *Horário de Funcionamento:*\n\n🕘 Segunda a Sexta: 9h às 18h\n🕘 Sábado: 9h às 16h\n🚫 Domingo: Fechado"
+        
+        # Usar o texto formatado do cache se disponível
+        if "formatted_text" in hours_data and hours_data["formatted_text"]:
+            text = "📅 *Horário de Funcionamento:*\n\n"
+            
+            # Quebrar por linhas e reformatar
+            lines = hours_data["formatted_text"].split('\n')
+            for line in lines:
+                if "Fechado" in line:
+                    text += f"🚫 {line}\n"
+                else:
+                    text += f"🕘 {line}\n"
+            
+            return text.strip()
+        
+        # Fallback para formato padrão
+        return "📅 *Horário de Funcionamento:*\n\n🕘 Segunda a Sexta: 9h às 18h\n🕘 Sábado: 9h às 16h\n🚫 Domingo: Fechado"
         
         return self._business_hours_cache
     
