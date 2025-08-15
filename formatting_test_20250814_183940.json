@@ -1,0 +1,85 @@
+{
+  "session": "formatting_test_1755207511",
+  "start_time": "2025-08-14T18:38:31.553643",
+  "tests_run": 4,
+  "formatting_checks_passed": 0,
+  "test_details": [
+    {
+      "test_name": "📋 Teste Lista de Serviços",
+      "message_sent": "Quais serviços vocês oferecem?",
+      "response_received": "Desculpe, houve um erro técnico. Nossa equipe foi notificada. Pode tentar novamente?",
+      "formatting_check": {
+        "total_expected": 7,
+        "found": [],
+        "missing": [
+          "1.",
+          "2.",
+          "3.",
+          "💰",
+          "⏰",
+          "*",
+          "_"
+        ],
+        "score": 0.0
+      },
+      "success": false
+    },
+    {
+      "test_name": "🕘 Teste Horário de Funcionamento",
+      "message_sent": "Qual o horário de funcionamento?",
+      "response_received": "O Studio Beleza Bem-Estar funciona nos seguintes horários: Segunda a Sexta: 9h às 18h Sábado: 9h às 16h Domingo: FechadoFicaremos felizes em atendê-lo dentro desses horários. Se desejar agendar algum de nossos serviços, por favor, me informe o serviço desejado, a data e o horário preferido.",
+      "formatting_check": {
+        "total_expected": 5,
+        "found": [
+          "Segunda",
+          "Domingo",
+          "às"
+        ],
+        "missing": [
+          "🕘",
+          "🚫"
+        ],
+        "score": 60.0
+      },
+      "success": false
+    },
+    {
+      "test_name": "🏢 Teste Informações da Empresa",
+      "message_sent": "Onde vocês ficam? Qual o endereço?",
+      "response_received": "O Studio Beleza Bem-Estar está localizado na Rua das Flores, 123 - Centro, São Paulo, SP. Estamos ansiosos para atendê-lo!",
+      "formatting_check": {
+        "total_expected": 7,
+        "found": [
+          "Studio",
+          "Beleza"
+        ],
+        "missing": [
+          "🏢",
+          "📍",
+          "📞",
+          "📧",
+          "🌐"
+        ],
+        "score": 28.57142857142857
+      },
+      "success": false
+    },
+    {
+      "test_name": "💰 Teste Consulta de Preços",
+      "message_sent": "Quanto custa uma limpeza de pele?",
+      "response_received": "O serviço de Limpeza de Pele Profunda no Studio Beleza Bem-Estar custa R 80,00. Esta sessão tem duração de 90 minutos e inclui limpeza completa com extração, tonificação e hidratação. Além disso, inclui esfoliação e máscara personalizada. Se desejar agendar este serviço, por favor, me informe a data e o horário preferido.",
+      "formatting_check": {
+        "total_expected": 4,
+        "found": [],
+        "missing": [
+          "💰",
+          "R$",
+          "⏰",
+          "*"
+        ],
+        "score": 0.0
+      },
+      "success": false
+    }
+  ]
+}

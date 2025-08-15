@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-08-14T14:26:57.085431",
+  "error_count": 16,
+  "performance_stats": {
+    "total_messages": 181,
+    "user_messages": 91,
+    "bot_responses": 90,
+    "error_responses": 13
+  },
+  "healthy_endpoints": [
+    {
+      "endpoint": "/health",
+      "status": 200,
+      "response_time": 0.670311450958252
+    }
+  ],
+  "webhook_test_passed": false,
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "issue": "Muitos erros técnicos detectados",
+      "solution": "Implementar retry logic e tratamento de timeout"
+    },
+    {
+      "priority": "HIGH",
+      "issue": "Webhook não está processando mensagens corretamente",
+      "solution": "Verificar logs do servidor, timeout settings"
+    },
+    {
+      "priority": "MEDIUM",
+      "issue": "Necessário monitoramento contínuo",
+      "solution": "Implementar healthcheck automatizado"
+    },
+    {
+      "priority": "LOW",
+      "issue": "Métricas de teste incorretas",
+      "solution": "Corrigir cálculo de taxa de sucesso"
+    }
+  ]
+}

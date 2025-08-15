@@ -25,7 +25,108 @@ import os
 class ComprehensiveWhatsAppTester:
     def __init__(self):
         # CONFIGURAÇÕES
-        self.DATABASE_URL = "postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway"
+        self.DATABASE_URL = "poasync def main():
+    """Função principal - TESTE DE FORMATAÇÃO"""
+    tester = ComprehensiveWhatsAppTester()
+    
+    try:
+        if not await tester.connect_db():
+            print("❌ Falha na conexão com banco")
+            return
+        
+        print("🎯 TESTE ESPECÍFICO DE FORMATAÇÃO")
+        print("="*50)
+        
+        # Define testes de formatação
+        formatting_tests = [
+            "Quais serviços vocês oferecem?",
+            "Qual o horário de funcionamento?", 
+            "Onde vocês ficam localizados?"
+        ]
+        
+        results = []
+        
+        for i, question in enumerate(formatting_tests, 1):
+            print(f"\\n🔍 Teste {i}: {question}")
+            
+            # Envia mensagem
+            response = await tester.send_message(question)
+            if not response:
+                print(f"❌ Falha no envio")
+                continue
+                
+            # Aguarda resposta
+            await asyncio.sleep(8)
+            
+            # Busca resposta do bot
+            recent_responses = await tester.db.fetch(\"\"\"
+                SELECT direction, content, created_at, message_type
+                FROM messages 
+                WHERE user_id = 2 
+                AND direction = 'out'
+                AND created_at > NOW() - INTERVAL '2 minutes'
+                ORDER BY created_at DESC
+                LIMIT 3
+            \"\"\")
+            
+            # Pega a resposta mais recente
+            bot_response = None
+            if recent_responses:
+                bot_response = recent_responses[0]['content']
+                print(f"📱 Resposta recebida ({len(bot_response)} chars)")
+            else:
+                print(f"❌ Sem resposta do bot")
+                continue
+            
+            # Analisa formatação
+            analysis = tester.analyze_formatting(bot_response)
+            
+            # Imprime resultado
+            print(f"   📊 Formatação: {analysis['percentage']:.1f}% ({analysis['found_count']}/{analysis['total_elements']})")
+            
+            if analysis["found"]:
+                print("   ✅ Encontrado:")
+                for item in analysis["found"][:3]:  # Mostra apenas 3 primeiros
+                    print(f"      {item}")
+            
+            if analysis["missing"] and len(analysis["missing"]) <= 5:
+                print("   ❌ Ausente:")
+                for item in analysis["missing"][:3]:  # Mostra apenas 3 primeiros
+                    print(f"      {item}")
+            
+            # Salva resultado
+            results.append({
+                "question": question,
+                "response": bot_response,
+                "analysis": analysis
+            })
+            
+            await asyncio.sleep(3)
+        
+        # Calcula média final
+        if results:
+            avg_percentage = sum(r["analysis"]["percentage"] for r in results) / len(results)
+            print(f"\\n📊 FORMATAÇÃO MÉDIA: {avg_percentage:.1f}%")
+            
+            # Salva resultados
+            filename = f"formatting_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "timestamp": datetime.now().isoformat(),
+                    "average_formatting": avg_percentage,
+                    "tests": results
+                }, f, ensure_ascii=False, indent=2)
+            
+            print(f"\\n💾 Resultados salvos em: {filename}")
+        
+    except KeyboardInterrupt:
+        print("\\n⏹️ Teste interrompido pelo usuário")
+    except Exception as e:
+        print(f"\\n💥 Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+    finally:
+        await tester.close()tgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway"
         self.API_BASE_URL = "https://wppagent-production.up.railway.app"
         
         # CREDENCIAIS
@@ -34,6 +135,50 @@ class ComprehensiveWhatsAppTester:
         self.BOT_PHONE = "15551536026"
         self.YOUR_PHONE = "5516991022255"
         
+    def analyze_formatting(self, text):
+        """Analisa formatação com contagem de múltiplas ocorrências"""
+        
+        formatting_elements = {
+            "💰": "Emoji preço",
+            "⏰": "Emoji duração",
+            "📋": "Emoji lista",
+            "🏢": "Emoji empresa",
+            "📍": "Emoji endereço",
+            "📞": "Emoji telefone",
+            "📧": "Emoji email",
+            "🕘": "Emoji horário aberto",
+            "🚫": "Emoji fechado",
+            "ℹ️": "Emoji informação",
+            "1.": "Numeração",
+            "2.": "Mais numeração",
+            "3.": "Terceira numeração",
+            "4.": "Quarta numeração",
+            "5.": "Quinta numeração",
+            "*": "Negrito",
+            "_": "Itálico",
+            "•": "Marcador"
+        }
+        
+        found = []
+        missing = []
+        
+        for element, description in formatting_elements.items():
+            count = text.count(element)
+            if count > 0:
+                found.append(f"✅ {description}: {count}x")
+            else:
+                missing.append(f"❌ {description}")
+        
+        percentage = (len(found) / len(formatting_elements)) * 100
+        
+        return {
+            "found": found,
+            "missing": missing,
+            "percentage": percentage,
+            "total_elements": len(formatting_elements),
+            "found_count": len(found)
+        }
+
         # CENÁRIOS DE TESTE COMPLETOS
         self.test_scenarios = {
             "1_basic_greeting": {

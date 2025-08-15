@@ -1,0 +1,827 @@
+{
+  "session": "comprehensive_test_1755191437",
+  "start_time": "2025-08-14T14:10:37.572638",
+  "total_scenarios": 10,
+  "scenarios_tested": 10,
+  "messages_sent": 40,
+  "bot_responses": 81,
+  "handoff_avoided": 0,
+  "failed_scenarios": [],
+  "detailed_results": {
+    "1_basic_greeting": {
+      "name": "Saudações Básicas",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 7,
+      "pattern_matches": 18,
+      "success_rate": 175.0,
+      "details": [
+        {
+          "message_sent": "Oi",
+          "response_received": "Olá! Como posso ajudar você hoje? Você gostaria de agendar algum serviço no Studio Beleza Bem-Estar?",
+          "patterns_found": [
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T17:10:50.245008+00:00"
+        },
+        {
+          "message_sent": "Olá",
+          "response_received": "Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar?",
+          "patterns_found": [
+            "olá",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T17:11:13.671546+00:00"
+        },
+        {
+          "message_sent": "Olá",
+          "response_received": "Olá! Como posso ajudar você hoje? Você gostaria de agendar algum serviço no Studio Beleza Bem-Estar?",
+          "patterns_found": [
+            "olá",
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T17:10:50.245008+00:00"
+        },
+        {
+          "message_sent": "Bom dia",
+          "response_received": "Bom dia! Como posso ajudar você hoje no Studio Beleza Bem-Estar? Você está buscando informações sobre algum de nossos serviços ou gostaria de fazer um agendamento?",
+          "patterns_found": [
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T17:11:27.810595+00:00"
+        },
+        {
+          "message_sent": "Bom dia",
+          "response_received": "Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar?",
+          "patterns_found": [
+            "como posso",
+            "ajudar",
+            "olá",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T17:11:13.671546+00:00"
+        },
+        {
+          "message_sent": "Boa tarde",
+          "response_received": "Boa tarde! Como posso ajudar você hoje no Studio Beleza Bem-Estar?",
+          "patterns_found": [
+            "como posso",
+            "ajudar",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T17:11:42.306465+00:00"
+        },
+        {
+          "message_sent": "Boa tarde",
+          "response_received": "Bom dia! Como posso ajudar você hoje no Studio Beleza Bem-Estar? Você está buscando informações sobre algum de nossos serviços ou gostaria de fazer um agendamento?",
+          "patterns_found": [
+            "como posso",
+            "ajudar",
+            "como posso",
+            "ajudar"
+          ],
+          "timestamp": "2025-08-14T17:11:27.810595+00:00"
+        }
+      ]
+    },
+    "2_service_inquiry": {
+      "name": "Consulta de Serviços",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 7,
+      "pattern_matches": 12,
+      "success_rate": 175.0,
+      "details": [
+        {
+          "message_sent": "Quais serviços vocês oferecem?",
+          "response_received": "No Studio Beleza Bem-Estar, oferecemos uma variedade de serviços para cuidar da sua beleza e bem-estar. Aqui estão eles:1. Corte Feminino - R80,00 (60min)2. Criolipólise - R300,00 (60min)3. Day Spa Relax - R280,00 (300min)4. Depilação Pernas Completas - R60,00 (45min)5. Depilação Virilha Completa - R45,00 (30min)6. Drenagem Linfática - R90,00 (60min)7. Escova Progressiva - R250,00 (180min)8. Hidrofacial Diamante - R150,00 (60min)9. Limpeza de Pele Profunda - R80,00 (90min)10. Manicure Completa - R35,00 (45min)11. Massagem Modeladora - R120,00 (75min)12. Massagem Relaxante - R100,00 (60min)13. Pacote Noiva - R450,00 (240min)14. Pedicure Spa - R45,00 (60min)15. Peeling Químico - R120,00 (45min)16. Radiofrequência - R180,00 (45min)Por favor, me informe o serviço que você gostaria de agendar.",
+          "patterns_found": [
+            "limpeza",
+            "pele",
+            "hidrofacial",
+            "serviços",
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T17:12:15.702009+00:00"
+        },
+        {
+          "message_sent": "Que tipos de tratamento fazem?",
+          "response_received": "Desculpe, houve um erro técnico. Nossa equipe foi notificada. Pode tentar novamente?",
+          "patterns_found": [
+            "limpeza",
+            "pele",
+            "hidrofacial",
+            "serviços",
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T17:12:42.511089+00:00"
+        },
+        {
+          "message_sent": "Que tipos de tratamento fazem?",
+          "response_received": "No Studio Beleza Bem-Estar, oferecemos uma variedade de serviços para cuidar da sua beleza e bem-estar. Aqui estão eles:1. Corte Feminino - R80,00 (60min)2. Criolipólise - R300,00 (60min)3. Day Spa Relax - R280,00 (300min)4. Depilação Pernas Completas - R60,00 (45min)5. Depilação Virilha Completa - R45,00 (30min)6. Drenagem Linfática - R90,00 (60min)7. Escova Progressiva - R250,00 (180min)8. Hidrofacial Diamante - R150,00 (60min)9. Limpeza de Pele Profunda - R80,00 (90min)10. Manicure Completa - R35,00 (45min)11. Massagem Modeladora - R120,00 (75min)12. Massagem Relaxante - R100,00 (60min)13. Pacote Noiva - R450,00 (240min)14. Pedicure Spa - R45,00 (60min)15. Peeling Químico - R120,00 (45min)16. Radiofrequência - R180,00 (45min)Por favor, me informe o serviço que você gostaria de agendar.",
+          "patterns_found": [
+            "limpeza",
+            "pele",
+            "hidrofacial",
+            "serviços",
+            "oferecemos"
+          ],
+          "timestamp": "2025-08-14T17:12:15.702009+00:00"
+        },
+        {
+          "message_sent": "O que tem disponível para hoje?",
+          "response_received": "Desculpe, como assistente virtual, não consigo verificar a disponibilidade em tempo real. Porém, posso ajudá-lo a agendar qualquer serviço. Quais serviços do Studio Beleza Bem-Estar você está interessado e em que horário você gostaria de agendar?",
+          "patterns_found": [
+            "serviços"
+          ],
+          "timestamp": "2025-08-14T17:13:03.152425+00:00"
+        },
+        {
+          "message_sent": "O que tem disponível para hoje?",
+          "response_received": "Desculpe, houve um erro técnico. Nossa equipe foi notificada. Pode tentar novamente?",
+          "patterns_found": [
+            "serviços"
+          ],
+          "timestamp": "2025-08-14T17:12:42.511089+00:00"
+        },
+        {
+          "message_sent": "Menu de serviços",
+          "response_received": "Desculpe, houve um erro técnico. Nossa equipe foi notificada. Pode tentar novamente?",
+          "patterns_found": [
+            "serviços"
+          ],
+          "timestamp": "2025-08-14T17:13:29.946143+00:00"
+        },
+        {
+          "message_sent": "Menu de serviços",
+          "response_received": "Desculpe, como assistente virtual, não consigo verificar a disponibilidade em tempo real. Porém, posso ajudá-lo a agendar qualquer serviço. Quais serviços do Studio Beleza Bem-Estar você está interessado e em que horário você gostaria de agendar?",
+          "patterns_found": [
+            "serviços"
+          ],
+          "timestamp": "2025-08-14T17:13:03.152425+00:00"
+        }
+      ]
+    },
+    "3_pricing_inquiry": {
+      "name": "Consulta de Preços",
+      "handoff_risk": "MEDIUM",
+      "messages_tested": 4,
+      "responses_received": 7,
+      "pattern_matches": 7,
+      "success_rate": 175.0,
+      "details": [
+        {
+          "message_sent": "Quanto custa uma limpeza de pele?",
+          "response_received": "A Limpeza de Pele Profunda no Studio Beleza Bem-Estar custa R 80,00. Este serviço tem duração de 90 minutos e inclui limpeza completa com extração, tonificação e hidratação, além de esfoliação e máscara personalizada.",
+          "patterns_found": [
+            "custa"
+          ],
+          "timestamp": "2025-08-14T17:13:59.637403+00:00"
+        },
+        {
+          "message_sent": "Qual o valor do hidrofacial?",
+          "response_received": "O Hidrofacial Diamante no Studio Beleza Bem-Estar custa R 150,00 e tem duração de 60 minutos. Este tratamento premium inclui limpeza, esfoliação e hidratação profunda da pele. Gostaria de agendar um horário?",
+          "patterns_found": [
+            "custa",
+            "custa"
+          ],
+          "timestamp": "2025-08-14T17:14:13.833636+00:00"
+        },
+        {
+          "message_sent": "Qual o valor do hidrofacial?",
+          "response_received": "A Limpeza de Pele Profunda no Studio Beleza Bem-Estar custa R 80,00. Este serviço tem duração de 90 minutos e inclui limpeza completa com extração, tonificação e hidratação, além de esfoliação e máscara personalizada.",
+          "patterns_found": [
+            "custa",
+            "custa"
+          ],
+          "timestamp": "2025-08-14T17:13:59.637403+00:00"
+        },
+        {
+          "message_sent": "Preços dos serviços",
+          "response_received": "Claro, aqui estão os preços dos serviços oferecidos pelo Studio Beleza Bem-Estar: Corte Feminino: R 80,00 - 60min Criolipólise: R 300,00 - 60min Day Spa Relax: R 280,00 - 300min Depilação Pernas Completas: R 60,00 - 45min Depilação Virilha Completa: R 45,00 - 30min Drenagem Linfática: R 90,00 - 60min Escova Progressiva: R 250,00 - 180min Hidrofacial Diamante: R 150,00 - 60min Limpeza de Pele Profunda: R 80,00 - 90min Manicure Completa: R 35,00 - 45min Massagem Modeladora: R 120,00 - 75min Massagem Relaxante: R 100,00 - 60min Pacote Noiva: R 450,00 - 240min Pedicure Spa: R 45,00 - 60min Peeling Químico: R 120,00 - 45min Radiofrequência: R 180,00 - 45minGostaria de agendar algum desses serviços?",
+          "patterns_found": [
+            "preço",
+            "custa"
+          ],
+          "timestamp": "2025-08-14T17:14:40.535545+00:00"
+        },
+        {
+          "message_sent": "Preços dos serviços",
+          "response_received": "O Hidrofacial Diamante no Studio Beleza Bem-Estar custa R 150,00 e tem duração de 60 minutos. Este tratamento premium inclui limpeza, esfoliação e hidratação profunda da pele. Gostaria de agendar um horário?",
+          "patterns_found": [
+            "preço",
+            "custa"
+          ],
+          "timestamp": "2025-08-14T17:14:13.833636+00:00"
+        },
+        {
+          "message_sent": "Tabela de valores",
+          "response_received": "Claro, aqui estão os serviços oferecidos pelo Studio Beleza Bem-Estar e seus respectivos preços: Corte Feminino: R 80,00 - 60min Criolipólise: R 300,00 - 60min Day Spa Relax: R 280,00 - 300min Depilação Pernas Completas: R 60,00 - 45min Depilação Virilha Completa: R 45,00 - 30min Drenagem Linfática: R 90,00 - 60min Escova Progressiva: R 250,00 - 180min Hidrofacial Diamante: R 150,00 - 60min Limpeza de Pele Profunda: R 80,00 - 90min Manicure Completa: R 35,00 - 45min Massagem Modeladora: R 120,00 - 75min Massagem Relaxante: R 100,00 - 60min Pacote Noiva: R 450,00 - 240min Pedicure Spa: R 45,00 - 60min Peeling Químico: R 120,00 - 45min Radiofrequência: R 180,00 - 45minPor favor, me informe qual serviço você gostaria de agendar.",
+          "patterns_found": [
+            "preço",
+            "preço"
+          ],
+          "timestamp": "2025-08-14T17:15:03.959031+00:00"
+        },
+        {
+          "message_sent": "Tabela de valores",
+          "response_received": "Claro, aqui estão os preços dos serviços oferecidos pelo Studio Beleza Bem-Estar: Corte Feminino: R 80,00 - 60min Criolipólise: R 300,00 - 60min Day Spa Relax: R 280,00 - 300min Depilação Pernas Completas: R 60,00 - 45min Depilação Virilha Completa: R 45,00 - 30min Drenagem Linfática: R 90,00 - 60min Escova Progressiva: R 250,00 - 180min Hidrofacial Diamante: R 150,00 - 60min Limpeza de Pele Profunda: R 80,00 - 90min Manicure Completa: R 35,00 - 45min Massagem Modeladora: R 120,00 - 75min Massagem Relaxante: R 100,00 - 60min Pacote Noiva: R 450,00 - 240min Pedicure Spa: R 45,00 - 60min Peeling Químico: R 120,00 - 45min Radiofrequência: R 180,00 - 45minGostaria de agendar algum desses serviços?",
+          "patterns_found": [
+            "preço",
+            "preço"
+          ],
+          "timestamp": "2025-08-14T17:14:40.535545+00:00"
+        }
+      ]
+    },
+    "4_scheduling_basic": {
+      "name": "Agendamento Básico",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 8,
+      "pattern_matches": 11,
+      "success_rate": 200.0,
+      "details": [
+        {
+          "message_sent": "Quero agendar uma limpeza de pele",
+          "response_received": "Ótimo! A Limpeza de Pele Profunda custa R 80,00 e tem duração de 90 minutos. Para agendar, eu preciso saber a data e o horário que você prefere. Lembrando que o Studio Beleza Bem-Estar funciona de segunda a sábado, das 08:00 às 18:00, e aos domingos, das 08:00 às 16:00.",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T17:15:29.689637+00:00"
+        },
+        {
+          "message_sent": "Quero agendar uma limpeza de pele",
+          "response_received": "Claro, aqui estão os serviços oferecidos pelo Studio Beleza Bem-Estar e seus respectivos preços: Corte Feminino: R 80,00 - 60min Criolipólise: R 300,00 - 60min Day Spa Relax: R 280,00 - 300min Depilação Pernas Completas: R 60,00 - 45min Depilação Virilha Completa: R 45,00 - 30min Drenagem Linfática: R 90,00 - 60min Escova Progressiva: R 250,00 - 180min Hidrofacial Diamante: R 150,00 - 60min Limpeza de Pele Profunda: R 80,00 - 90min Manicure Completa: R 35,00 - 45min Massagem Modeladora: R 120,00 - 75min Massagem Relaxante: R 100,00 - 60min Pacote Noiva: R 450,00 - 240min Pedicure Spa: R 45,00 - 60min Peeling Químico: R 120,00 - 45min Radiofrequência: R 180,00 - 45minPor favor, me informe qual serviço você gostaria de agendar.",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "agendar"
+          ],
+          "timestamp": "2025-08-14T17:15:03.959031+00:00"
+        },
+        {
+          "message_sent": "Gostaria de marcar um horário",
+          "response_received": "Ótimo! Para o agendamento do Hidrofacial Diamante, eu preciso saber a data e o horário que você prefere. Por favor, me informe.",
+          "patterns_found": [
+            "horário",
+            "agendar",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T17:15:43.338761+00:00"
+        },
+        {
+          "message_sent": "Gostaria de marcar um horário",
+          "response_received": "Ótimo! A Limpeza de Pele Profunda custa R 80,00 e tem duração de 90 minutos. Para agendar, eu preciso saber a data e o horário que você prefere. Lembrando que o Studio Beleza Bem-Estar funciona de segunda a sábado, das 08:00 às 18:00, e aos domingos, das 08:00 às 16:00.",
+          "patterns_found": [
+            "horário",
+            "agendar",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T17:15:29.689637+00:00"
+        },
+        {
+          "message_sent": "Tem vaga para amanhã?",
+          "response_received": "Claro, posso verificar isso para você. Você tem um horário preferido para sua limpeza de pele profunda no Studio Beleza Bem-Estar amanhã?",
+          "patterns_found": [
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T17:15:57.804688+00:00"
+        },
+        {
+          "message_sent": "Tem vaga para amanhã?",
+          "response_received": "Ótimo! Para o agendamento do Hidrofacial Diamante, eu preciso saber a data e o horário que você prefere. Por favor, me informe.",
+          "patterns_found": [
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T17:15:43.338761+00:00"
+        },
+        {
+          "message_sent": "Como faço para agendar?",
+          "response_received": "Para agendar um serviço no Studio Beleza Bem-Estar, vou precisar de algumas informações suas. Por favor, me informe:1. O serviço que você deseja agendar.2. A data e o horário preferidos para o agendamento.Assim que tiver essas informações, poderei prosseguir com o agendamento para você.",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T17:16:14.063534+00:00"
+        },
+        {
+          "message_sent": "Como faço para agendar?",
+          "response_received": "Claro, posso verificar isso para você. Você tem um horário preferido para sua limpeza de pele profunda no Studio Beleza Bem-Estar amanhã?",
+          "patterns_found": [
+            "agendar",
+            "horário",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T17:15:57.804688+00:00"
+        }
+      ]
+    },
+    "5_business_info": {
+      "name": "Informações da Empresa",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 8,
+      "pattern_matches": 8,
+      "success_rate": 200.0,
+      "details": [
+        {
+          "message_sent": "Qual o horário de funcionamento?",
+          "response_received": "O Studio Beleza Bem-Estar funciona nos seguintes horários:- Segunda-feira: 09:00 às 18:00- Terça-feira a sábado: 08:00 às 18:00- Domingo: 08:00 às 16:00Por favor, me informe em qual desses dias e horários você gostaria de agendar um serviço.",
+          "patterns_found": [
+            "horário",
+            "segunda",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T17:16:39.367236+00:00"
+        },
+        {
+          "message_sent": "Qual o horário de funcionamento?",
+          "response_received": "Para agendar um serviço no Studio Beleza Bem-Estar, vou precisar de algumas informações suas. Por favor, me informe:1. O serviço que você deseja agendar.2. A data e o horário preferidos para o agendamento.Assim que tiver essas informações, poderei prosseguir com o agendamento para você.",
+          "patterns_found": [
+            "horário",
+            "segunda",
+            "horário"
+          ],
+          "timestamp": "2025-08-14T17:16:14.063534+00:00"
+        },
+        {
+          "message_sent": "Onde vocês ficam?",
+          "response_received": "O Studio Beleza Bem-Estar está localizado na Rua das Flores, 123 - Centro, São Paulo, SP. Estamos ansiosos para recebê-lo!",
+          "patterns_found": [
+            "horário",
+            "segunda"
+          ],
+          "timestamp": "2025-08-14T17:16:53.440393+00:00"
+        },
+        {
+          "message_sent": "Onde vocês ficam?",
+          "response_received": "O Studio Beleza Bem-Estar funciona nos seguintes horários:- Segunda-feira: 09:00 às 18:00- Terça-feira a sábado: 08:00 às 18:00- Domingo: 08:00 às 16:00Por favor, me informe em qual desses dias e horários você gostaria de agendar um serviço.",
+          "patterns_found": [
+            "horário",
+            "segunda"
+          ],
+          "timestamp": "2025-08-14T17:16:39.367236+00:00"
+        },
+        {
+          "message_sent": "Endereço do studio",
+          "response_received": "O endereço do Studio Beleza Bem-Estar é Rua das Flores, 123 - Centro, São Paulo, SP. Esperamos a sua visita!",
+          "patterns_found": [
+            "endereço"
+          ],
+          "timestamp": "2025-08-14T17:17:07.535140+00:00"
+        },
+        {
+          "message_sent": "Endereço do studio",
+          "response_received": "O Studio Beleza Bem-Estar está localizado na Rua das Flores, 123 - Centro, São Paulo, SP. Estamos ansiosos para recebê-lo!",
+          "patterns_found": [
+            "endereço"
+          ],
+          "timestamp": "2025-08-14T17:16:53.440393+00:00"
+        },
+        {
+          "message_sent": "Telefone para contato",
+          "response_received": "Peço desculpas, mas como assistente virtual, não posso fazer chamadas telefônicas. No entanto, posso ajudar a agendar seu serviço aqui mesmo. Você poderia me informar a data e o horário de sua preferência para o Hidrofacial Diamante?",
+          "patterns_found": [
+            "horário",
+            "endereço"
+          ],
+          "timestamp": "2025-08-14T17:17:22.446311+00:00"
+        },
+        {
+          "message_sent": "Telefone para contato",
+          "response_received": "O endereço do Studio Beleza Bem-Estar é Rua das Flores, 123 - Centro, São Paulo, SP. Esperamos a sua visita!",
+          "patterns_found": [
+            "horário",
+            "endereço"
+          ],
+          "timestamp": "2025-08-14T17:17:07.535140+00:00"
+        }
+      ]
+    },
+    "6_payment_methods": {
+      "name": "Formas de Pagamento",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 9,
+      "pattern_matches": 25,
+      "success_rate": 225.0,
+      "details": [
+        {
+          "message_sent": "Quais formas de pagamento aceitam?",
+          "response_received": "No Studio Beleza Bem-Estar, aceitamos as seguintes formas de pagamento:1. Dinheiro2. PIX3. Cartão de Débito4. Cartão de CréditoEsperamos vê-lo em breve!",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:17:46.884002+00:00"
+        },
+        {
+          "message_sent": "Quais formas de pagamento aceitam?",
+          "response_received": "Peço desculpas, mas como assistente virtual, não posso fazer chamadas telefônicas. No entanto, posso ajudar a agendar seu serviço aqui mesmo. Você poderia me informar a data e o horário de sua preferência para o Hidrofacial Diamante?",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:17:22.446311+00:00"
+        },
+        {
+          "message_sent": "Posso pagar com cartão?",
+          "response_received": "Sim, você pode pagar com cartão no Studio Beleza Bem-Estar. Aceitamos tanto cartão de débito quanto de crédito.",
+          "patterns_found": [
+            "cartão",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:18:01.029093+00:00"
+        },
+        {
+          "message_sent": "Posso pagar com cartão?",
+          "response_received": "No Studio Beleza Bem-Estar, aceitamos as seguintes formas de pagamento:1. Dinheiro2. PIX3. Cartão de Débito4. Cartão de CréditoEsperamos vê-lo em breve!",
+          "patterns_found": [
+            "cartão",
+            "aceitamos",
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:17:46.884002+00:00"
+        },
+        {
+          "message_sent": "Tem PIX?",
+          "response_received": "Sim, o Studio Beleza Bem-Estar aceita pagamento via PIX. É uma opção rápida e segura para realizar o pagamento!",
+          "patterns_found": [
+            "pagamento",
+            "pix",
+            "cartão",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:18:14.774932+00:00"
+        },
+        {
+          "message_sent": "Tem PIX?",
+          "response_received": "Sim, você pode pagar com cartão no Studio Beleza Bem-Estar. Aceitamos tanto cartão de débito quanto de crédito.",
+          "patterns_found": [
+            "pagamento",
+            "pix",
+            "cartão",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:18:01.029093+00:00"
+        },
+        {
+          "message_sent": "Aceitam dinheiro?",
+          "response_received": "Sim, o Studio Beleza Bem-Estar aceita pagamento em dinheiro. Além disso, também aceitamos PIX, Cartão de Débito e Cartão de Crédito para sua conveniência.",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "pix",
+            "cartão",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:18:28.757239+00:00"
+        },
+        {
+          "message_sent": "Aceitam dinheiro?",
+          "response_received": "Sim, o Studio Beleza Bem-Estar aceita pagamento via PIX. É uma opção rápida e segura para realizar o pagamento!",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "pix",
+            "cartão",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:18:14.774932+00:00"
+        },
+        {
+          "message_sent": "Aceitam dinheiro?",
+          "response_received": "Sim, você pode pagar com cartão no Studio Beleza Bem-Estar. Aceitamos tanto cartão de débito quanto de crédito.",
+          "patterns_found": [
+            "pagamento",
+            "cartão",
+            "pix",
+            "dinheiro",
+            "aceitamos",
+            "pagamento",
+            "pix",
+            "cartão",
+            "aceitamos"
+          ],
+          "timestamp": "2025-08-14T17:18:01.029093+00:00"
+        }
+      ]
+    },
+    "7_complex_scenarios": {
+      "name": "Cenários Complexos (Evitando Handoff)",
+      "handoff_risk": "MEDIUM",
+      "messages_tested": 4,
+      "responses_received": 8,
+      "pattern_matches": 6,
+      "success_rate": 200.0,
+      "details": [
+        {
+          "message_sent": "Estou interessada em saber sobre promoções",
+          "response_received": "Como assistente virtual, não tenho acesso a promoções em tempo real. Recomendo que entre em contato diretamente com o Studio Beleza Bem-Estar para obter as informações mais atualizadas sobre promoções e ofertas especiais. A equipe do Studio Beleza Bem-Estar terá prazer em atendê-la!",
+          "patterns_found": [
+            "informações"
+          ],
+          "timestamp": "2025-08-14T17:18:54.580825+00:00"
+        },
+        {
+          "message_sent": "Estou interessada em saber sobre promoções",
+          "response_received": "Sim, o Studio Beleza Bem-Estar aceita pagamento em dinheiro. Além disso, também aceitamos PIX, Cartão de Débito e Cartão de Crédito para sua conveniência.",
+          "patterns_found": [
+            "informações"
+          ],
+          "timestamp": "2025-08-14T17:18:28.757239+00:00"
+        },
+        {
+          "message_sent": "Gostaria de informações sobre agendamentos especiais",
+          "response_received": "Claro, posso ajudar com isso. Poderia especificar que tipo de agendamento especial você está se referindo? É para um evento, um grupo grande ou talvez um pacote de serviços? Quanto mais detalhes você puder fornecer, melhor poderei ajudá-lo.",
+          "patterns_found": [
+            "detalhes",
+            "informações"
+          ],
+          "timestamp": "2025-08-14T17:19:09.106030+00:00"
+        },
+        {
+          "message_sent": "Gostaria de informações sobre agendamentos especiais",
+          "response_received": "Como assistente virtual, não tenho acesso a promoções em tempo real. Recomendo que entre em contato diretamente com o Studio Beleza Bem-Estar para obter as informações mais atualizadas sobre promoções e ofertas especiais. A equipe do Studio Beleza Bem-Estar terá prazer em atendê-la!",
+          "patterns_found": [
+            "detalhes",
+            "informações"
+          ],
+          "timestamp": "2025-08-14T17:18:54.580825+00:00"
+        },
+        {
+          "message_sent": "Preciso de detalhes sobre os preços dos tratamentos",
+          "response_received": "Claro, aqui estão os preços dos nossos tratamentos oferecidos no Studio Beleza Bem-Estar: Corte Feminino: R 80,00 - 60min Criolipólise: R 300,00 - 60min Day Spa Relax: R 280,00 - 300min Depilação Pernas Completas: R 60,00 - 45min Depilação Virilha Completa: R 45,00 - 30min Drenagem Linfática: R 90,00 - 60min Escova Progressiva: R 250,00 - 180min Hidrofacial Diamante: R 150,00 - 60min Limpeza de Pele Profunda: R 80,00 - 90min Manicure Completa: R 35,00 - 45min Massagem Modeladora: R 120,00 - 75min Massagem Relaxante: R 100,00 - 60min Pacote Noiva: R 450,00 - 240min Pedicure Spa: R 45,00 - 60min Peeling Químico: R 120,00 - 45min Radiofrequência: R 180,00 - 45minEspero que isso ajude! Se você precisar de mais informações sobre algum serviço específico, por favor, me avise.",
+          "patterns_found": [
+            "informações",
+            "detalhes"
+          ],
+          "timestamp": "2025-08-14T17:19:34.581817+00:00"
+        },
+        {
+          "message_sent": "Preciso de detalhes sobre os preços dos tratamentos",
+          "response_received": "Claro, posso ajudar com isso. Poderia especificar que tipo de agendamento especial você está se referindo? É para um evento, um grupo grande ou talvez um pacote de serviços? Quanto mais detalhes você puder fornecer, melhor poderei ajudá-lo.",
+          "patterns_found": [
+            "informações",
+            "detalhes"
+          ],
+          "timestamp": "2025-08-14T17:19:09.106030+00:00"
+        },
+        {
+          "message_sent": "Quero entender melhor como funciona o atendimento",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [
+            "informações"
+          ],
+          "timestamp": "2025-08-14T17:20:00.705608+00:00"
+        },
+        {
+          "message_sent": "Quero entender melhor como funciona o atendimento",
+          "response_received": "Claro, aqui estão os preços dos nossos tratamentos oferecidos no Studio Beleza Bem-Estar: Corte Feminino: R 80,00 - 60min Criolipólise: R 300,00 - 60min Day Spa Relax: R 280,00 - 300min Depilação Pernas Completas: R 60,00 - 45min Depilação Virilha Completa: R 45,00 - 30min Drenagem Linfática: R 90,00 - 60min Escova Progressiva: R 250,00 - 180min Hidrofacial Diamante: R 150,00 - 60min Limpeza de Pele Profunda: R 80,00 - 90min Manicure Completa: R 35,00 - 45min Massagem Modeladora: R 120,00 - 75min Massagem Relaxante: R 100,00 - 60min Pacote Noiva: R 450,00 - 240min Pedicure Spa: R 45,00 - 60min Peeling Químico: R 120,00 - 45min Radiofrequência: R 180,00 - 45minEspero que isso ajude! Se você precisar de mais informações sobre algum serviço específico, por favor, me avise.",
+          "patterns_found": [
+            "informações"
+          ],
+          "timestamp": "2025-08-14T17:19:34.581817+00:00"
+        }
+      ]
+    },
+    "8_interactive_buttons": {
+      "name": "Teste de Botões (se houver)",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 7,
+      "pattern_matches": 0,
+      "success_rate": 175.0,
+      "details": [
+        {
+          "message_sent": "Menu",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:20:36.377365+00:00"
+        },
+        {
+          "message_sent": "Opções",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:21:01.822303+00:00"
+        },
+        {
+          "message_sent": "Opções",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:20:36.377365+00:00"
+        },
+        {
+          "message_sent": "Ajuda",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:21:15.849818+00:00"
+        },
+        {
+          "message_sent": "Ajuda",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:21:01.822303+00:00"
+        },
+        {
+          "message_sent": "Ver serviços",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:21:42.244280+00:00"
+        },
+        {
+          "message_sent": "Ver serviços",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:21:15.849818+00:00"
+        }
+      ]
+    },
+    "9_appointment_flow": {
+      "name": "Fluxo Completo de Agendamento",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 10,
+      "pattern_matches": 0,
+      "success_rate": 250.0,
+      "details": [
+        {
+          "message_sent": "Quero agendar um hidrofacial",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:06.073111+00:00"
+        },
+        {
+          "message_sent": "Quero agendar um hidrofacial",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:21:42.244280+00:00"
+        },
+        {
+          "message_sent": "Para quinta-feira se possível",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:17.772016+00:00"
+        },
+        {
+          "message_sent": "Para quinta-feira se possível",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:06.073111+00:00"
+        },
+        {
+          "message_sent": "De manhã seria melhor",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:31.223745+00:00"
+        },
+        {
+          "message_sent": "De manhã seria melhor",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:17.772016+00:00"
+        },
+        {
+          "message_sent": "De manhã seria melhor",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:06.073111+00:00"
+        },
+        {
+          "message_sent": "Pode ser às 10h?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:44.434729+00:00"
+        },
+        {
+          "message_sent": "Pode ser às 10h?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:31.223745+00:00"
+        },
+        {
+          "message_sent": "Pode ser às 10h?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:17.772016+00:00"
+        }
+      ]
+    },
+    "10_edge_cases": {
+      "name": "Casos Especiais (Não Handoff)",
+      "handoff_risk": "LOW",
+      "messages_tested": 4,
+      "responses_received": 10,
+      "pattern_matches": 0,
+      "success_rate": 250.0,
+      "details": [
+        {
+          "message_sent": "Primeira vez aqui, como funciona?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:06.279971+00:00"
+        },
+        {
+          "message_sent": "Primeira vez aqui, como funciona?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:22:44.434729+00:00"
+        },
+        {
+          "message_sent": "Sou novo cliente, o que recomendam?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:19.736827+00:00"
+        },
+        {
+          "message_sent": "Sou novo cliente, o que recomendam?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:06.279971+00:00"
+        },
+        {
+          "message_sent": "Qual a diferença entre os tratamentos?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:31.447186+00:00"
+        },
+        {
+          "message_sent": "Qual a diferença entre os tratamentos?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:19.736827+00:00"
+        },
+        {
+          "message_sent": "Qual a diferença entre os tratamentos?",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:06.279971+00:00"
+        },
+        {
+          "message_sent": "Muito obrigada pelas informações!",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:43.154311+00:00"
+        },
+        {
+          "message_sent": "Muito obrigada pelas informações!",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:31.447186+00:00"
+        },
+        {
+          "message_sent": "Muito obrigada pelas informações!",
+          "response_received": "Desculpe, tive um problema técnico. Pode repetir sua mensagem?",
+          "patterns_found": [],
+          "timestamp": "2025-08-14T17:23:19.736827+00:00"
+        }
+      ]
+    }
+  },
+  "conversation_log": []
+}
