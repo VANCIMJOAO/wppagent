@@ -152,7 +152,7 @@ class BusinessDataService:
         text = "📋 *Nossos Serviços e Preços:*\n\n"
         
         for i, service in enumerate(services, 1):
-            # Formatação WhatsApp-friendly com numeração clara
+            # 🔥 FORMATAÇÃO CORRIGIDA: Quebras duplas entre serviços
             text += f"{i}. *{service.name}*\n"
             text += f"   💰 {service.price}"
             if service.duration:
@@ -160,9 +160,9 @@ class BusinessDataService:
             text += "\n"
             if service.description:
                 text += f"   ℹ️ _{service.description}_\n"
-            text += "\n"  # Linha extra entre serviços para melhor separação
+            text += "\n"  # 🔥 CORREÇÃO: Quebra dupla entre serviços
         
-        text += "📞 *Para agendar:*\n"
+        text += "\n📞 *Para agendar:*\n"
         text += "• Qual serviço deseja\n"
         text += "• Data e horário preferido\n"
         text += "• Seu nome completo"

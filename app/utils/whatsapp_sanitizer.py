@@ -42,7 +42,7 @@ class WhatsAppSanitizer:
     DANGEROUS_CHARS = {
         'sql_injection': [';', '--', '/*', '*/', 'xp_', 'sp_', 'DROP', 'DELETE', 'UPDATE', 'INSERT', 'ALTER', 'CREATE', 'EXEC'],
         'xss': ['<script', '</script>', '<iframe', '<object', '<embed', '<link', '<meta', 'javascript:', 'vbscript:', 'onload=', 'onclick=', 'onerror='],
-        'command_injection': ['|', '&', ';', '$', '`', '$(', '${', '&&', '||', '\n', '\r'],
+        'command_injection': ['|', '&', ';', '$', '`', '$(', '${', '&&', '||'],  # 🔥 CORREÇÃO: Removido '\n' e '\r' 
         'path_traversal': ['../', '..\\', '/etc/', '/var/', '/usr/', '/bin/', '/sbin/', 'C:\\', 'D:\\']
     }
     
@@ -135,7 +135,8 @@ class WhatsAppSanitizer:
                 sanitized = cls._sanitize_media_caption(sanitized)
             
             # Normalizar espaços e quebras de linha
-            sanitized = cls._normalize_whitespace(sanitized)
+            # 🔥 CORREÇÃO: Usar sanitização que preserva formatação
+            sanitized = cls._normalize_whitespace_preserve_formatting(sanitized)
             
             return sanitized
             
@@ -485,7 +486,8 @@ class WhatsAppSanitizer:
         if len(text) > cls.LIMITS['text_message']:
             text = text[:cls.LIMITS['text_message']]
         
-        return text.strip()
+        # 🔥 CORREÇÃO: NÃO usar strip() que remove quebras de linha importantes
+        return text
     
     @classmethod
     def _sanitize_media_caption(cls, caption: str) -> str:
@@ -500,7 +502,8 @@ class WhatsAppSanitizer:
         # Remover caracteres perigosos
         caption = cls._remove_dangerous_content(caption)
         
-        return caption.strip()
+        # 🔥 CORREÇÃO: NÃO usar strip() para preservar formatação
+        return caption
     
     @classmethod
     def _sanitize_contact_name(cls, name: str) -> str:
@@ -574,6 +577,30 @@ class WhatsAppSanitizer:
         
         # Remover espaços no início e fim
         text = text.strip()
+        
+        return text
+    
+    @classmethod
+    def _normalize_whitespace_preserve_formatting(cls, text: str) -> str:
+        """
+        🔥 CORREÇÃO: Normaliza espaços mas PRESERVA formatação WhatsApp
+        
+        Esta função mantém as quebras de linha necessárias para formatação
+        """
+        if not text:
+            return ""
+        
+        # Substituir múltiplos espaços por um único (exceto quebras de linha)
+        text = re.sub(r'[^\S\n]+', ' ', text)
+        
+        # Limitar quebras de linha consecutivas para máximo 2
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        # 🔥 CRÍTICO: NÃO usar strip() que remove quebras importantes
+        # Apenas remover espaços no início e fim de cada linha
+        lines = text.split('\n')
+        lines = [line.rstrip() for line in lines]  # Remove espaços no final de cada linha
+        text = '\n'.join(lines)
         
         return text
 
