@@ -1,0 +1,375 @@
+{
+  "session": "conversational_test_1755371878",
+  "start_time": "2025-08-16T16:17:58.795482",
+  "tests_passed": 0,
+  "tests_failed": 0,
+  "critical_fixes_verified": {
+    "service_search": {
+      "total_tests": 4,
+      "passed": 3,
+      "failed": 1,
+      "details": [
+        {
+          "query": "Quanto custa limpeza de pele?",
+          "responses": [
+            "✅ Oferecemos sim! *Limpeza de Pele Profunda* custa R 80,00. É um serviço de 60 minutos que consiste em uma limpeza profunda da pele. Posso te ajudar com mais alguma coisa?"
+          ],
+          "found_service": true,
+          "no_denial": true,
+          "has_price": true,
+          "passed": true
+        },
+        {
+          "query": "Valor da massagem relaxante",
+          "responses": [
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00. É um serviço de 60 minutos focado em relaxamento e alívio do estresse. Posso te ajudar com mais alguma informação?",
+            "✅ Oferecemos sim! *Limpeza de Pele Profunda* custa R 80,00. É um serviço de 60 minutos que consiste em uma limpeza profunda da pele. Posso te ajudar com mais alguma coisa?"
+          ],
+          "found_service": true,
+          "no_denial": true,
+          "has_price": true,
+          "passed": true
+        },
+        {
+          "query": "Vocês fazem radiofrequência?",
+          "responses": [
+            "✅ Oferecemos sim! Temos o serviço de *Radiofrequência* disponível. Aqui estão mais detalhes:\n💰 R 150,00 • ⏰ 60min\nℹ️ Tratamento para rejuvenescimento facial e corporal, estimulando a produção de colágeno.",
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00. É um serviço de 60 minutos focado em relaxamento e alívio do estresse. Posso te ajudar com mais alguma informação?",
+            "✅ Oferecemos sim! *Limpeza de Pele Profunda* custa R 80,00. É um serviço de 60 minutos que consiste em uma limpeza profunda da pele. Posso te ajudar com mais alguma coisa?"
+          ],
+          "found_service": true,
+          "no_denial": true,
+          "has_price": false,
+          "passed": false
+        },
+        {
+          "query": "Preço do hidrofacial",
+          "responses": [
+            "✅ Oferecemos sim! *Hidrofacial Diamante* custa R 150,00. É um tratamento premium com tecnologia de ponta que inclui limpeza, esfoliação e hidratação profunda. Como posso ajudar mais?",
+            "✅ Oferecemos sim! Temos o serviço de *Radiofrequência* disponível. Aqui estão mais detalhes:\n💰 R 150,00 • ⏰ 60min\nℹ️ Tratamento para rejuvenescimento facial e corporal, estimulando a produção de colágeno.",
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00. É um serviço de 60 minutos focado em relaxamento e alívio do estresse. Posso te ajudar com mais alguma informação?"
+          ],
+          "found_service": true,
+          "no_denial": true,
+          "has_price": true,
+          "passed": true
+        }
+      ]
+    },
+    "conversation_flow": {
+      "total_steps": 5,
+      "passed": 5,
+      "failed": 0,
+      "conversation_details": [
+        {
+          "step": "1. Pergunta inicial sobre massagem",
+          "message": "Oi, quero saber sobre massagem",
+          "expected_patterns": [
+            "massagem"
+          ],
+          "responses": [
+            "📋 *Nossos Serviços e Preços (Parte 1/2):*\n\n1. *Massagem Relaxante*\n 💰 R 100,00 • ⏰ 60min\n ℹ️ _Massagem suave para relaxamento e alívio do estresse._\n\n2. *Massagem Modeladora*\n 💰 R 120,00 • ⏰ 75min\n ℹ️ _Massagem com movimentos mais intensos para redução de medidas._\n\n📬 Para ver mais serviços, digite: *mais serviços*",
+            "✅ Oferecemos sim! *Hidrofacial Diamante* custa R 150,00. É um tratamento premium com tecnologia de ponta que inclui limpeza, esfoliação e hidratação profunda. Como posso ajudar mais?",
+            "✅ Oferecemos sim! Temos o serviço de *Radiofrequência* disponível. Aqui estão mais detalhes:\n💰 R 150,00 • ⏰ 60min\nℹ️ Tratamento para rejuvenescimento facial e corporal, estimulando a produção de colágeno."
+          ],
+          "patterns_found": 1,
+          "total_patterns": 1,
+          "passed": true
+        },
+        {
+          "step": "2. Pergunta contextual sobre preço (deve entender que é sobre massagem)",
+          "message": "Na verdade, quanto custa?",
+          "expected_patterns": [
+            "100,00",
+            "massagem",
+            "relaxante"
+          ],
+          "responses": [
+            "Desculpe pela confusão anterior. O serviço de *Radiofrequência* custa R 150,00. É um tratamento de 60 minutos para rejuvenescimento facial e corporal. Posso te ajudar com mais alguma coisa?",
+            "📋 *Nossos Serviços e Preços (Parte 1/2):*\n\n1. *Massagem Relaxante*\n 💰 R 100,00 • ⏰ 60min\n ℹ️ _Massagem suave para relaxamento e alívio do estresse._\n\n2. *Massagem Modeladora*\n 💰 R 120,00 • ⏰ 75min\n ℹ️ _Massagem com movimentos mais intensos para redução de medidas._\n\n📬 Para ver mais serviços, digite: *mais serviços*",
+            "✅ Oferecemos sim! *Hidrofacial Diamante* custa R 150,00. É um tratamento premium com tecnologia de ponta que inclui limpeza, esfoliação e hidratação profunda. Como posso ajudar mais?"
+          ],
+          "patterns_found": 3,
+          "total_patterns": 3,
+          "passed": true
+        },
+        {
+          "step": "3. Mudança de assunto para limpeza",
+          "message": "E limpeza de pele, vocês fazem?",
+          "expected_patterns": [
+            "limpeza",
+            "80,00"
+          ],
+          "responses": [
+            "✅ Oferecemos sim! Temos o serviço de *Limpeza de Pele Profunda* disponível. Aqui estão mais detalhes:\n💰 R 80,00 • ⏰ 60min\nℹ️ Procedimento para limpeza profunda da pele, removendo impurezas e revitalizando a pele.",
+            "Desculpe pela confusão anterior. O serviço de *Radiofrequência* custa R 150,00. É um tratamento de 60 minutos para rejuvenescimento facial e corporal. Posso te ajudar com mais alguma coisa?",
+            "📋 *Nossos Serviços e Preços (Parte 1/2):*\n\n1. *Massagem Relaxante*\n 💰 R 100,00 • ⏰ 60min\n ℹ️ _Massagem suave para relaxamento e alívio do estresse._\n\n2. *Massagem Modeladora*\n 💰 R 120,00 • ⏰ 75min\n ℹ️ _Massagem com movimentos mais intensos para redução de medidas._\n\n📬 Para ver mais serviços, digite: *mais serviços*"
+          ],
+          "patterns_found": 2,
+          "total_patterns": 2,
+          "passed": true
+        },
+        {
+          "step": "4. Pergunta contextual sobre agendamento conjunto",
+          "message": "Posso agendar as duas coisas no mesmo dia?",
+          "expected_patterns": [
+            "agendar",
+            "duas",
+            "mesmo dia"
+          ],
+          "responses": [
+            "✅ Oferecemos sim! Você pode agendar a *Massagem Relaxante* e a *Massagem Modeladora* no mesmo dia.\nPara prosseguir com o agendamento, por favor, me informe a data e horário desejados.",
+            "✅ Oferecemos sim! Temos o serviço de *Limpeza de Pele Profunda* disponível. Aqui estão mais detalhes:\n💰 R 80,00 • ⏰ 60min\nℹ️ Procedimento para limpeza profunda da pele, removendo impurezas e revitalizando a pele.",
+            "Desculpe pela confusão anterior. O serviço de *Radiofrequência* custa R 150,00. É um tratamento de 60 minutos para rejuvenescimento facial e corporal. Posso te ajudar com mais alguma coisa?"
+          ],
+          "patterns_found": 2,
+          "total_patterns": 3,
+          "passed": true
+        },
+        {
+          "step": "5. Retorno ao contexto anterior (massagem)",
+          "message": "Voltando à massagem, quanto tempo demora?",
+          "expected_patterns": [
+            "massagem",
+            "60",
+            "minutos"
+          ],
+          "responses": [
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00 e tem a duração de 60 minutos. É um serviço focado em relaxamento e alívio do estresse. Como posso te ajudar mais hoje?",
+            "✅ Oferecemos sim! Você pode agendar a *Massagem Relaxante* e a *Massagem Modeladora* no mesmo dia.\nPara prosseguir com o agendamento, por favor, me informe a data e horário desejados.",
+            "✅ Oferecemos sim! Temos o serviço de *Limpeza de Pele Profunda* disponível. Aqui estão mais detalhes:\n💰 R 80,00 • ⏰ 60min\nℹ️ Procedimento para limpeza profunda da pele, removendo impurezas e revitalizando a pele."
+          ],
+          "patterns_found": 3,
+          "total_patterns": 3,
+          "passed": true
+        }
+      ]
+    },
+    "synonym_recognition": {
+      "total_variations": 13,
+      "passed": 2,
+      "failed": 11,
+      "synonym_details": [
+        {
+          "variation": "limpeza",
+          "expected_service": "limpeza de pele",
+          "query": "Quanto custa limpeza?",
+          "responses": [
+            "✅ Oferecemos sim! Temos o serviço de *Limpeza de Pele Profunda* por R 80,00. Gostaria de agendar este serviço? Como posso ajudar?",
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00 e tem a duração de 60 minutos. É um serviço focado em relaxamento e alívio do estresse. Como posso te ajudar mais hoje?",
+            "✅ Oferecemos sim! Você pode agendar a *Massagem Relaxante* e a *Massagem Modeladora* no mesmo dia.\nPara prosseguir com o agendamento, por favor, me informe a data e horário desejados."
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": true,
+          "passed": true
+        },
+        {
+          "variation": "facial",
+          "expected_service": "limpeza de pele",
+          "query": "Quanto custa facial?",
+          "responses": [
+            "Desculpe, não oferecemos o serviço de &quot;facial&quot; em nossa lista de serviços. Posso te ajudar com informações sobre outros serviços disponíveis?",
+            "✅ Oferecemos sim! Temos o serviço de *Limpeza de Pele Profunda* por R 80,00. Gostaria de agendar este serviço? Como posso ajudar?",
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00 e tem a duração de 60 minutos. É um serviço focado em relaxamento e alívio do estresse. Como posso te ajudar mais hoje?"
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "limpeza facial",
+          "expected_service": "limpeza de pele",
+          "query": "Quanto custa limpeza facial?",
+          "responses": [
+            "Desculpe, não oferecemos o serviço de limpeza facial. Posso te ajudar com mais alguma coisa?",
+            "Desculpe, não oferecemos o serviço de &quot;facial&quot; em nossa lista de serviços. Posso te ajudar com informações sobre outros serviços disponíveis?",
+            "✅ Oferecemos sim! Temos o serviço de *Limpeza de Pele Profunda* por R 80,00. Gostaria de agendar este serviço? Como posso ajudar?"
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "cuidado facial",
+          "expected_service": "limpeza de pele",
+          "query": "Quanto custa cuidado facial?",
+          "responses": [
+            "✅ Oferecemos sim! Temos o serviço de *Hidrofacial Diamante* por R 150,00. Gostaria de agendar este serviço? Como posso ajudar?",
+            "Desculpe, não oferecemos o serviço de limpeza facial. Posso te ajudar com mais alguma coisa?",
+            "Desculpe, não oferecemos o serviço de &quot;facial&quot; em nossa lista de serviços. Posso te ajudar com informações sobre outros serviços disponíveis?"
+          ],
+          "found_service": false,
+          "has_price": false,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "massagem",
+          "expected_service": "massagem relaxante",
+          "query": "Quanto custa massagem?",
+          "responses": [
+            "✅ Oferecemos sim! Temos duas opções de massagem:\n1. *Massagem Relaxante* - R 100,00 • ⏰ 60min\n ℹ️ Massagem para relaxamento e alívio do estresse.\n\n2. *Massagem Modeladora* - R 120,00 • ⏰ 75min\n ℹ️ Massagem com técnicas específicas para redução de medidas e celulite.\n\nQual dessas opções você gostaria de saber mais ou agendar?",
+            "✅ Oferecemos sim! Temos o serviço de *Hidrofacial Diamante* por R 150,00. Gostaria de agendar este serviço? Como posso ajudar?",
+            "Desculpe, não oferecemos o serviço de limpeza facial. Posso te ajudar com mais alguma coisa?"
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "relaxante",
+          "expected_service": "massagem relaxante",
+          "query": "Quanto custa relaxante?",
+          "responses": [
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00 por 60 minutos de duração.\nPara agendar, por favor, me informe a data e horário desejados.",
+            "✅ Oferecemos sim! Temos duas opções de massagem:\n1. *Massagem Relaxante* - R 100,00 • ⏰ 60min\n ℹ️ Massagem para relaxamento e alívio do estresse.\n\n2. *Massagem Modeladora* - R 120,00 • ⏰ 75min\n ℹ️ Massagem com técnicas específicas para redução de medidas e celulite.\n\nQual dessas opções você gostaria de saber mais ou agendar?",
+            "✅ Oferecemos sim! Temos o serviço de *Hidrofacial Diamante* por R 150,00. Gostaria de agendar este serviço? Como posso ajudar?"
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": true,
+          "passed": true
+        },
+        {
+          "variation": "massoterapia",
+          "expected_service": "massagem relaxante",
+          "query": "Quanto custa massoterapia?",
+          "responses": [
+            "Desculpe, não oferecemos o serviço de massoterapia. Posso te ajudar com mais alguma coisa?",
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00 por 60 minutos de duração.\nPara agendar, por favor, me informe a data e horário desejados.",
+            "✅ Oferecemos sim! Temos duas opções de massagem:\n1. *Massagem Relaxante* - R 100,00 • ⏰ 60min\n ℹ️ Massagem para relaxamento e alívio do estresse.\n\n2. *Massagem Modeladora* - R 120,00 • ⏰ 75min\n ℹ️ Massagem com técnicas específicas para redução de medidas e celulite.\n\nQual dessas opções você gostaria de saber mais ou agendar?"
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "radio",
+          "expected_service": "radiofrequência",
+          "query": "Quanto custa radio?",
+          "responses": [
+            "✅ Oferecemos sim! Temos o serviço de *Radiofrequência* disponível. Aqui estão mais detalhes:\n💰 R 150,00 • ⏰ 60min\nℹ️ Tratamento para rejuvenescimento facial e corporal. Ajuda a estimular o colágeno e melhorar a elasticidade da pele.",
+            "Desculpe, não oferecemos o serviço de massoterapia. Posso te ajudar com mais alguma coisa?",
+            "✅ Oferecemos sim! *Massagem Relaxante* custa R 100,00 por 60 minutos de duração.\nPara agendar, por favor, me informe a data e horário desejados."
+          ],
+          "found_service": true,
+          "has_price": false,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "radiofrequencia",
+          "expected_service": "radiofrequência",
+          "query": "Quanto custa radiofrequencia?",
+          "responses": [
+            "🚫 Desculpe, mas no momento não oferecemos o serviço de radiofrequência em nosso estabelecimento.\nPosso te ajudar com informações sobre outros serviços que temos disponíveis?",
+            "✅ Oferecemos sim! Temos o serviço de *Radiofrequência* disponível. Aqui estão mais detalhes:\n💰 R 150,00 • ⏰ 60min\nℹ️ Tratamento para rejuvenescimento facial e corporal. Ajuda a estimular o colágeno e melhorar a elasticidade da pele.",
+            "Desculpe, não oferecemos o serviço de massoterapia. Posso te ajudar com mais alguma coisa?"
+          ],
+          "found_service": true,
+          "has_price": false,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "firmeza",
+          "expected_service": "radiofrequência",
+          "query": "Quanto custa firmeza?",
+          "responses": [
+            "Desculpe, mas não temos o serviço de &quot;firmeza&quot; em nossa lista de serviços. Posso te ajudar com mais alguma coisa?",
+            "🚫 Desculpe, mas no momento não oferecemos o serviço de radiofrequência em nosso estabelecimento.\nPosso te ajudar com informações sobre outros serviços que temos disponíveis?",
+            "✅ Oferecemos sim! Temos o serviço de *Radiofrequência* disponível. Aqui estão mais detalhes:\n💰 R 150,00 • ⏰ 60min\nℹ️ Tratamento para rejuvenescimento facial e corporal. Ajuda a estimular o colágeno e melhorar a elasticidade da pele."
+          ],
+          "found_service": true,
+          "has_price": false,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "criolipolise",
+          "expected_service": "criolipólise",
+          "query": "Quanto custa criolipolise?",
+          "responses": [
+            "✅ Oferecemos sim! *Criolipólise* custa R 300,00. É um tratamento não invasivo para redução de gordura localizada através do frio controlado. Como posso te ajudar mais hoje?",
+            "Desculpe, mas não temos o serviço de &quot;firmeza&quot; em nossa lista de serviços. Posso te ajudar com mais alguma coisa?",
+            "🚫 Desculpe, mas no momento não oferecemos o serviço de radiofrequência em nosso estabelecimento.\nPosso te ajudar com informações sobre outros serviços que temos disponíveis?"
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "congelar gordura",
+          "expected_service": "criolipólise",
+          "query": "Quanto custa congelar gordura?",
+          "responses": [
+            "Desculpe, não oferecemos o serviço de &quot;congelar gordura&quot; em nossa lista de serviços. Posso te ajudar com informações sobre outros serviços disponíveis?",
+            "✅ Oferecemos sim! *Criolipólise* custa R 300,00. É um tratamento não invasivo para redução de gordura localizada através do frio controlado. Como posso te ajudar mais hoje?",
+            "Desculpe, mas não temos o serviço de &quot;firmeza&quot; em nossa lista de serviços. Posso te ajudar com mais alguma coisa?"
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": false,
+          "passed": false
+        },
+        {
+          "variation": "redução gordura",
+          "expected_service": "criolipólise",
+          "query": "Quanto custa redução gordura?",
+          "responses": [
+            "🔍 Para a redução de gordura, temos o serviço de *Criolipólise* que custa R 300,00 por 60 minutos de tratamento.\nPosso te ajudar com mais alguma informação ou agendamento?",
+            "Desculpe, não oferecemos o serviço de &quot;congelar gordura&quot; em nossa lista de serviços. Posso te ajudar com informações sobre outros serviços disponíveis?",
+            "✅ Oferecemos sim! *Criolipólise* custa R 300,00. É um tratamento não invasivo para redução de gordura localizada através do frio controlado. Como posso te ajudar mais hoje?"
+          ],
+          "found_service": true,
+          "has_price": true,
+          "no_denial": false,
+          "passed": false
+        }
+      ]
+    },
+    "response_consistency": {
+      "total_tests": 4,
+      "responses": [
+        {
+          "query": "Quanto custa limpeza de pele?",
+          "response": "✅ Oferecemos sim! Temos o serviço de *Limpeza de Pele Profunda* por R 80,00. Gostaria de agendar este serviço? Como posso ajudar?",
+          "found_service": true,
+          "has_price": true
+        },
+        {
+          "query": "Limpeza de pele, qual o valor?",
+          "response": "✅ Oferecemos sim! *Limpeza de Pele Profunda* custa R 80,00. É um serviço que promove a limpeza profunda da pele, removendo impurezas e revitalizando a pele. Como posso te ajudar mais hoje?",
+          "found_service": true,
+          "has_price": true
+        },
+        {
+          "query": "Preço da limpeza facial?",
+          "response": "Desculpe, não oferecemos o serviço de &quot;limpeza facial&quot; em nossa lista de serviços. Posso te ajudar com informações sobre outros serviços disponíveis?",
+          "found_service": true,
+          "has_price": true
+        },
+        {
+          "query": "Valor do tratamento facial?",
+          "response": "Desculpe, não oferecemos um serviço genérico de &quot;tratamento facial&quot;. Posso te ajudar com informações sobre algum serviço específico da lista?",
+          "found_service": true,
+          "has_price": true
+        }
+      ],
+      "consistent": true,
+      "all_found_service": true,
+      "all_have_price": true
+    }
+  },
+  "detailed_tests": {},
+  "end_time": "2025-08-16T16:23:05.417783",
+  "overall_success_rate": 47.82608695652174,
+  "total_tests_passed": 11,
+  "total_tests": 23
+}
