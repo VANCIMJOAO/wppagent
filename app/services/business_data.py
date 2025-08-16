@@ -172,7 +172,7 @@ class BusinessDataService:
                 text += f"   ℹ️ _{service.description}_\n"
             text += "\n"
         
-        text += "💬 *Digite 'mais serviços' para ver o restante*\n\n"
+        text += "\n💬 *Digite 'mais serviços' para ver o restante*\n\n"
         text += "📞 *Para agendar:*\n"
         text += "• Qual serviço deseja\n"
         text += "• Data e horário preferido\n"
