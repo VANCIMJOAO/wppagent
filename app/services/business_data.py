@@ -241,42 +241,232 @@ class BusinessDataService:
     
     async def find_service_by_name(self, service_name: str) -> Optional[ServiceData]:
         """
-        Busca um serviço específico pelo nome
+        Busca INTELIGENTE de serviços com sinônimos e palavras-chave flexíveis
+        CORREÇÃO CRÍTICA: Resolve problemas de "limpeza de pele", "massagem", "radiofrequência"
         
         Args:
-            service_name: Nome do serviço para buscar
+            service_name: Nome ou termo de busca do serviço
             
         Returns:
             Objeto ServiceData ou None se não encontrado
         """
         services = await self.get_active_services()
         
-        service_name_lower = service_name.lower()
+        if not services:
+            logger.warning("❌ Nenhum serviço disponível para busca")
+            return None
+            
+        service_name_clean = service_name.lower().strip()
         
-        # Busca exata primeiro
+        # 🔍 FASE 1: Busca exata primeiro
         for service in services:
-            if service.name.lower() == service_name_lower:
+            if service.name.lower() == service_name_clean:
+                logger.info(f"✅ Encontrado por busca exata: {service.name}")
                 return service
         
-        # Busca parcial
+        # 🔍 FASE 2: Busca parcial (palavra contida no nome)
         for service in services:
-            if service_name_lower in service.name.lower():
+            if service_name_clean in service.name.lower():
+                logger.info(f"✅ Encontrado por busca parcial: {service.name}")
                 return service
         
-        # Busca por palavras-chave
+        # 🔍 FASE 3: Busca por palavras individuais
+        search_words = service_name_clean.split()
+        for service in services:
+            service_words = service.name.lower().split()
+            # Se pelo menos uma palavra da busca está no nome do serviço
+            if any(word in service.name.lower() for word in search_words):
+                logger.info(f"✅ Encontrado por palavra-chave: {service.name} (busca: {search_words})")
+                return service
+        
+        # 🔍 FASE 4: Mapeamento INTELIGENTE de sinônimos e variações
+        # ⚠️ CORREÇÃO CRÍTICA: Mapear todos os termos problemáticos identificados
         keywords_map = {
-            'corte masculino': ['corte', 'masculino', 'homem', 'cabelo masculino'],
-            'corte feminino': ['corte', 'feminino', 'mulher', 'cabelo feminino'],
-            'barba': ['barba', 'fazer barba', 'aparar barba'],
-            'manicure': ['manicure', 'unha', 'fazer unha']
+            # PROBLEMAS CRÍTICOS IDENTIFICADOS:
+            'limpeza de pele profunda': [
+                'limpeza', 'limpeza de pele', 'facial', 'limpeza facial', 
+                'limpeza profunda', 'pele', 'tratamento facial'
+            ],
+            'massagem relaxante': [
+                'massagem', 'massagem relaxante', 'relaxante', 'relax', 
+                'massoterapia', 'terapia', 'descontração'
+            ],
+            'massagem modeladora': [
+                'massagem modeladora', 'modeladora', 'modelar', 'redutora',
+                'massagem redutora', 'corporal'
+            ],
+            'radiofrequência': [
+                'radiofrequência', 'radiofrequencia', 'radio', 'rf', 
+                'radio frequência', 'radio-frequência'
+            ],
+            'hidrofacial diamante': [
+                'hidrofacial', 'hidro', 'facial diamante', 'diamante',
+                'microdermoabrasão', 'peeling', 'hidratação facial'
+            ],
+            'criolipólise': [
+                'criolipólise', 'criolipolise', 'cryo', 'congelamento', 
+                'gordura localizada', 'redução de medidas'
+            ],
+            'drenagem linfática': [
+                'drenagem', 'linfática', 'drenagem linfática', 'drenar',
+                'inchaço', 'retenção', 'detox'
+            ],
+            'corte feminino': [
+                'corte', 'corte feminino', 'cabelo', 'cortar cabelo',
+                'corte de cabelo', 'feminino', 'mulher'
+            ],
+            'escova progressiva': [
+                'escova', 'progressiva', 'alisamento', 'alisar',
+                'cabelo liso', 'tratamento capilar'
+            ],
+            'manicure completa': [
+                'manicure', 'manicure completa', 'unha', 'unhas',
+                'fazer unha', 'cuidar das unhas'
+            ],
+            'pedicure spa': [
+                'pedicure', 'pedi', 'spa', 'pés', 'unha do pé',
+                'cuidar dos pés', 'pedicure spa'
+            ],
+            'peeling químico': [
+                'peeling', 'químico', 'peeling químico', 'ácido',
+                'renovação', 'esfoliação'
+            ],
+            'depilação pernas completas': [
+                'depilação', 'pernas', 'perna', 'depilar',
+                'pelos', 'cera', 'laser'
+            ],
+            'depilação virilha completa': [
+                'virilha', 'íntima', 'bikini', 'região íntima',
+                'depilação íntima', 'brazilian'
+            ],
+            'pacote noiva': [
+                'noiva', 'casamento', 'pacote', 'dia especial',
+                'combo noiva', 'preparação'
+            ],
+            'day spa relax': [
+                'day spa', 'spa', 'relax', 'relaxamento',
+                'dia de spa', 'bem-estar', 'autocuidado'
+            ]
         }
         
+        # Buscar por sinônimos para cada serviço disponível
         for service in services:
-            service_keywords = keywords_map.get(service.name.lower(), [])
-            if any(keyword in service_name_lower for keyword in service_keywords):
+            service_key = service.name.lower()
+            
+            # Verificar se existe mapeamento para este serviço
+            service_keywords = keywords_map.get(service_key, [])
+            
+            # Também adicionar palavras do próprio nome como keywords
+            service_name_words = service.name.lower().split()
+            all_keywords = service_keywords + service_name_words
+            
+            # Verificar se qualquer palavra da busca corresponde às keywords
+            if any(keyword in service_name_clean for keyword in all_keywords):
+                logger.info(f"✅ Encontrado por sinônimo: {service.name} (termo: '{service_name_clean}')")
+                return service
+            
+            # Verificar também se qualquer keyword corresponde a palavras da busca
+            search_words = service_name_clean.split()
+            if any(search_word in keyword for keyword in all_keywords for search_word in search_words):
+                logger.info(f"✅ Encontrado por keyword reversa: {service.name} (busca: {search_words})")
                 return service
         
+        # 🔍 FASE 5: Busca SUPER flexível - qualquer palavra em comum
+        for service in services:
+            service_words = set(service.name.lower().replace('-', ' ').replace('_', ' ').split())
+            search_words = set(service_name_clean.replace('-', ' ').replace('_', ' ').split())
+            
+            # Se há interseção entre as palavras
+            common_words = service_words.intersection(search_words)
+            if common_words:
+                logger.info(f"✅ Encontrado por interseção: {service.name} (palavras comuns: {common_words})")
+                return service
+        
+        logger.warning(f"❌ Serviço não encontrado: '{service_name}' (testados {len(services)} serviços)")
         return None
+    
+    async def find_services_by_keyword(self, keyword: str, limit: int = 5) -> List[ServiceData]:
+        """
+        Busca MÚLTIPLOS serviços por palavra-chave (para sugestões)
+        
+        Args:
+            keyword: Palavra-chave para buscar
+            limit: Número máximo de resultados
+            
+        Returns:
+            Lista de ServiceData encontrados
+        """
+        services = await self.get_active_services()
+        found_services = []
+        
+        if not services:
+            return found_services
+        
+        keyword_clean = keyword.lower().strip()
+        
+        # Buscar serviços que contenham a palavra-chave
+        for service in services:
+            if keyword_clean in service.name.lower():
+                found_services.append(service)
+                if len(found_services) >= limit:
+                    break
+        
+        # Se não encontrou nada, buscar por palavras individuais
+        if not found_services:
+            keyword_words = keyword_clean.split()
+            for service in services:
+                if any(word in service.name.lower() for word in keyword_words):
+                    found_services.append(service)
+                    if len(found_services) >= limit:
+                        break
+        
+        logger.info(f"✅ Encontrados {len(found_services)} serviços para '{keyword}'")
+        return found_services
+    
+    async def get_service_info_formatted(self, service_name: str) -> str:
+        """
+        Busca um serviço e retorna informações formatadas
+        CORREÇÃO CRÍTICA: Para resolver problemas de "não oferecemos"
+        
+        Args:
+            service_name: Nome ou termo de busca do serviço
+            
+        Returns:
+            String formatada com informações do serviço ou mensagem de erro
+        """
+        service = await self.find_service_by_name(service_name)
+        
+        if service:
+            text = f"✅ *{service.name}*\n"
+            text += f"💰 Preço: {service.price}\n"
+            
+            if service.duration:
+                text += f"⏰ Duração: {service.duration} minutos\n"
+            
+            if service.description:
+                text += f"ℹ️ _Sobre: {service.description}_\n"
+            
+            text += "\n📞 *Para agendar, me informe:*\n"
+            text += "• Data e horário preferido\n"
+            text += "• Seu nome completo\n"
+            
+            return text
+        
+        else:
+            # Buscar serviços similares como sugestão
+            similar_services = await self.find_services_by_keyword(service_name, 3)
+            
+            if similar_services:
+                text = f"🔍 Não encontrei exatamente '{service_name}', mas temos estes serviços similares:\n\n"
+                
+                for i, similar in enumerate(similar_services, 1):
+                    text += f"{i}. *{similar.name}* - {similar.price}\n"
+                
+                text += "\n💬 Qual destes serviços te interessa?"
+                return text
+            
+            else:
+                return f"😔 Desculpe, não oferecemos '{service_name}' no momento.\n\n💬 Digite *serviços* para ver nossa lista completa!"
     
     async def get_business_hours(self, refresh_cache: bool = False) -> Optional[Dict]:
         """
@@ -599,7 +789,48 @@ class BusinessDataService:
 
 
 # Instância global do serviço
-business_data_service = BusinessDataService(business_id=3)
+business_data_service = BusinessDataService()
+
+async def get_database_services_formatted(user_message: str = "") -> str:
+    """
+    Função helper para obter serviços formatados da database
+    CORREÇÃO: Adiciona função de busca inteligente
+    
+    Args:
+        user_message: Mensagem do usuário para contexto
+        
+    Returns:
+        String formatada com serviços
+    """
+    return await business_data_service.get_services_formatted_text(user_message)
+
+
+async def find_service_smart(service_name: str) -> Optional[ServiceData]:
+    """
+    Função helper para busca inteligente de serviços
+    NOVA: Para resolver problemas de "não oferecemos"
+    
+    Args:
+        service_name: Nome ou termo de busca
+        
+    Returns:
+        ServiceData encontrado ou None
+    """
+    return await business_data_service.find_service_by_name(service_name)
+
+
+async def get_service_info_smart(service_name: str) -> str:
+    """
+    Função helper para obter informações formatadas de um serviço
+    NOVA: Para substituir respostas de "não oferecemos"
+    
+    Args:
+        service_name: Nome ou termo de busca
+        
+    Returns:
+        String formatada com info do serviço
+    """
+    return await business_data_service.get_service_info_formatted(service_name)
 
 
 async def get_database_services() -> List[ServiceData]:

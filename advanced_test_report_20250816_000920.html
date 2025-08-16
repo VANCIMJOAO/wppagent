@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Avançado de Testes WhatsApp Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="10" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f8fafc;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .success .stat-number { color: #10b981; }
+        .warning .stat-number { color: #f59e0b; }
+        .info .stat-number { color: #3b82f6; }
+        .primary .stat-number { color: #8b5cf6; }
+        .danger .stat-number { color: #dc2626; }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #1e293b;
+            border-bottom: 3px solid #25D366;
+            padding-bottom: 10px;
+        }
+
+        .business-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #25D366;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #1e293b;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-tag {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 25px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .scenarios-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .scenario-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .scenario-card.failed {
+            border-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .scenario-header {
+            padding: 20px;
+            background: linear-gradient(45deg, #f8fafc, #e2e8f0);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scenario-header.failed {
+            background: linear-gradient(45deg, #fef2f2, #fecaca);
+        }
+
+        .scenario-header:hover {
+            background: linear-gradient(45deg, #e2e8f0, #cbd5e1);
+        }
+
+        .scenario-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #1e293b;
+        }
+
+        .scenario-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .scenario-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .scenario-content.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .success-progress { background: linear-gradient(45deg, #10b981, #059669); }
+        .warning-progress { background: linear-gradient(45deg, #f59e0b, #d97706); }
+        .danger-progress { background: linear-gradient(45deg, #dc2626, #b91c1c); }
+
+        .message-log {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f8fafc;
+        }
+
+        .message-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            border-left: 4px solid #25D366;
+        }
+
+        .message-sent {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .message-response {
+            color: #64748b;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            background: #f1f5f9;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+
+        .response-time {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .system-health {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .health-item {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .health-online {
+            background: #dcfce7;
+            color: #15803d;
+            border: 2px solid #bbf7d0;
+        }
+
+        .health-offline {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #fecaca;
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #64748b;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            transform: rotate(180deg);
+        }
+
+        .failed-scenarios {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .failed-scenarios h3 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .footer-stat {
+            text-align: center;
+        }
+
+        .footer-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #25D366;
+        }
+
+        .footer-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .scenario-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .feature-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .security-badge {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        }
+
+        .scenario-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .scenario-card.failed {
+            border: 2px solid #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%);
+        }
+
+        .scenario-header.failed {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+            color: white;
+        }
+
+        .danger-progress {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .message-log {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .message-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .message-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .message-sent {
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .message-response {
+            color: #374151;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+            margin: 5px 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .response-time {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-style: italic;
+            margin-top: 5px;
+        }        .security-badge {
+            background: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .footer-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .scenario-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 Relatório Avançado de Testes</h1>
+            <div class="subtitle">WhatsApp Agent - Studio Beleza & Bem-Estar</div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card success">
+                <div class="stat-number" id="success-rate">93.33%</div>
+                <div class="stat-label">Taxa de Sucesso</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-number" id="scenarios-tested">14/15</div>
+                <div class="stat-label">Cenários Aprovados</div>
+            </div>
+            <div class="stat-card primary">
+                <div class="stat-number" id="messages-sent">89</div>
+                <div class="stat-label">Mensagens Enviadas</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-number" id="bot-responses">406</div>
+                <div class="stat-label">Respostas do Bot</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-number" id="failed-scenarios">1</div>
+                <div class="stat-label">Cenário Falhado</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-number" id="duration">20min</div>
+                <div class="stat-label">Duração Total</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Business Information -->
+            <div class="section">
+                <h2>📊 Informações do Negócio</h2>
+                <div class="business-info">
+                    <div class="info-item">
+                        <div class="info-label">Nome do Negócio</div>
+                        <div class="info-value">Studio Beleza & Bem-Estar</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Serviços Cadastrados</div>
+                        <div class="info-value">16 serviços ativos</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Horário de Funcionamento</div>
+                        <div class="info-value">Segunda-Sexta 9h-18h, Sábado 9h-16h</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Modo de Teste</div>
+                        <div class="info-value">Anti-handoff habilitado</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">ID da Sessão</div>
+                        <div class="info-value">advanced_test_1755312545</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Endereço Testado</div>
+                        <div class="info-value">Rua das Flores, 123 - Centro, São Paulo, SP</div>
+                    </div>
+                </div>
+
+                <h3>🚀 Recursos Detectados e Testados</h3>
+                <div class="features-grid">
+                    <div class="feature-tag">LLM Advanced System</div>
+                    <div class="feature-tag">Hybrid LLM + CrewAI</div>
+                    <div class="feature-tag">Business Data Service</div>
+                    <div class="feature-tag">Services Pagination</div>
+                    <div class="feature-tag">Security Sanitization</div>
+                    <div class="feature-tag">Booking Workflow</div>
+                    <div class="feature-tag">Payment Methods</div>
+                    <div class="feature-tag">Company Info System</div>
+                    <div class="feature-tag">Command Recognition</div>
+                    <div class="feature-tag">Conversation Flow</div>
+                    <div class="feature-tag">Lead Scoring</div>
+                    <div class="feature-tag">Customer Onboarding</div>
+                    <div class="feature-tag">Price Lookup</div>
+                    <div class="feature-tag">Multi-System Integration</div>
+                    <div class="feature-tag">16 Real Services from DB</div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="section">
+                <h2>⚡ Métricas de Performance</h2>
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value">1215s</div>
+                        <div class="metric-label">Duração Total</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">406</div>
+                        <div class="metric-label">Respostas LLM</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">12.3s</div>
+                        <div class="metric-label">Tempo Médio</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">4.4/min</div>
+                        <div class="metric-label">Msgs por Minuto</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">401</div>
+                        <div class="metric-label">Features Avançadas</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">278</div>
+                        <div class="metric-label">Padrões Detectados</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="section">
+                <h2>🏥 Status do Sistema</h2>
+                <div class="system-health">
+                    <div class="health-item health-online">
+                        <div>✅ Database</div>
+                    </div>
+                    <div class="health-item health-online">
+                        <div>✅ API</div>
+                    </div>
+                    <div class="health-item health-online">
+                        <div>✅ Webhook</div>
+                    </div>
+                    <div class="health-item health-online">
+                        <div>✅ Metrics</div>
+                    </div>
+                    <div class="health-item health-offline">
+                        <div>❌ LLM Analytics</div>
+                    </div>
+                    <div class="health-item health-offline">
+                        <div>❌ Lead Scoring</div>
+                    </div>
+                    <div class="health-item health-offline">
+                        <div>❌ Conversation Flow</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Failed Scenarios -->
+            <div class="section">
+                <h2>❌ Cenários com Falha</h2>
+                <div class="failed-scenarios">
+                    <h3>1 Cenário Falhado de 15 Testados</h3>
+                    <p><strong>13_performance_cache</strong> - Teste de performance do cache</p>
+                    <p>Este cenário falhou durante a execução dos testes. Recomenda-se investigar o sistema de cache para identificar possíveis problemas de configuração ou conectividade.</p>
+                </div>
+            </div>
+
+            <!-- Test Scenarios -->
+            <div class="section">
+                <h2>🧪 Cenários de Teste Detalhados</h2>
+                <div class="scenarios-grid">
+                    
+                    <!-- Cenário 1: Saudações -->
+                    <div class="scenario-card">
+                        <div class="scenario-header" onclick="toggleScenario(1)">
+                            <div>
+                                <div class="scenario-title">🖐️ Saudações e Apresentação</div>
+                                <div class="scenario-features">
+                                    <span class="feature-badge">greeting_system</span>
+                                    <span class="feature-badge">basic_interaction</span>
+                                </div>
+                            </div>
+                            <div class="scenario-stats">
+                                <span>7 msgs</span>
+                                <span>25 respostas</span>
+                                <span>✅ Sucesso</span>
+                                <button class="toggle-btn" id="toggle-1">▼</button>
+                            </div>
+                        </div>
+                        <div class="scenario-content" id="content-1">
+                            <p><strong>Descrição:</strong> Testa saudações básicas e apresentação do bot</p>
+                            
+                            <div class="progress-bar">
+                                <div class="progress-fill success-progress" style="width: 100%"></div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 15px 0;">
+                                <div style="text-align: center; padding: 10px; background: #f1f5f9; border-radius: 8px;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: #3b82f6;">94.2s</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">Duração Total</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: #f1f5f9; border-radius: 8px;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: #10b981;">13.5s</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">Tempo Médio</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: #f1f5f9; border-radius: 8px;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: #8b5cf6;">4.5/min</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">Msgs por Min</div>
+                                </div>
+                            </div>
+
+                            <h4>📝 Log de Mensagens</h4>
+                            <div class="message-log">
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Oi"</div>
+                                    <div class="message-response">🤖 "Olá! Como posso ajudar você hoje? 😊"</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 9.98s</div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Olá"</div>
+                                    <div class="message-response">🤖 "Olá! Como posso ajudar você hoje? 😊" (2 respostas)</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 10.34s</div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Bom dia"</div>
+                                    <div class="message-response">🤖 "Bom dia! Como posso ajudar você hoje? 😊" + outras respostas</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 5.55s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cenário 2: Serviços Básicos -->
+                    <div class="scenario-card">
+                        <div class="scenario-header" onclick="toggleScenario(2)">
+                            <div>
+                                <div class="scenario-title">📋 Consulta de Serviços Básicos</div>
+                                <div class="scenario-features">
+                                    <span class="feature-badge">business_data_service</span>
+                                    <span class="feature-badge">services_formatting</span>
+                                </div>
+                            </div>
+                            <div class="scenario-stats">
+                                <span>6 msgs</span>
+                                <span>25 respostas</span>
+                                <span>✅ Sucesso</span>
+                                <button class="toggle-btn" id="toggle-2">▼</button>
+                            </div>
+                        </div>
+                        <div class="scenario-content" id="content-2">
+                            <p><strong>Descrição:</strong> Testa listagem de serviços disponíveis</p>
+                            
+                            <div class="progress-bar">
+                                <div class="progress-fill success-progress" style="width: 100%"></div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 15px 0;">
+                                <div style="text-align: center; padding: 10px; background: #f1f5f9; border-radius: 8px;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: #3b82f6;">82.8s</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">Duração Total</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: #f1f5f9; border-radius: 8px;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: #10b981;">13.8s</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">Tempo Médio</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: #f1f5f9; border-radius: 8px;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: #8b5cf6;">4.3/min</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">Msgs por Min</div>
+                                </div>
+                            </div>
+
+                            <h4>📝 Log de Mensagens</h4>
+                            <div class="message-log">
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Quais serviços vocês oferecem?"</div>
+                                    <div class="message-response">🤖 "📋 *Nossos Serviços e Preços (Parte 1/2):*<br><br>1. *Corte Feminino* - R$ 80,00 • 60min<br>2. *Criolipólise* - R$ 300,00 • 60min..."</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 7.86s</div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "O que vocês fazem?"</div>
+                                    <div class="message-response">🤖 "🏢 *Studio Beleza Bem-Estar* - Somos um salão de beleza e bem-estar que oferece uma variedade de serviços..."</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 9.31s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cenário 3: Mais Serviços -->
+                    <div class="scenario-card">
+                        <div class="scenario-header" onclick="toggleScenario(3)">
+                            <div>
+                                <div class="scenario-title">🔄 Comando 'Mais Serviços'</div>
+                                <div class="scenario-features">
+                                    <span class="feature-badge">services_pagination</span>
+                                    <span class="feature-badge">command_detection</span>
+                                </div>
+                            </div>
+                            <div class="scenario-stats">
+                                <span>5 msgs</span>
+                                <span>19 respostas</span>
+                                <span>✅ Sucesso</span>
+                                <button class="toggle-btn" id="toggle-3">▼</button>
+                            </div>
+                        </div>
+                        <div class="scenario-content" id="content-3">
+                            <p><strong>Descrição:</strong> Testa o comando especial para ver segunda parte dos serviços</p>
+                            
+                            <div class="progress-bar">
+                                <div class="progress-fill success-progress" style="width: 100%"></div>
+                            </div>
+
+                            <h4>📝 Log de Mensagens</h4>
+                            <div class="message-log">
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "mais serviços"</div>
+                                    <div class="message-response">🤖 "📋 *Nossos Serviços e Preços (Parte 2/2):*<br><br>9. *Limpeza de Pele Profunda* - R$ 80,00<br>10. *Manicure Completa* - R$ 35,00..."</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 8.04s</div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Quero ver o restante"</div>
+                                    <div class="message-response">🤖 "✅ *Estes são todos os nossos serviços!* 🌟 Para agendar, me informe: serviço desejado..."</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 16.94s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cenário 4: Preços Específicos -->
+                    <div class="scenario-card">
+                        <div class="scenario-header" onclick="toggleScenario(4)">
+                            <div>
+                                <div class="scenario-title">💰 Consulta de Preços Específicos</div>
+                                <div class="scenario-features">
+                                    <span class="feature-badge">price_lookup</span>
+                                    <span class="feature-badge">service_search</span>
+                                </div>
+                            </div>
+                            <div class="scenario-stats">
+                                <span>6 msgs</span>
+                                <span>26 respostas</span>
+                                <span>✅ Sucesso</span>
+                                <button class="toggle-btn" id="toggle-4">▼</button>
+                            </div>
+                        </div>
+                        <div class="scenario-content" id="content-4">
+                            <p><strong>Descrição:</strong> Testa consulta de preços de serviços específicos</p>
+                            
+                            <div class="progress-bar">
+                                <div class="progress-fill success-progress" style="width: 100%"></div>
+                            </div>
+
+                            <h4>📝 Log de Mensagens</h4>
+                            <div class="message-log">
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Preço do hidrofacial"</div>
+                                    <div class="message-response">🤖 "🏢 *Studio Beleza Bem-Estar* - O preço do serviço de *Hidrofacial Diamante* é R$ 150,00. Como posso ajudar você hoje?"</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 11.27s</div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Criolipólise custa quanto?"</div>
+                                    <div class="message-response">🤖 "O valor da *Criolipólise* é R$ 300,00. Como posso ajudar você hoje?"</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 5.72s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cenário 5: Agendamento Simples -->
+                    <div class="scenario-card">
+                        <div class="scenario-header" onclick="toggleScenario(5)">
+                            <div>
+                                <div class="scenario-title">📅 Agendamento Simples</div>
+                                <div class="scenario-features">
+                                    <span class="feature-badge">booking_workflow</span>
+                                    <span class="feature-badge">appointment_system</span>
+                                </div>
+                            </div>
+                            <div class="scenario-stats">
+                                <span>6 msgs</span>
+                                <span>27 respostas</span>
+                                <span>✅ Sucesso</span>
+                                <button class="toggle-btn" id="toggle-5">▼</button>
+                            </div>
+                        </div>
+                        <div class="scenario-content" id="content-5">
+                            <p><strong>Descrição:</strong> Testa fluxo básico de agendamento</p>
+                            
+                            <div class="progress-bar">
+                                <div class="progress-fill success-progress" style="width: 100%"></div>
+                            </div>
+
+                            <h4>📝 Log de Mensagens</h4>
+                            <div class="message-log">
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Quero agendar uma limpeza de pele"</div>
+                                    <div class="message-response">🤖 "Para agendar uma Limpeza de Pele Profunda, por favor, me informe a data e horário desejados, juntamente com seu nome completo. Vamos lá! 🌟"</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 5.13s</div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "Como faço para marcar horário?"</div>
+                                    <div class="message-response">🤖 "Para marcar um horário, por favor, me informe qual serviço você deseja agendar, a data e o horário de sua preferência. Assim, poderei verificar a disponibilidade para você. Aguardo suas informações! 😊"</div>
+                                    <div class="response-time">⏱️ Tempo de resposta: 5.25s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cenário 6: Teste de Segurança -->
+                    <div class="scenario-card">
+                        <div class="scenario-header" onclick="toggleScenario(6)">
+                            <div>
+                                <div class="scenario-title">🛡️ Teste de Segurança</div>
+                                <div class="scenario-features">
+                                    <span class="feature-badge security-badge">security_sanitization</span>
+                                    <span class="feature-badge security-badge">input_validation</span>
+                                    <span class="feature-badge security-badge">xss_protection</span>
+                                </div>
+                            </div>
+                            <div class="scenario-stats">
+                                <span>6 msgs</span>
+                                <span>30 respostas</span>
+                                <span>✅ Sucesso</span>
+                                <button class="toggle-btn" id="toggle-6">▼</button>
+                            </div>
+                        </div>
+                        <div class="scenario-content" id="content-6">
+                            <p><strong>Descrição:</strong> Testa sanitização e segurança do sistema</p>
+                            
+                            <div class="progress-bar">
+                                <div class="progress-fill success-progress" style="width: 100%"></div>
+                            </div>
+
+                            <h4>📝 Ataques Testados</h4>
+                            <div class="message-log">
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "' OR '1'='1"</div>
+                                    <div class="message-response">🤖 "Desculpe, não entendi sua mensagem. Como posso ajudar você hoje?"</div>
+                                    <div class="response-time">⏱️ SQL Injection bloqueado - 5.92s</div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "&lt;script&gt;alert('test')&lt;/script&gt;"</div>
+                                    <div class="message-response">🤖 "Desculpe, não compreendi sua mensagem. Como posso ajudar você hoje? 😊"</div>
+                                    <div class="response-time">⏱️ XSS bloqueado - 5.83s</div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-sent">➡️ "SELECT * FROM users WHERE"</div>
+                                    <div class="message-response">🤖 "Desculpe, mas não consigo atender a essa solicitação. Posso ajudar com informações sobre nossos serviços, horários de funcionamento ou agendar um atendimento para você? 😊"</div>
+                                    <div class="response-time">⏱️ SQL Command blocked - 5.36s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cenário Falhado: Performance Cache -->
+                    <div class="scenario-card failed">
+                        <div class="scenario-header failed" onclick="toggleScenario(13)">
+                            <div>
+                                <div class="scenario-title">⚡ Performance Cache</div>
+                                <div class="scenario-features">
+                                    <span class="feature-badge">cache_system</span>
+                                    <span class="feature-badge">performance_test</span>
+                                </div>
+                            </div>
+                            <div class="scenario-stats">
+                                <span>❌ FALHADO</span>
+                                <span>Cache não funcional</span>
+                                <button class="toggle-btn" id="toggle-13">▼</button>
+                            </div>
+                        </div>
+                        <div class="scenario-content" id="content-13">
+                            <p><strong>Descrição:</strong> Testa sistema de cache para otimização de performance</p>
+                            
+                            <div class="progress-bar">
+                                <div class="progress-fill danger-progress" style="width: 0%"></div>
+                            </div>
+
+                            <h4>🚨 Análise da Falha</h4>
+                            <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                <p><strong>Erro:</strong> Sistema de cache não responsivo</p>
+                                <p><strong>Possíveis Causas:</strong></p>
+                                <ul style="margin-left: 20px; margin-top: 10px;">
+                                    <li>Configuração de Redis/Memcached incorreta</li>
+                                    <li>Problemas de conectividade com o servidor de cache</li>
+                                    <li>Timeout na conexão com o cache</li>
+                                    <li>Cache service não inicializado corretamente</li>
+                                </ul>
+                                <p><strong>Recomendação:</strong> Verificar configurações de cache e conectividade</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-stats">
+                <div class="footer-stat">
+                    <div class="footer-number">2025-08-16</div>
+                    <div class="footer-label">Data do Teste</div>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-number">00:09:20</div>
+                    <div class="footer-label">Horário de Conclusão</div>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-number">advanced_test_1755312545</div>
+                    <div class="footer-label">ID da Sessão</div>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-number">93.33%</div>
+                    <div class="footer-label">Taxa de Aprovação</div>
+                </div>
+            </div>
+            <p>Relatório gerado automaticamente pelo WhatsApp Agent Advanced Test Suite v2.0</p>
+            <p style="margin-top: 10px; opacity: 0.7;">Sistema testado: Studio Beleza & Bem-Estar | 16 serviços | Railway Production</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleScenario(id) {
+            const content = document.getElementById(`content-${id}`);
+            const toggle = document.getElementById(`toggle-${id}`);
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                toggle.classList.remove('active');
+            } else {
+                content.classList.add('active');
+                toggle.classList.add('active');
+            }
+        }
+
+        // Animate numbers on page load
+        function animateNumber(elementId, finalValue, suffix = '') {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const startValue = 0;
+            const duration = 2000;
+            const startTime = Date.now();
+            
+            function updateNumber() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = startValue + (finalValue - startValue) * progress;
+                
+                if (typeof finalValue === 'string') {
+                    element.textContent = finalValue;
+                } else {
+                    element.textContent = Math.round(current) + suffix;
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                }
+            }
+            
+            updateNumber();
+        }
+
+        // Initialize animations when page loads
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                animateNumber('success-rate', '93.3%');
+                animateNumber('scenarios-tested', '14/15');
+                animateNumber('messages-sent', 89);
+                animateNumber('bot-responses', 406);
+                animateNumber('duration', '20min');
+            }, 500);
+        });
+
+        // Add smooth scroll for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
