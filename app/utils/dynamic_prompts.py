@@ -346,7 +346,7 @@ QUANDO o texto dos serviços já vem formatado da database:
 - COPIE EXATAMENTE como está, palavra por palavra
 - NÃO adicione nenhum texto extra no final
 - NÃO modifique nem uma vírgula
-- Se tem "Digite 'mais serviços'", MANTENHA exatamente assim
+- Se tem "Digite mais serviços", MANTENHA exatamente assim
 
 🕘 QUANDO INFORMAR HORÁRIOS, USE OBRIGATORIAMENTE:
 🏢 *{company_name}*

@@ -172,7 +172,7 @@ class BusinessDataService:
                 text += f"   ℹ️ _{service.description}_\n"
             text += "\n"
         
-        text += "\n💬 *Digite 'mais serviços' para ver o restante*"
+        text += "\n💬 *Digite mais serviços para ver o restante*"
         
         return text
     
