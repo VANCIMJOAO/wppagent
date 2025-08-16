@@ -64,10 +64,13 @@ def get_current_date_info() -> Dict[str, Any]:
         'full_info': f"{now.day} de {month_pt} de {now.year} ({weekday_pt})"
     }
 
-async def get_dynamic_system_prompt_with_database() -> str:
+async def get_dynamic_system_prompt_with_database(user_message: str = "") -> str:
     """
     Gera o prompt do sistema com data atual dinâmica E dados reais da database
-    ⚠️ VERSÃO CORRIGIDA - CONEXÃO DIRETA COM RAILWAY
+    VERSÃO CORRIGIDA - CONEXÃO DIRETA COM RAILWAY
+    
+    Args:
+        user_message: Mensagem do usuário para detecção inteligente de conteúdo
     """
     # CONEXÃO DIRETA COM RAILWAY - SEM DEPENDÊNCIAS
     import asyncpg
@@ -102,7 +105,7 @@ async def get_dynamic_system_prompt_with_database() -> str:
         # Usar formatação melhorada dos serviços
         if get_database_services_formatted:
             try:
-                services_text = await get_database_services_formatted()
+                services_text = await get_database_services_formatted(user_message)
                 services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n" + services_text
                 services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
                 logger.info("✅ Formatação melhorada de serviços aplicada")

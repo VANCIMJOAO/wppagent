@@ -136,23 +136,33 @@ class BusinessDataService:
         
         return self._company_info_cache
     
-    async def get_services_formatted_text(self) -> str:
+    async def get_services_formatted_text(self, user_message: str = "") -> str:
         """
         Retorna texto formatado com serviços e preços da database
-        Formatação otimizada para WhatsApp com quebras de linha adequadas
+        CORREÇÃO: Divisão automática por limite WhatsApp + detecção de "mais serviços"
         
+        Args:
+            user_message: Mensagem do usuário para detectar se quer parte 2
+            
         Returns:
-            String formatada com lista de serviços
+            String formatada com lista de serviços (primeira ou segunda parte)
         """
         services = await self.get_active_services()
         
         if not services:
             return "🔍 No momento não temos serviços cadastrados.\n📞 Entre em contato conosco!"
         
-        text = "📋 *Nossos Serviços e Preços:*\n\n"
+        # 🔥 DETECÇÃO INTELIGENTE: Se usuário pediu "mais serviços", mostrar parte 2
+        if "mais serviços" in user_message.lower() or "restante" in user_message.lower():
+            return await self.get_services_formatted_text_part2()
         
-        for i, service in enumerate(services, 1):
-            # 🔥 FORMATAÇÃO CORRIGIDA: Quebras duplas entre serviços
+        # Dividir serviços em duas partes para respeitar limite de 4096 chars
+        total_services = len(services)
+        mid_point = total_services // 2
+        
+        text = f"📋 *Nossos Serviços e Preços (Parte 1/2):*\n\n"
+        
+        for i, service in enumerate(services[:mid_point], 1):
             text += f"{i}. *{service.name}*\n"
             text += f"   💰 {service.price}"
             if service.duration:
@@ -160,9 +170,44 @@ class BusinessDataService:
             text += "\n"
             if service.description:
                 text += f"   ℹ️ _{service.description}_\n"
-            text += "\n"  # 🔥 CORREÇÃO: Quebra dupla entre serviços
+            text += "\n"
         
-        text += "\n📞 *Para agendar:*\n"
+        text += "💬 *Digite 'mais serviços' para ver o restante*\n\n"
+        text += "📞 *Para agendar:*\n"
+        text += "• Qual serviço deseja\n"
+        text += "• Data e horário preferido\n"
+        text += "• Seu nome completo"
+        
+        return text
+    
+    async def get_services_formatted_text_part2(self) -> str:
+        """
+        Retorna segunda parte dos serviços formatados
+        
+        Returns:
+            String formatada com lista de serviços (segunda parte)
+        """
+        services = await self.get_active_services()
+        
+        if not services:
+            return "🔍 Não há mais serviços para mostrar."
+        
+        total_services = len(services)
+        mid_point = total_services // 2
+        
+        text = f"📋 *Nossos Serviços e Preços (Parte 2/2):*\n\n"
+        
+        for i, service in enumerate(services[mid_point:], mid_point + 1):
+            text += f"{i}. *{service.name}*\n"
+            text += f"   💰 {service.price}"
+            if service.duration:
+                text += f" • ⏰ {service.duration}min"
+            text += "\n"
+            if service.description:
+                text += f"   ℹ️ _{service.description}_\n"
+            text += "\n"
+        
+        text += "📞 *Para agendar:*\n"
         text += "• Qual serviço deseja\n"
         text += "• Data e horário preferido\n"
         text += "• Seu nome completo"
@@ -565,9 +610,9 @@ async def get_database_services() -> List[ServiceData]:
     return await business_data_service.get_active_services()
 
 
-async def get_database_services_formatted() -> str:
+async def get_database_services_formatted(user_message: str = "") -> str:
     """Função de conveniência para buscar serviços formatados da database"""
-    return await business_data_service.get_services_formatted_text()
+    return await business_data_service.get_services_formatted_text(user_message)
 
 
 async def find_database_service(service_name: str) -> Optional[ServiceData]:

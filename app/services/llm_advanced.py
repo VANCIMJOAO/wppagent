@@ -90,14 +90,14 @@ class PromptTemplate:
     """Sistema de templates de prompts estruturados com data dinâmica"""
     
     @staticmethod
-    async def get_system_base_with_database(**kwargs) -> str:
+    async def get_system_base_with_database(user_message: str = "", **kwargs) -> str:
         """Retorna prompt base do sistema com dados reais da database"""
         from app.services.business_data import business_data_service
         from app.utils.dynamic_prompts import get_dynamic_system_prompt_with_database
         
         try:
-            # Usar prompt com dados da database
-            base_prompt = await get_dynamic_system_prompt_with_database()
+            # Usar prompt com dados da database - PASSAR MENSAGEM DO USUÁRIO
+            base_prompt = await get_dynamic_system_prompt_with_database(user_message)
         except Exception as e:
             logger.error(f"Erro ao carregar prompt com database: {e}")
             # Fallback para prompt padrão
@@ -403,8 +403,9 @@ class ResponseGenerator:
             
             # Construir histórico da conversa com DADOS DA DATABASE
             try:
-                # Usar prompt com dados reais da database
+                # Usar prompt com dados reais da database - PASSAR MENSAGEM DO USUÁRIO
                 system_prompt = await PromptTemplate.get_system_base_with_database(
+                    user_message=user_message,
                     state=context.state.value,
                     intent=context.current_intent.type.value if context.current_intent else "none",
                     collected_data=context.collected_data
