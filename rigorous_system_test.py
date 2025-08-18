@@ -23,12 +23,14 @@ Este teste foi criado para detectar FALHAS REAIS que outros testes podem mascara
 
 🚨 CENÁRIOS DE TESTE RIGOROSO:
 1. Teste de conectividade básica (DEVE funcionar)
-2. Validação de resposta única REAL
-3. Teste de conteúdo contextual específico
-4. Detecção de múltiplas respostas
-5. Validação de endpoints críticos
-6. Teste de performance sob carga
-7. Verificação de dados reais do negócio
+2. Validação Meta WhatsApp API (token, phone number, business account)
+3. Validação OpenAI API (através de resposta do sistema)
+4. Validação de resposta única REAL
+5. Teste de conteúdo contextual específico
+6. Detecção de múltiplas respostas
+7. Validação de endpoints críticos
+8. Teste de performance sob carga
+9. Verificação de dados reais do negócio
 """
 
 import asyncio
@@ -63,10 +65,15 @@ class RigorousSystemTester:
         self.DATABASE_URL = "postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway"
         self.API_BASE_URL = "https://wppagent-production.up.railway.app"
         
-        # Configurações WhatsApp
+        # Configurações WhatsApp Meta API
+        self.META_ACCESS_TOKEN = "EAAI4WnfpZAe0BPKRXMnyEdADsIm8b2flZApo5NMb6gYim3DBTmZANwa4pPGUeZAghkeVYDwsSK091bG0mAAff70xslLWqKHJZA9U2tLXWOYxIdyNyOQnTsuhplporaJhMBExe9OnHSN1RheHWDkCraxxThrkO8aYErfXykbbyg6XNU0c07qHVKaiTBM3y3kn8DsgZBBjpuTfs6qBKmBRrZC7POgOwZAbzkOAj7z6eo107nRXhgIi7GUwkzdw1gZDZD"
         self.WHATSAPP_PHONE_ID = "728348237027885"
         self.BOT_PHONE = "15551536026"
         self.YOUR_PHONE = "5516991022255"
+        
+        # URLs das APIs críticas
+        self.META_API_BASE = "https://graph.facebook.com/v18.0"
+        self.OPENAI_API_BASE = "https://api.openai.com/v1"
         
         # Controle de sessão
         self.session_id = f"rigorous_test_{int(time.time())}"
@@ -80,7 +87,9 @@ class RigorousSystemTester:
             "api_responding": False,
             "webhook_active": False,
             "single_response_working": False,
-            "business_data_valid": False
+            "business_data_valid": False,
+            "meta_api_connected": False,
+            "openai_api_connected": False
         }
         
         # Configuração de logging mais detalhada
@@ -177,6 +186,196 @@ class RigorousSystemTester:
             self.critical_failures.append(f"API health test failed: {str(e)}")
             self.logger.error(f"❌ API health error: {e}")
             return False
+    
+    async def test_meta_api_connection(self) -> TestResult:
+        """
+        Testa conexão com Meta WhatsApp API - CRÍTICO
+        """
+        self.logger.info("📱 TESTE CRÍTICO: Meta WhatsApp API")
+        
+        errors = []
+        warnings = []
+        start_time = time.time()
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                # Teste 1: Verificar token de acesso
+                headers = {
+                    "Authorization": f"Bearer {self.META_ACCESS_TOKEN}",
+                    "Content-Type": "application/json"
+                }
+                
+                # Endpoint para verificar informações do phone number
+                test_url = f"{self.META_API_BASE}/{self.WHATSAPP_PHONE_ID}"
+                
+                async with session.get(test_url, headers=headers, timeout=15) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        if "display_phone_number" in data:
+                            self.logger.info("✅ Meta API: Token válido e phone number ativo")
+                            self.system_health["meta_api_connected"] = True
+                        else:
+                            errors.append("Meta API: Resposta inválida do phone number")
+                    elif response.status == 401:
+                        errors.append("Meta API: Token de acesso inválido ou expirado")
+                    elif response.status == 403:
+                        errors.append("Meta API: Permissões insuficientes")
+                    elif response.status == 404:
+                        errors.append("Meta API: Phone number ID não encontrado")
+                    else:
+                        warnings.append(f"Meta API: Status inesperado {response.status}")
+                
+                # Teste 2: Verificar limite de mensagens
+                business_url = f"{self.META_API_BASE}/me"
+                async with session.get(business_url, headers=headers, timeout=10) as response:
+                    if response.status == 200:
+                        business_data = await response.json()
+                        if "name" in business_data:
+                            self.logger.info("✅ Meta API: Business account acessível")
+                        else:
+                            warnings.append("Meta API: Business data incompleta")
+                    else:
+                        warnings.append("Meta API: Não foi possível verificar business account")
+                        
+        except asyncio.TimeoutError:
+            errors.append("Meta API: Timeout na conexão")
+        except Exception as e:
+            errors.append(f"Meta API: Erro de conexão - {str(e)}")
+        
+        test_time = time.time() - start_time
+        success = len(errors) == 0 and self.system_health["meta_api_connected"]
+        
+        if not success:
+            self.critical_failures.append("Meta WhatsApp API connection failed")
+        
+        return TestResult(
+            scenario_name="Meta WhatsApp API Connection CRÍTICA",
+            success=success,
+            error_messages=errors,
+            warning_messages=warnings,
+            response_count=1 if success else 0,
+            expected_patterns_found=0,
+            expected_patterns_total=0,
+            response_time=test_time,
+            actual_responses=[],
+            is_critical=True
+        )
+    
+    async def test_openai_api_connection(self) -> TestResult:
+        """
+        Testa conexão com OpenAI API - CRÍTICO
+        Precisa validar se a chave está configurada no servidor
+        """
+        self.logger.info("🤖 TESTE CRÍTICO: OpenAI API")
+        
+        errors = []
+        warnings = []
+        start_time = time.time()
+        
+        try:
+            # Como não temos acesso direto à chave do OpenAI (deve estar no servidor)
+            # Vamos testar através de um endpoint do nosso sistema que use OpenAI
+            async with aiohttp.ClientSession() as session:
+                # Testar endpoint que usa OpenAI indiretamente
+                test_payload = {
+                    "object": "whatsapp_business_account",
+                    "entry": [{
+                        "id": self.WHATSAPP_PHONE_ID,
+                        "changes": [{
+                            "value": {
+                                "messaging_product": "whatsapp",
+                                "metadata": {
+                                    "display_phone_number": self.BOT_PHONE,
+                                    "phone_number_id": self.WHATSAPP_PHONE_ID
+                                },
+                                "messages": [{
+                                    "from": self.YOUR_PHONE,
+                                    "id": f"openai_test_{int(time.time())}",
+                                    "timestamp": str(int(time.time())),
+                                    "text": {"body": "teste de conexão openai api"},
+                                    "type": "text"
+                                }],
+                                "contacts": [{
+                                    "profile": {"name": "OpenAI Test"},
+                                    "wa_id": self.YOUR_PHONE
+                                }]
+                            },
+                            "field": "messages"
+                        }]
+                    }]
+                }
+                
+                # Enviar mensagem de teste que deve usar OpenAI
+                async with session.post(
+                    f"{self.API_BASE_URL}/webhook",
+                    json=test_payload,
+                    headers={"Content-Type": "application/json"},
+                    timeout=20
+                ) as response:
+                    
+                    if response.status == 200:
+                        # Aguardar resposta processada
+                        await asyncio.sleep(10)
+                        
+                        # Verificar se houve resposta (indica que OpenAI está funcionando)
+                        cutoff_time = datetime.now() - timedelta(seconds=30)
+                        
+                        try:
+                            responses = await self.db.fetch("""
+                                SELECT content, created_at 
+                                FROM messages 
+                                WHERE user_id = 2 
+                                AND direction = 'out'
+                                AND created_at > $1
+                                ORDER BY created_at DESC
+                                LIMIT 1
+                            """, cutoff_time)
+                            
+                            if responses:
+                                response_content = responses[0]['content'].lower()
+                                
+                                # Verificar se a resposta não é um erro de OpenAI
+                                if any(error_term in response_content for error_term in [
+                                    "api key", "unauthorized", "rate limit", 
+                                    "openai error", "connection error", "timeout"
+                                ]):
+                                    errors.append("OpenAI API: Erro detectado na resposta")
+                                else:
+                                    self.logger.info("✅ OpenAI API: Funcionando através do webhook")
+                                    self.system_health["openai_api_connected"] = True
+                            else:
+                                warnings.append("OpenAI API: Nenhuma resposta gerada")
+                                
+                        except Exception as db_error:
+                            errors.append(f"OpenAI API: Erro ao verificar resposta - {str(db_error)}")
+                    else:
+                        errors.append(f"OpenAI API: Webhook retornou status {response.status}")
+                        
+        except asyncio.TimeoutError:
+            errors.append("OpenAI API: Timeout no teste")
+        except Exception as e:
+            errors.append(f"OpenAI API: Erro no teste - {str(e)}")
+        
+        test_time = time.time() - start_time
+        
+        # Critério menos rigoroso para OpenAI (pode funcionar mesmo com warnings)
+        success = len(errors) == 0
+        
+        if not success:
+            self.critical_failures.append("OpenAI API test failed")
+        
+        return TestResult(
+            scenario_name="OpenAI API Connection CRÍTICA",
+            success=success,
+            error_messages=errors,
+            warning_messages=warnings,
+            response_count=1 if success else 0,
+            expected_patterns_found=0,
+            expected_patterns_total=0,
+            response_time=test_time,
+            actual_responses=[],
+            is_critical=True
+        )
     
     async def send_test_message(self, message: str, expected_single_response: bool = True) -> Tuple[List[Dict], float]:
         """
@@ -542,6 +741,21 @@ class RigorousSystemTester:
         
         if not await self.test_api_health():
             return self._generate_failure_report("Falha crítica na saúde da API")
+        
+        # Fase 1.5: Testes críticos das APIs externas
+        self.logger.info("📡 FASE 1.5: Validação APIs Externas (CRÍTICO)")
+        
+        # Teste Meta API
+        meta_api_result = await self.test_meta_api_connection()
+        self.test_results.append(meta_api_result)
+        
+        # Teste OpenAI API (não-bloqueante, mas importante)
+        openai_api_result = await self.test_openai_api_connection()
+        self.test_results.append(openai_api_result)
+        
+        # Meta API é crítica, OpenAI pode funcionar mesmo com problemas
+        if not meta_api_result.success:
+            return self._generate_failure_report("FALHA CRÍTICA: Meta WhatsApp API não conecta")
         
         # Fase 2: Teste crítico de resposta única
         self.logger.info("🔍 FASE 2: Validação Resposta Única (CRÍTICO)")
