@@ -4,6 +4,7 @@ from app.auth import AuthMiddlewareastAPI
 """
 import logging
 import uvicorn
+import asyncio
 from datetime import datetime
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
@@ -11,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from app.config import settings
 from app.utils.logger import get_logger
-from app.routes.webhook import router as webhook_router
+from app.routes.webhook import router as webhook_router, cleanup_response_control
 from app.database import init_db
 from app.services.health_checker import health_checker, HealthStatus
 from app.middleware.rate_limit import RateLimitMiddleware, get_rate_limit_stats
@@ -52,9 +53,9 @@ except ImportError:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Gerenciamento do ciclo de vida da aplicação"""
+    """Gerenciamento do ciclo de vida da aplicação COM CORREÇÕES"""
     # Startup
-    logger.info("Iniciando WhatsApp Agent API...")
+    logger.info("🚨 Iniciando WhatsApp Agent API COM CORREÇÕES DE RESPOSTA ÚNICA...")
     
     try:
         # Inicializar banco de dados
@@ -87,8 +88,12 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning(f"⚠️ CDN Manager não pôde ser inicializado: {e}")
         
-        logger.info("✅ WhatsApp Agent API iniciado com sucesso!")
+        # Iniciar limpeza periódica das correções
+        cleanup_task = asyncio.create_task(periodic_cleanup())
+        
+        logger.info("✅ WhatsApp Agent API iniciado com sucesso COM CORREÇÕES!")
         logger.info(f"📱 Webhook URL: {settings.webhook_url}")
+        logger.info("🛑 Sistema de controle de resposta única ATIVO")
         
     except Exception as e:
         logger.error(f"❌ Erro na inicialização: {e}")
@@ -98,10 +103,17 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("Encerrando WhatsApp Agent API...")
-    await cache_service.close()
     
-    # Shutdown
-    logger.info("Finalizando WhatsApp Agent API...")
+    # Cancelar task de limpeza
+    if 'cleanup_task' in locals():
+        cleanup_task.cancel()
+        try:
+            await cleanup_task
+        except asyncio.CancelledError:
+            pass
+    
+    await cache_service.close()
+    logger.info("Finalizando WhatsApp Agent API COM CORREÇÕES...")
 
 
 # Criar aplicação FastAPI
@@ -926,6 +938,25 @@ async def test_conversation_flow():
             "message": str(e),
             "results": []
         }
+
+
+# ================================
+# FUNÇÃO DE LIMPEZA PERIÓDICA
+# ================================
+
+async def periodic_cleanup():
+    """Limpeza periódica dos controles de resposta única"""
+    while True:
+        try:
+            await asyncio.sleep(300)  # A cada 5 minutos
+            await cleanup_response_control()
+            logger.info("🧹 Limpeza periódica executada")
+        except asyncio.CancelledError:
+            logger.info("🛑 Limpeza periódica cancelada")
+            break
+        except Exception as e:
+            logger.error(f"❌ Erro na limpeza periódica: {e}")
+            await asyncio.sleep(60)  # Aguardar 1 minuto antes de tentar novamente
 
 
 if __name__ == "__main__":
