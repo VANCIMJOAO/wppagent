@@ -1,6 +1,5 @@
 """
-Aplicação principal# 🔒 Sistema de Autenticação e Autorização
-from app.auth import AuthMiddlewareastAPI
+Aplicação principal WhatsApp Agent API
 """
 import logging
 import uvicorn
@@ -30,7 +29,7 @@ from app.auth import AuthMiddleware
 from app.utils.metrics import metrics_collector, get_metrics_response
 from app.middleware.metrics import MetricsMiddleware
 
-# �🚀 Sistemas de Performance e Escalabilidade
+# 🚀 Sistemas de Performance e Escalabilidade
 from app.services.database_optimizer import DatabaseOptimizer
 from app.services.cache_service_optimized import OptimizedCacheService
 from app.services.cdn_manager import CDNManager
@@ -172,11 +171,11 @@ app.add_middleware(MetricsMiddleware)
 # Incluir rotas
 app.include_router(webhook_router, tags=["webhook"])
 
-# � Debug webhook (TEMPORÁRIO - remover em produção)
+# Debug webhook (TEMPORÁRIO - remover em produção)
 from app.routes.debug_webhook import router as debug_webhook_router
 app.include_router(debug_webhook_router, tags=["Debug"])
 
-# �🔒 Incluir rotas de autenticação e segurança
+# 🔒 Incluir rotas de autenticação e segurança
 from app.routes.auth import router as auth_router
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 
