@@ -14,6 +14,17 @@ from dataclasses import dataclass, field
 import re
 from collections import deque
 
+import asyncio
+import time
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Tuple, Any
+from dataclasses import dataclass, field
+from enum import Enum
+import logging
+import json
+import re
+from difflib import SequenceMatcher
+
 logger = logging.getLogger(__name__)
 
 
@@ -59,16 +70,26 @@ class ConversationTopic:
 
 @dataclass
 class ConversationMemory:
-    """Memória da conversa para contexto"""
-    topic_history: deque = field(default_factory=lambda: deque(maxlen=10))
-    active_topics: Dict[str, ConversationTopic] = field(default_factory=dict)
-    current_state: ConversationState = ConversationState.GREETING
-    previous_state: Optional[ConversationState] = None
-    user_preferences: Dict[str, Any] = field(default_factory=dict)
-    pending_questions: List[str] = field(default_factory=list)
-    context_switches: int = 0
+    """Memória de conversa com controle de resposta única"""
     conversation_start: datetime = field(default_factory=datetime.now)
     last_activity: datetime = field(default_factory=datetime.now)
+    current_state: 'ConversationState' = None
+    previous_state: 'ConversationState' = None
+    active_topics: Dict[str, 'TopicMemory'] = field(default_factory=dict)
+    topic_history: List[str] = field(default_factory=list)
+    context_switches: int = 0
+    user_preferences: Dict[str, Any] = field(default_factory=dict)
+    pending_questions: List[str] = field(default_factory=list)
+    
+    # 🆕 NOVOS CAMPOS PARA CONTROLE DE RESPOSTA ÚNICA
+    last_response_sent: Optional[str] = None
+    response_timestamp: Optional[datetime] = None
+    is_processing: bool = False
+    response_lock: Optional[asyncio.Lock] = None
+    
+    def __post_init__(self):
+        if self.response_lock is None:
+            self.response_lock = asyncio.Lock()
 
 
 @dataclass
@@ -85,13 +106,73 @@ class FlowDecision:
 
 
 class ConversationFlowEngine:
-    """Engine de fluxo conversacional não-linear"""
+    """Motor de fluxo conversacional com controle de resposta única"""
     
     def __init__(self):
+        self.processing_locks: Dict[str, asyncio.Lock] = {}
+        self.response_control: Dict[str, Dict[str, Any]] = {}
         self.topic_definitions = self._initialize_topics()
         self.state_transitions = self._initialize_transitions()
         self.context_patterns = self._initialize_context_patterns()
         
+    async def ensure_single_response(self, user_id: str, message: str) -> bool:
+        """
+        Garante que apenas uma resposta seja processada por mensagem
+        
+        Args:
+            user_id: ID do usuário
+            message: Mensagem recebida
+            
+        Returns:
+            True se deve processar, False se deve ignorar
+        """
+        if user_id not in self.processing_locks:
+            self.processing_locks[user_id] = asyncio.Lock()
+        
+        async with self.processing_locks[user_id]:
+            # Verificar se já processamos uma mensagem similar recentemente
+            if user_id in self.response_control:
+                last_response = self.response_control[user_id]
+                time_diff = time.time() - last_response.get('timestamp', 0)
+                
+                # Se a última resposta foi há menos de 5 segundos
+                if time_diff < 5:
+                    # Verificar se a mensagem é similar
+                    if self._is_similar_message(message, last_response.get('message', '')):
+                        logger.info(f"🔄 Ignorando mensagem similar para {user_id}: {message[:50]}...")
+                        return False
+            
+            # Marcar como processando
+            self.response_control[user_id] = {
+                'message': message,
+                'timestamp': time.time(),
+                'processing': True
+            }
+            
+            return True
+    
+    def _is_similar_message(self, msg1: str, msg2: str, threshold: float = 0.8) -> bool:
+        """Verifica se duas mensagens são similares"""
+        if not msg1 or not msg2:
+            return False
+        
+        # Normalizar mensagens
+        msg1_norm = re.sub(r'[^\w\s]', '', msg1.lower())
+        msg2_norm = re.sub(r'[^\w\s]', '', msg2.lower())
+        
+        # Calcular similaridade
+        similarity = SequenceMatcher(None, msg1_norm, msg2_norm).ratio()
+        return similarity >= threshold
+    
+    async def mark_response_sent(self, user_id: str, message: str, response: str):
+        """Marca que uma resposta foi enviada"""
+        if user_id in self.response_control:
+            self.response_control[user_id].update({
+                'response': response,
+                'processing': False,
+                'response_timestamp': time.time()
+            })
+
     def _initialize_topics(self) -> Dict[str, ConversationTopic]:
         """Inicializa definições de tópicos"""
         topics = {
@@ -687,43 +768,556 @@ class ConversationFlowEngine:
         return list(set(context_to_maintain))  # Remove duplicatas
 
 
-class ConversationFlowService:
-    """Serviço de gerenciamento de fluxo conversacional"""
+class ConversationMemoryManager:
+    """Gerenciador centralizado de memória conversacional"""
     
     def __init__(self):
-        self.engine = ConversationFlowEngine()
+        self.conversation_contexts: Dict[str, Dict[str, Any]] = {}
+        self.service_discussions: Dict[str, Dict[str, Any]] = {}
+        self.scheduling_contexts: Dict[str, Dict[str, Any]] = {}
+        
+    async def get_or_create_context(self, user_id: str) -> Dict[str, Any]:
+        """Obtém ou cria contexto de conversa para um usuário"""
+        if user_id not in self.conversation_contexts:
+            self.conversation_contexts[user_id] = {
+                'current_topic': None,
+                'last_service_discussed': None,
+                'last_scheduling_context': None,
+                'conversation_history': [],
+                'user_preferences': {},
+                'created_at': datetime.now(),
+                'last_updated': datetime.now()
+            }
+        return self.conversation_contexts[user_id]
+    
+    async def update_context(self, user_id: str, **updates):
+        """Atualiza contexto de conversa"""
+        context = await self.get_or_create_context(user_id)
+        context.update(updates)
+        context['last_updated'] = datetime.now()
+    
+    async def remember_service_discussion(self, user_id: str, service_name: str, details: Dict[str, Any]):
+        """Lembra discussão sobre um serviço específico"""
+        if user_id not in self.service_discussions:
+            self.service_discussions[user_id] = {}
+        
+        self.service_discussions[user_id][service_name] = {
+            'discussed_at': datetime.now(),
+            'details': details,
+            'mentions': self.service_discussions[user_id].get(service_name, {}).get('mentions', 0) + 1
+        }
+        
+        # Atualizar contexto principal
+        await self.update_context(user_id, last_service_discussed=service_name)
+    
+    async def remember_scheduling_context(self, user_id: str, service_name: str, scheduling_data: Dict[str, Any]):
+        """Lembra contexto de agendamento"""
+        if user_id not in self.scheduling_contexts:
+            self.scheduling_contexts[user_id] = {}
+        
+        self.scheduling_contexts[user_id] = {
+            'service_name': service_name,
+            'scheduling_data': scheduling_data,
+            'created_at': datetime.now(),
+            'last_updated': datetime.now()
+        }
+        
+        # Atualizar contexto principal
+        await self.update_context(user_id, last_scheduling_context=service_name)
+    
+    async def get_relevant_context(self, user_id: str, current_message: str) -> Dict[str, Any]:
+        """Obtém contexto relevante para a mensagem atual"""
+        context = await self.get_or_create_context(user_id)
+        relevant_info = {}
+        
+        # Verificar se há discussão recente sobre serviços
+        if user_id in self.service_discussions:
+            for service_name, discussion in self.service_discussions[user_id].items():
+                if discussion['discussed_at'] > datetime.now() - timedelta(minutes=30):
+                    relevant_info['recent_service_discussion'] = {
+                        'service': service_name,
+                        'details': discussion['details']
+                    }
+        
+        # Verificar se há contexto de agendamento ativo
+        if user_id in self.scheduling_contexts:
+            scheduling_context = self.scheduling_contexts[user_id]
+            if scheduling_context['last_updated'] > datetime.now() - timedelta(minutes=15):
+                relevant_info['active_scheduling'] = scheduling_context
+        
+        # Verificar histórico de conversa recente
+        recent_history = [msg for msg in context['conversation_history'] 
+                         if msg['timestamp'] > datetime.now() - timedelta(minutes=10)]
+        if recent_history:
+            relevant_info['recent_conversation'] = recent_history[-3:]  # Últimas 3 mensagens
+        
+        return relevant_info
+    
+    async def _update_conversation_memory(self, user_id: str, message: str, response: str):
+        """Atualiza memória da conversa"""
+        context = await self.get_or_create_context(user_id)
+        
+        # Adicionar à história
+        context['conversation_history'].append({
+            'message': message,
+            'response': response,
+            'timestamp': datetime.now()
+        })
+        
+        # Manter apenas últimas 20 mensagens
+        if len(context['conversation_history']) > 20:
+            context['conversation_history'] = context['conversation_history'][-20:]
+        
+        # Atualizar timestamp
+        context['last_updated'] = datetime.now()
+    
+    async def clear_old_contexts(self, max_age_hours: int = 24):
+        """Limpa contextos antigos"""
+        cutoff_time = datetime.now() - timedelta(hours=max_age_hours)
+        
+        # Limpar contextos antigos
+        old_users = [user_id for user_id, context in self.conversation_contexts.items()
+                    if context['last_updated'] < cutoff_time]
+        
+        for user_id in old_users:
+            del self.conversation_contexts[user_id]
+            if user_id in self.service_discussions:
+                del self.service_discussions[user_id]
+            if user_id in self.scheduling_contexts:
+                del self.scheduling_contexts[user_id]
+
+class ResponseRouter:
+    """Roteador inteligente para seleção de resposta única"""
+    
+    def __init__(self):
+        self.routing_rules = self._initialize_routing_rules()
+        self.response_templates = self._initialize_response_templates()
+    
+    def _initialize_routing_rules(self) -> Dict[str, Dict[str, Any]]:
+        """Inicializa regras de roteamento"""
+        return {
+            'greeting': {
+                'patterns': ['oi', 'olá', 'bom dia', 'boa tarde', 'boa noite'],
+                'priority': 1,
+                'response_type': 'greeting'
+            },
+            'service_inquiry': {
+                'patterns': ['serviços', 'o que vocês fazem', 'tratamentos'],
+                'priority': 2,
+                'response_type': 'services_list'
+            },
+            'price_inquiry': {
+                'patterns': ['quanto custa', 'preço', 'valor', 'custa quanto'],
+                'priority': 3,
+                'response_type': 'price_info'
+            },
+            'booking_request': {
+                'patterns': ['agendar', 'marcar', 'quero agendar', 'preciso agendar'],
+                'priority': 4,
+                'response_type': 'booking_request'
+            },
+            'company_info': {
+                'patterns': ['horário', 'funcionamento', 'endereço', 'onde vocês ficam'],
+                'priority': 5,
+                'response_type': 'company_info'
+            }
+        }
+    
+    def _initialize_response_templates(self) -> Dict[str, str]:
+        """Inicializa templates de resposta"""
+        return {
+            'greeting': 'Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar? 🌟',
+            'services_list': '📋 Aqui estão nossos serviços disponíveis...',
+            'price_info': '💰 Aqui está a informação sobre preços...',
+            'booking_request': '📅 Vamos agendar seu serviço...',
+            'company_info': '🏢 Aqui estão as informações da empresa...'
+        }
+    
+    async def route_message(self, message: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Roteia mensagem e retorna resposta apropriada"""
+        # Detectar intenção
+        intent = self._detect_intent(message)
+        
+        # Calcular confiança
+        confidence = self._calculate_confidence(message, intent)
+        
+        # Selecionar resposta única
+        response = self._select_single_response(intent, context)
+        
+        # Aplicar contexto se disponível
+        if context:
+            response = self._apply_context(response, context)
+        
+        # Validar resposta
+        validated_response = self._validate_response(response)
+        
+        return {
+            'intent': intent,
+            'confidence': confidence,
+            'response': validated_response,
+            'response_type': intent.get('response_type', 'general')
+        }
+    
+    def _detect_intent(self, message: str) -> Dict[str, Any]:
+        """Detecta intenção da mensagem"""
+        message_lower = message.lower()
+        
+        for rule_name, rule in self.routing_rules.items():
+            for pattern in rule['patterns']:
+                if pattern in message_lower:
+                    return {
+                        'rule_name': rule_name,
+                        'priority': rule['priority'],
+                        'response_type': rule['response_type'],
+                        'matched_pattern': pattern
+                    }
+        
+        return {
+            'rule_name': 'general',
+            'priority': 0,
+            'response_type': 'general',
+            'matched_pattern': None
+        }
+    
+    def _calculate_confidence(self, message: str, intent: Dict[str, Any]) -> float:
+        """Calcula confiança da detecção de intenção"""
+        if intent['rule_name'] == 'general':
+            return 0.3
+        
+        # Verificar se há múltiplos padrões correspondentes
+        message_lower = message.lower()
+        matches = 0
+        
+        for rule_name, rule in self.routing_rules.items():
+            for pattern in rule['patterns']:
+                if pattern in message_lower:
+                    matches += 1
+        
+        if matches == 1:
+            return 0.9
+        elif matches > 1:
+            return 0.7
+        else:
+            return 0.5
+    
+    def _select_single_response(self, intent: Dict[str, Any], context: Dict[str, Any]) -> str:
+        """Seleciona uma única resposta apropriada"""
+        response_type = intent.get('response_type', 'general')
+        
+        # Verificar se há contexto específico
+        if context and 'active_scheduling' in context:
+            if response_type == 'booking_request':
+                return f"📅 Continuando seu agendamento para {context['active_scheduling']['service_name']}..."
+        
+        if context and 'recent_service_discussion' in context:
+            if response_type == 'price_inquiry':
+                service = context['recent_service_discussion']['service']
+                return f"💰 Sobre {service}, aqui estão os preços..."
+        
+        # Retornar template padrão
+        return self.response_templates.get(response_type, "Como posso ajudar você?")
+    
+    def _apply_context(self, response: str, context: Dict[str, Any]) -> str:
+        """Aplica contexto à resposta"""
+        # Implementar lógica de aplicação de contexto
+        return response
+    
+    def _validate_response(self, response: str) -> str:
+        """Valida resposta antes de retornar"""
+        if not response or len(response.strip()) < 10:
+            return "Desculpe, não consegui gerar uma resposta adequada. Pode reformular sua pergunta?"
+        return response
+
+class ResponseMonitor:
+    """Monitor de respostas para detectar anomalias"""
+    
+    def __init__(self):
+        self.response_logs: List[Dict[str, Any]] = []
+        self.anomaly_detectors = {
+            'multiple_responses': self._detect_multiple_responses,
+            'context_loss': self._detect_context_loss,
+            'inconsistent_responses': self._detect_inconsistent_responses,
+            'spam_patterns': self._detect_spam_patterns
+        }
+        self.alert_thresholds = {
+            'multiple_responses': 2,  # Máximo de respostas por mensagem
+            'context_loss_threshold': 0.3,  # Similaridade mínima para manter contexto
+            'response_similarity_threshold': 0.8  # Similaridade para detectar duplicatas
+        }
+    
+    async def log_response(self, user_id: str, message: str, response: str, metadata: Dict[str, Any] = None):
+        """Registra resposta para monitoramento"""
+        log_entry = {
+            'user_id': user_id,
+            'message': message,
+            'response': response,
+            'timestamp': datetime.now(),
+            'metadata': metadata or {}
+        }
+        
+        self.response_logs.append(log_entry)
+        
+        # Verificar anomalias
+        await self._check_anomalies(user_id, message, response)
+        
+        # Limpar logs antigos
+        await self._cleanup_old_logs()
+    
+    async def _check_anomalies(self, user_id: str, message: str, response: str):
+        """Verifica anomalias na resposta"""
+        for anomaly_type, detector in self.anomaly_detectors.items():
+            try:
+                if await detector(user_id, message, response):
+                    await self._handle_anomaly(anomaly_type, user_id, message, response)
+            except Exception as e:
+                logger.error(f"Erro ao verificar anomalia {anomaly_type}: {e}")
+    
+    async def _detect_multiple_responses(self, user_id: str, message: str, response: str) -> bool:
+        """Detecta múltiplas respostas para uma mensagem"""
+        recent_logs = [log for log in self.response_logs 
+                      if log['user_id'] == user_id and 
+                      log['timestamp'] > datetime.now() - timedelta(seconds=30)]
+        
+        if len(recent_logs) > self.alert_thresholds['multiple_responses']:
+            logger.warning(f"🚨 Múltiplas respostas detectadas para {user_id}: {len(recent_logs)} respostas")
+            return True
+        
+        return False
+    
+    async def _detect_context_loss(self, user_id: str, message: str, response: str) -> bool:
+        """Detecta perda de contexto na conversa"""
+        recent_logs = [log for log in self.response_logs 
+                      if log['user_id'] == user_id and 
+                      log['timestamp'] > datetime.now() - timedelta(minutes=5)]
+        
+        if len(recent_logs) >= 2:
+            # Verificar se há mudança brusca de tópico
+            last_message = recent_logs[-2]['message']
+            current_message = message
+            
+            similarity = self._calculate_text_similarity(last_message, current_message)
+            
+            if similarity < self.alert_thresholds['context_loss_threshold']:
+                logger.warning(f"🚨 Perda de contexto detectada para {user_id}: similaridade {similarity:.2f}")
+                return True
+        
+        return False
+    
+    async def _detect_inconsistent_responses(self, user_id: str, message: str, response: str) -> bool:
+        """Detecta respostas inconsistentes"""
+        recent_logs = [log for log in self.response_logs 
+                      if log['user_id'] == user_id and 
+                      log['timestamp'] > datetime.now() - timedelta(minutes=10)]
+        
+        if len(recent_logs) >= 2:
+            # Verificar se há contradições nas respostas
+            for i in range(len(recent_logs) - 1):
+                resp1 = recent_logs[i]['response']
+                resp2 = recent_logs[i + 1]['response']
+                
+                # Verificar contradições básicas
+                if self._has_contradictions(resp1, resp2):
+                    logger.warning(f"🚨 Contradição detectada para {user_id}")
+                    return True
+        
+        return False
+    
+    async def _detect_spam_patterns(self, user_id: str, message: str, response: str) -> bool:
+        """Detecta padrões de spam"""
+        recent_logs = [log for log in self.response_logs 
+                      if log['user_id'] == user_id and 
+                      log['timestamp'] > datetime.now() - timedelta(minutes=1)]
+        
+        if len(recent_logs) > 5:  # Mais de 5 mensagens por minuto
+            logger.warning(f"🚨 Padrão de spam detectado para {user_id}: {len(recent_logs)} mensagens/min")
+            return True
+        
+        return False
+    
+    def _calculate_text_similarity(self, text1: str, text2: str) -> float:
+        """Calcula similaridade entre dois textos"""
+        if not text1 or not text2:
+            return 0.0
+        
+        # Normalizar textos
+        text1_norm = re.sub(r'[^\w\s]', '', text1.lower())
+        text2_norm = re.sub(r'[^\w\s]', '', text2.lower())
+        
+        # Calcular similaridade
+        return SequenceMatcher(None, text1_norm, text2_norm).ratio()
+    
+    def _has_contradictions(self, resp1: str, resp2: str) -> bool:
+        """Verifica se há contradições entre duas respostas"""
+        # Implementar lógica de detecção de contradições
+        # Por exemplo: "não oferecemos" vs "custa R$ X"
+        contradictions = [
+            ('não oferecemos', 'custa'),
+            ('não disponível', 'r$'),
+            ('não fazemos', 'preço')
+        ]
+        
+        for neg, pos in contradictions:
+            if neg in resp1.lower() and pos in resp2.lower():
+                return True
+            if neg in resp2.lower() and pos in resp1.lower():
+                return True
+        
+        return False
+    
+    async def _handle_anomaly(self, anomaly_type: str, user_id: str, message: str, response: str):
+        """Trata anomalia detectada"""
+        logger.error(f"🚨 ANOMALIA DETECTADA: {anomaly_type}")
+        logger.error(f"   Usuário: {user_id}")
+        logger.error(f"   Mensagem: {message}")
+        logger.error(f"   Resposta: {response}")
+        
+        # Aqui você pode implementar ações como:
+        # - Enviar alerta para administradores
+        # - Ativar modo de segurança
+        # - Registrar métricas para análise
+    
+    async def _cleanup_old_logs(self, max_age_hours: int = 24):
+        """Limpa logs antigos"""
+        cutoff_time = datetime.now() - timedelta(hours=max_age_hours)
+        self.response_logs = [log for log in self.response_logs 
+                            if log['timestamp'] > cutoff_time]
+    
+    def get_monitoring_stats(self) -> Dict[str, Any]:
+        """Retorna estatísticas de monitoramento"""
+        return {
+            'total_responses_logged': len(self.response_logs),
+            'anomalies_detected': len([log for log in self.response_logs if 'anomaly' in log.get('metadata', {})]),
+            'active_users': len(set(log['user_id'] for log in self.response_logs[-100:])),  # Últimas 100 respostas
+            'last_anomaly': max([log['timestamp'] for log in self.response_logs if 'anomaly' in log.get('metadata', {})], default=None)
+        }
+
+
+class ConversationFlowService:
+    """Serviço de gerenciamento de fluxo conversacional COM CORREÇÕES IMPLEMENTADAS"""
+    
+    def __init__(self):
+        self.flow_engine = ConversationFlowEngine()
+        self.memory_manager = ConversationMemoryManager()
+        self.response_router = ResponseRouter()
+        self.response_monitor = ResponseMonitor()
         self.conversation_memories: Dict[str, ConversationMemory] = {}
     
+    async def process_message(self, message: str, user_phone: str, context: Dict[str, Any] = None) -> Optional[str]:
+        """
+        Processa mensagem com controle de resposta única e roteamento inteligente
+        
+        Args:
+            message: Mensagem do usuário
+            user_phone: Telefone do usuário
+            context: Contexto adicional
+            
+        Returns:
+            Resposta única ou None se deve ignorar
+        """
+        try:
+            # 1. CONTROLE DE RESPOSTA ÚNICA
+            should_process = await self.flow_engine.ensure_single_response(user_phone, message)
+            if not should_process:
+                logger.info(f"🔄 Ignorando mensagem duplicada para {user_phone}")
+                return None
+            
+            # 2. OBTER CONTEXTO RELEVANTE
+            relevant_context = await self.memory_manager.get_relevant_context(user_phone, message)
+            
+            # 3. ROTEAR MENSAGEM
+            routing_result = await self.response_router.route_message(message, relevant_context)
+            
+            # 4. ATUALIZAR MEMÓRIA DA CONVERSAÇÃO
+            await self.memory_manager._update_conversation_memory(user_phone, message, routing_result['response'])
+            
+            # 5. MONITORAR RESPOSTA
+            await self.response_monitor.log_response(
+                user_phone, message, routing_result['response'],
+                {'routing_intent': routing_result['intent'], 'confidence': routing_result['confidence']}
+            )
+            
+            # 6. MARCAR RESPOSTA COMO ENVIADA
+            await self.flow_engine.mark_response_sent(user_phone, message, routing_result['response'])
+            
+            logger.info(f"✅ Resposta única processada para {user_phone}: {routing_result['response_type']}")
+            return routing_result['response']
+            
+        except Exception as e:
+            logger.error(f"❌ Erro no processamento da mensagem: {e}")
+            return None
+    
+    # 🆕 MÉTODO COMPATIBILIDADE - CHAMA O NOVO SISTEMA
     def process_message_flow(
         self,
         message: str,
         user_phone: str,
         context: Dict[str, Any] = None
-    ) -> FlowDecision:
-        """Processa mensagem e retorna decisão de fluxo"""
+    ) -> 'FlowDecision':
+        """
+        MÉTODO DE COMPATIBILIDADE - Chama o novo sistema de correções
         
-        # Obter ou criar memória da conversa
-        if user_phone not in self.conversation_memories:
-            self.conversation_memories[user_phone] = ConversationMemory()
-        
-        memory = self.conversation_memories[user_phone]
-        
-        # Analisar fluxo
-        decision = self.engine.analyze_conversation_flow(
-            message, user_phone, memory, context
-        )
-        
-        # Atualizar estado atual na memória
-        memory.previous_state = memory.current_state
-        memory.current_state = decision.next_state
-        
-        # Incrementar switches se mudou de estado
-        if decision.transition_type != FlowTransition.NATURAL_PROGRESSION:
-            memory.context_switches += 1
-        
-        logger.info(f"Flow decision for {user_phone}: {decision.transition_type.value} → {decision.next_state.value}")
-        
-        return decision
+        Args:
+            message: Mensagem do usuário
+            user_phone: Telefone do usuário
+            context: Contexto adicional
+            
+        Returns:
+            FlowDecision para compatibilidade com código existente
+        """
+        try:
+            # Importar aqui para evitar circular imports
+            from app.services.conversation_flow import FlowDecision, FlowTransition, ConversationState
+            import asyncio
+            
+            # Criar novo event loop se necessário
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
+            # Processar com o novo sistema de forma síncrona
+            if loop.is_running():
+                # Se já há um loop rodando, usar create_task
+                task = loop.create_task(self.process_message(message, user_phone, context))
+                # Aguardar resultado
+                response = None
+                try:
+                    response = task.result()
+                except Exception as e:
+                    logger.error(f"Erro ao aguardar task: {e}")
+            else:
+                # Executar no loop
+                response = loop.run_until_complete(self.process_message(message, user_phone, context))
+            
+            if response:
+                # Retornar decisão de fluxo compatível
+                return FlowDecision(
+                    next_state=ConversationState.CONVERSATION,
+                    transition_type=FlowTransition.NATURAL_PROGRESSION,
+                    confidence=0.9,
+                    reasoning="Processado pelo novo sistema de correções"
+                )
+            else:
+                # Mensagem ignorada (duplicada/similar)
+                return FlowDecision(
+                    next_state=ConversationState.CONVERSATION,
+                    transition_type=FlowTransition.NATURAL_PROGRESSION,
+                    confidence=0.1,
+                    reasoning="Mensagem ignorada pelo controle de resposta única"
+                )
+                
+        except Exception as e:
+            logger.error(f"❌ Erro no process_message_flow: {e}")
+            
+            # Fallback para decisão padrão
+            from app.services.conversation_flow import FlowDecision, FlowTransition, ConversationState
+            return FlowDecision(
+                next_state=ConversationState.CONVERSATION,
+                transition_type=FlowTransition.NATURAL_PROGRESSION,
+                confidence=0.5,
+                reasoning=f"Erro no processamento: {str(e)}"
+            )
     
     def get_conversation_summary(self, user_phone: str) -> Dict[str, Any]:
         """Retorna resumo da conversa"""

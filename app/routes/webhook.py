@@ -26,6 +26,9 @@ from app.services.cache_service import cache_service
 from app.models.database import MetaLog
 from app.config import settings
 
+# 🆕 IMPORTAÇÕES DAS CORREÇÕES
+from app.services.conversation_flow import ConversationFlowService, ConversationMemoryManager
+
 # Prometheus metrics integration
 from app.utils.metrics import metrics_collector, webhook_timer
 
@@ -38,8 +41,14 @@ from app.utils.validators import ValidationError, RobustValidator
 
 import logging
 import re
+import asyncio
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
+
+# 🚨 LOCK GLOBAL PARA PREVENIR MÚLTIPLAS EXECUÇÕES
+webhook_processing_locks: Dict[str, asyncio.Lock] = {}
+webhook_message_cache: Dict[str, Dict[str, Any]] = {}
 
 def validate_whatsapp_number(wa_id: str) -> str:
     """
@@ -88,6 +97,10 @@ async def webhook_debug_secret():
 
 # Instância global do BookingWorkflow para manter estado
 booking_workflow_instance = BookingWorkflow()
+
+# 🆕 INSTÂNCIAS GLOBAIS DAS CORREÇÕES
+conversation_flow_service = ConversationFlowService()
+conversation_memory_manager = ConversationMemoryManager()
 
 
 @router.get("/webhook")
@@ -531,7 +544,7 @@ async def _extract_message_content_secure(message: dict) -> str:
 
 async def _process_and_respond_secure(db: AsyncSession, user, conversation, content: str, original_message: dict):
     """
-    Processa mensagem e gera resposta COM SANITIZAÇÃO ROBUSTA
+    Processa mensagem e gera resposta COM SANITIZAÇÃO ROBUSTA E CORREÇÕES IMPLEMENTADAS
     
     Args:
         db: Sessão do banco
@@ -553,7 +566,121 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
             logger.warning(f"⚠️ Conteúdo muito longo truncado para {user.wa_id}")
             content = content[:4096]
         
-        # ====== VERIFICAÇÃO DE CACHE DE RESPOSTA ======
+        # 🆕 ====== NOVO SISTEMA DE CORREÇÕES ======
+        if message_type == "text" and content:
+            try:
+                # 🚨 CONTROLE DE DUPLICAÇÃO GLOBAL
+                message_key = f"{user.wa_id}_{content[:50]}_{int(time.time() / 5)}"  # 5s window
+                
+                if message_key not in webhook_processing_locks:
+                    webhook_processing_locks[message_key] = asyncio.Lock()
+                
+                # Verificar se já processamos esta mensagem
+                if message_key in webhook_message_cache:
+                    cache_entry = webhook_message_cache[message_key]
+                    if time.time() - cache_entry['timestamp'] < 10:  # 10s cache
+                        logger.info(f"🔄 Mensagem duplicada ignorada para {user.wa_id}: {content[:50]}...")
+                        return
+                
+                async with webhook_processing_locks[message_key]:
+                    # Marcar como processando
+                    webhook_message_cache[message_key] = {
+                        'timestamp': time.time(),
+                        'processing': True,
+                        'user_id': user.wa_id
+                    }
+                    
+                    logger.info(f"🔧 Tentando novo sistema de correções para {user.wa_id}")
+                    
+                    # 🚨 FORÇAR USO DAS CORREÇÕES - DESABILITAR SISTEMA ANTIGO
+                    logger.info(f"🚨 SISTEMA ANTIGO DESABILITADO - USANDO APENAS CORREÇÕES")
+                    
+                    # Processar com o novo sistema de correções
+                    correction_response = await conversation_flow_service.process_message(
+                        message=content,
+                        user_phone=user.wa_id,
+                        context={"user_id": user.id, "conversation_id": conversation.id}
+                    )
+                    
+                    if correction_response:
+                        logger.info(f"✅ Resposta do sistema de correções para {user.wa_id}")
+                        
+                        # 🛡️ Sanitizar resposta das correções
+                        safe_response = sanitize_message(correction_response, "text")
+                        
+                        await whatsapp_service.send_text_message(user.wa_id, safe_response)
+                        
+                        await MessageService.create_message(
+                            db=db,
+                            user_id=user.id,
+                            conversation_id=conversation.id,
+                            direction="out",
+                            content=safe_response,
+                            message_type="text",
+                            metadata={
+                                "processing_system": "corrections_system",
+                                "correction_type": "single_response_control",
+                                "sanitized": True,
+                                "timestamp": time.time()
+                            }
+                        )
+                        
+                        # Marcar como processado
+                        webhook_message_cache[message_key]['processing'] = False
+                        webhook_message_cache[message_key]['response_sent'] = True
+                        
+                        logger.info(f"✅ Resposta das correções enviada para {user.wa_id}")
+                        return
+                    else:
+                        logger.info(f"🔄 Sistema de correções ignorou mensagem para {user.wa_id} (duplicada/similar)")
+                        
+                        # Marcar como ignorado
+                        webhook_message_cache[message_key]['processing'] = False
+                        webhook_message_cache[message_key]['ignored'] = True
+                        
+                        return
+                        
+            except Exception as correction_error:
+                logger.error(f"❌ ERRO CRÍTICO no sistema de correções para {user.wa_id}: {correction_error}")
+                logger.error(f"🚨 SISTEMA DE CORREÇÕES FALHOU - FALLBACK DESABILITADO")
+                
+                # Marcar como erro
+                if 'message_key' in locals():
+                    webhook_message_cache[message_key]['processing'] = False
+                    webhook_message_cache[message_key]['error'] = str(correction_error)
+                
+                # 🚨 NÃO USAR FALLBACK - FORÇAR CORREÇÕES
+                error_message = sanitize_message(
+                    "Desculpe, estou com problemas técnicos. Por favor, tente novamente em alguns instantes.",
+                    "text"
+                )
+                
+                await whatsapp_service.send_text_message(user.wa_id, error_message)
+                
+                await MessageService.create_message(
+                    db=db,
+                    user_id=user.id,
+                    conversation_id=conversation.id,
+                    direction="out",
+                    content=error_message,
+                    message_type="text",
+                    metadata={
+                        "processing_system": "corrections_error",
+                        "error": str(correction_error),
+                        "sanitized": True,
+                        "timestamp": time.time()
+                    }
+                )
+                
+                return
+        
+        # 🚨 SISTEMA ANTIGO COMPLETAMENTE DESABILITADO
+        logger.warning(f"🚨 SISTEMA ANTIGO DESABILITADO PARA {user.wa_id} - CORREÇÕES OBRIGATÓRIAS")
+        return
+        
+        # 🚨 ====== SISTEMA ANTIGO COMPLETAMENTE DESABILITADO ======
+        # ====== VERIFICAÇÃO DE CACHE DE RESPOSTA (DESABILITADO) ======
+        """
         if message_type == "text" and content:
             cached_response = await cache_service.get_cached_response(
                 message=content,
@@ -578,15 +705,17 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
                     metadata={
                         "processing_system": "cache_service",
                         "cache_hit": True,
-                        "system_used": "cache_primary",
+                        "system_used": "cache_disabled",
                         "sanitized": True
                     }
                 )
                 
                 logger.info(f"✅ Resposta segura do cache enviada para {user.wa_id}")
                 return
+        """
         
-        # ====== VERIFICAÇÃO DE HANDOFF INTELIGENTE ======
+        # ====== VERIFICAÇÃO DE HANDOFF INTELIGENTE (DESABILITADO) ======
+        """
         # Verificar se handoff está desabilitado via ambiente ou modo teste
         import os
         handoff_disabled = (
@@ -602,13 +731,6 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
             # TEMPORARIAMENTE SEMPRE DESABILITADO PARA TESTES
             should_handoff = False  # Forçar False para testes
             logger.info("🧪 Handoff forçadamente desabilitado para testes LLM")
-        
-        # handoff_decision = await intelligent_handoff_service.analyze_message_for_handoff(
-        #     user_id=user.wa_id,
-        #     message=content,
-        #     conversation_history=[]  # Simplificado para exemplo
-        # )
-        # should_handoff, handoff_reason, handoff_config = handoff_decision
         
         if should_handoff:  # Nunca vai entrar aqui agora
             reason = "Necessário atendimento humano"
@@ -643,8 +765,10 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
             )
             
             return
+        """
         
-        # ====== PROCESSAMENTO COM LLM AVANÇADO ======
+        # ====== PROCESSAMENTO COM LLM AVANÇADO (DESABILITADO) ======
+        """
         start_time = time.time()
         advanced_llm_service = get_advanced_llm_service()
         response = await advanced_llm_service.process_message(
@@ -675,7 +799,8 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
                     "processing_system": "advanced_llm",
                     "llm_confidence": response.confidence if response else 0,
                     "processing_time": processing_time,
-                    "sanitized": True
+                    "sanitized": True,
+                    "system_used": "llm_disabled"
                 }
             )
             
@@ -684,6 +809,7 @@ async def _process_and_respond_secure(db: AsyncSession, user, conversation, cont
             # Record failed processing
             processing_time = time.time() - start_time
             metrics_collector.record_webhook_processing("failed", processing_time)
+        """
         
     except Exception as e:
         logger.error(f"❌ Erro no processamento seguro para {user.wa_id}: {e}")

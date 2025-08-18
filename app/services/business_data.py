@@ -4,9 +4,11 @@ Busca informações reais da database usando asyncpg diretamente
 """
 
 import asyncpg
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from app.utils.logger import get_logger
 import logging
+import time
+import re
 
 logger = get_logger(__name__)
 
@@ -25,17 +27,67 @@ class ServiceData:
 
 
 class BusinessDataService:
-    """Serviço para buscar dados reais do negócio da database usando asyncpg"""
+    """Serviço de dados do negócio com busca inteligente implementada"""
     
-    def __init__(self, business_id: int = 3):  # Usar business_id = 3 igual ao dynamic_prompts
-        self.business_id = business_id
-        # URL IDÊNTICA ao comprehensive_bot_test.py
-        self.DATABASE_URL = "postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway"
+    def __init__(self):
+        self.db = None
         self._services_cache = None
-        self._company_info_cache = None
-        self._business_hours_cache = None
-        self._payment_methods_cache = None
-        self._policies_cache = None
+        self._last_cache_update = None
+        self._cache_ttl = 300  # 5 minutos
+        
+        # 🆕 SISTEMA DE SINÔNIMOS E CATEGORIAS
+        self.service_synonyms = {
+            # Limpeza de Pele
+            'limpeza de pele': 'Limpeza de Pele Profunda',
+            'limpeza facial': 'Limpeza de Pele Profunda',
+            'limpeza': 'Limpeza de Pele Profunda',
+            'facial': 'Limpeza de Pele Profunda',
+            
+            # Hidrofacial
+            'hidrofacial': 'Hidrofacial Diamante',
+            'hidro facial': 'Hidrofacial Diamante',
+            'facial hidratante': 'Hidrofacial Diamante',
+            
+            # Massagens
+            'massagem': ['Massagem Relaxante', 'Massagem Modeladora'],
+            'massagem relaxante': 'Massagem Relaxante',
+            'massagem modeladora': 'Massagem Modeladora',
+            'relaxante': 'Massagem Relaxante',
+            'modeladora': 'Massagem Modeladora',
+            
+            # Depilação
+            'depilação': ['Depilação Pernas Completas', 'Depilação Virilha Completa'],
+            'depilação pernas': 'Depilação Pernas Completas',
+            'depilação virilha': 'Depilação Virilha Completa',
+            'cera': ['Depilação Pernas Completas', 'Depilação Virilha Completa'],
+            
+            # Tratamentos Corporais
+            'criolipólise': 'Criolipólise',
+            'radiofrequência': 'Radiofrequência',
+            'drenagem': 'Drenagem Linfática',
+            'drenagem linfática': 'Drenagem Linfática',
+            
+            # Cabelo
+            'corte': 'Corte Feminino',
+            'corte feminino': 'Corte Feminino',
+            'escova': 'Escova Progressiva',
+            'escova progressiva': 'Escova Progressiva',
+            'progressiva': 'Escova Progressiva',
+            
+            # Pacotes
+            'spa': 'Day Spa Relax',
+            'day spa': 'Day Spa Relax',
+            'pacote': 'Day Spa Relax'
+        }
+        
+        self.search_terms = {
+            'facial': ['limpeza de pele profunda', 'hidrofacial diamante'],
+            'massagem': ['massagem relaxante', 'massagem modeladora', 'drenagem linfática'],
+            'depilação': ['depilação pernas completas', 'depilação virilha completa'],
+            'tratamento': ['criolipólise', 'radiofrequência', 'drenagem linfática'],
+            'cabelo': ['corte feminino', 'escova progressiva'],
+            'pacote': ['day spa relax']
+        }
     
     async def _get_connection(self):
         """Conecta usando asyncpg diretamente - IGUAL AO COMPREHENSIVE_BOT_TEST"""
@@ -786,6 +838,325 @@ class BusinessDataService:
         self._services_cache = None
         self._company_info_cache = None
         logger.info("🔄 Cache de dados do negócio limpo")
+
+    async def get_all_services(self) -> List[Dict[str, Any]]:
+        """Obtém todos os serviços ativos com cache"""
+        try:
+            # Verificar cache
+            if (self._services_cache and self._last_cache_update and 
+                (time.time() - self._last_cache_update) < self._cache_ttl):
+                return self._services_cache
+            
+            # Buscar do banco
+            query = """
+                SELECT id, name, description, price, duration_minutes, category, is_active
+                FROM services 
+                WHERE business_id = 3 AND is_active = true
+                ORDER BY category, name
+            """
+            
+            result = await self.db.fetch(query)
+            services = [dict(row) for row in result]
+            
+            # Atualizar cache
+            self._services_cache = services
+            self._last_cache_update = time.time()
+            
+            return services
+            
+        except Exception as e:
+            logger.error(f"Erro ao buscar serviços: {e}")
+            return []
+    
+    async def get_service_price_accurate(self, service_query: str) -> Optional[Dict[str, Any]]:
+        """
+        Busca preço de serviço com busca inteligente
+        
+        Args:
+            service_query: Consulta do usuário (ex: "limpeza de pele", "hidrofacial")
+            
+        Returns:
+            Dados do serviço ou None se não encontrado
+        """
+        try:
+            # Buscar serviço usando busca inteligente
+            service_data = await self.search_service_intelligent(service_query)
+            
+            if service_data:
+                return {
+                    'name': service_data['name'],
+                    'price': service_data['price'],
+                    'duration': service_data['duration_minutes'],
+                    'description': service_data['description'],
+                    'found_by': service_data.get('search_method', 'direct')
+                }
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Erro ao buscar preço do serviço '{service_query}': {e}")
+            return None
+    
+    async def search_service_intelligent(self, query: str) -> Optional[Dict[str, Any]]:
+        """
+        Busca inteligente de serviços usando sinônimos e categorias
+        
+        Args:
+            query: Consulta do usuário
+            
+        Returns:
+            Dados do serviço ou None se não encontrado
+        """
+        try:
+            query_lower = query.lower().strip()
+            
+            # 1. BUSCA DIRETA POR SINÔNIMOS
+            if query_lower in self.service_synonyms:
+                synonym_target = self.service_synonyms[query_lower]
+                services = await self.get_all_services()
+                
+                if isinstance(synonym_target, list):
+                    # Múltiplos serviços encontrados
+                    found_services = [s for s in services if s['name'].lower() in [t.lower() for t in synonym_target]]
+                    if found_services:
+                        return {
+                            **found_services[0],
+                            'search_method': 'synonym_direct',
+                            'synonym_query': query_lower
+                        }
+                else:
+                    # Serviço único encontrado
+                    found_service = next((s for s in services if s['name'].lower() == synonym_target.lower()), None)
+                    if found_service:
+                        return {
+                            **found_service,
+                            'search_method': 'synonym_direct',
+                            'synonym_query': query_lower
+                        }
+            
+            # 2. BUSCA POR CATEGORIA
+            for category, service_names in self.search_terms.items():
+                if category in query_lower:
+                    services = await self.get_all_services()
+                    category_services = [s for s in services if s['name'].lower() in [name.lower() for name in service_names]]
+                    
+                    if category_services:
+                        # Retornar primeiro serviço da categoria
+                        return {
+                            **category_services[0],
+                            'search_method': 'category_search',
+                            'category_found': category
+                        }
+            
+            # 3. BUSCA POR SIMILARIDADE DE TEXTO (FALLBACK)
+            services = await self.get_all_services()
+            best_match = None
+            best_similarity = 0
+            
+            for service in services:
+                similarity = self._calculate_text_similarity(query_lower, service['name'].lower())
+                if similarity > best_similarity and similarity > 0.6:  # Threshold mínimo
+                    best_similarity = similarity
+                    best_match = service
+            
+            if best_match:
+                return {
+                    **best_match,
+                    'search_method': 'text_similarity',
+                    'similarity_score': best_similarity
+                }
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Erro na busca inteligente para '{query}': {e}")
+            return None
+    
+    def _calculate_text_similarity(self, text1: str, text2: str) -> float:
+        """Calcula similaridade entre dois textos"""
+        if not text1 or not text2:
+            return 0.0
+        
+        # Normalizar textos
+        text1_norm = re.sub(r'[^\w\s]', '', text1.lower())
+        text2_norm = re.sub(r'[^\w\s]', '', text2.lower())
+        
+        # Calcular similaridade usando algoritmo simples
+        words1 = set(text1_norm.split())
+        words2 = set(text2_norm.split())
+        
+        if not words1 or not words2:
+            return 0.0
+        
+        intersection = words1.intersection(words2)
+        union = words1.union(words2)
+        
+        return len(intersection) / len(union) if union else 0.0
+    
+    async def get_services_by_names(self, service_names: List[str]) -> List[Dict[str, Any]]:
+        """Obtém serviços por lista de nomes"""
+        try:
+            services = await self.get_all_services()
+            return [s for s in services if s['name'].lower() in [name.lower() for name in service_names]]
+        except Exception as e:
+            logger.error(f"Erro ao buscar serviços por nomes: {e}")
+            return []
+    
+    async def get_services_by_category(self, category: str) -> List[Dict[str, Any]]:
+        """Obtém serviços por categoria"""
+        try:
+            if category in self.search_terms:
+                service_names = self.search_terms[category]
+                return await self.get_services_by_names(service_names)
+            return []
+        except Exception as e:
+            logger.error(f"Erro ao buscar serviços por categoria '{category}': {e}")
+            return []
+    
+    def _service_belongs_to_category(self, service_name: str, category: str) -> bool:
+        """Verifica se um serviço pertence a uma categoria"""
+        if category in self.search_terms:
+            return service_name.lower() in [name.lower() for name in self.search_terms[category]]
+        return False
+    
+    async def _analyze_user_context(self, user_query: str) -> Dict[str, Any]:
+        """Analisa contexto da consulta do usuário"""
+        query_lower = user_query.lower()
+        
+        context = {
+            'intent': 'unknown',
+            'service_category': None,
+            'specific_service': None,
+            'confidence': 0.0
+        }
+        
+        # Detectar intenção
+        if any(word in query_lower for word in ['quanto', 'preço', 'valor', 'custa']):
+            context['intent'] = 'price_inquiry'
+            context['confidence'] += 0.3
+        
+        if any(word in query_lower for word in ['agendar', 'marcar', 'horário']):
+            context['intent'] = 'booking_request'
+            context['confidence'] += 0.3
+        
+        if any(word in query_lower for word in ['serviços', 'o que', 'fazem']):
+            context['intent'] = 'service_listing'
+            context['confidence'] += 0.3
+        
+        # Detectar categoria de serviço
+        for category in self.search_terms.keys():
+            if category in query_lower:
+                context['service_category'] = category
+                context['confidence'] += 0.2
+                break
+        
+        # Detectar serviço específico
+        for synonym, target in self.service_synonyms.items():
+            if synonym in query_lower:
+                context['specific_service'] = target if isinstance(target, str) else target[0]
+                context['confidence'] += 0.3
+                break
+        
+        return context
+    
+    async def format_all_services(self, include_prices: bool = True) -> str:
+        """Formata todos os serviços para exibição"""
+        try:
+            services = await self.get_all_services()
+            
+            if not services:
+                return "Nenhum serviço disponível no momento."
+            
+            formatted = "📋 *Nossos Serviços e Preços:*\n\n"
+            
+            for i, service in enumerate(services, 1):
+                formatted += f"{i}. *{service['name']}*\n"
+                
+                if include_prices:
+                    formatted += f" 💰 R$ {service['price']:.2f}"
+                
+                if service.get('duration_minutes'):
+                    formatted += f" • ⏰ {service['duration_minutes']}min"
+                
+                if service.get('description'):
+                    formatted += f"\n ℹ️ _{service['description']}_"
+                
+                formatted += "\n\n"
+            
+            return formatted.strip()
+            
+        except Exception as e:
+            logger.error(f"Erro ao formatar serviços: {e}")
+            return "Erro ao carregar serviços."
+    
+    async def format_services_by_category(self, category: str, include_prices: bool = True) -> str:
+        """Formata serviços de uma categoria específica"""
+        try:
+            services = await self.get_services_by_category(category)
+            
+            if not services:
+                return f"Nenhum serviço encontrado na categoria '{category}'."
+            
+            formatted = f"📋 *Serviços - {category.title()}:*\n\n"
+            
+            for i, service in enumerate(services, 1):
+                formatted += f"{i}. *{service['name']}*\n"
+                
+                if include_prices:
+                    formatted += f" 💰 R$ {service['price']:.2f}"
+                
+                if service.get('duration_minutes'):
+                    formatted += f" • ⏰ {service['duration_minutes']}min"
+                
+                if service.get('description'):
+                    formatted += f"\n ℹ️ _{service['description']}_"
+                
+                formatted += "\n\n"
+            
+            return formatted.strip()
+            
+        except Exception as e:
+            logger.error(f"Erro ao formatar serviços da categoria '{category}': {e}")
+            return f"Erro ao carregar serviços da categoria '{category}'."
+    
+    async def format_services_paginated(self, page: int = 1, per_page: int = 8) -> str:
+        """Formata serviços com paginação"""
+        try:
+            services = await self.get_all_services()
+            
+            if not services:
+                return "Nenhum serviço disponível no momento."
+            
+            total_pages = (len(services) + per_page - 1) // per_page
+            start_idx = (page - 1) * per_page
+            end_idx = start_idx + per_page
+            
+            page_services = services[start_idx:end_idx]
+            
+            formatted = f"📋 *Nossos Serviços e Preços (Parte {page}/{total_pages}):*\n\n"
+            
+            for i, service in enumerate(page_services, start_idx + 1):
+                formatted += f"{i}. *{service['name']}*\n"
+                formatted += f" 💰 R$ {service['price']:.2f}"
+                
+                if service.get('duration_minutes'):
+                    formatted += f" • ⏰ {service['duration_minutes']}min"
+                
+                if service.get('description'):
+                    formatted += f"\n ℹ️ _{service['description']}_"
+                
+                formatted += "\n\n"
+            
+            if page < total_pages:
+                formatted += "📬 Para ver mais serviços, digite: *mais serviços*"
+            else:
+                formatted += "🔍 *Digite mais serviços para ver o restante*"
+            
+            return formatted.strip()
+            
+        except Exception as e:
+            logger.error(f"Erro ao formatar serviços paginados: {e}")
+            return "Erro ao carregar serviços."
 
 
 # Instância global do serviço
