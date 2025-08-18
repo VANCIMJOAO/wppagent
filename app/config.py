@@ -59,4 +59,23 @@ class CompatibilitySettings:
 
 
 # Instância de compatibilidade
-settings = CompatibilitySettings()
+class ExtendedCompatibilitySettings(CompatibilitySettings):
+    """Versão estendida com configurações adicionais"""
+    
+    @property
+    def app_host(self):
+        return "0.0.0.0"
+    
+    @property  
+    def app_port(self):
+        return 8000
+    
+    @property
+    def debug(self):
+        return is_development()
+    
+    @property
+    def log_level(self):
+        return "INFO"
+
+settings = ExtendedCompatibilitySettings()

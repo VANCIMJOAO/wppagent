@@ -962,8 +962,8 @@ async def periodic_cleanup():
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host=settings.app_host,
-        port=settings.app_port,
-        reload=settings.debug,
-        log_level=settings.log_level.lower()
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"
     )

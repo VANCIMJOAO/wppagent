@@ -211,7 +211,7 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/develop'
     environment:
-      name: staging
+      name: Staging
       url: https://staging.whatsapp-agent.com
 
     steps:

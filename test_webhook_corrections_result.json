@@ -1,0 +1,125 @@
+{
+  "all_working": false,
+  "endpoints": {
+    "/webhook/stats": {
+      "exists": true,
+      "status": 200,
+      "data": {
+        "status": "active",
+        "stats": {
+          "messages_processed": 1,
+          "messages_blocked": 4,
+          "responses_sent": 1,
+          "duplicates_prevented": 4,
+          "errors": 0
+        },
+        "metrics": {
+          "block_rate_percent": 400.0,
+          "response_rate_percent": 100.0,
+          "effectiveness_percent": 0
+        },
+        "health": {
+          "single_response_working": false,
+          "duplicate_prevention_working": true,
+          "low_errors": true
+        },
+        "cache_info": {
+          "cached_messages": 1,
+          "active_users": 1,
+          "processing_locks": 1
+        },
+        "timestamp": "2025-08-18T03:08:35.191894"
+      }
+    },
+    "/webhook/status": {
+      "exists": true,
+      "status": 200,
+      "data": {
+        "status": "active",
+        "corrections_active": true,
+        "single_response_system": true,
+        "webhook_working": true,
+        "effectiveness_percent": 0,
+        "stats": {
+          "messages_processed": 1,
+          "messages_blocked": 4,
+          "responses_sent": 1,
+          "duplicates_prevented": 4,
+          "errors": 0
+        },
+        "cache_status": {
+          "messages_cached": 1,
+          "active_users": 1,
+          "locks_active": 1
+        },
+        "timestamp": "2025-08-18T03:08:35.192723",
+        "uptime": 15.63593864440918
+      }
+    },
+    "/webhook/control": {
+      "exists": true,
+      "status": 200,
+      "data": {
+        "status": "active",
+        "response_control": true,
+        "single_response_working": true,
+        "anti_duplication_active": true,
+        "issues": [],
+        "metrics": {
+          "total_messages": 1,
+          "responses_sent": 1,
+          "messages_blocked": 4,
+          "duplicates_prevented": 4,
+          "errors": 0
+        },
+        "timestamp": "2025-08-18T03:08:35.193168"
+      }
+    }
+  },
+  "functionality": {
+    "status": {
+      "working": true,
+      "corrections_active": true,
+      "single_response_system": true,
+      "effectiveness": 0
+    },
+    "control": {
+      "working": true,
+      "response_control": true,
+      "single_response_working": true,
+      "issues": []
+    }
+  },
+  "single_response": {
+    "test_successful": false,
+    "messages_processed": 0,
+    "responses_sent": 0,
+    "stats": {
+      "status": "active",
+      "stats": {
+        "messages_processed": 0,
+        "messages_blocked": 5,
+        "responses_sent": 0,
+        "duplicates_prevented": 0,
+        "errors": 0
+      },
+      "metrics": {
+        "block_rate_percent": 0,
+        "response_rate_percent": 0,
+        "effectiveness_percent": 0
+      },
+      "health": {
+        "single_response_working": false,
+        "duplicate_prevention_working": false,
+        "low_errors": true
+      },
+      "cache_info": {
+        "cached_messages": 1,
+        "active_users": 1,
+        "processing_locks": 1
+      },
+      "timestamp": "2025-08-18T03:08:37.601653"
+    }
+  },
+  "timestamp": "2025-08-18T03:08:37.602135"
+}
