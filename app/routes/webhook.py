@@ -212,7 +212,8 @@ class AbsoluteResponseControl:
                 'status': 'responded',
                 'response': response[:200],
                 'sent_at': current_time
-            })\n        
+            })
+        
         self.active_responses[user_id] = current_time
         self.stats['responses_sent'] += 1
         
