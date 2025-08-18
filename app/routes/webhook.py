@@ -526,3 +526,78 @@ async def webhook_control():
             "responses_exists": os.path.exists(ACTIVE_RESPONSES_FILE)
         }
     }
+
+
+# ================================
+# LIMPEZA AUTOMÁTICA
+# ================================
+
+async def cleanup_response_control():
+    """
+    Função de limpeza periódica do controle de resposta única.
+    Esta função é chamada pelo sistema principal para limpar caches antigos.
+    """
+    try:
+        current_time = time.time()
+        logger.info("🧹 Executando limpeza do controle de resposta única")
+        
+        # Cleanup do cache de mensagens
+        await cleanup_cache(current_time)
+        
+        # Cleanup de respostas ativas antigas
+        await cleanup_active_responses(current_time)
+        
+        logger.info("✅ Limpeza do controle de resposta única concluída")
+        
+    except Exception as e:
+        logger.error(f"❌ Erro na limpeza do controle de resposta: {e}")
+
+
+async def cleanup_cache(current_time: float):
+    """Limpa cache de mensagens antigas (mais de 5 minutos)"""
+    try:
+        if os.path.exists(CACHE_FILE):
+            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
+                cache = json.load(f)
+            
+            # Remover entradas antigas (mais de 5 minutos)
+            old_keys = [
+                key for key, data in cache.items()
+                if current_time - data.get('timestamp', 0) > 300  # 5 minutos
+            ]
+            
+            for key in old_keys:
+                del cache[key]
+            
+            if old_keys:
+                with open(CACHE_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(cache, f, ensure_ascii=False, indent=2)
+                logger.info(f"🧹 Removidas {len(old_keys)} entradas antigas do cache")
+                
+    except Exception as e:
+        logger.error(f"❌ Erro na limpeza do cache: {e}")
+
+
+async def cleanup_active_responses(current_time: float):
+    """Limpa respostas ativas antigas (mais de 30 segundos)"""
+    try:
+        if os.path.exists(ACTIVE_RESPONSES_FILE):
+            with open(ACTIVE_RESPONSES_FILE, 'r', encoding='utf-8') as f:
+                active_responses = json.load(f)
+            
+            # Remover respostas antigas (mais de 30 segundos)
+            old_responses = [
+                phone for phone, timestamp in active_responses.items()
+                if current_time - timestamp > 30  # 30 segundos
+            ]
+            
+            for phone in old_responses:
+                del active_responses[phone]
+            
+            if old_responses:
+                with open(ACTIVE_RESPONSES_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(active_responses, f, ensure_ascii=False, indent=2)
+                logger.info(f"🧹 Removidas {len(old_responses)} respostas ativas antigas")
+                
+    except Exception as e:
+        logger.error(f"❌ Erro na limpeza de respostas ativas: {e}")
