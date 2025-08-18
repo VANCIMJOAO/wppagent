@@ -1269,26 +1269,18 @@ class ConversationFlowService:
             from app.services.conversation_flow import FlowDecision, FlowTransition, ConversationState
             import asyncio
             
-            # Criar novo event loop se necessário
+            # 🚨 SOLUÇÃO SIMPLIFICADA - Evitar problemas de asyncio
             try:
-                loop = asyncio.get_event_loop()
+                # Tentar executar diretamente se possível
+                response = asyncio.run(self.process_message(message, user_phone, context))
             except RuntimeError:
+                # Se falhar, criar novo loop
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-            
-            # Processar com o novo sistema de forma síncrona
-            if loop.is_running():
-                # Se já há um loop rodando, usar create_task
-                task = loop.create_task(self.process_message(message, user_phone, context))
-                # Aguardar resultado
-                response = None
                 try:
-                    response = task.result()
-                except Exception as e:
-                    logger.error(f"Erro ao aguardar task: {e}")
-            else:
-                # Executar no loop
-                response = loop.run_until_complete(self.process_message(message, user_phone, context))
+                    response = loop.run_until_complete(self.process_message(message, user_phone, context))
+                finally:
+                    loop.close()
             
             if response:
                 # Retornar decisão de fluxo compatível
