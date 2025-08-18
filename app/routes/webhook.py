@@ -458,8 +458,70 @@ async def _process_single_message_secure(db: AsyncSession, message: dict, contac
             raw_payload=message
         )
         
-        # Processar mensagem e gerar resposta
-        await _process_and_respond_secure(db, user, conversation, content, message)
+        # 🚨 FORÇAR USO DAS CORREÇÕES - DESABILITAR SISTEMA ANTIGO
+        logger.info(f"🚨 SISTEMA ANTIGO DESABILITADO - USANDO APENAS CORREÇÕES")
+        
+        # Processar com o novo sistema de correções
+        try:
+            correction_response = await conversation_flow_service.process_message(
+                message=content,
+                user_phone=user.wa_id,
+                context={"user_id": user.id, "conversation_id": conversation.id}
+            )
+            
+            if correction_response:
+                logger.info(f"✅ Resposta do sistema de correções para {user.wa_id}")
+                
+                # 🛡️ Sanitizar resposta das correções
+                safe_response = sanitize_message(correction_response, "text")
+                
+                await whatsapp_service.send_text_message(user.wa_id, safe_response)
+                
+                await MessageService.create_message(
+                    db=db,
+                    user_id=user.id,
+                    conversation_id=conversation.id,
+                    direction="out",
+                    content=safe_response,
+                    message_type="text",
+                    metadata={
+                        "processing_system": "corrections_system",
+                        "correction_type": "single_response_control",
+                        "sanitized": True,
+                        "timestamp": time.time()
+                    }
+                )
+                
+                logger.info(f"✅ Resposta das correções enviada para {user.wa_id}")
+            else:
+                logger.info(f"🔄 Sistema de correções ignorou mensagem para {user.wa_id} (duplicada/similar)")
+                
+        except Exception as correction_error:
+            logger.error(f"❌ ERRO CRÍTICO no sistema de correções para {user.wa_id}: {correction_error}")
+            logger.error(f"🚨 SISTEMA DE CORREÇÕES FALHOU - FALLBACK DESABILITADO")
+            
+            # 🚨 NÃO USAR FALLBACK - FORÇAR CORREÇÕES
+            error_message = sanitize_message(
+                "Desculpe, estou com problemas técnicos. Por favor, tente novamente em alguns instantes.",
+                "text"
+            )
+            
+            await whatsapp_service.send_text_message(user.wa_id, error_message)
+            
+            await MessageService.create_message(
+                db=db,
+                user_id=user.id,
+                conversation_id=conversation.id,
+                direction="out",
+                content=error_message,
+                message_type="text",
+                metadata={
+                    "processing_system": "corrections_error",
+                    "error": str(correction_error),
+                    "sanitized": True,
+                    "timestamp": time.time()
+                }
+            )
         
     except Exception as e:
         logger.error(f"❌ Erro ao processar mensagem individual segura: {e}")
