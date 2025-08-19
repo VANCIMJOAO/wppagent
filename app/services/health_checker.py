@@ -109,7 +109,7 @@ class HealthChecker:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     health_url,
-                    headers={"Authorization": f"Bearer {settings.meta_access_token}"},
+                    headers={"Authorization": f"Bearer {settings.meta_access_token.get_secret_value()}"},
                     timeout=30.0
                 )
                 
@@ -169,7 +169,7 @@ class HealthChecker:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     "https://api.openai.com/v1/models",
-                    headers={"Authorization": f"Bearer {settings.openai_api_key}"},
+                    headers={"Authorization": f"Bearer {settings.openai_api_key.get_secret_value()}"},
                     timeout=30.0
                 )
                 
