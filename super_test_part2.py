@@ -163,9 +163,9 @@ class SuperTesterPart2:
         try:
             # 1. CRIAÇÃO DO USUÁRIO VIA WEBHOOK (simulando primeiro contato)
             import uuid
-            unique_id = str(uuid.uuid4())[:8]  # 8 caracteres únicos
-            timestamp = str(int(time.time()))[-6:]
-            phone = f"5516{unique_id[:6]}TEST"[:20]  # Garantir unicidade
+            timestamp = str(int(time.time()))[-6:]  # 6 dígitos únicos  
+            unique_suffix = str(uuid.uuid4().int)[-4:]  # 4 dígitos únicos do UUID
+            phone = f"5516{timestamp}{unique_suffix}"[:20]  # Garantir unicidade numérica
             
             # Simular webhook de primeiro contato
             webhook_payload = {
@@ -574,8 +574,8 @@ class SuperTesterPart2:
             
             timestamp = str(int(time.time()))[-6:]
             import uuid
-            unique_id = str(uuid.uuid4())[:8]
-            phone = f"5516AI{unique_id[:4]}TEST"[:20]  # Garantir unicidade
+            unique_suffix = str(uuid.uuid4().int)[-4:]  # 4 dígitos únicos do UUID
+            phone = f"5516AI{timestamp}{unique_suffix}"[:20]  # Garantir unicidade numérica
             responses_received = 0
             
             for i, message in enumerate(conversation_scenarios):
