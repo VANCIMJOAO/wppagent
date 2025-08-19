@@ -162,8 +162,10 @@ class SuperTesterPart2:
         
         try:
             # 1. CRIAÇÃO DO USUÁRIO VIA WEBHOOK (simulando primeiro contato)
+            import uuid
+            unique_id = str(uuid.uuid4())[:8]  # 8 caracteres únicos
             timestamp = str(int(time.time()))[-6:]
-            phone = f"551699{timestamp}000"[:20]
+            phone = f"5516{unique_id[:6]}TEST"[:20]  # Garantir unicidade
             
             # Simular webhook de primeiro contato
             webhook_payload = {
@@ -206,14 +208,14 @@ class SuperTesterPart2:
                     
             integration_points_tested += 1  # Webhook processing
             
-            # Aguardar processamento
-            await asyncio.sleep(3)
+            # Aguardar processamento mais longo
+            await asyncio.sleep(8)
             
             # 2. VERIFICAR SE USUÁRIO FOI CRIADO
             user_data = await self.db.fetchrow("""
                 SELECT id, nome, telefone, created_at 
                 FROM users 
-                WHERE telefone = $1
+                WHERE wa_id = $1 OR telefone = $1
                 ORDER BY created_at DESC 
                 LIMIT 1
             """, phone)
@@ -560,7 +562,9 @@ class SuperTesterPart2:
             ]
             
             timestamp = str(int(time.time()))[-6:]
-            phone = f"551699AI{timestamp}"[:20]
+            import uuid
+            unique_id = str(uuid.uuid4())[:8]
+            phone = f"5516AI{unique_id[:4]}TEST"[:20]  # Garantir unicidade
             responses_received = 0
             
             for i, message in enumerate(conversation_scenarios):
@@ -613,7 +617,7 @@ class SuperTesterPart2:
             # Buscar usuário criado pela IA
             user_data = await self.db.fetchrow("""
                 SELECT id, nome, telefone FROM users 
-                WHERE telefone = $1
+                WHERE wa_id = $1 OR telefone = $1
                 ORDER BY created_at DESC LIMIT 1
             """, phone)
             

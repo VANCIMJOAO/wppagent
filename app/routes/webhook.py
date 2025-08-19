@@ -136,13 +136,28 @@ class AbsoluteResponseControl:
                 user_row = user_check.fetchone()
                 user_exists = user_row is not None
                 
-                # Se usuário não existe, permitir processamento (primeira mensagem)
+                # Se usuário não existe, SEMPRE permitir (primeira mensagem)
                 if not user_exists:
-                    logger.info(f"✅ PRIMEIRO CONTATO: {user_id}")
+                    logger.info(f"✅ PRIMEIRO CONTATO: {user_id} - Criando novo usuário")
                     return True, "Primeiro contato - usuário será criado"
                 
-                # Se usuário existe, aplicar controles normais
+                # Se usuário existe, aplicar controles normais APENAS se não for o primeiro uso hoje
                 user_db_id = user_row[0]
+                
+                # Verificar se é o primeiro uso do usuário hoje
+                today_usage = await db.execute(text("""
+                    SELECT COUNT(*) FROM messages 
+                    WHERE user_id = :user_id
+                    AND direction = 'in'
+                    AND created_at::date = CURRENT_DATE
+                """), {"user_id": user_db_id})
+                
+                messages_today = today_usage.fetchone()[0]
+                
+                # Se é o primeiro uso do dia, permitir
+                if messages_today == 0:
+                    logger.info(f"✅ PRIMEIRO USO DO DIA: {user_id}")
+                    return True, "Primeiro uso do dia"
                 
                 # BLOQUEIO 1: Verificar se já existe resposta recente (últimos 30 segundos)
                 recent_response = await db.execute(text("""
@@ -161,42 +176,7 @@ class AbsoluteResponseControl:
                     logger.warning(f"🚫 RESPOSTA RECENTE: {user_id} - {time_diff:.1f}s")
                     return False, f"Resposta enviada há {time_diff:.1f}s"
                 
-                # BLOQUEIO 2: Verificar conteúdo duplicado (última hora)
-                content_clean = content.strip().lower()
-                similar_input = await db.execute(text("""
-                    SELECT created_at FROM messages 
-                    WHERE user_id = :user_id
-                    AND direction = 'in'
-                    AND LOWER(TRIM(content)) = :content
-                    AND created_at > NOW() - INTERVAL '1 hour'
-                    ORDER BY created_at DESC 
-                    LIMIT 1
-                """), {"user_id": user_db_id, "content": content_clean})
-                
-                similar_row = similar_input.fetchone()
-                if similar_row:
-                    time_diff = current_time - similar_row[0].timestamp()
-                    if time_diff < 300:  # 5 minutos
-                        # Verificar se já foi processada
-                        processed_check = await db.execute(text("""
-                            SELECT COUNT(*) FROM messages m1
-                            WHERE m1.user_id = :user_id
-                            AND m1.direction = 'out'
-                            AND m1.created_at > :similar_time
-                            AND m1.created_at < :similar_time + INTERVAL '60 seconds'
-                        """), {
-                            "user_id": user_db_id, 
-                            "similar_time": similar_row[0]
-                        })
-                        
-                        processed_count = processed_check.fetchone()[0]
-                        if processed_count > 0:
-                            self.stats['messages_blocked'] += 1
-                            self.stats['duplicates_prevented'] += 1
-                            logger.warning(f"🚫 JÁ PROCESSADA: {user_id} - {time_diff:.1f}s")
-                            return False, f"Mensagem já processada há {time_diff:.1f}s"
-                
-                # BLOQUEIO 3: Rate limiting por usuário (máximo 1 por 15 segundos)
+                # BLOQUEIO 2: Rate limiting por usuário (máximo 1 por 15 segundos)
                 rate_limit_check = await db.execute(text("""
                     SELECT created_at FROM messages 
                     WHERE user_id = :user_id
@@ -221,7 +201,10 @@ class AbsoluteResponseControl:
             except Exception as e:
                 logger.error(f"❌ Erro verificação BD: {e}")
                 await db.rollback()
-                # Em caso de erro, usar sistema de cache como fallback
+                # Em caso de erro, permitir processamento para usuários novos
+                if not user_exists:
+                    return True, "Erro no banco - permitindo por ser novo usuário"
+                # Para usuários existentes, usar fallback
                 return await self._fallback_cache_check(user_id, content)
     
     async def _fallback_cache_check(self, user_id: str, content: str) -> Tuple[bool, str]:
