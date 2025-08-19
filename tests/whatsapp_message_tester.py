@@ -136,7 +136,7 @@ class WhatsAppMessageTester:
                 cursor.execute("""
                     SELECT content, created_at FROM messages 
                     WHERE user_id = (SELECT id FROM users WHERE wa_id = %s)
-                    AND direction = 'outbound'
+                    AND direction = 'out'
                     AND created_at > NOW() - INTERVAL '2 minutes'
                     ORDER BY created_at DESC
                     LIMIT 5

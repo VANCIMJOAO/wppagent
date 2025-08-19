@@ -90,7 +90,7 @@ class StrategyManager:
             # Incrementa contador de requisições e métricas
             self.metrics["total_requests"] += 1
             self.metrics_service.track_message(
-                direction="inbound", 
+                direction="in", 
                 message_type="text", 
                 status="processing"
             )
@@ -127,7 +127,7 @@ class StrategyManager:
                 # Fallback se nenhuma estratégia disponível
                 self.metrics["failed_requests"] += 1
                 self.metrics_service.track_message(
-                    direction="outbound",
+                    direction="out",
                     message_type="text", 
                     status="error"
                 )
@@ -168,7 +168,7 @@ class StrategyManager:
             
             # Track métricas detalhadas
             self.metrics_service.track_message(
-                direction="outbound",
+                direction="out",
                 message_type="text",
                 status="success" if result.success else "error",
                 strategy=strategy_name,
@@ -231,7 +231,7 @@ class StrategyManager:
                 severity="error"
             )
             self.metrics_service.track_message(
-                direction="outbound",
+                direction="out",
                 message_type="text",
                 status="error"
             )
