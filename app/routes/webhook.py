@@ -128,15 +128,31 @@ class AbsoluteResponseControl:
             logger.debug(f"🔍 Verificação BD: {user_id} - {content[:30]}...")
             
             try:
+                # PRIMEIRO: Verificar se usuário existe
+                user_check = await db.execute(text("""
+                    SELECT id FROM users WHERE wa_id = :phone OR telefone = :phone LIMIT 1
+                """), {"phone": user_id})
+                
+                user_row = user_check.fetchone()
+                user_exists = user_row is not None
+                
+                # Se usuário não existe, permitir processamento (primeira mensagem)
+                if not user_exists:
+                    logger.info(f"✅ PRIMEIRO CONTATO: {user_id}")
+                    return True, "Primeiro contato - usuário será criado"
+                
+                # Se usuário existe, aplicar controles normais
+                user_db_id = user_row[0]
+                
                 # BLOQUEIO 1: Verificar se já existe resposta recente (últimos 30 segundos)
                 recent_response = await db.execute(text("""
                     SELECT created_at FROM messages 
-                    WHERE user_id = (SELECT id FROM users WHERE phone = :phone LIMIT 1)
+                    WHERE user_id = :user_id
                     AND direction = 'out'
                     AND created_at > NOW() - INTERVAL '30 seconds'
                     ORDER BY created_at DESC 
                     LIMIT 1
-                """), {"phone": user_id})
+                """), {"user_id": user_db_id})
                 
                 recent_row = recent_response.fetchone()
                 if recent_row:
@@ -149,13 +165,13 @@ class AbsoluteResponseControl:
                 content_clean = content.strip().lower()
                 similar_input = await db.execute(text("""
                     SELECT created_at FROM messages 
-                    WHERE user_id = (SELECT id FROM users WHERE phone = :phone LIMIT 1)
+                    WHERE user_id = :user_id
                     AND direction = 'in'
                     AND LOWER(TRIM(content)) = :content
                     AND created_at > NOW() - INTERVAL '1 hour'
                     ORDER BY created_at DESC 
                     LIMIT 1
-                """), {"phone": user_id, "content": content_clean})
+                """), {"user_id": user_db_id, "content": content_clean})
                 
                 similar_row = similar_input.fetchone()
                 if similar_row:
@@ -164,12 +180,12 @@ class AbsoluteResponseControl:
                         # Verificar se já foi processada
                         processed_check = await db.execute(text("""
                             SELECT COUNT(*) FROM messages m1
-                            WHERE m1.user_id = (SELECT id FROM users WHERE phone = :phone LIMIT 1)
+                            WHERE m1.user_id = :user_id
                             AND m1.direction = 'out'
                             AND m1.created_at > :similar_time
                             AND m1.created_at < :similar_time + INTERVAL '60 seconds'
                         """), {
-                            "phone": user_id, 
+                            "user_id": user_db_id, 
                             "similar_time": similar_row[0]
                         })
                         
@@ -183,12 +199,12 @@ class AbsoluteResponseControl:
                 # BLOQUEIO 3: Rate limiting por usuário (máximo 1 por 15 segundos)
                 rate_limit_check = await db.execute(text("""
                     SELECT created_at FROM messages 
-                    WHERE user_id = (SELECT id FROM users WHERE phone = :phone LIMIT 1)
+                    WHERE user_id = :user_id
                     AND direction = 'in'
                     AND created_at > NOW() - INTERVAL '15 seconds'
                     ORDER BY created_at DESC 
                     LIMIT 1
-                """), {"phone": user_id})
+                """), {"user_id": user_db_id})
                 
                 rate_row = rate_limit_check.fetchone()
                 if rate_row:
