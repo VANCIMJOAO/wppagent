@@ -66,7 +66,7 @@ class RigorousSystemTester:
         self.API_BASE_URL = "https://wppagent-production.up.railway.app"
         
         # Configurações WhatsApp Meta API
-        self.META_ACCESS_TOKEN = "EAAI4WnfpZAe0BPKRXMnyEdADsIm8b2flZApo5NMb6gYim3DBTmZANwa4pPGUeZAghkeVYDwsSK091bG0mAAff70xslLWqKHJZA9U2tLXWOYxIdyNyOQnTsuhplporaJhMBExe9OnHSN1RheHWDkCraxxThrkO8aYErfXykbbyg6XNU0c07qHVKaiTBM3y3kn8DsgZBBjpuTfs6qBKmBRrZC7POgOwZAbzkOAj7z6eo107nRXhgIi7GUwkzdw1gZDZD"
+        self.META_ACCESS_TOKEN = "EAAI4WnfpZAe0BPCZAmjfPp7xLqRhNhnRKpaQabcRlY7JjIZBmiH37AZAOdwpZAsIYh7tiZB1fxITiJZBZBSwaViIx0OnxIIdJKrZAMvd7YGUqIA0CK1ZBjPsuUJXAkFFwPAuZARLJ00OcpwH8ndFENLYEBm2nNCfCeD2wvgu7ZCjoB7JX04Njm3xPX2dO2Sry8tS0PgumeVCby1KaIqvPTmZBXnhnH7wQNesBu3JUckMCgd63jucOy8K7Ca1yU3QxUwZDZD"
         self.WHATSAPP_PHONE_ID = "728348237027885"
         self.BOT_PHONE = "15551536026"
         self.YOUR_PHONE = "5516991022255"

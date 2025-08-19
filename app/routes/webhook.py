@@ -114,8 +114,103 @@ class AbsoluteResponseControl:
     
     async def can_process_message(self, user_id: str, content: str) -> Tuple[bool, str]:
         """
-        VERIFICAÇÃO ABSOLUTA - CONTROLE TOTAL
+        VERIFICAÇÃO ABSOLUTA - CONTROLE TOTAL COM BANCO DE DADOS
         Returns: (pode_processar, motivo)
+        """
+        # Importar aqui para evitar problemas circulares
+        from app.database import AsyncSessionLocal
+        from sqlalchemy import text
+        
+        # LOCK CRÍTICO - usar banco como fonte única da verdade
+        async with AsyncSessionLocal() as db:
+            current_time = time.time()
+            
+            logger.debug(f"🔍 Verificação BD: {user_id} - {content[:30]}...")
+            
+            try:
+                # BLOQUEIO 1: Verificar se já existe resposta recente (últimos 30 segundos)
+                recent_response = await db.execute(text("""
+                    SELECT created_at FROM messages 
+                    WHERE user_id = (SELECT id FROM users WHERE phone = :phone LIMIT 1)
+                    AND direction = 'out'
+                    AND created_at > NOW() - INTERVAL '30 seconds'
+                    ORDER BY created_at DESC 
+                    LIMIT 1
+                """), {"phone": user_id})
+                
+                recent_row = recent_response.fetchone()
+                if recent_row:
+                    time_diff = current_time - recent_row[0].timestamp()
+                    self.stats['messages_blocked'] += 1
+                    logger.warning(f"🚫 RESPOSTA RECENTE: {user_id} - {time_diff:.1f}s")
+                    return False, f"Resposta enviada há {time_diff:.1f}s"
+                
+                # BLOQUEIO 2: Verificar conteúdo duplicado (última hora)
+                content_clean = content.strip().lower()
+                similar_input = await db.execute(text("""
+                    SELECT created_at FROM messages 
+                    WHERE user_id = (SELECT id FROM users WHERE phone = :phone LIMIT 1)
+                    AND direction = 'in'
+                    AND LOWER(TRIM(content)) = :content
+                    AND created_at > NOW() - INTERVAL '1 hour'
+                    ORDER BY created_at DESC 
+                    LIMIT 1
+                """), {"phone": user_id, "content": content_clean})
+                
+                similar_row = similar_input.fetchone()
+                if similar_row:
+                    time_diff = current_time - similar_row[0].timestamp()
+                    if time_diff < 300:  # 5 minutos
+                        # Verificar se já foi processada
+                        processed_check = await db.execute(text("""
+                            SELECT COUNT(*) FROM messages m1
+                            WHERE m1.user_id = (SELECT id FROM users WHERE phone = :phone LIMIT 1)
+                            AND m1.direction = 'out'
+                            AND m1.created_at > :similar_time
+                            AND m1.created_at < :similar_time + INTERVAL '60 seconds'
+                        """), {
+                            "phone": user_id, 
+                            "similar_time": similar_row[0]
+                        })
+                        
+                        processed_count = processed_check.fetchone()[0]
+                        if processed_count > 0:
+                            self.stats['messages_blocked'] += 1
+                            self.stats['duplicates_prevented'] += 1
+                            logger.warning(f"🚫 JÁ PROCESSADA: {user_id} - {time_diff:.1f}s")
+                            return False, f"Mensagem já processada há {time_diff:.1f}s"
+                
+                # BLOQUEIO 3: Rate limiting por usuário (máximo 1 por 15 segundos)
+                rate_limit_check = await db.execute(text("""
+                    SELECT created_at FROM messages 
+                    WHERE user_id = (SELECT id FROM users WHERE phone = :phone LIMIT 1)
+                    AND direction = 'in'
+                    AND created_at > NOW() - INTERVAL '15 seconds'
+                    ORDER BY created_at DESC 
+                    LIMIT 1
+                """), {"phone": user_id})
+                
+                rate_row = rate_limit_check.fetchone()
+                if rate_row:
+                    time_diff = current_time - rate_row[0].timestamp()
+                    if time_diff < 15:
+                        self.stats['messages_blocked'] += 1
+                        logger.warning(f"🚫 RATE LIMIT: {user_id} - {time_diff:.1f}s")
+                        return False, f"Rate limit: aguarde {15-time_diff:.1f}s"
+                
+                await db.commit()
+                logger.info(f"✅ LIBERADO BD: {user_id}")
+                return True, "Aprovado pelo banco"
+                
+            except Exception as e:
+                logger.error(f"❌ Erro verificação BD: {e}")
+                await db.rollback()
+                # Em caso de erro, usar sistema de cache como fallback
+                return await self._fallback_cache_check(user_id, content)
+    
+    async def _fallback_cache_check(self, user_id: str, content: str) -> Tuple[bool, str]:
+        """
+        Sistema de fallback usando cache em memória
         """
         # Criar lock para usuário se não existir
         if user_id not in self.processing_locks:
@@ -126,7 +221,7 @@ class AbsoluteResponseControl:
             current_time = time.time()
             message_key = self.get_message_key(user_id, content)
             
-            logger.debug(f"🔍 Verificação: {user_id} - {content[:30]}... - {message_key}")
+            logger.debug(f"🔍 Verificação cache: {user_id} - {content[:30]}... - {message_key}")
             
             # BLOQUEIO 1: Mensagem duplicada?
             if message_key in self.cache:
@@ -135,8 +230,8 @@ class AbsoluteResponseControl:
                 if time_diff < 300:  # 5 minutos
                     self.stats['messages_blocked'] += 1
                     self.stats['duplicates_prevented'] += 1
-                    logger.warning(f"🚫 DUPLICATA: {user_id} - {time_diff:.1f}s")
-                    return False, f"Mensagem duplicada há {time_diff:.1f}s"
+                    logger.warning(f"🚫 DUPLICATA CACHE: {user_id} - {time_diff:.1f}s")
+                    return False, f"Cache: Mensagem duplicada há {time_diff:.1f}s"
             
             # BLOQUEIO 2: Resposta muito recente?
             if user_id in self.active_responses:
@@ -144,29 +239,11 @@ class AbsoluteResponseControl:
                 time_diff = current_time - last_response
                 if time_diff < 30:  # 30 segundos
                     self.stats['messages_blocked'] += 1
-                    logger.warning(f"🚫 RESPOSTA RECENTE: {user_id} - {time_diff:.1f}s")
-                    return False, f"Resposta há apenas {time_diff:.1f}s"
+                    logger.warning(f"🚫 RESPOSTA RECENTE CACHE: {user_id} - {time_diff:.1f}s")
+                    return False, f"Cache: Resposta há apenas {time_diff:.1f}s"
             
-            # BLOQUEIO 3: Conteúdo similar?
-            content_lower = content.lower().strip()
-            for cached_key, cached_data in self.cache.items():
-                if (cached_data.get('user_id') == user_id and 
-                    cached_data.get('content')):
-                    
-                    similarity = self._calculate_similarity(
-                        content_lower, 
-                        cached_data.get('content', '').lower()
-                    )
-                    
-                    if similarity > 0.8:
-                        time_diff = current_time - cached_data['timestamp']
-                        if time_diff < 120:  # 2 minutos
-                            self.stats['messages_blocked'] += 1
-                            logger.warning(f"🚫 SIMILAR: {user_id} - {similarity:.2f}")
-                            return False, f"Conteúdo similar (80%+) há {time_diff:.1f}s"
-            
-            logger.info(f"✅ LIBERADO: {user_id}")
-            return True, "Aprovado"
+            logger.info(f"✅ LIBERADO CACHE: {user_id}")
+            return True, "Aprovado pelo cache"
     
     def _calculate_similarity(self, text1: str, text2: str) -> float:
         """Calcula similaridade entre textos"""
