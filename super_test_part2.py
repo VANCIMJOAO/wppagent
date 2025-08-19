@@ -208,17 +208,28 @@ class SuperTesterPart2:
                     
             integration_points_tested += 1  # Webhook processing
             
-            # Aguardar processamento mais longo
-            await asyncio.sleep(8)
-            
-            # 2. VERIFICAR SE USUÁRIO FOI CRIADO
-            user_data = await self.db.fetchrow("""
-                SELECT id, nome, telefone, created_at 
-                FROM users 
-                WHERE wa_id = $1 OR telefone = $1
-                ORDER BY created_at DESC 
-                LIMIT 1
-            """, phone)
+            # Aguardar processamento mais longo com retry
+            user_data = None
+            max_retries = 5
+            for retry in range(max_retries):
+                await asyncio.sleep(3)  # Aguardar 3 segundos entre tentativas
+                
+                # 2. VERIFICAR SE USUÁRIO FOI CRIADO
+                user_data = await self.db.fetchrow("""
+                    SELECT id, nome, telefone, created_at 
+                    FROM users 
+                    WHERE wa_id = $1 OR telefone = $1
+                    ORDER BY created_at DESC 
+                    LIMIT 1
+                """, phone)
+                
+                if user_data:
+                    self.logger.info(f"✅ Usuário encontrado na tentativa {retry + 1}")
+                    break
+                else:
+                    self.logger.warning(f"⚠️ Usuário não encontrado - tentativa {retry + 1}/{max_retries}")
+                    if retry < max_retries - 1:
+                        continue
             
             if user_data:
                 user_id = user_data['id']
@@ -611,15 +622,26 @@ class SuperTesterPart2:
                 # Aguardar processamento
                 await asyncio.sleep(2)
             
-            # Verificar se mensagens foram processadas
-            await asyncio.sleep(5)  # Aguardar processamento final
-            
-            # Buscar usuário criado pela IA
-            user_data = await self.db.fetchrow("""
-                SELECT id, nome, telefone FROM users 
-                WHERE wa_id = $1 OR telefone = $1
-                ORDER BY created_at DESC LIMIT 1
-            """, phone)
+            # Verificar se mensagens foram processadas com retry
+            user_data = None
+            max_retries = 5
+            for retry in range(max_retries):
+                await asyncio.sleep(3)  # Aguardar 3 segundos entre tentativas
+                
+                # Buscar usuário criado pela IA
+                user_data = await self.db.fetchrow("""
+                    SELECT id, nome, telefone FROM users 
+                    WHERE wa_id = $1 OR telefone = $1
+                    ORDER BY created_at DESC LIMIT 1
+                """, phone)
+                
+                if user_data:
+                    self.logger.info(f"✅ Usuário de IA encontrado na tentativa {retry + 1}")
+                    break
+                else:
+                    self.logger.warning(f"⚠️ Usuário de IA não encontrado - tentativa {retry + 1}/{max_retries}")
+                    if retry < max_retries - 1:
+                        continue
             
             if user_data:
                 user_id = user_data['id']

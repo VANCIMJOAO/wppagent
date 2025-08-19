@@ -1,0 +1,145 @@
+{
+  "session_id": "rigorous_test_1755623668",
+  "timestamp": "2025-08-19T14:17:05.263233",
+  "duration_seconds": 157.039292,
+  "system_health": {
+    "database_connected": true,
+    "api_responding": true,
+    "webhook_active": true,
+    "single_response_working": true,
+    "business_data_valid": true,
+    "meta_api_connected": true,
+    "openai_api_connected": true
+  },
+  "overall_success": false,
+  "success_rate": 62.5,
+  "critical_success_rate": 100.0,
+  "total_tests": 8,
+  "passed_tests": 5,
+  "critical_failures": [],
+  "test_details": [
+    {
+      "name": "Meta WhatsApp API Connection CRÍTICA",
+      "success": true,
+      "is_critical": true,
+      "response_count": 1,
+      "patterns_found": 0,
+      "patterns_expected": 0,
+      "response_time": 1.2194979190826416,
+      "errors": [],
+      "warnings": [],
+      "actual_responses": []
+    },
+    {
+      "name": "OpenAI API Connection CRÍTICA",
+      "success": true,
+      "is_critical": true,
+      "response_count": 1,
+      "patterns_found": 0,
+      "patterns_expected": 0,
+      "response_time": 11.71101689338684,
+      "errors": [],
+      "warnings": [],
+      "actual_responses": []
+    },
+    {
+      "name": "Validação Resposta Única CRÍTICA",
+      "success": true,
+      "is_critical": true,
+      "response_count": 3,
+      "patterns_found": 0,
+      "patterns_expected": 0,
+      "response_time": 84.09518122673035,
+      "errors": [],
+      "warnings": [],
+      "actual_responses": [
+        "Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar? 🌟",
+        "Como posso ajudar você? 😊\\n\\nPosso falar sobre serviços, preços, agendamentos ou informações!",
+        "Como posso ajudar você? 😊\\n\\nPosso falar sobre serviços, preços, agendamentos ou informações!"
+      ]
+    },
+    {
+      "name": "Validação Endpoints Webhook",
+      "success": true,
+      "is_critical": true,
+      "response_count": 4,
+      "patterns_found": 4,
+      "patterns_expected": 4,
+      "response_time": 2.1651828289031982,
+      "errors": [],
+      "warnings": [],
+      "actual_responses": []
+    },
+    {
+      "name": "Saudação Básica",
+      "success": true,
+      "is_critical": false,
+      "response_count": 1,
+      "patterns_found": 4,
+      "patterns_expected": 5,
+      "response_time": 9.458301544189453,
+      "errors": [],
+      "warnings": [
+        "Padrão esperado não encontrado: 'bem-vind'"
+      ],
+      "actual_responses": [
+        "Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar? 🌟"
+      ]
+    },
+    {
+      "name": "Consulta Serviços",
+      "success": false,
+      "is_critical": false,
+      "response_count": 0,
+      "patterns_found": 0,
+      "patterns_expected": 5,
+      "response_time": 8.802929401397705,
+      "errors": [
+        "Nenhuma resposta recebida"
+      ],
+      "warnings": [],
+      "actual_responses": []
+    },
+    {
+      "name": "Consulta Preço Específico",
+      "success": false,
+      "is_critical": false,
+      "response_count": 1,
+      "patterns_found": 0,
+      "patterns_expected": 5,
+      "response_time": 9.601296186447144,
+      "errors": [],
+      "warnings": [
+        "Padrão esperado não encontrado: 'limpeza'",
+        "Padrão esperado não encontrado: 'pele'",
+        "Padrão esperado não encontrado: '80'",
+        "Padrão esperado não encontrado: 'r$'",
+        "Padrão esperado não encontrado: 'valor'"
+      ],
+      "actual_responses": [
+        "Como posso ajudar você? 😊\\n\\nPosso falar sobre serviços, preços, agendamentos ou informações!"
+      ]
+    },
+    {
+      "name": "Informações Funcionamento",
+      "success": false,
+      "is_critical": false,
+      "response_count": 1,
+      "patterns_found": 0,
+      "patterns_expected": 5,
+      "response_time": 9.482272148132324,
+      "errors": [],
+      "warnings": [
+        "Padrão esperado não encontrado: 'segunda'",
+        "Padrão esperado não encontrado: 'sexta'",
+        "Padrão esperado não encontrado: '8h'",
+        "Padrão esperado não encontrado: '18h'",
+        "Padrão esperado não encontrado: 'sábado'"
+      ],
+      "actual_responses": [
+        "Como posso ajudar você? 😊\\n\\nPosso falar sobre serviços, preços, agendamentos ou informações!"
+      ]
+    }
+  ],
+  "conclusion": "SISTEMA FUNCIONAL - NECESSITA OTIMIZAÇÕES"
+}

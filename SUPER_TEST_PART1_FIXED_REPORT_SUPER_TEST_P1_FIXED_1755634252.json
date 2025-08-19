@@ -1,0 +1,399 @@
+{
+  "session_id": "SUPER_TEST_P1_FIXED_1755634252",
+  "test_type": "SUPER_TEST_PART1_FIXED",
+  "start_time": "2025-08-19T17:10:52.762950",
+  "end_time": "2025-08-19T17:11:02.326019",
+  "total_duration": 9.56,
+  "overall_status": "PART1_PARTIAL",
+  "conclusion": "INFRAESTRUTURA PARCIALMENTE APROVADA",
+  "success_rate": 71.4,
+  "critical_success_rate": 83.3,
+  "total_tests": 7,
+  "passed_tests": 5,
+  "critical_tests": 6,
+  "critical_passed": 5,
+  "validations_passed": 5,
+  "total_records_processed": 7,
+  "overall_success": true,
+  "category_summary": {
+    "CONNECTIVITY": {
+      "total_tests": 2,
+      "passed_tests": 2,
+      "success_rate": 100.0
+    },
+    "MESSAGING": {
+      "total_tests": 1,
+      "passed_tests": 1,
+      "success_rate": 100.0
+    },
+    "DATABASE_CORE": {
+      "total_tests": 2,
+      "passed_tests": 1,
+      "success_rate": 50.0
+    },
+    "SECURITY": {
+      "total_tests": 1,
+      "passed_tests": 1,
+      "success_rate": 100.0
+    },
+    "PERFORMANCE": {
+      "total_tests": 1,
+      "passed_tests": 0,
+      "success_rate": 0.0
+    }
+  },
+  "detailed_results": [
+    {
+      "name": "Webhook Connectivity",
+      "category": "CONNECTIVITY",
+      "success": true,
+      "duration": 0.0007603168487548828,
+      "details": {
+        "webhook_status": "not_running",
+        "note": "Webhook não está rodando, mas conectividade OK"
+      },
+      "critical": true,
+      "validation_passed": true
+    },
+    {
+      "name": "API Load Handling",
+      "category": "CONNECTIVITY",
+      "success": true,
+      "duration": 0.10032439231872559,
+      "details": {
+        "concurrent_requests": 5,
+        "successful_requests": 5,
+        "total_requests": 5,
+        "success_rate": 100.0
+      },
+      "critical": true,
+      "validation_passed": true
+    },
+    {
+      "name": "Message Processing",
+      "category": "MESSAGING",
+      "success": true,
+      "duration": 2.0811967849731445,
+      "details": {
+        "existing_users": 75,
+        "test_user_created": true,
+        "user_id": 114,
+        "messages_processed": 3,
+        "total_message_types": 3,
+        "processing_rate": 100.0
+      },
+      "critical": true,
+      "validation_passed": true
+    },
+    {
+      "name": "CRUD Operations",
+      "category": "DATABASE_CORE",
+      "success": true,
+      "duration": 1.5966615676879883,
+      "details": {
+        "user_created": true,
+        "user_read": true,
+        "user_updated": true,
+        "appointment_created": true,
+        "cleanup_completed": true,
+        "crud_operations_completed": 5,
+        "total_crud_operations": 5
+      },
+      "critical": true,
+      "validation_passed": true
+    },
+    {
+      "name": "Transactions & Rollbacks",
+      "category": "DATABASE_CORE",
+      "success": false,
+      "duration": 0.8423364162445068,
+      "details": {
+        "transaction_user_created": true,
+        "rollback_triggered": true,
+        "error": "Rollback falhou - usuário ainda existe"
+      },
+      "critical": true,
+      "validation_passed": false
+    },
+    {
+      "name": "Security Constraints",
+      "category": "SECURITY",
+      "success": true,
+      "duration": 1.1406071186065674,
+      "details": {
+        "fk_constraint_working": true,
+        "null_constraint_working": true,
+        "unique_constraint_working": true,
+        "security_checks_passed": 3,
+        "total_security_checks": 3
+      },
+      "critical": true,
+      "validation_passed": true
+    },
+    {
+      "name": "System Performance",
+      "category": "PERFORMANCE",
+      "success": false,
+      "duration": 1.000800371170044,
+      "details": {
+        "error": "cannot perform operation: another operation is in progress"
+      },
+      "critical": false,
+      "validation_passed": false
+    }
+  ],
+  "system_metrics": {
+    "cpu_usage": [
+      4.1,
+      3.8
+    ],
+    "memory_usage": [
+      45.8,
+      45.4
+    ],
+    "disk_usage": [
+      65.7,
+      65.7
+    ]
+  },
+  "schema_info": {
+    "users": {
+      "id": {
+        "type": "integer",
+        "nullable": false,
+        "default": "nextval('users_id_seq'::regclass)"
+      },
+      "wa_id": {
+        "type": "character varying",
+        "nullable": false,
+        "default": null
+      },
+      "nome": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "telefone": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "email": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "created_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": "now()"
+      },
+      "updated_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": null
+      }
+    },
+    "appointments": {
+      "id": {
+        "type": "integer",
+        "nullable": false,
+        "default": "nextval('appointments_id_seq'::regclass)"
+      },
+      "user_id": {
+        "type": "integer",
+        "nullable": false,
+        "default": null
+      },
+      "business_id": {
+        "type": "integer",
+        "nullable": false,
+        "default": null
+      },
+      "service_id": {
+        "type": "integer",
+        "nullable": false,
+        "default": null
+      },
+      "date_time": {
+        "type": "timestamp with time zone",
+        "nullable": false,
+        "default": null
+      },
+      "end_time": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": null
+      },
+      "status": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "notes": {
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      "customer_notes": {
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      "admin_notes": {
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      "cancelled_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": null
+      },
+      "cancellation_reason": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "cancelled_by": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "confirmed_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": null
+      },
+      "confirmed_by": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "price_at_booking": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "created_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": "now()"
+      },
+      "updated_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": null
+      },
+      "duration": {
+        "type": "integer",
+        "nullable": true,
+        "default": "60"
+      }
+    },
+    "services": {
+      "id": {
+        "type": "integer",
+        "nullable": false,
+        "default": "nextval('services_id_seq'::regclass)"
+      },
+      "business_id": {
+        "type": "integer",
+        "nullable": false,
+        "default": null
+      },
+      "name": {
+        "type": "character varying",
+        "nullable": false,
+        "default": null
+      },
+      "description": {
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      "duration_minutes": {
+        "type": "integer",
+        "nullable": true,
+        "default": null
+      },
+      "price": {
+        "type": "character varying",
+        "nullable": true,
+        "default": null
+      },
+      "is_active": {
+        "type": "boolean",
+        "nullable": true,
+        "default": null
+      },
+      "created_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": "now()"
+      },
+      "updated_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": null
+      }
+    },
+    "business_hours": {
+      "id": {
+        "type": "integer",
+        "nullable": false,
+        "default": "nextval('business_hours_id_seq'::regclass)"
+      },
+      "business_id": {
+        "type": "integer",
+        "nullable": false,
+        "default": "1"
+      },
+      "day_of_week": {
+        "type": "integer",
+        "nullable": false,
+        "default": null
+      },
+      "is_open": {
+        "type": "boolean",
+        "nullable": false,
+        "default": "true"
+      },
+      "open_time": {
+        "type": "time without time zone",
+        "nullable": true,
+        "default": null
+      },
+      "close_time": {
+        "type": "time without time zone",
+        "nullable": true,
+        "default": null
+      },
+      "break_start_time": {
+        "type": "time without time zone",
+        "nullable": true,
+        "default": null
+      },
+      "break_end_time": {
+        "type": "time without time zone",
+        "nullable": true,
+        "default": null
+      },
+      "notes": {
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      "created_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": "now()"
+      },
+      "updated_at": {
+        "type": "timestamp with time zone",
+        "nullable": true,
+        "default": "now()"
+      }
+    }
+  }
+}

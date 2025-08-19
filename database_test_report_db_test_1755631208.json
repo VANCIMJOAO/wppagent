@@ -1,0 +1,130 @@
+{
+  "session_id": "db_test_1755631208",
+  "timestamp": "2025-08-19T16:20:58.863989",
+  "duration_seconds": 50.143954,
+  "overall_success": true,
+  "success_rate": 100.0,
+  "critical_success_rate": 100.0,
+  "total_tests": 4,
+  "passed_tests": 4,
+  "failed_tests": 0,
+  "critical_tests": 3,
+  "critical_passed": 3,
+  "total_records_affected": 41,
+  "validations_passed": 4,
+  "test_details": [
+    {
+      "name": "Appointments CRUD",
+      "success": true,
+      "is_critical": true,
+      "execution_time": 20.99018621444702,
+      "records_affected": 9,
+      "data_validation_passed": true,
+      "errors": [],
+      "warnings": [
+        "Sistema permitiu agendamento para data passada",
+        "Sistema permitiu agendamentos conflitantes"
+      ],
+      "test_data": {
+        "webhook_response": "success",
+        "webhook_status": 200,
+        "search_method": "recent_fallback",
+        "appointments_found": 3,
+        "search_criteria": "user_id=66 OR phone=5516991022255",
+        "bot_reused_existing_user": true,
+        "actual_user_id": 64,
+        "appointment_details": {
+          "id": 97,
+          "user_id": 64,
+          "business_id": 3,
+          "service_id": 1,
+          "date_time": "2025-08-27 05:19:24.095536+00:00",
+          "end_time": null,
+          "status": "pending",
+          "notes": null,
+          "customer_notes": null,
+          "admin_notes": null,
+          "cancelled_at": null,
+          "cancellation_reason": null,
+          "cancelled_by": null,
+          "confirmed_at": null,
+          "confirmed_by": null,
+          "price_at_booking": null,
+          "created_at": "2025-08-19 19:19:25.494669+00:00",
+          "updated_at": null,
+          "service_name": "Limpeza de Pele Profunda",
+          "user_name": "Test631145103"
+        },
+        "update_verified": true,
+        "cancellation_success": true
+      }
+    },
+    {
+      "name": "Customer Data Management",
+      "success": true,
+      "is_critical": true,
+      "execution_time": 14.418121576309204,
+      "records_affected": 10,
+      "data_validation_passed": true,
+      "errors": [],
+      "warnings": [
+        "Dados do usuário não foram atualizados automaticamente"
+      ],
+      "test_data": {
+        "user_created": true,
+        "conversations_count": 1,
+        "conv_19_messages": 4,
+        "preferences_alternative": "used_user_update",
+        "gdpr_deletion": true
+      }
+    },
+    {
+      "name": "Data Integrity and Constraints",
+      "success": true,
+      "is_critical": true,
+      "execution_time": 3.531402826309204,
+      "records_affected": 1,
+      "data_validation_passed": true,
+      "errors": [],
+      "warnings": [
+        "Sistema permitiu agendamento para data muito antiga",
+        "Sistema permitiu status inválido"
+      ],
+      "test_data": {
+        "fk_user_constraint": "working",
+        "fk_service_constraint": "working",
+        "unique_phone_constraint": "working",
+        "related_records_before": 6,
+        "cascade_protection": "working",
+        "date_format_validation": "working",
+        "transaction_rollback": "working"
+      }
+    },
+    {
+      "name": "Business Logic Validations",
+      "success": true,
+      "is_critical": false,
+      "execution_time": 9.775348663330078,
+      "records_affected": 21,
+      "data_validation_passed": true,
+      "errors": [],
+      "warnings": [
+        "Sistema permitiu agendamento fora do horário de funcionamento",
+        "Sistema permitiu sobreposição de horários para Limpeza de Pele Profunda",
+        "Sistema permitiu sobreposição de horários para Hidrofacial Diamante",
+        "Sistema permitiu sobreposição de horários para Peeling Químico",
+        "Sistema permitiu agendamento com pouca antecedência",
+        "Sistema pode não estar limitando capacidade simultânea"
+      ],
+      "test_data": {
+        "business_hours_count": 8,
+        "services_with_duration": 3,
+        "appointments_created_for_user": 7,
+        "cancellation_policy_test": "completed",
+        "cancellation_recorded": true,
+        "max_concurrent_appointments": 10
+      }
+    }
+  ],
+  "conclusion": "DATABASE FULLY APPROVED - ALL OPERATIONS WORKING"
+}

@@ -1,0 +1,31 @@
+{
+  "session_id": "definitive_1755631959",
+  "timestamp": "2025-08-19T16:32:49.605611",
+  "success_rate": 100.0,
+  "total_tests": 4,
+  "passed_tests": 4,
+  "conclusion": "SISTEMA TOTALMENTE APROVADO",
+  "test_phone": "5516991022255",
+  "test_results": [
+    {
+      "test": "Webhook Response",
+      "success": true,
+      "details": "HTTP 200 em 0.97s"
+    },
+    {
+      "test": "Message Processing",
+      "success": true,
+      "details": "2 novas mensagens processadas"
+    },
+    {
+      "test": "Database CRUD",
+      "success": true,
+      "details": "4/4 operações OK"
+    },
+    {
+      "test": "Data Integrity",
+      "success": true,
+      "details": "2/2 verificações OK"
+    }
+  ]
+}

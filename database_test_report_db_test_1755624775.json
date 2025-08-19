@@ -1,0 +1,75 @@
+{
+  "session_id": "db_test_1755624775",
+  "timestamp": "2025-08-19T14:33:05.305627",
+  "duration_seconds": 10.293463,
+  "overall_success": false,
+  "success_rate": 0.0,
+  "critical_success_rate": 0.0,
+  "total_tests": 4,
+  "passed_tests": 0,
+  "failed_tests": 4,
+  "critical_tests": 2,
+  "critical_passed": 0,
+  "total_records_affected": 1,
+  "validations_passed": 0,
+  "test_details": [
+    {
+      "name": "Appointments CRUD",
+      "success": false,
+      "is_critical": false,
+      "execution_time": 0.28051137924194336,
+      "records_affected": 0,
+      "data_validation_passed": false,
+      "errors": [
+        "Falha ao criar usuário de teste"
+      ],
+      "warnings": [],
+      "test_data": {}
+    },
+    {
+      "name": "Customer Data Management",
+      "success": false,
+      "is_critical": true,
+      "execution_time": 6.373326301574707,
+      "records_affected": 1,
+      "data_validation_passed": false,
+      "errors": [
+        "Erro no teste de dados de cliente: column \"phone_number\" does not exist"
+      ],
+      "warnings": [],
+      "test_data": {}
+    },
+    {
+      "name": "Data Integrity and Constraints",
+      "success": false,
+      "is_critical": true,
+      "execution_time": 1.9718730449676514,
+      "records_affected": 0,
+      "data_validation_passed": false,
+      "errors": [
+        "Erro no teste de integridade: column \"phone_number\" does not exist"
+      ],
+      "warnings": [],
+      "test_data": {
+        "fk_user_constraint": "working",
+        "fk_service_constraint": "working",
+        "unique_phone_constraint": "working",
+        "date_format_validation": "working"
+      }
+    },
+    {
+      "name": "Business Logic Validations",
+      "success": false,
+      "is_critical": false,
+      "execution_time": 0.28171753883361816,
+      "records_affected": 0,
+      "data_validation_passed": false,
+      "errors": [
+        "Falha ao criar usuário de teste"
+      ],
+      "warnings": [],
+      "test_data": {}
+    }
+  ],
+  "conclusion": "DATABASE HAS CRITICAL ISSUES"
+}

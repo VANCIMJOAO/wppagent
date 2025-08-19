@@ -1,0 +1,92 @@
+{
+  "session_id": "db_test_1755625821",
+  "timestamp": "2025-08-19T14:50:51.220585",
+  "duration_seconds": 29.919871,
+  "overall_success": false,
+  "success_rate": 0.0,
+  "critical_success_rate": 0.0,
+  "total_tests": 4,
+  "passed_tests": 0,
+  "failed_tests": 4,
+  "critical_tests": 3,
+  "critical_passed": 0,
+  "total_records_affected": 9,
+  "validations_passed": 2,
+  "test_details": [
+    {
+      "name": "Appointments CRUD",
+      "success": false,
+      "is_critical": true,
+      "execution_time": 12.058621406555176,
+      "records_affected": 1,
+      "data_validation_passed": false,
+      "errors": [
+        "Nenhum agendamento foi criado pelo bot"
+      ],
+      "warnings": [],
+      "test_data": {
+        "webhook_response": "success",
+        "appointments_found": 0,
+        "past_date_validation": "blocked",
+        "conflict_detection": "working"
+      }
+    },
+    {
+      "name": "Customer Data Management",
+      "success": false,
+      "is_critical": true,
+      "execution_time": 13.167975664138794,
+      "records_affected": 8,
+      "data_validation_passed": true,
+      "errors": [
+        "Erro no teste de dados de cliente: column \"deleted_at\" of relation \"users\" does not exist"
+      ],
+      "warnings": [
+        "Dados do usuário não foram atualizados automaticamente",
+        "Falha ao salvar preferências: column \"data_type\" of relation \"customer_data_collection\" does not exist"
+      ],
+      "test_data": {
+        "user_created": true,
+        "conversations_count": 1,
+        "conv_14_messages": 4
+      }
+    },
+    {
+      "name": "Data Integrity and Constraints",
+      "success": false,
+      "is_critical": true,
+      "execution_time": 1.8692972660064697,
+      "records_affected": 0,
+      "data_validation_passed": true,
+      "errors": [
+        "Erro no teste de integridade: insert or update on table \"appointments\" violates foreign key constraint \"appointments_business_id_fkey\"\nDETAIL:  Key (business_id)=(1) is not present in table \"businesses\"."
+      ],
+      "warnings": [],
+      "test_data": {
+        "fk_user_constraint": "working",
+        "fk_service_constraint": "working",
+        "unique_phone_constraint": "working",
+        "date_check_constraint": "working",
+        "status_check_constraint": "working"
+      }
+    },
+    {
+      "name": "Business Logic Validations",
+      "success": false,
+      "is_critical": false,
+      "execution_time": 1.3592543601989746,
+      "records_affected": 0,
+      "data_validation_passed": false,
+      "errors": [
+        "Erro no teste de regras de negócio: insert or update on table \"appointments\" violates foreign key constraint \"appointments_business_id_fkey\"\nDETAIL:  Key (business_id)=(1) is not present in table \"businesses\"."
+      ],
+      "warnings": [],
+      "test_data": {
+        "business_hours_count": 8,
+        "business_hours_validation": "working",
+        "services_with_duration": 3
+      }
+    }
+  ],
+  "conclusion": "DATABASE HAS CRITICAL ISSUES"
+}

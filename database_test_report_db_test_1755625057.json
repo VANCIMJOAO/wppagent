@@ -1,0 +1,78 @@
+{
+  "session_id": "db_test_1755625057",
+  "timestamp": "2025-08-19T14:37:47.484097",
+  "duration_seconds": 9.885755,
+  "overall_success": false,
+  "success_rate": 0.0,
+  "critical_success_rate": 0.0,
+  "total_tests": 4,
+  "passed_tests": 0,
+  "failed_tests": 4,
+  "critical_tests": 2,
+  "critical_passed": 0,
+  "total_records_affected": 2,
+  "validations_passed": 1,
+  "test_details": [
+    {
+      "name": "Appointments CRUD",
+      "success": false,
+      "is_critical": false,
+      "execution_time": 0.2803037166595459,
+      "records_affected": 0,
+      "data_validation_passed": false,
+      "errors": [
+        "Falha ao criar usuário de teste"
+      ],
+      "warnings": [],
+      "test_data": {}
+    },
+    {
+      "name": "Customer Data Management",
+      "success": false,
+      "is_critical": true,
+      "execution_time": 6.346723318099976,
+      "records_affected": 2,
+      "data_validation_passed": false,
+      "errors": [
+        "Erro no teste de dados de cliente: Session is closed"
+      ],
+      "warnings": [],
+      "test_data": {
+        "user_created": true
+      }
+    },
+    {
+      "name": "Data Integrity and Constraints",
+      "success": false,
+      "is_critical": true,
+      "execution_time": 1.683295488357544,
+      "records_affected": 0,
+      "data_validation_passed": true,
+      "errors": [
+        "Erro no teste de integridade: column \"appointment_datetime\" of relation \"appointments\" does not exist"
+      ],
+      "warnings": [],
+      "test_data": {
+        "fk_user_constraint": "working",
+        "fk_service_constraint": "working",
+        "unique_phone_constraint": "working",
+        "date_check_constraint": "working",
+        "status_check_constraint": "working"
+      }
+    },
+    {
+      "name": "Business Logic Validations",
+      "success": false,
+      "is_critical": false,
+      "execution_time": 0.1401064395904541,
+      "records_affected": 0,
+      "data_validation_passed": false,
+      "errors": [
+        "Falha ao criar usuário de teste"
+      ],
+      "warnings": [],
+      "test_data": {}
+    }
+  ],
+  "conclusion": "DATABASE HAS CRITICAL ISSUES"
+}
