@@ -253,18 +253,18 @@ jobs:
 
       - name: "🔑 Railway Authentication"
         run: |
-          echo "🔑 Authenticating with Railway using token..."
-          # Railway CLI uses RAILWAY_TOKEN env var automatically
+          echo "🔑 Authenticating with Railway using API token..."
+          # Railway CLI uses RAILWAY_API_TOKEN env var for Account/Team Tokens
           railway whoami
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
 
       - name: "🚀 Deploy to Railway Staging"
         run: |
           echo "🚀 Starting deployment to staging environment..."
 
-          # Conectar ao projeto staging usando RAILWAY_PROJECT_ID
-          echo "🔗 Connecting to Railway project..."
+          # Verificar conexão e projeto
+          echo "🔗 Checking Railway project connection..."
           railway status
 
           # Configurar variáveis de ambiente para staging
@@ -272,7 +272,7 @@ jobs:
           railway variables set NODE_ENV=staging
           
           # Deploy usando a imagem Docker buildada
-          echo "📦 Deploying Docker image to Railway..."
+          echo "📦 Deploying to Railway staging..."
           railway up --detach
 
           # Aguardar deployment
@@ -281,7 +281,7 @@ jobs:
 
           echo "✅ Staging deployment completed!"
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
 
       - name: "🏥 Staging Health Check"
