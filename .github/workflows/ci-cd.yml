@@ -6,6 +6,7 @@ name: "🚀 WhatsApp Agent CI/CD Pipeline"
     branches: [main, develop]
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened]
   release:
     types: [published]
 
