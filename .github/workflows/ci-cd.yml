@@ -253,7 +253,9 @@ jobs:
 
       - name: "🔑 Railway Authentication"
         run: |
-          railway login --token ${{ secrets.RAILWAY_TOKEN }}
+          echo "🔑 Authenticating with Railway using token..."
+          # Railway CLI uses RAILWAY_TOKEN env var automatically
+          railway whoami
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
@@ -261,29 +263,26 @@ jobs:
         run: |
           echo "🚀 Starting deployment to staging environment..."
 
-          # Conectar ao projeto staging
-          railway project connect ${{ secrets.RAILWAY_STAGING_PROJECT_ID }}
+          # Conectar ao projeto staging usando RAILWAY_PROJECT_ID
+          echo "🔗 Connecting to Railway project..."
+          railway status
 
           # Configurar variáveis de ambiente para staging
+          echo "⚙️ Setting environment variables..."
           railway variables set NODE_ENV=staging
-          railway variables set DATABASE_URL="${{ secrets.STAGING_DATABASE_URL }}"
-          railway variables set REDIS_URL="${{ secrets.STAGING_REDIS_URL }}"
-          railway variables set SECRET_KEY="${{ secrets.STAGING_SECRET_KEY }}"
-          railway variables set META_ACCESS_TOKEN="${{ secrets.META_ACCESS_TOKEN }}"
-          railway variables set PHONE_NUMBER_ID="${{ secrets.PHONE_NUMBER_ID }}"
-          railway variables set WEBHOOK_VERIFY_TOKEN="${{ secrets.WEBHOOK_VERIFY_TOKEN }}"
-          railway variables set OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"
-
+          
           # Deploy usando a imagem Docker buildada
           echo "📦 Deploying Docker image to Railway..."
-          railway deploy --detach
+          railway up --detach
 
           # Aguardar deployment
           echo "⏳ Waiting for deployment to complete..."
-          sleep 30
+          sleep 60
 
-          echo "✅ Staging deployment completed successfully!"
-          echo "📍 Staging URL: ${{ vars.STAGING_URL || 'Will be available after first deploy' }}"
+          echo "✅ Staging deployment completed!"
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
 
       - name: "🏥 Staging Health Check"
         run: |
