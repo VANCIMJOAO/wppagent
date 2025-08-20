@@ -263,15 +263,20 @@ jobs:
         run: |
           echo "🚀 Starting deployment to staging environment..."
 
-          # Verificar conexão e projeto
-          echo "🔗 Checking Railway project connection..."
+          # Conectar ao projeto e serviço
+          echo "🔗 Linking to Railway project and service..."
+          railway link --project ${{ secrets.RAILWAY_PROJECT_ID }}
+          railway service --service wppagent-app
+
+          # Verificar conexão
+          echo "✅ Checking project status..."
           railway status
 
           # Configurar variáveis de ambiente para staging
           echo "⚙️ Setting environment variables..."
           railway variables set NODE_ENV=staging
           
-          # Deploy usando a imagem Docker buildada
+          # Deploy usando o código atual
           echo "📦 Deploying to Railway staging..."
           railway up --detach
 
