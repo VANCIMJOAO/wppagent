@@ -248,10 +248,8 @@ jobs:
 
       - name: "🚂 Install Railway CLI"
         run: |
-          # Download direto da release oficial
-          wget -q https://github.com/railwayapp/cli/releases/latest/download/railway-linux-amd64.tar.gz
-          tar -xzf railway-linux-amd64.tar.gz
-          sudo mv railway /usr/local/bin/
+          # Instalar via npm (mais confiável em CI/CD)
+          npm install -g @railway/cli
           railway --version
 
       - name: "🔑 Railway Authentication"
