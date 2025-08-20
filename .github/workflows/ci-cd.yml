@@ -11,7 +11,7 @@ name: "🚀 WhatsApp Agent CI/CD Pipeline"
 
 permissions:
   actions: read
-  contents: read
+  contents: write
   security-events: write
   packages: write
 

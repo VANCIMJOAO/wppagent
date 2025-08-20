@@ -123,6 +123,30 @@ class SuperTesterPart2:
         )
         self.logger = logging.getLogger(__name__)
         
+    def sanitize_test_phone(self, raw_phone: str) -> str:
+        """Simula exatamente a sanitização do webhook para garantir matching"""
+        import re
+        
+        # Remover caracteres não numéricos (como no sanitizador)
+        clean_phone = re.sub(r'[^\d]', '', raw_phone)
+        
+        # Remover sufixos do WhatsApp se existirem
+        clean_phone = clean_phone.replace("@c.us", "").replace("@s.whatsapp.net", "")
+        
+        # Normalizar para formato brasileiro (como no sanitizador)
+        if len(clean_phone) == 11 and not clean_phone.startswith('55'):
+            clean_phone = f"55{clean_phone}"
+        elif len(clean_phone) == 10:
+            # Adicionar 9 no celular se necessário
+            ddd = clean_phone[:2]
+            if clean_phone[2] in '6789':
+                clean_phone = f"55{ddd}9{clean_phone[2:]}"
+            else:
+                clean_phone = f"55{clean_phone}"
+        
+        self.logger.info(f"🔍 Phone sanitization: {raw_phone} → {clean_phone}")
+        return clean_phone
+    
     async def initialize_advanced_testing(self):
         """Inicializa sistema para testes avançados"""
         self.logger.info("🌟 Inicializando testes de funcionalidades avançadas...")
@@ -163,9 +187,10 @@ class SuperTesterPart2:
         try:
             # 1. CRIAÇÃO DO USUÁRIO VIA WEBHOOK (simulando primeiro contato)
             import uuid
-            timestamp = str(int(time.time()))[-6:]  # 6 dígitos únicos  
-            unique_suffix = str(uuid.uuid4().int)[-4:]  # 4 dígitos únicos do UUID
-            phone = f"5516{timestamp}{unique_suffix}"[:20]  # Garantir unicidade numérica
+            timestamp = str(int(time.time()))
+            
+            # Usar DDD real brasileiro (11 - São Paulo) para evitar rejeição na sanitização
+            phone = f"551199{timestamp[-6:]}"  # DDD 11 + 99 + últimos 6 dígitos do timestamp
             
             # Simular webhook de primeiro contato
             webhook_payload = {
@@ -211,23 +236,25 @@ class SuperTesterPart2:
             # Aguardar processamento mais longo com retry
             user_data = None
             max_retries = 5
+            sanitized_phone = self.sanitize_test_phone(phone)  # Sanitizar phone para busca
+            
             for retry in range(max_retries):
                 await asyncio.sleep(3)  # Aguardar 3 segundos entre tentativas
                 
-                # 2. VERIFICAR SE USUÁRIO FOI CRIADO
+                # 2. VERIFICAR SE USUÁRIO FOI CRIADO (buscar por telefone sanitizado)
                 user_data = await self.db.fetchrow("""
                     SELECT id, nome, telefone, created_at 
                     FROM users 
-                    WHERE wa_id = $1 OR telefone = $1
+                    WHERE telefone = $1 OR telefone = $2
                     ORDER BY created_at DESC 
                     LIMIT 1
-                """, phone)
+                """, sanitized_phone, phone)  # Tentar ambas as versões
                 
                 if user_data:
-                    self.logger.info(f"✅ Usuário encontrado na tentativa {retry + 1}")
+                    self.logger.info(f"✅ Usuário encontrado na tentativa {retry + 1} (telefone: {user_data['telefone']})")
                     break
                 else:
-                    self.logger.warning(f"⚠️ Usuário não encontrado - tentativa {retry + 1}/{max_retries}")
+                    self.logger.warning(f"⚠️ Usuário não encontrado - tentativa {retry + 1}/{max_retries} (buscando: {sanitized_phone} ou {phone})")
                     if retry < max_retries - 1:
                         continue
             
@@ -572,10 +599,10 @@ class SuperTesterPart2:
                 "Perfeito! Confirma o agendamento por favor"
             ]
             
-            timestamp = str(int(time.time()))[-6:]
-            import uuid
-            unique_suffix = str(uuid.uuid4().int)[-4:]  # 4 dígitos únicos do UUID
-            phone = f"5516AI{timestamp}{unique_suffix}"[:20]  # Garantir unicidade numérica
+            timestamp = str(int(time.time()))
+            
+            # Usar DDD real brasileiro (11 - São Paulo) para evitar rejeição na sanitização  
+            phone = f"55119{timestamp[-7:]}"  # DDD 11 + 9 + últimos 7 dígitos do timestamp
             responses_received = 0
             
             for i, message in enumerate(conversation_scenarios):
@@ -625,21 +652,23 @@ class SuperTesterPart2:
             # Verificar se mensagens foram processadas com retry
             user_data = None
             max_retries = 5
+            sanitized_phone = self.sanitize_test_phone(phone)  # Sanitizar phone para busca
+            
             for retry in range(max_retries):
                 await asyncio.sleep(3)  # Aguardar 3 segundos entre tentativas
                 
-                # Buscar usuário criado pela IA
+                # Buscar usuário criado pela IA (buscar por telefone sanitizado)
                 user_data = await self.db.fetchrow("""
                     SELECT id, nome, telefone FROM users 
-                    WHERE wa_id = $1 OR telefone = $1
+                    WHERE telefone = $1 OR telefone = $2
                     ORDER BY created_at DESC LIMIT 1
-                """, phone)
+                """, sanitized_phone, phone)  # Tentar ambas as versões
                 
                 if user_data:
-                    self.logger.info(f"✅ Usuário de IA encontrado na tentativa {retry + 1}")
+                    self.logger.info(f"✅ Usuário de IA encontrado na tentativa {retry + 1} (telefone: {user_data['telefone']})")
                     break
                 else:
-                    self.logger.warning(f"⚠️ Usuário de IA não encontrado - tentativa {retry + 1}/{max_retries}")
+                    self.logger.warning(f"⚠️ Usuário de IA não encontrado - tentativa {retry + 1}/{max_retries} (buscando: {sanitized_phone} ou {phone})")
                     if retry < max_retries - 1:
                         continue
             

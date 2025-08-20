@@ -1,0 +1,7 @@
+extends: default
+
+rules:
+  line-length:
+    max: 120  # Permitir linhas até 120 caracteres
+  comments:
+    min-spaces-from-content: 1
