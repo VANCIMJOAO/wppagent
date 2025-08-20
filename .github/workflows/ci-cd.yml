@@ -248,8 +248,11 @@ jobs:
 
       - name: "🚂 Install Railway CLI"
         run: |
-          curl -fsSL https://railway.app/install.sh | sh
-          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+          # Download direto da release oficial
+          wget -q https://github.com/railwayapp/cli/releases/latest/download/railway-linux-amd64.tar.gz
+          tar -xzf railway-linux-amd64.tar.gz
+          sudo mv railway /usr/local/bin/
+          railway --version
 
       - name: "🔑 Railway Authentication"
         run: |
