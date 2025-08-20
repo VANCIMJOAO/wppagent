@@ -275,7 +275,7 @@ jobs:
 
           # Configurar variáveis de ambiente para staging
           echo "⚙️ Setting environment variables..."
-          railway variables set NODE_ENV=staging
+          railway variables --set NODE_ENV=staging
           
           # Deploy usando o código atual
           echo "📦 Deploying to Railway staging..."
