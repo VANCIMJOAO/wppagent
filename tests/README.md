@@ -9,10 +9,8 @@ Esta pasta contém todos os testes do sistema WhatsApp Agent.
 - `super_test_part1.py` - Testes de infraestrutura e database
 - `super_test_part2.py` - Testes de integração e WhatsApp
 
-### 🗄️ Testes de Database
-- `database_operations_test.py` - Testes de operações básicas do banco
-- `hybrid_database_test.py` - Testes híbridos de performance
-- `quick_database_test.py` - Testes rápidos de conectividade
+### 📊 Histórico de Testes
+Arquivos de teste adicionais estão disponíveis no diretório `archive/test_history/` para referência histórica e debugging.
 
 ## 🏃‍♂️ Como Executar
 
@@ -29,8 +27,14 @@ python super_test_part1.py
 
 # Testes de integração
 python super_test_part2.py
+```
 
-# Teste rápido de database
+### Testes Históricos
+```bash
+# Para executar testes específicos do archive
+cd archive/test_history/
+python database_operations_test.py
+python hybrid_database_test.py
 python quick_database_test.py
 ```
 
