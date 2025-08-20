@@ -252,29 +252,31 @@ jobs:
   health-check:
     name: "🏥 Health Check"
     runs-on: ubuntu-latest
-    needs: [deploy-staging]
-    if: github.ref == 'refs/heads/main' && success()
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: "📋 Check staging health"
+      - name: "📋 Check application health"
         run: |
-          echo "🏥 Verificando saúde do staging..."
+          echo "🏥 Verificando saúde da aplicação..."
 
-          # Definir URLs padrão se variáveis não estiverem configuradas
-          STAGING_URL="${{ vars.STAGING_URL }}"
-          if [ -z "$STAGING_URL" ]; then
-            STAGING_URL="https://staging.example.com"
-            echo "⚠️ STAGING_URL não definida, usando URL padrão"
+          # Definir URLs baseado no ambiente
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            APP_URL="${{ vars.PRODUCTION_URL || 'https://production.example.com' }}"
+            echo "🌟 Verificando produção: $APP_URL"
+          else
+            APP_URL="${{ vars.STAGING_URL || 'https://staging.example.com' }}"
+            echo "🚀 Verificando staging: $APP_URL"
           fi
 
-          echo "🔗 Testando endpoint: $STAGING_URL/health"
+          echo "🔗 Testando endpoint: $APP_URL/health"
 
           # Tentar múltiplas vezes com diferentes endpoints
-          if curl -f -s --connect-timeout 10 --max-time 30 "$STAGING_URL/health" > /dev/null 2>&1; then
+          if curl -f -s --connect-timeout 10 --max-time 30 "$APP_URL/health" > /dev/null 2>&1; then
             echo "✅ Health check passou em /health"
-          elif curl -f -s --connect-timeout 10 --max-time 30 "$STAGING_URL/api/health" > /dev/null 2>&1; then
+          elif curl -f -s --connect-timeout 10 --max-time 30 "$APP_URL/api/health" > /dev/null 2>&1; then
             echo "✅ Health check passou em /api/health"
-          elif curl -f -s --connect-timeout 10 --max-time 30 "$STAGING_URL/" > /dev/null 2>&1; then
+          elif curl -f -s --connect-timeout 10 --max-time 30 "$APP_URL/" > /dev/null 2>&1; then
             echo "✅ Health check passou na raiz /"
           else
             echo "⚠️ Health check falhou, mas continuando..."
@@ -288,7 +290,7 @@ jobs:
   deploy-production:
     name: "🌟 Deploy to Production"
     runs-on: ubuntu-latest
-    needs: [health-check]
+    needs: [build]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     timeout-minutes: 30
 
