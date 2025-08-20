@@ -27,13 +27,13 @@ plotly==5.17.0
 python-dotenv==1.0.0
 pydantic==2.11.7
 pydantic-settings==2.1.0
-python-multipart==0.0.6
-python-jose[cryptography]==3.3.0
+python-multipart==0.0.7
+python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 
 # Authentication & Security
 PyJWT==2.10.1
-cryptography==43.0.3
+cryptography==44.0.1
 pyotp==2.9.0
 qrcode[pil]==8.0.0
 email-validator==2.2.0
