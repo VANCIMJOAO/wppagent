@@ -267,7 +267,7 @@ jobs:
           # Conectar ao projeto e serviço
           echo "🔗 Linking to Railway project and service..."
           railway link --project ${{ secrets.RAILWAY_PROJECT_ID }}
-          railway service --service wppagent-app
+          railway service wppagent-app
 
           # Verificar conexão
           echo "✅ Checking project status..."
