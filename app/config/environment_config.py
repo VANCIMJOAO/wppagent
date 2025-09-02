@@ -360,6 +360,18 @@ class BaseConfig(BaseSettings):
         description="Incluir contexto do usuário nos logs"
     )
     
+    log_performance: bool = Field(
+        default=True,
+        env="LOG_PERFORMANCE",
+        description="Habilitar logs de performance"
+    )
+    
+    log_business: bool = Field(
+        default=True,
+        env="LOG_BUSINESS",
+        description="Habilitar logs de business"
+    )
+    
     # ==============================
     # MONITORING & METRICS
     # ==============================
