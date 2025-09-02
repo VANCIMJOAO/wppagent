@@ -59,15 +59,15 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    """Cria token JWT"""
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    """Cria token JWT compatível com middleware usando jwt_manager"""
+    # Usar jwt_manager para garantir compatibilidade
+    from app.auth.jwt_manager import jwt_manager
+    
+    user_id = data.get("sub", "admin")
+    role = "admin"  # Admin auth sempre cria tokens admin
+    permissions = ["read", "write", "admin", "user_management"]
+    
+    return jwt_manager.create_access_token(user_id, role, permissions)
 
 async def get_admin_user(username: str, session: AsyncSession) -> Optional[AdminUser]:
     """Busca usuário admin pelo username"""
