@@ -202,6 +202,13 @@ app.include_router(auth_router, tags=["Admin Authentication"])
 from app.routes.database_optimization import router as db_optimization_router
 app.include_router(db_optimization_router, tags=["Database Optimization"])
 
+# 📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard
+from app.routes.appointments import router as appointments_router
+app.include_router(appointments_router, tags=["Dashboard - Appointments"])
+
+from app.routes.conversations import router as conversations_router
+app.include_router(conversations_router, tags=["Dashboard - Conversations"])
+
 
 @app.get("/health")
 async def health_check():
