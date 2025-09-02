@@ -96,7 +96,7 @@ def get_sync_db():
 
 async def init_db():
     """
-    Inicializa o banco de dados criando as tabelas
+    Inicializa o banco de dados criando as tabelas e admin inicial
     """
     try:
         from app.models.database import Base
@@ -106,11 +106,65 @@ async def init_db():
             logger.info("✅ Conexão com banco de dados estabelecida")
             await conn.run_sync(Base.metadata.create_all)
             logger.info("✅ Tabelas criadas/verificadas")
+        
+        # Criar admin inicial se não existir
+        await create_initial_admin()
+        
     except Exception as e:
         logger.error(f"❌ Erro ao inicializar banco: {e}")
         logger.error(f"❌ Tipo do erro: {type(e).__name__}")
         # Re-raise para falhar o startup se necessário
         raise
+
+
+async def create_initial_admin():
+    """
+    Cria o admin inicial se não existir
+    """
+    try:
+        # Verificar se as variáveis de admin estão configuradas
+        admin_username = os.getenv('ADMIN_USERNAME', 'admin')
+        admin_password = os.getenv('ADMIN_PASSWORD')
+        
+        if not admin_password:
+            logger.warning("⚠️ ADMIN_PASSWORD não configurada - pulando criação do admin inicial")
+            return
+        
+        from app.models.database import AdminUser
+        from sqlalchemy import select
+        from passlib.context import CryptContext
+        
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        
+        async with AsyncSessionLocal() as session:
+            # Verificar se já existe admin
+            result = await session.execute(
+                select(AdminUser).where(AdminUser.username == admin_username)
+            )
+            existing_admin = result.scalar_one_or_none()
+            
+            if existing_admin:
+                logger.info(f"✅ Admin '{admin_username}' já existe")
+                return
+            
+            # Criar novo admin
+            admin_user = AdminUser(
+                username=admin_username,
+                email=f"{admin_username}@sistema.local",
+                password_hash=pwd_context.hash(admin_password),
+                full_name="Administrador",
+                is_active=True,
+                is_super_admin=True
+            )
+            
+            session.add(admin_user)
+            await session.commit()
+            
+            logger.info(f"✅ Admin inicial criado: {admin_username}")
+            
+    except Exception as e:
+        logger.error(f"❌ Erro ao criar admin inicial: {e}")
+        # Não re-raise para não falhar a inicialização se admin der erro
 
 
 def init_sync_db():
