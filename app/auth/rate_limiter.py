@@ -218,9 +218,18 @@ class RateLimiter:
     
     def _check_user_rate_limit(self, user_id: str, endpoint_type: str) -> Dict:
         """Rate limit por usuário"""
+        if not redis_manager.is_available:
+            return {"allowed": True, "message": "Redis unavailable, user rate limiting disabled"}
+        
         block_key = f"blocked:user:{user_id}"
-        if self.redis_client.exists(block_key):
-            ttl = self.redis_client.ttl(block_key)
+        
+        def check_blocked(client):
+            if client.exists(block_key):
+                return client.ttl(block_key)
+            return None
+        
+        ttl = execute_redis_safe(check_blocked)
+        if ttl and ttl > 0:
             return {
                 "allowed": False,
                 "blocked_by": "User Rate Limit",
@@ -241,6 +250,9 @@ class RateLimiter:
     
     def _check_endpoint_rate_limit(self, endpoint: str) -> Dict:
         """Rate limit por endpoint"""
+        if not redis_manager.is_available:
+            return {"allowed": True, "message": "Redis unavailable, endpoint rate limiting disabled"}
+        
         # Encontrar configuração matching
         limit_config = None
         for pattern, config in self.limits[RateLimitType.ENDPOINT].items():
@@ -277,46 +289,60 @@ class RateLimiter:
     def _check_sliding_window_limit(self, key: str, limit: RateLimit, 
                                    block_key: str) -> Dict:
         """Implementa sliding window rate limiting"""
+        if not redis_manager.is_available:
+            return {"allowed": True, "message": "Redis unavailable, sliding window rate limiting disabled"}
+        
         current_time = int(time.time())
         window_start = current_time - limit.window
         
-        # Limpar entradas antigas
-        self.redis_client.zremrangebyscore(key, 0, window_start)
-        
-        # Contar requisições na janela
-        request_count = self.redis_client.zcard(key)
-        
-        if request_count >= limit.requests:
-            # Bloquear
-            self.redis_client.setex(block_key, limit.block_duration, "rate_limited")
+        def sliding_window_check(client):
+            # Limpar entradas antigas
+            client.zremrangebyscore(key, 0, window_start)
+            # Contar requisições na janela
+            request_count = client.zcard(key)
+            
+            if request_count >= limit.requests:
+                # Bloquear
+                client.setex(block_key, limit.block_duration, "rate_limited")
+                return {
+                    "allowed": False,
+                    "blocked_by": "Rate Limit",
+                    "retry_after": limit.block_duration,
+                    "reason": f"Rate limit exceeded: {request_count}/{limit.requests} in {limit.window}s"
+                }
+            
+            # Adicionar requisição atual
+            client.zadd(key, {str(current_time): current_time})
+            client.expire(key, limit.window)
             
             return {
-                "allowed": False,
-                "blocked_by": "Rate Limit",
-                "retry_after": limit.block_duration,
-                "reason": f"Rate limit exceeded: {request_count}/{limit.requests} in {limit.window}s"
+                "allowed": True,
+                "remaining": limit.requests - request_count - 1,
+                "reset_time": window_start + limit.window
             }
         
-        # Adicionar requisição atual
-        self.redis_client.zadd(key, {str(current_time): current_time})
-        self.redis_client.expire(key, limit.window)
+        result = execute_redis_safe(sliding_window_check)
+        if result is None:
+            return {"allowed": True, "message": "Redis operation failed, allowing request"}
         
-        return {
-            "allowed": True,
-            "remaining": limit.requests - request_count - 1,
-            "reset_time": window_start + limit.window
-        }
+        return result
     
     def _record_request(self, client_ip: str, user_id: Optional[str], 
                        endpoint: str, endpoint_type: str):
         """Registra requisição para analytics"""
+        if not redis_manager.is_available:
+            return  # Silently skip analytics if Redis not available
+        
         timestamp = int(time.time())
         
-        # Registrar métricas
-        metrics_key = f"metrics:requests:{timestamp // 60}"  # Por minuto
-        self.redis_client.hincrby(metrics_key, "total", 1)
-        self.redis_client.hincrby(metrics_key, f"endpoint_type:{endpoint_type}", 1)
-        self.redis_client.expire(metrics_key, 3600)  # 1 hora
+        def record_metrics(client):
+            # Registrar métricas
+            metrics_key = f"metrics:requests:{timestamp // 60}"  # Por minuto
+            client.hincrby(metrics_key, "total", 1)
+            client.hincrby(metrics_key, f"endpoint_type:{endpoint_type}", 1)
+            client.expire(metrics_key, 3600)  # 1 hora
+        
+        execute_redis_safe(record_metrics)
     
     def _get_client_ip(self, request: Request) -> str:
         """Obtém IP real do cliente considerando proxies"""
@@ -333,37 +359,61 @@ class RateLimiter:
     
     def _log_security_event(self, event_type: str, data: Dict):
         """Log eventos de segurança"""
+        if not redis_manager.is_available:
+            # Log locally when Redis not available
+            logger.warning(f"Security event ({event_type}): {data}")
+            return
+        
         event = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "type": event_type,
             "data": data
         }
         
-        # Salvar no Redis para análise
-        self.redis_client.lpush("security:events", json.dumps(event))
-        self.redis_client.ltrim("security:events", 0, 10000)  # Manter últimos 10k eventos
+        def log_event(client):
+            # Salvar no Redis para análise
+            client.lpush("security:events", json.dumps(event))
+            client.ltrim("security:events", 0, 10000)  # Manter últimos 10k eventos
+        
+        execute_redis_safe(log_event)
     
     def unblock_ip(self, client_ip: str) -> bool:
         """Remove bloqueio de IP"""
+        if not redis_manager.is_available:
+            return False
+        
         keys_to_delete = [
             f"blocked:ip:{client_ip}",
             f"blocked:ddos:{client_ip}"
         ]
         
-        deleted = 0
-        for key in keys_to_delete:
-            if self.redis_client.delete(key):
-                deleted += 1
+        def unblock_operation(client):
+            deleted = 0
+            for key in keys_to_delete:
+                if client.delete(key):
+                    deleted += 1
+            return deleted
         
-        return deleted > 0
+        result = execute_redis_safe(unblock_operation)
+        return result > 0 if result else False
     
     def unblock_user(self, user_id: str) -> bool:
         """Remove bloqueio de usuário"""
-        return self.redis_client.delete(f"blocked:user:{user_id}") > 0
+        if not redis_manager.is_available:
+            return False
+        
+        def unblock_operation(client):
+            return client.delete(f"blocked:user:{user_id}")
+        
+        result = execute_redis_safe(unblock_operation)
+        return result > 0 if result else False
     
     def get_rate_limit_status(self, request: Request, 
                              user_id: Optional[str] = None) -> Dict:
         """Retorna status atual dos rate limits"""
+        if not redis_manager.is_available:
+            return {"message": "Redis unavailable, rate limit status not available"}
+        
         client_ip = self._get_client_ip(request)
         
         status = {
@@ -377,38 +427,56 @@ class RateLimiter:
             status["user"] = self._get_limit_status(f"rate:user:{user_id}", 
                                                   self.limits[RateLimitType.USER]["default"])
         
-        # Verificar bloqueios ativos
-        if self.redis_client.exists(f"blocked:ip:{client_ip}"):
-            status["blocked_ips"].append({
-                "ip": client_ip,
-                "ttl": self.redis_client.ttl(f"blocked:ip:{client_ip}")
-            })
+        def check_blocks(client):
+            blocks = []
+            if client.exists(f"blocked:ip:{client_ip}"):
+                blocks.append({
+                    "ip": client_ip,
+                    "ttl": client.ttl(f"blocked:ip:{client_ip}")
+                })
+            return blocks
+        
+        blocked = execute_redis_safe(check_blocks) or []
+        status["blocked_ips"] = blocked
         
         return status
     
     def _get_limit_status(self, key: str, limit: RateLimit) -> Dict:
         """Obtém status de um rate limit específico"""
+        if not redis_manager.is_available:
+            return {"message": "Redis unavailable"}
+        
         current_time = int(time.time())
         window_start = current_time - limit.window
         
-        # Limpar entradas antigas
-        self.redis_client.zremrangebyscore(key, 0, window_start)
+        def get_status(client):
+            # Limpar entradas antigas
+            client.zremrangebyscore(key, 0, window_start)
+            # Contar requisições
+            request_count = client.zcard(key)
+            
+            return {
+                "requests_made": request_count,
+                "requests_limit": limit.requests,
+                "window_seconds": limit.window,
+                "remaining": max(0, limit.requests - request_count),
+                "reset_time": window_start + limit.window
+            }
         
-        # Contar requisições
-        request_count = self.redis_client.zcard(key)
-        
-        return {
-            "requests_made": request_count,
-            "requests_limit": limit.requests,
-            "window_seconds": limit.window,
-            "remaining": max(0, limit.requests - request_count),
-            "reset_time": window_start + limit.window
-        }
+        result = execute_redis_safe(get_status)
+        return result or {"message": "Redis operation failed"}
     
     def get_security_events(self, limit: int = 100) -> List[Dict]:
         """Retorna eventos de segurança recentes"""
-        events = self.redis_client.lrange("security:events", 0, limit - 1)
-        return [json.loads(event.decode()) for event in events]
+        if not redis_manager.is_available:
+            return []
+        
+        def get_events(client):
+            events = client.lrange("security:events", 0, limit - 1)
+            return [json.loads(event.decode()) for event in events]
+        
+        result = execute_redis_safe(get_events)
+        return result or []
 
 
 # Instance global
