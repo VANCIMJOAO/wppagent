@@ -38,7 +38,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/openapi.json",
             "/webhook",  # WhatsApp webhook
             "/auth/login",
-            "/auth/auth/login",  # Endpoint Railway com duplo prefixo
+            "/admin/login",  # Admin login endpoint
+            # "/auth/auth/login",  # Endpoint removido - era duplicado
             "/auth/register",
             "/metrics"
         }
