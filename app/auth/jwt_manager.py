@@ -155,16 +155,21 @@ class JWTManager:
         secret = self._get_current_secret()
         token = jwt.encode(payload, secret, algorithm=self.algorithm)
         
-        # Salvar refresh token no Redis para controle
-        self.redis_client.setex(
-            f"refresh_token:{payload['jti']}", 
-            int(self.refresh_token_expire.total_seconds()),
-            json.dumps({
-                "user_id": user_id,
-                "created_at": now.isoformat(),
-                "active": True
-            })
-        )
+        # Salvar refresh token no Redis para controle (se disponível)
+        if self.redis_available and self.redis_client:
+            try:
+                self.redis_client.setex(
+                    f"refresh_token:{payload['jti']}", 
+                    int(self.refresh_token_expire.total_seconds()),
+                    json.dumps({
+                        "user_id": user_id,
+                        "created_at": now.isoformat(),
+                        "active": True
+                    })
+                )
+            except Exception:
+                # Não falhar se Redis não estiver disponível
+                pass
         
         return token
     
@@ -184,16 +189,21 @@ class JWTManager:
         except jwt.InvalidTokenError:
             # Tentar com secret anterior (para tokens emitidos antes da rotação)
             try:
-                previous_secret = self.redis_client.get("jwt:previous_secret")
-                if previous_secret:
-                    payload = jwt.decode(
-                        token, 
-                        previous_secret.decode(), 
-                        algorithms=[self.algorithm],
-                        audience="whatsapp-agent-api",
-                        issuer="whatsapp-agent"
-                    )
+                # Só tentar Redis se disponível
+                if self.redis_available and self.redis_client:
+                    previous_secret = self.redis_client.get("jwt:previous_secret")
+                    if previous_secret:
+                        payload = jwt.decode(
+                            token, 
+                            previous_secret.decode(), 
+                            algorithms=[self.algorithm],
+                            audience="whatsapp-agent-api",
+                            issuer="whatsapp-agent"
+                        )
+                    else:
+                        raise jwt.InvalidTokenError("Token inválido")
                 else:
+                    # Sem Redis, usar apenas secret atual
                     raise jwt.InvalidTokenError("Token inválido")
             except jwt.InvalidTokenError:
                 raise jwt.InvalidTokenError("Token inválido ou expirado")
