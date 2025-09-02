@@ -176,17 +176,18 @@ class JWTManager:
     def verify_token(self, token: str) -> Dict[str, Any]:
         """Verifica e decodifica token"""
         try:
-            # Tentar com secret atual
+            # Tentar com secret atual - SIMPLIFICADO para Railway
             secret = self._get_current_secret()
             payload = jwt.decode(
                 token, 
                 secret, 
-                algorithms=[self.algorithm],
-                audience="whatsapp-agent-api",
-                issuer="whatsapp-agent"
+                algorithms=[self.algorithm]
+                # Removendo audience e issuer temporariamente para debug
             )
             
-        except jwt.InvalidTokenError:
+            return payload
+            
+        except jwt.InvalidTokenError as e:
             # Tentar com secret anterior (para tokens emitidos antes da rotação)
             try:
                 # Só tentar Redis se disponível
@@ -196,17 +197,16 @@ class JWTManager:
                         payload = jwt.decode(
                             token, 
                             previous_secret.decode(), 
-                            algorithms=[self.algorithm],
-                            audience="whatsapp-agent-api",
-                            issuer="whatsapp-agent"
+                            algorithms=[self.algorithm]
                         )
+                        return payload
                     else:
-                        raise jwt.InvalidTokenError("Token inválido")
+                        raise jwt.InvalidTokenError(f"Token inválido: {str(e)}")
                 else:
                     # Sem Redis, usar apenas secret atual
-                    raise jwt.InvalidTokenError("Token inválido")
-            except jwt.InvalidTokenError:
-                raise jwt.InvalidTokenError("Token inválido ou expirado")
+                    raise jwt.InvalidTokenError(f"Token inválido: {str(e)}")
+            except jwt.InvalidTokenError as e2:
+                raise jwt.InvalidTokenError(f"Token inválido ou expirado: {str(e2)}")
         
         # Verificar se token está na blacklist
         jti = payload.get("jti")
