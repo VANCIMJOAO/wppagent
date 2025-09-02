@@ -22,7 +22,17 @@ class JWTManager:
     
     def __init__(self):
         self.settings = get_settings()
-        self.redis_client = redis.from_url(self.settings.redis_url)
+        
+        # Tentar conectar ao Redis, mas não falhar se não conseguir
+        try:
+            self.redis_client = redis.from_url(self.settings.redis_url)
+            # Testar conexão
+            self.redis_client.ping()
+            self.redis_available = True
+        except Exception:
+            self.redis_client = None
+            self.redis_available = False
+            
         self.algorithm = "HS256"
         
         # Configurações de tempo
@@ -35,35 +45,44 @@ class JWTManager:
         
     def _get_current_secret(self) -> str:
         """Obtém o secret atual com rotação automática"""
+        # Se Redis não disponível, usar secret fixo da configuração
+        if not self.redis_available or not self.redis_client:
+            return self.settings.secret_key.get_secret_value()
+            
         current_time = datetime.now(timezone.utc)
         
-        # Verificar se existe secret atual no Redis
-        current_secret = self.redis_client.get("jwt:current_secret")
-        secret_created = self.redis_client.get("jwt:secret_created")
-        
-        if current_secret and secret_created:
-            created_time = datetime.fromisoformat(secret_created.decode())
+        try:
+            # Verificar se existe secret atual no Redis
+            current_secret = self.redis_client.get("jwt:current_secret")
+            secret_created = self.redis_client.get("jwt:secret_created")
             
-            # Se o secret ainda é válido, usar ele
-            if current_time - created_time < self.secret_rotation_interval:
-                return current_secret.decode()
-        
-        # Gerar novo secret
-        new_secret = self._generate_secret()
-        
-        # Salvar secret anterior como "previous" para validação de tokens antigos
-        if current_secret:
-            self.redis_client.setex(
-                "jwt:previous_secret", 
-                int(self.refresh_token_expire.total_seconds()),
-                current_secret
-            )
-        
-        # Salvar novo secret
-        self.redis_client.set("jwt:current_secret", new_secret)
-        self.redis_client.set("jwt:secret_created", current_time.isoformat())
-        
-        return new_secret
+            if current_secret and secret_created:
+                created_time = datetime.fromisoformat(secret_created.decode())
+                
+                # Se o secret ainda é válido, usar ele
+                if current_time - created_time < self.secret_rotation_interval:
+                    return current_secret.decode()
+            
+            # Gerar novo secret
+            new_secret = self._generate_secret()
+            
+            # Salvar secret anterior como "previous" para validação de tokens antigos
+            if current_secret:
+                self.redis_client.setex(
+                    "jwt:previous_secret", 
+                    int(self.refresh_token_expire.total_seconds()),
+                    current_secret
+                )
+            
+            # Salvar novo secret
+            self.redis_client.set("jwt:current_secret", new_secret)
+            self.redis_client.set("jwt:secret_created", current_time.isoformat())
+            
+            return new_secret
+            
+        except Exception:
+            # Fallback para secret da configuração se Redis falhar
+            return self.settings.secret_key.get_secret_value()
     
     def _generate_secret(self) -> str:
         """Gera um secret criptograficamente seguro"""
