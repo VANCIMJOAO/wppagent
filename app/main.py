@@ -239,6 +239,9 @@ app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 from app.routes.conversations import router as conversations_router
 app.include_router(conversations_router, tags=["Dashboard - Conversations"])
 
+from app.routes.dashboard import router as dashboard_router
+app.include_router(dashboard_router, tags=["Dashboard - Main"])
+
 # 🔥 WEBSOCKET - Comunicação em Tempo Real 
 from app.routes.websocket import router as websocket_router_realtime
 app.include_router(websocket_router_realtime, tags=["WebSocket - Real Time"])

@@ -19,20 +19,37 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 from services.queries_reports import ReportsQueries
-from services.db import execute_query
+from services.api_service import sync_api
+from utils.cache import cached_api_call, cache
+from utils.error_handler import safe_execute
 
-def execute_scalar(query, params=None):
-    """Executa query e retorna um valor escalar"""
-    try:
-        result = execute_query(query, params)
-        if result and len(result) > 0:
-            first_row = result[0]
-            if isinstance(first_row, dict):
-                return list(first_row.values())[0]
-            return first_row
-        return 0
-    except:
-        return 0
+# Marca API como disponível (usando try/except no import se necessário)
+api_available = True
+
+# Funções cached para otimizar chamadas de relatórios
+@cached_api_call(ttl=600)  # 10 minutos para relatórios
+def get_cached_report_stats(period="30d"):
+    """Busca estatísticas de relatórios via API REST com cache"""
+    if api_available:
+        return sync_api.get_dashboard_stats(period=period) or {}
+    return {}
+
+
+@cached_api_call(ttl=900)  # 15 minutos para dados históricos  
+def get_cached_monthly_data():
+    """Busca dados mensais via API REST com cache"""
+    if api_available:
+        # TODO: Implementar endpoint específico no backend para dados históricos
+        return sync_api.get_dashboard_stats(period="12m") or {}
+    return {}
+
+
+@cached_api_call(ttl=300)  # 5 minutos para dados gerais
+def get_cached_appointments_data(limit=100, offset=0, filters=None):
+    """Busca dados de agendamentos via API REST com cache"""
+    if api_available:
+        return sync_api.get_appointments(limit=limit, offset=offset, filters=filters) or []
+    return []
 
 def register_relatorios_callbacks(app):
     """
@@ -553,6 +570,9 @@ def register_relatorios_callbacks(app):
         default_start = today - timedelta(days=30)
         
         return default_start, today, 'all', None
+    
+    # Mensagem de sucesso do registro de callbacks
+    print("✅ RELATÓRIOS callbacks com dados reais registrados!")
 
 # Funções auxiliares para criação de gráficos
 

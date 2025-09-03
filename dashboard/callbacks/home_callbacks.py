@@ -27,11 +27,97 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
     from services.api_service import sync_api
     from services.database_service import get_db_service
+    from utils.cache import cached_api_call, cache
     api_available = True
     db_service = get_db_service()
 except ImportError:
     api_available = False
     print("⚠️  API service não disponível - usando dados mock")
+
+
+# Funções cached para otimizar chamadas à API
+@cached_api_call(ttl=300)  # 5 minutos de cache
+def get_cached_dashboard_stats():
+    """Busca estatísticas do dashboard com cache - SEM dados mock"""
+    if api_available:
+        try:
+            # Tenta buscar dados reais da API
+            stats = sync_api.get_dashboard_stats()
+            # Se retornou dados mock (tem conversion_rate = 0.75), ignora
+            if stats and stats.get('conversion_rate') == 0.75:
+                return {}
+            return stats or {}
+        except Exception:
+            return {}
+    return {}
+
+
+@cached_api_call(ttl=300)  # 5 minutos de cache
+def get_cached_conversations_count():
+    """Busca contagem de conversas com cache - SEM dados mock"""
+    stats = get_cached_dashboard_stats()
+    return stats.get('total_conversations', 0) if stats else 0
+
+
+@cached_api_call(ttl=300)  # 5 minutos de cache
+def get_cached_users_count():
+    """Busca contagem de usuários com cache - SEM dados mock"""
+    stats = get_cached_dashboard_stats()
+    return stats.get('total_users', 0) if stats else 0
+
+
+@cached_api_call(ttl=300)  # 5 minutos de cache
+def get_cached_appointments_count():
+    """Busca contagem de agendamentos com cache - SEM dados mock"""
+    stats = get_cached_dashboard_stats()
+    return stats.get('appointments_scheduled', 0) if stats else 0
+
+
+@cached_api_call(ttl=300)  # 5 minutos de cache
+def get_cached_messages_count():
+    """Busca contagem de mensagens com cache - SEM dados mock"""
+    stats = get_cached_dashboard_stats()
+    return stats.get('messages_today', 0) if stats else 0
+
+
+@cached_api_call(ttl=600)  # 10 minutos de cache para connection test
+def get_cached_connection_status():
+    """Testa conexão com cache"""
+    if api_available:
+        # Tenta buscar stats para testar conexão
+        stats = get_cached_dashboard_stats()
+        return bool(stats)
+    return False
+
+
+@cached_api_call(ttl=180)  # 3 minutos de cache para atividades recentes
+def get_cached_recent_activities():
+    """Busca atividades recentes com cache"""
+    if api_available:
+        # TODO: Implementar endpoint para atividades recentes
+        # Por enquanto retorna vazio
+        return []
+    return []
+
+
+@cached_api_call(ttl=300)  # 5 minutos de cache para timeline
+def get_cached_conversations_timeline():
+    """Busca timeline de conversas com cache"""
+    if api_available:
+        # TODO: Implementar endpoint para timeline
+        # Por enquanto retorna vazio
+        return []
+    return []
+
+
+@cached_api_call(ttl=300)  # 5 minutos de cache para distribuição de status
+def get_cached_conversations_status_distribution():
+    """Busca distribuição de status com cache"""
+    if api_available:
+        # TODO: Implementar endpoint para status distribution
+        # Por enquanto retorna vazio
+        return []
+    return []
 
 def register_home_callbacks(app):
     """
@@ -54,14 +140,11 @@ def register_home_callbacks(app):
             raise PreventUpdate
             
         try:
-            if api_available:
-                is_healthy = sync_api.test_connection()
-                if is_healthy:
-                    return 'green', False
-                else:
-                    return 'red', True
+            is_healthy = get_cached_connection_status()
+            if is_healthy:
+                return 'green', False
             else:
-                return 'yellow', True
+                return 'red', True
                 
         except Exception as e:
             print(f"Erro no health check: {e}")
@@ -79,42 +162,45 @@ def register_home_callbacks(app):
     )
     def update_real_kpis(pathname):
         """
-        Atualiza KPIs com dados reais da database.
+        Atualiza KPIs com dados reais da database usando cache.
         """
         if pathname != '/home' and pathname != '/':
             raise PreventUpdate
         
         try:
-            if api_available:
-                # Total de conversas
-                total_conversations = sync_api.get_conversations_count() or 0
-                
-                # Total de usuários
-                total_users = sync_api.get_users_count() or 0
-                
-                # Total de agendamentos
-                total_appointments = sync_api.get_appointments_count() or 0
-                
-                # Total de mensagens
-                total_messages = sync_api.get_messages_count() or 0
-                
-                # TODO: Implementar cálculo de crescimento via API
-                # Por enquanto, usando valores estáticos baseados na análise real
-                conv_growth = 15.2
-                users_growth = 8.7
-                apt_growth = -2.1
-                msg_growth = 23.4
-                
-            else:
-                # Dados mock para fallback
-                total_conversations = 40
-                total_users = 112
-                total_appointments = 17
-                total_messages = 2066
-                conv_growth = 15.2
-                users_growth = 8.7
-                apt_growth = -2.1
-                msg_growth = 23.4
+            # Usa funções cached para otimizar performance
+            total_conversations = get_cached_conversations_count()
+            total_users = get_cached_users_count()
+            total_appointments = get_cached_appointments_count()
+            total_messages = get_cached_messages_count()
+            
+            # Se não há dados da API, mostrar indicadores vazios
+            if not any([total_conversations, total_users, total_appointments, total_messages]):
+                return [
+                    dmc.Stack([
+                        dmc.Text("--", size="xl", fw=700, c="gray"),
+                        dmc.Text("Sem dados", size="sm", c="gray")
+                    ], spacing="xs"),
+                    dmc.Stack([
+                        dmc.Text("--", size="xl", fw=700, c="gray"),
+                        dmc.Text("Sem dados", size="sm", c="gray")
+                    ], spacing="xs"),
+                    dmc.Stack([
+                        dmc.Text("--", size="xl", fw=700, c="gray"),
+                        dmc.Text("Sem dados", size="sm", c="gray")
+                    ], spacing="xs"),
+                    dmc.Stack([
+                        dmc.Text("--", size="xl", fw=700, c="gray"),
+                        dmc.Text("Sem dados", size="sm", c="gray")
+                    ], spacing="xs")
+                ]
+            
+            # TODO: Implementar cálculo de crescimento via API cached
+            # Por enquanto, sem dados de crescimento
+            conv_growth = 0
+            users_growth = 0
+            apt_growth = 0
+            msg_growth = 0
             
             # Formata os valores para exibição
             def format_growth(growth):
@@ -169,13 +255,25 @@ def register_home_callbacks(app):
             ]
             
         except Exception as e:
-            print(f"Erro ao carregar KPIs reais: {e}")
-            # Fallback com dados mock
+            print(f"Erro ao carregar KPIs: {e}")
+            # Retorna indicadores vazios em caso de erro
             return [
-                dmc.Stack([dmc.Text("40", size="xl", fw=700, c="blue"), dmc.Text("+15.2%", size="sm", c="green")], spacing="xs"),
-                dmc.Stack([dmc.Text("112", size="xl", fw=700, c="green"), dmc.Text("+8.7%", size="sm", c="green")], spacing="xs"),
-                dmc.Stack([dmc.Text("17", size="xl", fw=700, c="orange"), dmc.Text("-2.1%", size="sm", c="red")], spacing="xs"),
-                dmc.Stack([dmc.Text("2.066", size="xl", fw=700, c="purple"), dmc.Text("+23.4%", size="sm", c="green")], spacing="xs")
+                dmc.Stack([
+                    dmc.Text("--", size="xl", fw=700, c="red"),
+                    dmc.Text("Erro", size="sm", c="red")
+                ], spacing="xs"),
+                dmc.Stack([
+                    dmc.Text("--", size="xl", fw=700, c="red"),
+                    dmc.Text("Erro", size="sm", c="red")
+                ], spacing="xs"),
+                dmc.Stack([
+                    dmc.Text("--", size="xl", fw=700, c="red"),
+                    dmc.Text("Erro", size="sm", c="red")
+                ], spacing="xs"),
+                dmc.Stack([
+                    dmc.Text("--", size="xl", fw=700, c="red"),
+                    dmc.Text("Erro", size="sm", c="red")
+                ], spacing="xs")
             ]
 
     @app.callback(
@@ -185,45 +283,25 @@ def register_home_callbacks(app):
     )
     def load_recent_activity(pathname):
         """
-        Carrega atividade recente com dados reais da database.
+        Carrega atividade recente com dados reais da database usando cache.
         """
         if pathname not in ["/home", "/"]:
             raise PreventUpdate
         
         try:
-            if api_available:
-                # Buscar atividades recentes via API
-                # TODO: Implementar endpoint específico para atividades recentes
-                # Por enquanto, comentar query complexa e usar dados mock
-                activities_data = []
-                
-                """
-                # Query complexa comentada até implementar endpoint
-                activity_query = \"\"\"
-                SELECT 
-                    m.created_at,
-                    m.direction,
-                    m.content,
-                    u.nome as customer_name,
-                    u.telefone,
-                    c.status as conv_status
-                FROM messages m
-                JOIN users u ON m.user_id = u.id
-                JOIN conversations c ON m.conversation_id = c.id
-                WHERE m.created_at > NOW() - INTERVAL '24 hours'
-                AND u.nome IS NOT NULL
-                ORDER BY m.created_at DESC
-                LIMIT 5
-                \"\"\"
-                activities_data = sync_api.get_recent_activities()
-                """
-                
-            else:
-                # Dados mock para fallback
-                activities_data = [
-                    {"created_at": datetime.now() - timedelta(minutes=5), "direction": "in", "content": "Olá! Gostaria de agendar", "customer_name": "Maria Silva", "telefone": "(11) 99999-1111"},
-                    {"created_at": datetime.now() - timedelta(minutes=15), "direction": "out", "content": "Como posso ajudar você?", "customer_name": "João Santos", "telefone": "(11) 99999-2222"},
-                    {"created_at": datetime.now() - timedelta(hours=1), "direction": "in", "content": "Preciso cancelar", "customer_name": "Ana Costa", "telefone": "(11) 99999-3333"}
+            # Usa função cached para otimizar performance
+            activities_data = get_cached_recent_activities()
+            
+            # Se não há dados da API, mostrar mensagem vazia
+            if not activities_data:
+                return [
+                    dmc.Text(
+                        "Nenhuma atividade recente encontrada",
+                        size="sm",
+                        c="gray",
+                        ta="center",
+                        py="md"
+                    )
                 ]
 
             activities = []
@@ -310,51 +388,44 @@ def register_home_callbacks(app):
             raise PreventUpdate
         
         try:
-            if api_available:
-                # Buscar timeline via API
-                # TODO: Implementar endpoint para timeline de conversas
-                # Por enquanto, usar dados mock baseados na análise real
-                
-                """
-                # Query complexa comentada até implementar endpoint
-                timeline_query = \"\"\"
-                SELECT 
-                    DATE(created_at) as date,
-                    COUNT(*) as count
-                FROM conversations
-                WHERE created_at > NOW() - INTERVAL '7 days'
-                GROUP BY DATE(created_at)
-                ORDER BY date
-                \"\"\"
-                timeline_data = sync_api.get_conversations_timeline()
-                """
-                
-                # Preenche com dados mock
+            # Usa função cached para otimizar performance
+            timeline_data = get_cached_conversations_timeline()
+            
+            # Processa dados da API ou mostra vazio
+            if timeline_data and len(timeline_data) > 0:
                 dates = []
                 counts = []
-                
-                for i in range(7):
-                    check_date = (datetime.now() - timedelta(days=6-i)).date()
-                    dates.append(check_date.strftime("%d/%m"))
-                    counts.append([2, 3, 1, 4, 2, 5, 3][i])  # Mock baseado na análise real
-                
+                for item in timeline_data:
+                    dates.append(item.get('date', ''))
+                    counts.append(item.get('count', 0))
             else:
-                # Dados mock para fallback
-                dates = [(datetime.now() - timedelta(days=6-i)).strftime("%d/%m") for i in range(7)]
-                counts = [3, 5, 2, 8, 6, 4, 7]  # Dados simulados
+                # Sem dados - mostrar gráfico vazio
+                dates = []
+                counts = []
             
             # Criar gráfico
             fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=dates,
-                y=counts,
-                mode='lines+markers',
-                line=dict(color='#1e88e5', width=3),
-                marker=dict(size=8, color='#1e88e5'),
-                fill='tozeroy',
-                fillcolor='rgba(30, 136, 229, 0.1)',
-                hovertemplate='<b>%{x}</b><br>Conversas: %{y}<extra></extra>'
-            ))
+            
+            if dates and counts:
+                fig.add_trace(go.Scatter(
+                    x=dates,
+                    y=counts,
+                    mode='lines+markers',
+                    line=dict(color='#1e88e5', width=3),
+                    marker=dict(size=8, color='#1e88e5'),
+                    fill='tozeroy',
+                    fillcolor='rgba(30, 136, 229, 0.1)',
+                    hovertemplate='<b>%{x}</b><br>Conversas: %{y}<extra></extra>'
+                ))
+            else:
+                # Gráfico vazio com mensagem
+                fig.add_annotation(
+                    text="Nenhum dado disponível",
+                    xref="paper", yref="paper",
+                    x=0.5, y=0.5,
+                    showarrow=False,
+                    font=dict(size=14, color="gray")
+                )
             
             fig.update_layout(
                 height=200,
@@ -403,46 +474,43 @@ def register_home_callbacks(app):
             raise PreventUpdate
         
         try:
-            if api_available:
-                # Buscar distribuição via API
-                # TODO: Implementar endpoint para status de conversas
-                # Por enquanto, usar dados mock baseados na análise real
-                
-                """
-                # Query complexa comentada até implementar endpoint
-                status_query = \"\"\"
-                SELECT 
-                    status,
-                    COUNT(*) as count
-                FROM conversations
-                GROUP BY status
-                ORDER BY count DESC
-                \"\"\"
-                status_data = sync_api.get_conversations_status_distribution()
-                """
-                
-                # Mock baseado na análise real (40 conversas)
-                labels = ['active', 'inactive', 'pending']
-                values = [25, 10, 5]  # Distribuição baseada nos dados reais
-                    
+            # Usa função cached para otimizar performance
+            status_data = get_cached_conversations_status_distribution()
+            
+            # Processa dados da API ou mostra vazio
+            if status_data and len(status_data) > 0:
+                labels = [item.get('status', 'unknown') for item in status_data]
+                values = [item.get('count', 0) for item in status_data]
             else:
-                # Dados mock para fallback
-                labels = ['active', 'inactive', 'pending']
-                values = [25, 10, 5]
+                # Sem dados - mostrar gráfico vazio
+                labels = []
+                values = []
             
             # Cores personalizadas
             colors = ['#1e88e5', '#43a047', '#fb8c00', '#e53935', '#8e24aa']
             
             # Criar gráfico de pizza
-            fig = go.Figure(data=[go.Pie(
-                labels=labels,
-                values=values,
-                hole=0.4,
-                marker=dict(colors=colors[:len(labels)]),
-                textinfo='label+percent',
-                textposition='outside',
-                hovertemplate='<b>%{label}</b><br>Conversas: %{value}<br>Porcentagem: %{percent}<extra></extra>'
-            )])
+            fig = go.Figure()
+            
+            if labels and values and any(values):
+                fig.add_trace(go.Pie(
+                    labels=labels,
+                    values=values,
+                    hole=0.4,
+                    marker=dict(colors=colors[:len(labels)]),
+                    textinfo='label+percent',
+                    textposition='outside',
+                    hovertemplate='<b>%{label}</b><br>Conversas: %{value}<br>Porcentagem: %{percent}<extra></extra>'
+                ))
+            else:
+                # Gráfico vazio com mensagem
+                fig.add_annotation(
+                    text="Nenhum dado de status disponível",
+                    xref="paper", yref="paper",
+                    x=0.5, y=0.5,
+                    showarrow=False,
+                    font=dict(size=14, color="gray")
+                )
             
             fig.update_layout(
                 height=200,

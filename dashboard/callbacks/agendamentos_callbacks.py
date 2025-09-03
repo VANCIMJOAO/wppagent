@@ -25,11 +25,38 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
     from services.api_service import sync_api
     from services.database_service import get_db_service
+    from utils.cache import cached_api_call, cached_database_call, cache
+    from utils.error_handler import safe_execute
     api_available = True
     db_service = get_db_service()
 except ImportError:
     api_available = False
     print("⚠️  API service não disponível - usando dados mock")
+
+
+# Funções cached para otimizar chamadas à API de agendamentos
+@cached_api_call(ttl=180)  # 3 minutos de cache
+def get_cached_appointments(date_from=None, date_to=None):
+    """Busca agendamentos com cache"""
+    if api_available:
+        return sync_api.get_appointments(date_from=date_from, date_to=date_to) or []
+    return []
+
+
+@cached_api_call(ttl=300)  # 5 minutos de cache
+def get_cached_appointment_stats():
+    """Busca estatísticas de agendamentos com cache"""
+    if api_available:
+        # Busca estatísticas do dashboard que incluem agendamentos
+        stats = sync_api.get_dashboard_stats()
+        if stats:
+            return {
+                'total_appointments': stats.get('appointments_scheduled', 0),
+                'confirmed_appointments': stats.get('confirmed_appointments', 0),
+                'pending_appointments': stats.get('pending_appointments', 0),
+                'cancelled_appointments': stats.get('cancelled_appointments', 0)
+            }
+    return {}
 
 def register_agendamentos_callbacks(app):
     """
@@ -70,165 +97,130 @@ def register_agendamentos_callbacks(app):
         """
         Atualiza a lista de agendamentos usando dados reais da API.
         """
-        try:
-            if api_available:
-                # Usar API service para buscar agendamentos
-                appointments = db_service.get_appointments()
+        # Usar safe_execute para buscar agendamentos com fallback
+        appointments = safe_execute(
+            get_cached_appointments,
+            fallback_value=[],
+            context="carregamento de agendamentos",
+            component_id="appointments-list",
+            date_from=start_date,
+            date_to=end_date
+        )
+        
+        # Usar dados da API diretamente (já formatados)
+        formatted_appointments = appointments if appointments else []
+        
+        # Aplicar filtros se necessário
+        if status_filter and status_filter != "all":
+            formatted_appointments = [apt for apt in formatted_appointments if apt.get("status") == status_filter]
+                # Aplicar filtros de data se especificados
+        if start_date or end_date:
+            filtered_appointments = []
+            for apt in formatted_appointments:
+                apt_date = apt.get('appointment_datetime', '')[:10] if apt.get('appointment_datetime') else ''
                 
-                # Query para buscar agendamentos reais com dados de usuários e serviços
-                query = """
-                SELECT 
-                    a.id,
-                    a.date_time,
-                    a.status,
-                    a.notes,
-                    a.customer_notes,
-                    a.duration,
-                    a.price,
-                    a.created_at,
-                    u.nome as customer_name,
-                    u.telefone as phone_number,
-                    u.email as customer_email,
-                    s.name as service_name,
-                    s.description as service_description,
-                    s.price as service_price,
-                    s.duration_minutes
-                FROM appointments a
-                LEFT JOIN users u ON a.user_id = u.id
-                LEFT JOIN services s ON a.service_id = s.id
-                WHERE a.business_id = 3
-                ORDER BY a.date_time DESC
-                """
-                
-                # Usar dados da API diretamente
-                formatted_appointments = appointments if appointments else []
-                
-            else:
-                # Fallback com dados mock estruturados como os reais
-                appointments = [
-                    {
-                        "id": 1,
-                        "customer_name": "Maria Silva",
-                        "phone_number": "(11) 99999-1111",
-                        "customer_email": "maria@email.com",
-                        "appointment_datetime": "2025-08-28T14:00:00",
-                        "service_type": "Limpeza de Pele",
-                        "status": "confirmed",
-                        "notes": "Cliente preferencial",
-                        "price": 80.0
-                    },
-                    {
-                        "id": 2,
-                        "customer_name": "João Santos",
-                        "phone_number": "(11) 99999-2222",
-                        "customer_email": "joao@email.com",
-                        "appointment_datetime": "2025-08-28T16:30:00",
-                        "service_type": "Massagem Relaxante",
-                        "status": "pending",
-                        "notes": "Primeira vez",
-                        "price": 120.0
-                    },
-                    {
-                        "id": 3,
-                        "customer_name": "Ana Costa",
-                        "phone_number": "(11) 99999-3333",
-                        "customer_email": "ana@email.com",
-                        "appointment_datetime": "2025-08-27T10:00:00",
-                        "service_type": "Corte + Escova",
-                        "status": "cancelled",
-                        "notes": "Cancelou por motivos pessoais",
-                        "price": 65.0
-                    }
-                ]
+                if start_date and end_date:
+                    if start_date <= apt_date <= end_date:
+                        filtered_appointments.append(apt)
+                elif start_date:
+                    if apt_date >= start_date:
+                        filtered_appointments.append(apt)
+                elif end_date:
+                    if apt_date <= end_date:
+                        filtered_appointments.append(apt)
+                        
+            formatted_appointments = filtered_appointments
+        
+        # Ordenar por data/hora
+        if sort_by == "date":
+            formatted_appointments.sort(key=lambda x: x.get("appointment_datetime", ""))
+        elif sort_by == "customer":
+            formatted_appointments.sort(key=lambda x: x.get("customer_name", ""))
+        elif sort_by == "service":
+            formatted_appointments.sort(key=lambda x: x.get("service_type", ""))
+        
+        # Criar cards dos agendamentos
+        appointment_items = []
+        
+        if not formatted_appointments:
+            appointment_items = [
+                dmc.Center([
+                    dmc.Stack([
+                        DashIconify(
+                            icon="tabler:calendar-off",
+                            color="gray",
+                            width=64,
+                            height=64
+                        ),
+                        dmc.Text(
+                            "📅 Nenhum agendamento encontrado",
+                            ta="center",
+                            c="dimmed",
+                            size="lg",
+                            weight=500
+                        ),
+                        dmc.Text(
+                            "Aplique filtros diferentes ou adicione um novo agendamento.",
+                            ta="center",
+                            c="dimmed"
+                        )
+                    ], align="center", spacing="md")
+                ], p="xl")
+            ]
+        else:
+            # Criar cards para cada agendamento
+            status_colors = {
+                "confirmed": "green",
+                "pending": "yellow",
+                "cancelled": "red", 
+                "completed": "blue"
+            }
             
-            # Aplica filtro de status
-            if status_filter and status_filter != "all":
-                appointments = [apt for apt in appointments if apt.get("status") == status_filter]
-            
-            # Aplica filtro de data se fornecido
-            if start_date or end_date:
-                filtered_appointments = []
-                
-                for apt in appointments:
-                    apt_date = apt.get('appointment_datetime')
-                    if apt_date:
-                        try:
-                            if isinstance(apt_date, str):
-                                apt_date = datetime.fromisoformat(apt_date.replace('Z', '+00:00'))
-                            apt_date = apt_date.date()
-                            
-                            include = True
-                            if start_date:
-                                start = datetime.fromisoformat(start_date).date()
-                                if apt_date < start:
-                                    include = False
-                            
-                            if end_date and include:
-                                end = datetime.fromisoformat(end_date).date()
-                                if apt_date > end:
-                                    include = False
-                            
-                            if include:
-                                filtered_appointments.append(apt)
-                        except:
-                            continue
-                
-                appointments = filtered_appointments
-            
-            # Aplica ordenação
-            if sort_by == "date_desc":
-                appointments.sort(key=lambda x: x.get('appointment_datetime', ''), reverse=True)
-            elif sort_by == "date_asc":
-                appointments.sort(key=lambda x: x.get('appointment_datetime', ''))
-            elif sort_by == "status":
-                appointments.sort(key=lambda x: x.get('status', ''))
-            
-            # Cria lista de componentes com layout moderno
-            if appointments:
-                from layout.agendamentos import create_compact_appointment_item
-                appointment_items = [create_compact_appointment_item(apt) for apt in appointments]
-            else:
-                # Estado vazio moderno
-                appointment_items = [
-                    html.Div([
-                        dmc.Center([
+            for appointment in formatted_appointments:
+                appointment_items.append(
+                    dmc.Card([
+                        dmc.Group([
                             dmc.Stack([
-                                html.Div([
-                                    DashIconify(
-                                        icon="tabler:calendar-off", 
-                                        width=40,
-                                        color="white"
+                                dmc.Group([
+                                    dmc.Badge(
+                                        appointment.get("status", "pending").upper(),
+                                        color=status_colors.get(appointment.get("status"), "gray"),
+                                        variant="light"
+                                    ),
+                                    dmc.Text(
+                                        appointment.get("appointment_datetime", "")[:16].replace("T", " às "),
+                                        weight=500,
+                                        c="dimmed"
                                     )
-                                ], className="empty-state-icon"),
-                                dmc.Text(
-                                    "Nenhum agendamento encontrado",
-                                    fw=600,
-                                    size="lg",
-                                    style={"textAlign": "center"}
+                                ], justify="space-between"),
+                                dmc.Title(
+                                    appointment.get("customer_name", "Cliente"),
+                                    order=4,
+                                    c="dark"
                                 ),
                                 dmc.Text(
-                                    "Use o botão 'Novo Agendamento' no topo da página",
-                                    c="dimmed",
-                                    size="sm",
-                                    style={"textAlign": "center"}
-                                )
-                            ], align="center", spacing="lg")
-                        ], p="xl")
-                    ], className="empty-state-modern")
-                ]
-            
-            return appointment_items, appointments
-            
-        except Exception as e:
-            print(f"Erro ao atualizar lista de agendamentos: {e}")
-            return [
-                dmc.Alert(
-                    "Erro ao carregar agendamentos. Tente novamente.",
-                    title="Erro",
-                    color="red",
-                    icon=DashIconify(icon="tabler:exclamation-circle")
+                                    appointment.get("service_type", "Serviço"),
+                                    c="blue",
+                                    weight=500
+                                ),
+                                dmc.Group([
+                                    dmc.Text(
+                                        appointment.get("phone_number", ""),
+                                        c="dimmed",
+                                        size="sm"
+                                    ),
+                                    dmc.Text(
+                                        f"R$ {appointment.get('price', 0):.2f}",
+                                        c="green", 
+                                        weight=600
+                                    )
+                                ], justify="space-between")
+                            ], spacing="xs", style={"flex": 1})
+                        ])
+                    ], withBorder=True, shadow="sm", radius="md", p="md", mb="sm")
                 )
-            ], []
+        
+        return appointment_items, formatted_appointments
     
     @app.callback(
         Output("appointment-modal", "opened"),

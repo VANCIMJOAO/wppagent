@@ -309,6 +309,53 @@ class APIService:
             logger.error(f"❌ Erro ao buscar agendamentos: {e}")
             return self._get_mock_appointments()
     
+    def get_clients(self, limit: int = 100, offset: int = 0, 
+                   search: Optional[str] = None) -> List[Dict]:
+        """
+        👥 SUBSTITUI: DatabaseService queries SQL diretas de clientes
+        
+        Busca clientes via API REST ao invés de SQL direto.
+        Retorna formato compatível com dashboard existente.
+        """
+        try:
+            logger.info(f"👥 Buscando clientes via API REST (limit={limit}, offset={offset})")
+            
+            params = {"limit": limit, "offset": offset}
+            if search:
+                params["search"] = search
+            
+            # 🔄 CORREÇÃO: Usar novo endpoint de dashboard
+            data = self._make_request("GET", "api/dashboard/clients", params=params)
+            
+            if not data:
+                return self._get_mock_clients()
+            
+            # Retornar dados diretamente pois já estão no formato correto
+            return data if isinstance(data, list) else data.get('clients', [])
+            
+        except Exception as e:
+            logger.error(f"❌ Erro ao buscar clientes: {e}")
+            return self._get_mock_clients()
+    
+    def get_client_stats(self) -> Dict:
+        """
+        📊 Busca estatísticas de clientes via API REST
+        """
+        try:
+            logger.info("📊 Buscando estatísticas de clientes via API REST")
+            
+            # 🔄 CORREÇÃO: Usar novo endpoint de dashboard
+            data = self._make_request("GET", "api/dashboard/clients/stats")
+            
+            if not data:
+                return self._get_mock_client_stats()
+            
+            return data
+            
+        except Exception as e:
+            logger.error(f"❌ Erro ao buscar estatísticas de clientes: {e}")
+            return self._get_mock_client_stats()
+    
     def get_dashboard_stats(self, period: str = "30d") -> Dict:
         """
         📊 Busca estatísticas do dashboard via API REST
@@ -327,6 +374,50 @@ class APIService:
         except Exception as e:
             logger.error(f"❌ Erro ao buscar estatísticas: {e}")
             return self._get_mock_stats()
+    
+    def get_monthly_stats(self, months: int = 12) -> List[Dict]:
+        """
+        📊 Busca estatísticas mensais via API REST
+        """
+        try:
+            logger.info(f"📊 Buscando estatísticas mensais ({months} meses) via API REST")
+            
+            params = {"months": months}
+            data = self._make_request("GET", "api/dashboard/stats/monthly", params=params)
+            
+            if not data:
+                return self._get_mock_monthly_stats()
+            
+            return data if isinstance(data, list) else []
+            
+        except Exception as e:
+            logger.error(f"❌ Erro ao buscar estatísticas mensais: {e}")
+            return self._get_mock_monthly_stats()
+    
+    def export_report(self, report_type: str, format: str = "json", 
+                     start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict:
+        """
+        📊 Exporta relatório via API REST
+        """
+        try:
+            logger.info(f"📊 Exportando relatório {report_type} em formato {format}")
+            
+            params = {"type": report_type, "format": format}
+            if start_date:
+                params["start_date"] = start_date
+            if end_date:
+                params["end_date"] = end_date
+            
+            data = self._make_request("GET", "api/dashboard/reports/export", params=params)
+            
+            if not data:
+                return {"error": "Falha ao exportar relatório", "data": []}
+            
+            return data
+            
+        except Exception as e:
+            logger.error(f"❌ Erro ao exportar relatório: {e}")
+            return {"error": str(e), "data": []}
     
     # ================================
     # MÉTODOS AUXILIARES
@@ -412,6 +503,53 @@ class APIService:
             }
         ]
     
+    def _get_mock_clients(self) -> List[Dict]:
+        """Clientes mock quando API não está disponível"""
+        return [
+            {
+                'id': 1,
+                'nome': 'Maria Silva',
+                'telefone': '(11) 99999-1111',
+                'email': 'maria@email.com',
+                'created_at': '2025-08-01T10:00:00',
+                'updated_at': '2025-08-15T14:30:00',
+                'total_conversations': 3,
+                'total_messages': 25,
+                'last_contact': '2025-08-15T14:30:00'
+            },
+            {
+                'id': 2,
+                'nome': 'João Santos',
+                'telefone': '(11) 99999-2222',
+                'email': 'joao@email.com',
+                'created_at': '2025-07-20T15:00:00',
+                'updated_at': '2025-08-10T11:20:00',
+                'total_conversations': 2,
+                'total_messages': 18,
+                'last_contact': '2025-08-10T11:20:00'
+            },
+            {
+                'id': 3,
+                'nome': 'Ana Costa',
+                'telefone': '(11) 99999-3333',
+                'email': 'ana@email.com',
+                'created_at': '2025-07-15T09:00:00',
+                'updated_at': '2025-08-05T16:45:00',
+                'total_conversations': 1,
+                'total_messages': 12,
+                'last_contact': '2025-08-05T16:45:00'
+            }
+        ]
+    
+    def _get_mock_client_stats(self) -> Dict:
+        """Estatísticas de clientes mock quando API não está disponível"""
+        return {
+            'total_clients': 112,
+            'active_clients': 45,
+            'avg_spent': 85.50,
+            'total_revenue': 3825.00
+        }
+    
     def _get_mock_stats(self) -> Dict:
         """Estatísticas mock quando API não está disponível"""
         return {
@@ -421,6 +559,25 @@ class APIService:
             'appointments_scheduled': 12,
             'conversion_rate': 0.75
         }
+    
+    def _get_mock_monthly_stats(self) -> List[Dict]:
+        """Estatísticas mensais mock quando API não está disponível"""
+        from datetime import datetime, timedelta
+        
+        stats = []
+        for i in range(12):
+            month_date = datetime.now() - timedelta(days=30 * i)
+            stats.append({
+                'month': f"{month_date.month:02d}",
+                'year': month_date.year,
+                'total_conversations': 20 + (i * 5),
+                'total_messages': 150 + (i * 25),
+                'total_appointments': 8 + (i * 2),
+                'revenue': 500.0 + (i * 100),
+                'new_clients': 5 + i
+            })
+        
+        return list(reversed(stats))  # Mais recente primeiro
 
 # ================================
 # INSTÂNCIA SINGLETON

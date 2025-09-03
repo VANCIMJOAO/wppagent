@@ -217,52 +217,7 @@ def register_suporte_callbacks(app):
                 'timestamp': datetime.now().isoformat()
             }
 
-    @app.callback(
-        Output('page-content', 'children', allow_duplicate=True),
-        Input('support-form-data', 'data'),
-        prevent_initial_call=True
-    )
-    def show_form_feedback(form_data):
-        """
-        Mostra feedback após submissão do formulário.
-        """
-        if not form_data:
-            raise PreventUpdate
-        
-        # Import do layout para reconstruir a página com notificação
-        from layout.suporte import create_suporte_layout
-        
-        if form_data.get('success'):
-            # Cria notificação de sucesso
-            notification = dmc.Notification(
-                title="Ticket criado com sucesso!",
-                id="support-success-notification",
-                action="show",
-                message=f"Seu ticket {form_data['ticket']['id']} foi criado. Entraremos em contato em breve.",
-                color="green",
-                icon=DashIconify(icon="tabler:check"),
-                autoClose=5000
-            )
-            
-            layout = create_suporte_layout()
-            return html.Div([notification, layout])
-            
-        elif form_data.get('error'):
-            # Cria notificação de erro
-            notification = dmc.Notification(
-                title="Erro ao processar ticket",
-                id="support-error-notification", 
-                action="show",
-                message=form_data['error'],
-                color="red",
-                icon=DashIconify(icon="tabler:x"),
-                autoClose=7000
-            )
-            
-            layout = create_suporte_layout()
-            return html.Div([notification, layout])
-        
-        raise PreventUpdate
+    # Callback removido para evitar erro de componente inexistente
 
     @app.callback(
         Output('url', 'pathname', allow_duplicate=True),

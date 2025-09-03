@@ -21,10 +21,63 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from services.database import DatabaseService
+    from utils.cache import cached_database_call, cache
     database_available = True
 except ImportError:
     database_available = False
     print("⚠️  Database service não disponível - usando dados mock")
+
+
+# Funções cached para otimizar chamadas de configurações
+@cached_database_call(ttl=600)  # 10 minutos de cache (configurações mudam pouco)
+def get_cached_company_info():
+    """Busca informações da empresa com cache"""
+    if not database_available:
+        return {}
+    
+    db = DatabaseService()
+    try:
+        query = """
+        SELECT 
+            name,
+            description, 
+            phone,
+            email,
+            address,
+            website,
+            business_hours,
+            policies
+        FROM company_info 
+        LIMIT 1
+        """
+        result = db.execute_query(query)
+        return result[0] if result and len(result) > 0 else {}
+    except Exception as e:
+        print(f"Erro ao buscar informações da empresa: {e}")
+        return {}
+
+
+@cached_database_call(ttl=300)  # 5 minutos de cache
+def get_cached_bot_configurations():
+    """Busca configurações do bot com cache"""
+    if not database_available:
+        return []
+    
+    db = DatabaseService()
+    try:
+        query = """
+        SELECT 
+            config_key,
+            config_value,
+            description,
+            is_active
+        FROM bot_configurations 
+        ORDER BY config_key
+        """
+        return db.execute_query(query) or []
+    except Exception as e:
+        print(f"Erro ao buscar configurações do bot: {e}")
+        return []
 
 def register_configuracoes_callbacks(app):
     """Registra todos os callbacks da página de configurações"""

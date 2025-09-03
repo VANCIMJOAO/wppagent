@@ -23,19 +23,9 @@ import logging
 # MUDANÇA CRÍTICA: Usar APIService ao invés de SQLAlchemy
 from .api_service import sync_api
 
-# Sistema de error handling
-try:
-    from utils.error_handler import handle_api_error, safe_execute, with_error_handling
-    ERROR_HANDLING_AVAILABLE = True
-except ImportError:
-    ERROR_HANDLING_AVAILABLE = False
-
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-if not ERROR_HANDLING_AVAILABLE:
-    logger.warning("⚠️ Error handler não disponível - usando fallback simples")
 
 class DatabaseService:
     """
@@ -78,41 +68,15 @@ class DatabaseService:
     
     def get_conversations(self) -> List[Dict]:
         """
-        🔄 REFATORADO: get_conversations() - Agora usa API REST com error handling
+        🔄 REFATORADO: get_conversations() - Agora usa API REST
         
         ❌ ANTES: 
         query = "SELECT c.id, c.status... FROM conversations c..."
         df = pd.read_sql_query(query, self.engine)
         
         ✅ AGORA:
-        return self.api.get_conversations() + error handling visual
+        return self.api.get_conversations()
         """
-        if ERROR_HANDLING_AVAILABLE:
-            return safe_execute(
-                self._load_conversations_from_api,
-                fallback_value=self._get_mock_conversations(),
-                context="carregamento de conversas",
-                component_id="conversations"
-            )
-        else:
-            return self._load_conversations_from_api_legacy()
-    
-    def _load_conversations_from_api(self) -> List[Dict]:
-        """Carrega conversas da API com tratamento de erro moderno"""
-        logger.info("🔄 get_conversations() - usando API REST ao invés de SQL")
-        
-        # CORREÇÃO CRÍTICA: API REST ao invés de SQL direto
-        conversations = self.api.get_conversations(limit=50, offset=0)
-        
-        if not conversations:
-            logger.warning("⚠️ API retornou lista vazia - usando dados mock")
-            return self._get_mock_conversations()
-        
-        logger.info(f"✅ Carregadas {len(conversations)} conversas via API REST")
-        return conversations
-    
-    def _load_conversations_from_api_legacy(self) -> List[Dict]:
-        """Versão legacy com error handling básico"""
         try:
             logger.info("🔄 get_conversations() - usando API REST ao invés de SQL")
             
@@ -132,42 +96,15 @@ class DatabaseService:
     
     def get_conversation_messages(self, conversation_id: int) -> List[Dict]:
         """
-        🔄 REFATORADO: get_conversation_messages() - Agora usa API REST com error handling
+        🔄 REFATORADO: get_conversation_messages() - Agora usa API REST
         
         ❌ ANTES:
         query = "SELECT m.id, m.content... FROM messages m WHERE m.conversation_id = %s"
         df = pd.read_sql_query(query, self.engine, params={'conversation_id': conversation_id})
         
         ✅ AGORA:
-        return self.api.get_conversation_messages(conversation_id) + error handling visual
+        return self.api.get_conversation_messages(conversation_id)
         """
-        if ERROR_HANDLING_AVAILABLE:
-            return safe_execute(
-                self._load_messages_from_api,
-                conversation_id,
-                fallback_value=self._get_mock_messages(),
-                context=f"carregamento de mensagens da conversa {conversation_id}",
-                component_id=f"messages-{conversation_id}"
-            )
-        else:
-            return self._load_messages_from_api_legacy(conversation_id)
-    
-    def _load_messages_from_api(self, conversation_id: int) -> List[Dict]:
-        """Carrega mensagens da API com tratamento de erro moderno"""
-        logger.info(f"🔄 get_conversation_messages({conversation_id}) - usando API REST")
-        
-        # CORREÇÃO CRÍTICA: API REST ao invés de SQL direto
-        messages = self.api.get_conversation_messages(conversation_id)
-        
-        if not messages:
-            logger.warning("⚠️ API retornou lista vazia - usando dados mock")
-            return self._get_mock_messages()
-        
-        logger.info(f"✅ Carregadas {len(messages)} mensagens via API REST")
-        return messages
-    
-    def _load_messages_from_api_legacy(self, conversation_id: int) -> List[Dict]:
-        """Versão legacy com error handling básico"""
         try:
             logger.info(f"🔄 get_conversation_messages({conversation_id}) - usando API REST")
             
@@ -364,70 +301,6 @@ class DatabaseService:
             "SQL direto foi substituído por API REST. "
             "Use os métodos get_conversations(), get_conversation_messages(), etc."
         )
-    
-    def execute_query(self, query: str, params: Dict = None):
-        """
-        🔄 MÉTODO REAL - Busca dados reais do PostgreSQL
-        
-        Este método agora conecta diretamente ao banco PostgreSQL para 
-        buscar dados reais de usuários/clientes, substituindo os dados mock.
-        """
-        try:
-            # Usar conexão real ao PostgreSQL
-            from sqlalchemy import create_engine, text
-            import os
-            
-            # Usar a mesma URL do banco que o backend
-            database_url = os.getenv('DATABASE_URL')
-            if not database_url:
-                logger.error("❌ DATABASE_URL não encontrada")
-                return []
-            
-            engine = create_engine(database_url)
-            
-            with engine.connect() as conn:
-                result = conn.execute(text(query), params or {})
-                columns = result.keys()
-                rows = result.fetchall()
-                
-                # Converter para lista de dicionários
-                data = []
-                for row in rows:
-                    row_dict = {}
-                    for i, col in enumerate(columns):
-                        row_dict[col] = row[i]
-                    data.append(row_dict)
-                
-                logger.info(f"✅ Query executada com sucesso - {len(data)} registros encontrados")
-                return data
-                
-        except Exception as e:
-            logger.error(f"❌ Erro ao executar query real: {e}")
-            logger.warning("🔄 Fallback para dados mock temporários")
-            
-            # Fallback para dados mock apenas em caso de erro
-            query_lower = query.lower().strip()
-            
-            if 'users' in query_lower and 'select' in query_lower:
-                # Query de clientes - retorna dados mock como fallback
-                return [
-                    {
-                        'id': 1,
-                        'nome': 'Cliente Mock 1',
-                        'telefone': '(11) 99999-9999', 
-                        'email': 'mock1@exemplo.com',
-                        'created_at': datetime.now() - timedelta(days=30),
-                        'updated_at': datetime.now() - timedelta(days=5),
-                        'last_contact': datetime.now() - timedelta(days=2),
-                        'total_conversations': 5,
-                        'total_messages': 25
-                    }
-                ]
-            elif 'count' in query_lower and 'users' in query_lower:
-                # Query de estatísticas de clientes
-                return [{'total_clients': 1, 'active_clients': 1}]
-            else:
-                return []
     
     def test_connection(self) -> bool:
         """

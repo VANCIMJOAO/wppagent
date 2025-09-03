@@ -1,6 +1,6 @@
 """
-Callbacks de Conversas - VERSÃO CORRIGIDA
-========================================
+Callbacks de Conversas - VERSÃO CORRIGIDA + ERROR HANDLING
+=========================================================
 
 Correções implementadas:
 ✅ Estados de callback consistentes
@@ -9,6 +9,7 @@ Correções implementadas:
 ✅ Modal funcional
 ✅ Navegação entre conversas corrigida
 ✅ Prevenção de erros de elementos não existentes
+✅ Error handling com feedback visual
 """
 
 from dash import Input, Output, State, callback, ctx, ALL, no_update, ClientsideFunction
@@ -21,14 +22,78 @@ from datetime import datetime, timedelta
 try:
     from services.api_service import sync_api
     from services.database_service import get_db_service
+    from utils.cache import cached_api_call, cache
     API_AVAILABLE = True
     db_service = get_db_service()
 except ImportError:
     API_AVAILABLE = False
     print("⚠️ API Service não disponível - usando callbacks mock")
 
+
+# Funções cached para otimizar chamadas ao banco de conversas
+@cached_api_call(ttl=120)  # 2 minutos de cache
+def get_cached_conversations():
+    """Busca lista de conversas com cache"""
+    if API_AVAILABLE:
+        return db_service.get_conversations() or []
+    return []
+
+
+@cached_api_call(ttl=60)  # 1 minuto de cache para mensagens (mais dinâmico)
+def get_cached_conversation_messages(conversation_id):
+    """Busca mensagens de uma conversa com cache"""
+    if API_AVAILABLE:
+        return db_service.get_conversation_messages(conversation_id) or []
+    return []
+
+# Sistema de error handling
+try:
+    from utils.error_handler import handle_api_error, safe_execute, create_loading_error_fallback
+    ERROR_HANDLING_AVAILABLE = True
+except ImportError:
+    ERROR_HANDLING_AVAILABLE = False
+    print("⚠️ Error handler não disponível - usando fallback simples")
+
 def register_all_conversas_callbacks(app):
-    """Registra todos os callbacks da página de conversas corrigidos"""
+    """Registra todos os callbacks da página de conversas corrigidos + error handling"""
+    
+    # 0. Callbacks para error handling - Retry actions
+    if ERROR_HANDLING_AVAILABLE:
+        @app.callback(
+            Output("conversations-store", "data", allow_duplicate=True),
+            [
+                Input("retry-connection-btn", "n_clicks"),
+                Input("retry-timeout-btn", "n_clicks"),
+                Input("retry-generic-btn", "n_clicks")
+            ],
+            prevent_initial_call=True
+        )
+        def retry_load_conversations(retry_conn, retry_timeout, retry_generic):
+            """Retry para recarregar conversas após erro"""
+            
+            if not any([retry_conn, retry_timeout, retry_generic]):
+                raise PreventUpdate
+                
+            if API_AVAILABLE:
+                try:
+                    conversations = db_service.get_conversations()
+                    return conversations
+                except Exception as e:
+                    # Se ainda der erro, deixar o componente de erro aparecer novamente
+                    return []
+            else:
+                return []
+        
+        @app.callback(
+            Output("url", "pathname", allow_duplicate=True),
+            Input("goto-login-btn", "n_clicks"),
+            prevent_initial_call=True
+        )
+        def redirect_to_login(login_clicks):
+            """Redireciona para login em caso de erro de autenticação"""
+            if login_clicks:
+                return "/login"
+            raise PreventUpdate
     
     # 1. Callback para carregar lista de conversas
     @app.callback(
@@ -43,21 +108,50 @@ def register_all_conversas_callbacks(app):
         prevent_initial_call=False
     )
     def update_conversations_list(conversations, search_term, status_filter, refresh_clicks, intervals):
-        """Atualiza a lista de conversas com filtros"""
+        """Atualiza a lista de conversas com filtros + error handling visual"""
         
+        # Se não há conversas, tentar carregar com error handling
         if not conversations:
-            return [
-                dmc.Center([
-                    dmc.Stack([
-                        dmc.Text("Nenhuma conversa encontrada", c="dimmed"),
-                        dmc.Button(
-                            "Criar primeira conversa",
-                            variant="light",
-                            id="first-conversation-btn"
-                        )
-                    ], align="center")
-                ], py="xl")
-            ]
+            if ERROR_HANDLING_AVAILABLE and API_AVAILABLE:
+                try:
+                    conversations = safe_execute(
+                        db_service.get_conversations,
+                        fallback_value=[],
+                        context="carregamento inicial de conversas",
+                        component_id="conversations-list"
+                    )
+                    
+                    # Se safe_execute retornou um componente de erro, mostrar ele
+                    if hasattr(conversations, 'type') and conversations.type == 'Alert':
+                        return [dmc.Center([conversations], py="xl")]
+                        
+                except Exception as e:
+                    if ERROR_HANDLING_AVAILABLE:
+                        error_component = handle_api_error(e, "carregamento de conversas", "conversations-list")
+                        return [dmc.Center([error_component], py="xl")]
+                    else:
+                        return [dmc.Center([
+                            dmc.Alert(
+                                "Erro ao carregar conversas. Tente recarregar a página.",
+                                title="Erro de Carregamento",
+                                color="red"
+                            )
+                        ], py="xl")]
+            
+            # Fallback para quando não há conversas
+            if not conversations:
+                return [
+                    dmc.Center([
+                        dmc.Stack([
+                            dmc.Text("Nenhuma conversa encontrada", c="dimmed"),
+                            dmc.Button(
+                                "Criar primeira conversa",
+                                variant="light",
+                                id="first-conversation-btn"
+                            )
+                        ], align="center")
+                    ], py="xl")
+                ]
         
         # Aplica filtros
         from layout.conversas import filter_conversations, render_conversation_card
@@ -356,22 +450,41 @@ def register_all_conversas_callbacks(app):
                         print(f"Erro ao salvar resposta IA via API: {e}")
                         ai_success = False
                     
-                    # Recarrega mensagens via API
+                    # Recarrega mensagens via API com error handling
                     print(f"🔄 Recarregando mensagens da conversa {conversation_id} via API")
-                    try:
-                        updated_messages = db_service.get_conversation_messages(conversation_id)
-                        print(f"   Número de mensagens carregadas: {len(updated_messages) if updated_messages else 0}")
-                    except Exception as e:
-                        print(f"Erro ao carregar mensagens via API: {e}")
-                        updated_messages = []
+                    
+                    if ERROR_HANDLING_AVAILABLE:
+                        updated_messages = safe_execute(
+                            db_service.get_conversation_messages,
+                            conversation_id,
+                            fallback_value=[],
+                            context=f"recarregamento de mensagens da conversa {conversation_id}",
+                            component_id=f"reload-messages-{conversation_id}"
+                        )
+                    else:
+                        try:
+                            updated_messages = db_service.get_conversation_messages(conversation_id)
+                            print(f"   Número de mensagens carregadas: {len(updated_messages) if updated_messages else 0}")
+                        except Exception as e:
+                            print(f"❌ Erro ao carregar mensagens via API: {e}")
+                            updated_messages = []
                     
                     print(f"🔄 Recarregando lista de conversas via API")
-                    try:
-                        updated_conversations = db_service.get_conversations()
-                        print(f"   Número de conversas carregadas: {len(updated_conversations) if updated_conversations else 0}")
-                    except Exception as e:
-                        print(f"Erro ao carregar conversas via API: {e}")
-                        updated_conversations = []
+                    
+                    if ERROR_HANDLING_AVAILABLE:
+                        updated_conversations = safe_execute(
+                            db_service.get_conversations,
+                            fallback_value=[],
+                            context="recarregamento da lista de conversas",
+                            component_id="reload-conversations"
+                        )
+                    else:
+                        try:
+                            updated_conversations = db_service.get_conversations()
+                            print(f"   Número de conversas carregadas: {len(updated_conversations) if updated_conversations else 0}")
+                        except Exception as e:
+                            print(f"❌ Erro ao carregar conversas via API: {e}")
+                            updated_conversations = []
                     
                 else:
                     print("❌ Falha ao salvar mensagem no banco")
