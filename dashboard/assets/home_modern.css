@@ -1,0 +1,495 @@
+/**
+ * Home Modern Styles - Estilos específicos para a nova home
+ * ========================================================
+ * 
+ * Estilos modernos com gradientes, animações e efeitos visuais
+ * para a página home redesenhada.
+ */
+
+/* === Cards KPI Modernos === */
+.modern-kpi-card {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: center;
+}
+
+.modern-kpi-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.modern-kpi-card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+/* === Hero Section === */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="1.5"/></g></svg>');
+  opacity: 0.3;
+}
+
+/* === Glassmorphism Effects === */
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* === Gradientes personalizados === */
+.gradient-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.gradient-orange {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-purple {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* === Animações === */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* === Cards de ação rápida === */
+.quick-action-card {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.quick-action-card:active {
+  transform: translateY(-2px) scale(0.95);
+}
+
+/* Wrapper das ações rápidas */
+#action-nova-conversa:hover .quick-action-card {
+  background: rgba(59, 130, 246, 0.02);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+#action-novo-agendamento:hover .quick-action-card {
+  background: rgba(251, 146, 60, 0.02);
+  border-color: rgba(251, 146, 60, 0.3);
+}
+
+#action-adicionar-cliente:hover .quick-action-card {
+  background: rgba(16, 185, 129, 0.02);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+#action-ver-relatorios:hover .quick-action-card {
+  background: rgba(139, 92, 246, 0.02);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+/* === Badge customizado === */
+.custom-badge {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* === Stats widgets === */
+.stats-widget {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.stats-widget:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* === Micro-interações === */
+.interactive-element {
+  position: relative;
+  overflow: hidden;
+}
+
+.interactive-element::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.interactive-element:hover::before {
+  left: 100%;
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+  .modern-kpi-card {
+    margin-bottom: 1rem;
+  }
+  
+  .modern-kpi-card:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+  
+  .hero-section {
+    padding: 40px 0;
+  }
+  
+  .hero-section h1 {
+    font-size: 2rem !important;
+  }
+  
+  /* Grid responsivo para mobile */
+  .modern-grid-mobile {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  /* Hero section mobile */
+  .hero-mobile {
+    padding: 30px 0 !important;
+    text-align: center;
+  }
+  
+  .hero-mobile h1 {
+    font-size: 1.75rem !important;
+    margin-bottom: 0.5rem;
+  }
+  
+  .hero-mobile .hero-subtitle {
+    font-size: 0.9rem !important;
+  }
+  
+  /* Cards KPI mobile */
+  .kpi-card-mobile {
+    min-height: 120px !important;
+  }
+  
+  .kpi-card-mobile .kpi-header {
+    padding: 15px !important;
+    min-height: 80px !important;
+  }
+  
+  .kpi-card-mobile .kpi-value {
+    font-size: 1.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 30px 0;
+  }
+  
+  .hero-section h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  .modern-kpi-card:hover {
+    transform: none;
+  }
+  
+  /* Grid de 1 coluna em telas muito pequenas */
+  .modern-grid-mobile {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Ações rápidas em coluna única */
+  .quick-actions-mobile {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Ajustar espaçamentos */
+  .container-mobile {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* === Melhorias de Performance === */
+.modern-kpi-card {
+  will-change: transform, box-shadow;
+}
+
+.quick-action-card {
+  will-change: transform, background-color;
+}
+
+/* === Estados de loading específicos === */
+.kpi-loading {
+  background: linear-gradient(90deg, #f0f2f5 25%, #e4e6ea 50%, #f0f2f5 75%);
+  background-size: 200% 100%;
+  animation: kpi-shimmer 1.5s infinite;
+  border-radius: 12px;
+  height: 150px;
+}
+
+@keyframes kpi-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* === Melhorias de contraste para acessibilidade === */
+.high-contrast .modern-kpi-card {
+  border: 2px solid #000;
+}
+
+.high-contrast .quick-action-card {
+  border: 2px solid #000;
+}
+
+.high-contrast .stats-widget {
+  border: 2px solid #000;
+}
+
+/* === Themes adicionais === */
+.theme-dark {
+  --bg: #1a1b23;
+  --surface: #25262d;
+  --text: #ffffff;
+  --text-muted: #a0a0a0;
+  --border: #404040;
+}
+
+.theme-dark .modern-kpi-card {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.theme-dark .stats-widget {
+  background: rgba(37, 38, 45, 0.9);
+  color: var(--text);
+}
+
+/* === Animações customizadas === */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-slideInFromTop {
+  animation: slideInFromTop 0.6s ease-out;
+}
+
+.animate-bounceIn {
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* === Efeitos especiais === */
+.glassmorphism-intense {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* === Indicadores de status animados === */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse-status 2s infinite;
+}
+
+.status-indicator.online {
+  background: #10b981;
+}
+
+.status-indicator.offline {
+  background: #ef4444;
+}
+
+.status-indicator.warning {
+  background: #f59e0b;
+}
+
+@keyframes pulse-status {
+  0% {
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  70% {
+    box-shadow: 0 0 0 4px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* === Skeleton Loading === */
+.skeleton-card {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 12px;
+  height: 150px;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* === Status indicators === */
+.status-online {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.status-offline {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.status-warning {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+/* === Melhorias de acessibilidade === */
+.modern-kpi-card:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.quick-action-card:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Redução de movimentos para usuários que preferem */
+@media (prefers-reduced-motion: reduce) {
+  .modern-kpi-card,
+  .quick-action-card,
+  .stats-widget {
+    transition: none;
+  }
+  
+  .modern-kpi-card:hover,
+  .quick-action-card:hover,
+  .stats-widget:hover {
+    transform: none;
+  }
+  
+  .animate-fadeInUp,
+  .animate-slideInRight,
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+/* === Dark mode support === */
+@media (prefers-color-scheme: dark) {
+  .stats-widget {
+    background: rgba(30, 30, 30, 0.9);
+    color: #f9fafb;
+  }
+  
+  .quick-action-card:hover {
+    background: rgba(59, 130, 246, 0.1);
+  }
+}

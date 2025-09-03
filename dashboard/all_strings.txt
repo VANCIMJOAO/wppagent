@@ -1,0 +1,507 @@
+# Todas as strings encontradas nos arquivos .pyc
+# Use este arquivo para lembrar de funcionalidades que você havia implementado
+
+$DashWebSocketManager.remove_callbackQ
+$register_all_configuration_callbacksrM
+$register_all_configuration_callbacksrX
+1/home/vancim/whats_agent/dashboard/auth/models.pyr
+1/home/vancim/whats_agent/dashboard/layout/home.py
+2/home/vancim/whats_agent/dashboard/auth/layouts.py
+3/home/vancim/whats_agent/dashboard/auth/__init__.py
+3/home/vancim/whats_agent/dashboard/layout/perfil.py
+4/home/vancim/whats_agent/dashboard/auth/callbacks.py
+4/home/vancim/whats_agent/dashboard/components/nav.py
+4/home/vancim/whats_agent/dashboard/layout/suporte.py
+4register_perfil_callbacks.<locals>.load_profile_data+
+4register_relatorios_callbacks.<locals>.clear_filters
+5/home/vancim/whats_agent/dashboard/auth/decorators.py
+5/home/vancim/whats_agent/dashboard/auth/middleware.py
+5/home/vancim/whats_agent/dashboard/layout/clientes.py
+5register_all_home_callbacks.<locals>.update_real_kpisd
+5register_perfil_callbacks.<locals>.upload_user_avatar
+5register_sidebar_callbacks.<locals>.update_active_nav
+6/home/vancim/whats_agent/dashboard/components/cards.py
+6/home/vancim/whats_agent/dashboard/layout/conversas.py
+6/home/vancim/whats_agent/dashboard/services/queries.py
+6register_perfil_callbacks.<locals>.export_profile_datad
+6register_suporte_callbacks.<locals>.show_form_feedback
+7/home/vancim/whats_agent/dashboard/auth/auth_service.py
+7/home/vancim/whats_agent/dashboard/components/tables.py
+7/home/vancim/whats_agent/dashboard/config/api_config.py
+7/home/vancim/whats_agent/dashboard/layout/relatorios.py
+7/home/vancim/whats_agent/dashboard/services/database.py
+7/home/vancim/whats_agent/dashboard/services/__init__.py
+7register_auth_callbacks.<locals>.check_session_validity
+7register_auth_callbacks.<locals>.update_user_role_badge
+7register_configuracoes_callbacks.<locals>.create_backup
+7register_perfil_callbacks.<locals>.change_user_password
+7register_perfil_callbacks.<locals>.save_profile_changesJ
+7register_sidebar_callbacks.<locals>.redirect_to_profile
+7register_suporte_callbacks.<locals>.handle_support_form$
+8/home/vancim/whats_agent/dashboard/components/loading.py
+8/home/vancim/whats_agent/dashboard/components/sidebar.py
+8register_perfil_callbacks.<locals>.save_account_settings
+8register_relatorios_callbacks.<locals>.clear_all_filters
+8register_suporte_callbacks.<locals>.update_system_status
+9/home/vancim/whats_agent/dashboard/layout/agendamentos.py
+9/home/vancim/whats_agent/dashboard/optimization_system.py
+9/home/vancim/whats_agent/dashboard/services/api_client.py
+9register_auth_callbacks.<locals>.update_user_info_displayx
+9register_relatorios_callbacks.<locals>.update_main_chartsa
+adas usando dash_table.
+add_callback
+add_callbackz!DashWebSocketManager.add_callbackK
+Agora inclui callbacks para Loading States, Toast Notifications e UX da Fase 1.
+A/home/vancim/whats_agent/dashboard/callbacks/suporte_callbacks.py
+A/home/vancim/whats_agent/dashboard/components/loading_feedback.py
+A/home/vancim/whats_agent/dashboard/components/page_transitions.py
+A/home/vancim/whats_agent/dashboard/services/db_service_adapter.py
+APIClient.get_dashboard_statss
+%APIClient.register_websocket_callback
+    app = dash.Dash(__name__)
+app = dash.Dash(__name__)
+app.py
+Aregister_company_settings_callback.<locals>.save_company_settingsa
+Aregister_relatorios_callbacks.<locals>.export_appointments_to_csvs
+Aregister_relatorios_callbacks.<locals>.update_conversations_tableJ
+Aregister_user_management_callback.<locals>.handle_user_management
+_async_get_dashboard_stats)
+auth/auth_service.py
+BACKEND_WS_URL=ws://localhost:8000/ws/dashboard
+BACKEND_WS_URLz+wss://your-backend.railway.app/ws/dashboard)
+B/home/vancim/whats_agent/dashboard/callbacks/clientes_callbacks.py
+B/home/vancim/whats_agent/dashboard/components/mobile_navigation.py
+B/home/vancim/whats_agent/dashboard/validation/validation_system.py
+Bregister_relatorios_callbacks.<locals>.export_conversations_to_csv
+        Busca KPIs principais do dashboard
+Busca KPIs principais do dashboard
+ Buscando KPIs reais do dashboard (
+callback
+callback)
+callbackc
+callback_context
+callback_context)
+callback_contextN)
+            callback: Fun
+    callback: Fun
+callback_infor}
+callback_inforz
+callbackr
+callbackra
+callbackrf
+#callbacks/agendamentos_callbacks.py
+	callbacksr5
+	callbacksr7
+callbacks_registrados
+Cancelado via dashboard em r
+Carregando dashboard...)
+CDatabaseServiceAdapter.get_dashboard_chart_data.<locals>.api_method
+CDatabaseServiceAdapter.get_dashboard_chart_data.<locals>.sql_method
+change_user_passwordz7register_perfil_callbacks.<locals>.change_user_password
+charts_layouts
+check_session_validityz7register_auth_callbacks.<locals>.check_session_validity
+C/home/vancim/whats_agent/dashboard/callbacks/conversas_callbacks.py
+clear_all_filtersz8register_relatorios_callbacks.<locals>.clear_all_filters
+clear_filtersz4register_relatorios_callbacks.<locals>.clear_filters
+clientside_callback
+clientside_callback)
+        COMPATIBILIDADE: get_dashboard_chart_data()
+COMPATIBILIDADE: get_dashboard_chart_data()
+        COMPATIBILIDADE: get_dashboard_kpis()
+COMPATIBILIDADE: get_dashboard_kpis()
+Compatibilidade - retorna layout b
+components/breadcrumb.py
+    Context manager para uso em callbacks Dash
+Context manager para uso em callbacks Dash
+conversas_layoutr
+create_access_denied_layoutrn
+create_agendamentos_layoutr
+create_clientes_layoutr
+create_configuracoes_layoutr5
+create_conversas_layoutr
+create_home_layoutr
+create_login_layoutr\
+create_logout_layoutrq
+create_optimized_layoutr<
+create_optimized_layoutrD
+create_perfil_layoutr7
+create_protected_layout_wrapperrd
+create_relatorios_layoutrN
+create_session_expired_layoutrt
+create_suporte_layoutr
+create_suporte_layoutr'
+Cregister_enhanced_forms_callbacks.<locals>.collect_client_form_dataY
+Cria layout da p
+    Cria substituto para dcc.Interval que usa WebSocket
+Cria substituto para dcc.Interval que usa WebSocket
+dash
+	dashboard
+DASHBOARD_CLIENT_ID=wppagent-dashboard
+dashboard_id
+dashboard_notificationNr
+)dashboard-secret-key-change-in-production
+dashboard_stats
+dashboard/statsNz
+/dashboard/statsr
+/dashboard/statsr~
+dashboard_statsz
+dash_bootstrap_components
+dash_bootstrap_componentsr1
+dash_bootstrap_componentsrz
+dash.dependenciesr
+dash.development.base_componentr
+dash.exceptionsr
+dash_iconifyr
+dash_iconifyr	
+dash_iconifyr>
+_dash_id
+dash_mantine_components
+dash_mantine_componentsr
+dash_mantine_componentsr!
+dash_mantine_componentsr)
+dash_mantine_componentsr,
+dash_mantine_componentsr/
+dash_mantine_componentsr>
+dash_mantine_componentsr\
+dash_mantine_componentsr^
+dash_mantine_componentsr3
+dash_mantine_componentsr5
+dash_mantine_componentsr6
+dash_mantine_componentsr8
+dash_mantine_componentsr9
+dash_mantine_componentsra
+dash_mantine_componentsrc
+dash_mantine_componentsrD
+dash_mantine_componentsre
+dash_mantine_componentsrF
+dash_mantine_componentsrg
+dash_mantine_componentsrH
+dash_mantine_componentsri
+dash_mantine_componentsrI
+dash_mantine_componentsrj
+dash_mantine_componentsrJ
+dash_mantine_componentsrk
+dash_mantine_componentsrK
+dash_mantine_componentsrO
+dashr
+dashr	
+dash_store_updates
+dash_table
+dash_table)
+_dash_timestamp
+!DashWebSocketManager.add_callbackK
+%DashWebSocketManager.get_dash_updates6
+'DashWebSocketManager._trigger_callbacksW
+/DatabaseServiceAdapter.get_dashboard_chart_data
+)DatabaseServiceAdapter.get_dashboard_kpis
+=DatabaseServiceAdapter.get_dashboard_kpis.<locals>.api_method
+=DatabaseServiceAdapter.get_dashboard_kpis.<locals>.sql_method
+*DatabaseServiceAdapter.get_dashboard_stats 
+>DatabaseServiceAdapter.get_dashboard_stats.<locals>.api_method$
+>DatabaseServiceAdapter.get_dashboard_stats.<locals>.sql_method,
+(DatabaseService.get_dashboard_chart_data
+"DatabaseService.get_dashboard_kpis
+dcc)
+dccc
+Decorators para proteger callbacks e fun
+        def admin_callback(...):
+    def admin_callback(...):
+        def my_callback(...):
+    def my_callback(...):
+D/home/vancim/whats_agent/dashboard/callbacks/relatorios_callbacks.py
+        Dispara callbacks para um tipo de evento
+Dispara callbacks para um tipo de evento
+    <!DOCTYPE html>
+Dregister_all_home_callbacks.<locals>.update_home_with_loading_phase1'
+dulo agendamentos_callbacks CORRIGIDO carregado com sucesso!) 
+dulo clientes_callbacks CORRIGIDO carregado com sucesso!)+
+Eregister_realtime_validation_callbacks.<locals>.validate_masked_field
+ Erro ao registrar callbacks de suporte: NF)
+ Erro em callback global: u 
+ Erro em callback para r
+ Erro no callback do modal: 
+ Erro no callback WebSocket: u,
+ Erro no callback z
+event_callbacks
+export_appointments_to_csvzAregister_relatorios_callbacks.<locals>.export_appointments_to_csvs
+export_conversations_to_csvzBregister_relatorios_callbacks.<locals>.export_conversations_to_csv
+export_full_report_excelz?register_relatorios_callbacks.<locals>.export_full_report_excel
+export_full_report_pdfz=register_relatorios_callbacks.<locals>.export_full_report_pdf
+export_profile_dataz6register_perfil_callbacks.<locals>.export_profile_datad
+F/home/vancim/whats_agent/dashboard/callbacks/agendamentos_callbacks.py
+ficos da dashboard
+ficos do dashboard
+ficos do dashboard com s
+Fregister_enhanced_forms_callbacks.<locals>.update_client_notes_counterB
+                    from {
+    from {
+    from { 
+    from { opacity: 0; }
+    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 1; }
+    from services.dash_websocket import initialize_realtime_websocket
+from services.dash_websocket import initialize_realtime_websocket
+    from { transform: translateX(0); }
+    from { transform: translateX(-100%); }
+	<genexpr>zPregister_configuracoes_callbacks.<locals>.upload_company_logo.<locals>.<genexpr>
+get_conversas_layoutr
+get_dashboard_chart_data
+get_dashboard_chart_data API n
+get_dashboard_chart_datar
+get_dashboard_chart_datarl
+get_dashboard_chart_datart
+get_dashboard_chart_dataz(DatabaseService.get_dashboard_chart_data
+get_dashboard_kpis
+get_dashboard_kpis API n
+get_dashboard_kpisrl
+get_dashboard_kpisrt
+get_dashboard_kpisz"DatabaseService.get_dashboard_kpis
+get_dashboard_stats
+get_dashboard_statsr[
+get_dashboard_statsrW
+get_dashboard_statsz
+get_dash_updates
+get_dash_updatesz%DashWebSocketManager.get_dash_updates6
+get_layoutr
+G/home/vancim/whats_agent/dashboard/callbacks/configuracoes_callbacks.py
+G/home/vancim/whats_agent/dashboard/validation/enhanced_validation_v2.py
+global_callbacksr
+Gregister_enhanced_validation_callbacks.<locals>.validate_field_realtime
+handle_button_spinnerzHLoadingFeedbackManager.register_callbacks.<locals>.handle_button_spinner"
+handle_documentation_clicksz?register_suporte_callbacks.<locals>.handle_documentation_clicks
+handle_loginz-register_auth_callbacks.<locals>.handle_login
+handle_logoutz.register_auth_callbacks.<locals>.handle_logoutH
+handle_support_formz7register_suporte_callbacks.<locals>.handle_support_form$
+handle_user_managementzAregister_user_management_callback.<locals>.handle_user_management
+HLoadingFeedbackManager.register_callbacks.<locals>.handle_button_spinner"
+ Home callbacks registrados com dados reais!N)
+HomeQueries.get_dashboard_stats
+>/home/vancim/whats_agent/dashboard/callbacks/home_callbacks.py
+@/home/vancim/whats_agent/dashboard/callbacks/perfil_callbacks.py
+;/home/vancim/whats_agent/dashboard/components/breadcrumb.py
+</home/vancim/whats_agent/dashboard/components/input_masks.py
+>/home/vancim/whats_agent/dashboard/components/notifications.py
+</home/vancim/whats_agent/dashboard/components/ui_feedback.py
+:/home/vancim/whats_agent/dashboard/layout/configuracoes.py
+=/home/vancim/whats_agent/dashboard/services/dash_websocket.py
+>/home/vancim/whats_agent/dashboard/services/queries_reports.py
+?/home/vancim/whats_agent/dashboard/services/websocket_client.py
+?/home/vancim/whats_agent/dashboard/validation/enhanced_forms.py
+@/home/vancim/whats_agent/dashboard/validation/form_validators.pyr
+Hregister_enhanced_forms_callbacks.<locals>.collect_appointment_form_datar
+Hregister_enhanced_forms_callbacks.<locals>.validate_appointment_datetime
+Hregister_realtime_validation_callbacks.<locals>.update_character_counter
+Hregister_realtime_validation_callbacks.<locals>.validate_and_submit_form
+    </html>
+    <html>
+html
+html)
+htmlc
+        html.Div: Sidebar com frufruzinhos elegantes
+    html.Div: Sidebar com frufruzinhos elegantes
+htmlN)
+http://localhost:8000z ws://localhost:8000/ws/dashboard)
+https://api.wppagent.comz#wss://api.wppagent.com/ws/dashboard
+'integrate_enhanced_forms_with_dashboardr
+javascript_callbacks
+Kregister_enhanced_validation_callbacks.<locals>.handle_enhanced_form_submit
+Kregister_notification_settings_callback.<locals>.save_notification_settings
+layout
+layout.homer
+layouts
+layouts	
+layout.suporterV
+layout.suporterX
+load_empresa_dataz;register_configuracoes_callbacks.<locals>.load_empresa_data-
+)LoadingFeedbackManager.register_callbacks
+load_profile_dataz4register_perfil_callbacks.<locals>.load_profile_data+
+load_users_managementz?register_configuracoes_callbacks.<locals>.load_users_management
+m KPIs principais do dashboard com dados REAIS do PostgreSQL
+ncrona de get_dashboard_stats)
+ncrono para usar com callbacks Dash que n
+o alternativa que retorna o layout das conversasr
+ o callback mais importante para transformar gr
+o de compatibilidade que retorna o layout
+o de registro de callbacks para compatibilidade com app.py
+o do dashboard.
+o dos callbacks: N)
+o principal do dashboard.
+o principal para registrar todos os callbacks de suporte.
+o principal que retorna o layout das conversasr
+o real com backend e dispara callbacks Dash
+o register_all_conversas_callbacks chamadau7
+o (se for callback)
+o usa asyncio.run() - para chamadas de dentro de callbacks Dash
+perfil-layout)
+Pregister_configuracoes_callbacks.<locals>.upload_company_logo.<locals>.<genexpr>
+    providenciando updates em tempo real para o dashboard.
+providenciando updates em tempo real para o dashboard.
+redirect_to_home_from_deniedz=register_auth_callbacks.<locals>.redirect_to_home_from_deniedk
+redirect_to_login_from_expiredz?register_auth_callbacks.<locals>.redirect_to_login_from_expired_
+redirect_to_profilez7register_sidebar_callbacks.<locals>.redirect_to_profile
+#register_all_agendamentos_callbacksr
+register_all_clientes_callbacksr9
+ register_all_conversas_callbacksrq
+ register_all_conversas_callbacksru
+register_all_home_callbacksr6
+register_all_home_callbacksr8
+register_all_suporte_callbacksrv
+register_all_suporte_callbacksrz
+-register_auth_callbacks.<locals>.handle_login
+.register_auth_callbacks.<locals>.handle_logoutH
+=register_auth_callbacks.<locals>.redirect_to_home_from_deniedk
+?register_auth_callbacks.<locals>.redirect_to_login_from_expired_
+register_auth_callbacksrh
+register_auth_callbacksro
+register_callback
+register_callbacks
+register_callbacksz)LoadingFeedbackManager.register_callbacks
+register_callbackz!WebSocketClient.register_callback
+"register_company_settings_callbackr7
+"register_company_settings_callbackrA
+;register_configuracoes_callbacks.<locals>.load_empresa_data-
+?register_configuracoes_callbacks.<locals>.load_users_management
+=register_configuracoes_callbacks.<locals>.save_empresa_config
+>register_configuracoes_callbacks.<locals>.save_whatsapp_configp
+=register_configuracoes_callbacks.<locals>.upload_company_logo
+ register_configuracoes_callbacksr
+!register_enhanced_forms_callbacksr
+&register_enhanced_validation_callbacksr
+register_global_callback
+register_global_callbackz(WebSocketClient.register_global_callback
+:register_notification_callbacks.<locals>.show_notification[
+register_notification_callbacksr
+'register_notification_settings_callbackrK
+'register_notification_settings_callbackrV
+;register_perfil_callbacks.<locals>.update_activity_timelineC
+register_perfil_callbacksr
+&register_realtime_validation_callbacksr
+?register_relatorios_callbacks.<locals>.export_full_report_excel
+=register_relatorios_callbacks.<locals>.export_full_report_pdf
+@register_relatorios_callbacks.<locals>.update_appointments_table
+>register_relatorios_callbacks.<locals>.update_detailed_metrics#
+?register_relatorios_callbacks.<locals>.update_period_comparison
+register_relatorios_callbacksr
+register_sidebar_callbacksr
+?register_suporte_callbacks.<locals>.handle_documentation_clicks
+register_suporte_callbacksrt
+register_suporte_callbacksrx
+!register_user_management_callbackr*
+!register_user_management_callbackr3
+register_websocket_callback
+@register_websocket_callbacks.<locals>.websocket_realtime_updates
+register_websocket_callbacksr
+register_websocket_callbackz%APIClient.register_websocket_callback
+        Registra callback global que recebe todos os eventos
+Registra callback global que recebe todos os eventos
+        Registra callback para eventos WebSocket
+Registra callback para eventos WebSocket
+        Registra callback para tipo espec
+Registra callback para tipo espec
+ Registra callbacks de valida
+ Registra callbacks espec
+Registra callbacks para o sistema de notifica
+Registra callbacks para valida
+    Registra callbacks WebSocket que substituem dcc.Interval
+Registra callbacks WebSocket que substituem dcc.Interval
+ registrados via decorators @callbacku-
+ Registrando callbacks CORRIGIDOS de agendamentos...
+ Registrando callbacks CORRIGIDOS de clientes...r(
+ Registrando callbacks de configura
+Registra TODOS os callbacks cr
+    Registra todos os callbacks da home page com dados reais + Fase 1 UX
+Registra todos os callbacks da home page com dados reais + Fase 1 UX
+    Registra todos os callbacks da p
+Registra todos os callbacks da p
+ Registra todos os callbacks de agendamentos corrigidos
+Registra todos os callbacks de autentica
+ Registra todos os callbacks de clientes corrigidos
+Registra TODOS os callbacks de configura
+        Registra todos os callbacks necess
+Registra todos os callbacks necess
+relatorios-layout)
+remove_callback
+Remove callback de eventou'
+Remove callback espec
+remove_callbackz
+remove_callbackz$DashWebSocketManager.remove_callbackQ
+retry_callback_id
+            return window.dash_clientside.no_update;
+rios aprimorados ao dashboard principal
+rios do dashboard com:
+save_account_settingsz8register_perfil_callbacks.<locals>.save_account_settings
+save_company_settingszAregister_company_settings_callback.<locals>.save_company_settingsa
+save_empresa_configz=register_configuracoes_callbacks.<locals>.save_empresa_config
+save_notification_settingszKregister_notification_settings_callback.<locals>.save_notification_settings
+save_profile_changesz7register_perfil_callbacks.<locals>.save_profile_changesJ
+- services/database.py
+- services/database_service.py  
+- services/db.py
+show_form_feedbackz6register_suporte_callbacks.<locals>.show_form_feedback
+show_notificationz:register_notification_callbacks.<locals>.show_notification[
+Sim! O dashboard 
+Sistema completo de estados visuais para o dashboard:
+        Substitui dcc.Interval por updates WebSocket reais
+Substitui dcc.Interval por updates WebSocket reais
+    Substitui dcc.Interval por WebSocket real
+Substitui dcc.Interval por WebSocket real
+Substitui dcc.Interval por WebSocket real conectado ao backend.
+ SUPORTE callbacks registrados com sucesso!Tu,
+)SyncAPIWrapper._async_get_dashboard_stats
+"SyncAPIWrapper.get_dashboard_stats
+tabler:layout-dashboard
+tico no callback de mensagens: ) 
+tico no callback KPI: z
+tico no callback: u
+todo async interno para get_dashboard_statsN)
+ Todos os callbacks de configura
+Tregister_user_management_callback.<locals>.handle_user_management.<locals>.<genexpr>-
+_trigger_callbacks
+_trigger_callbacksz'DashWebSocketManager._trigger_callbacksW
+update_active_navz5register_sidebar_callbacks.<locals>.update_active_nav
+update_activity_timelinez;register_perfil_callbacks.<locals>.update_activity_timelineC
+update_appointments_tablez@register_relatorios_callbacks.<locals>.update_appointments_table
+update_character_counterzHregister_realtime_validation_callbacks.<locals>.update_character_counter
+update_conversations_tablezAregister_relatorios_callbacks.<locals>.update_conversations_tableJ
+update_detailed_metricsz>register_relatorios_callbacks.<locals>.update_detailed_metrics#
+update_home_with_loading_phase1zDregister_all_home_callbacks.<locals>.update_home_with_loading_phase1'
+update_layout
+update_main_chartsz9register_relatorios_callbacks.<locals>.update_main_chartsa
+update_period_comparisonz?register_relatorios_callbacks.<locals>.update_period_comparison
+update_real_kpisz5register_all_home_callbacks.<locals>.update_real_kpisd
+update_system_statusz8register_suporte_callbacks.<locals>.update_system_status
+update_user_info_displayz9register_auth_callbacks.<locals>.update_user_info_displayx
+update_user_role_badgez7register_auth_callbacks.<locals>.update_user_role_badge
+upload_company_logoz=register_configuracoes_callbacks.<locals>.upload_company_logo
+upload_user_avatarz5register_perfil_callbacks.<locals>.upload_user_avatar
+validate_and_submit_formzHregister_realtime_validation_callbacks.<locals>.validate_and_submit_form
+validate_masked_fieldzEregister_realtime_validation_callbacks.<locals>.validate_masked_field
+VEL - callbacks falhar
+websocket_callbacks
+!WebSocketClient.register_callback
+(WebSocketClient.register_global_callback
+WebSocketClient.remove_callback
+websocket_realtime_updatesz@register_websocket_callbacks.<locals>.websocket_realtime_updates
+@whatsapp.user)
+wppagent-dashboard
+wppagent-dashboard)
+ ws://localhost:8000/ws/dashboard
+z7register_configuracoes_callbacks.<locals>.create_backup
+zCDatabaseServiceAdapter.get_dashboard_chart_data.<locals>.api_method
+zCDatabaseServiceAdapter.get_dashboard_chart_data.<locals>.sql_method
+z/DatabaseServiceAdapter.get_dashboard_chart_data
+z)DatabaseServiceAdapter.get_dashboard_kpis
+z=DatabaseServiceAdapter.get_dashboard_kpis.<locals>.api_method
+z=DatabaseServiceAdapter.get_dashboard_kpis.<locals>.sql_method
+z*DatabaseServiceAdapter.get_dashboard_stats 
+z>DatabaseServiceAdapter.get_dashboard_stats.<locals>.api_method$
+z>DatabaseServiceAdapter.get_dashboard_stats.<locals>.sql_method,
+z,Dispara callbacks registrados para um eventoNu
+)	zMAtualiza KPIs com dados reais da Railway PostgreSQL (callback legado mantido)r
+z>register_configuracoes_callbacks.<locals>.save_whatsapp_configp
+z(Registra callback para eventos WebSocketu&
+z&Registra callbacks da sidebar elegante)
+z)SyncAPIWrapper._async_get_dashboard_stats
+z"SyncAPIWrapper.get_dashboard_stats
+zTregister_user_management_callback.<locals>.handle_user_management.<locals>.<genexpr>-
+zTregister_user_management_callback.<locals>.handle_user_management.<locals>.<genexpr>2

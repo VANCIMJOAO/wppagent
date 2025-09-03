@@ -1,0 +1,412 @@
+/* 
+WppAgent Dashboard - Sidebar Minimalista
+========================================
+
+Design minimalista com cores claras e layout clean.
+Foco em simplicidade, legibilidade e elegância sutil.
+*/
+
+/* === Variables para tema claro e minimalista === */
+:root {
+    --sidebar-width: 260px;
+    --sidebar-bg: #ffffff;
+    --sidebar-border: #f1f3f4;
+    --sidebar-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    
+    /* Cores minimalistas */
+    --primary-color: #1a73e8;
+    --primary-light: #e8f0fe;
+    --text-primary: #202124;
+    --text-secondary: #5f6368;
+    --text-muted: #9aa0a6;
+    --background-light: #f8f9fa;
+    --border-light: #e8eaed;
+    --hover-light: #f1f3f4;
+    
+    /* Transitions suaves */
+    --transition-smooth: all 0.2s ease;
+}
+
+/* === Sidebar Container Minimalista === */
+.sidebar-minimal {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    box-shadow: var(--sidebar-shadow);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+}
+
+/* Scrollbar minimalista */
+.sidebar-minimal::-webkit-scrollbar {
+    width: 3px;
+}
+
+.sidebar-minimal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-minimal::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 2px;
+}
+
+.sidebar-minimal::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* === Header Minimalista === */
+.header-minimal {
+    padding: 20px 20px 16px 20px;
+    border-bottom: 1px solid var(--sidebar-border);
+    background: var(--sidebar-bg);
+}
+
+.logo-minimal {
+    transition: var(--transition-smooth);
+}
+
+.logo-minimal:hover {
+    transform: scale(1.05);
+}
+
+.brand-text {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.5px;
+}
+
+/* === Seção de Usuário Clean === */
+.user-section-clean {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--sidebar-border);
+    background: var(--background-light);
+    margin: 0;
+}
+
+.user-avatar-clean {
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.user-name-clean {
+    line-height: 1.2;
+}
+
+.role-badge-minimal {
+    font-weight: 500;
+    font-size: 11px;
+}
+
+.action-btn-minimal {
+    transition: var(--transition-smooth);
+    border-radius: 6px;
+}
+
+.action-btn-minimal:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+/* === Navegação Minimalista === */
+.navigation-minimal {
+    flex: 1;
+    padding: 8px 0;
+}
+
+.nav-item-minimal {
+    display: block !important;
+    padding: 12px 20px;
+    text-decoration: none !important;
+    color: var(--text-secondary) !important;
+    transition: var(--transition-smooth);
+    border: none;
+    margin: 0 8px 2px 8px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.nav-item-minimal:hover {
+    background: var(--hover-light);
+    color: var(--text-primary) !important;
+    text-decoration: none !important;
+}
+
+.nav-item-active-minimal {
+    background: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+    font-weight: 500;
+}
+
+.nav-item-active-minimal:hover {
+    background: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+}
+
+.nav-icon-minimal {
+    color: var(--text-secondary);
+    transition: var(--transition-smooth);
+    flex-shrink: 0;
+}
+
+.nav-item-minimal:hover .nav-icon-minimal {
+    color: var(--text-primary);
+}
+
+.nav-item-active-minimal .nav-icon-minimal {
+    color: var(--primary-color) !important;
+}
+
+.nav-label-minimal {
+    font-weight: 400;
+    color: inherit;
+    transition: var(--transition-smooth);
+}
+
+.nav-badge-minimal {
+    background: #ea4335 !important;
+    color: white;
+    font-weight: 600;
+    min-width: 18px;
+    height: 18px;
+    font-size: 11px;
+    line-height: 1;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-item-active-minimal .nav-badge-minimal {
+    background: var(--primary-color) !important;
+}
+
+/* === Footer Simples === */
+.footer-minimal {
+    padding: 16px 20px;
+    border-top: 1px solid var(--sidebar-border);
+    margin-top: auto;
+    background: var(--sidebar-bg);
+}
+
+/* === Estados e Animações === */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nav-item-minimal {
+    animation: fadeInUp 0.3s ease-out;
+    animation-fill-mode: both;
+}
+
+/* Delay escalonado para efeito suave */
+.nav-item-minimal:nth-child(1) { animation-delay: 0.05s; }
+.nav-item-minimal:nth-child(2) { animation-delay: 0.1s; }
+.nav-item-minimal:nth-child(3) { animation-delay: 0.15s; }
+.nav-item-minimal:nth-child(4) { animation-delay: 0.2s; }
+.nav-item-minimal:nth-child(5) { animation-delay: 0.25s; }
+.nav-item-minimal:nth-child(6) { animation-delay: 0.3s; }
+
+/* === Responsividade === */
+@media (max-width: 1024px) {
+    .sidebar-minimal {
+        width: 240px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar-minimal {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 9999;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    .sidebar-minimal.is-open {
+        transform: translateX(0);
+    }
+    
+    /* Overlay minimalista para mobile */
+    .sidebar-overlay-minimal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(2px);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition-smooth);
+    }
+    
+    .sidebar-overlay-minimal.is-open {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-minimal {
+        width: 280px;
+    }
+    
+    .header-minimal,
+    .user-section-clean,
+    .footer-minimal {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    
+    .nav-item-minimal {
+        margin: 0 4px 2px 4px;
+        padding: 12px 16px;
+    }
+}
+
+/* === Melhorias de Acessibilidade === */
+.nav-item-minimal:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+}
+
+.nav-item-minimal:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* === Estados de Hover Mais Suaves === */
+.user-section-clean:hover {
+    background: #f5f5f5;
+    transition: var(--transition-smooth);
+}
+
+/* === Indicadores Visuais Sutis === */
+.nav-item-active-minimal::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    background: var(--primary-color);
+    border-radius: 0 2px 2px 0;
+}
+
+/* === Typography Refinements === */
+.sidebar-minimal {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Performance Optimizations === */
+.sidebar-minimal * {
+    box-sizing: border-box;
+}
+
+.nav-item-minimal,
+.action-btn-minimal,
+.logo-minimal {
+    will-change: transform, background-color;
+}
+
+/* === Subtle Shadow Effects === */
+.user-section-clean {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.header-minimal {
+    box-shadow: 0 1px 0 var(--border-light);
+}
+
+/* === Clean Layout Adjustments === */
+.mantine-Group-root {
+    align-items: center;
+}
+
+.mantine-Text-root {
+    line-height: 1.4;
+}
+
+/* === Reduced Motion Support === */
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-minimal *,
+    .nav-item-minimal,
+    .action-btn-minimal,
+    .logo-minimal {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* === High Contrast Mode === */
+@media (prefers-contrast: high) {
+    :root {
+        --sidebar-border: #666;
+        --text-secondary: #333;
+        --hover-light: #e0e0e0;
+    }
+    
+    .nav-item-minimal {
+        border: 1px solid transparent;
+    }
+    
+    .nav-item-active-minimal {
+        border-color: var(--primary-color);
+    }
+}
+
+/* === Print Styles === */
+@media print {
+    .sidebar-minimal {
+        display: none;
+    }
+}
+
+/* === Clean Focus States === */
+.action-btn-minimal:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* === Subtle Loading States === */
+.nav-item-minimal.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.nav-item-minimal.loading::after {
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--border-light);
+    border-top: 1px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}
