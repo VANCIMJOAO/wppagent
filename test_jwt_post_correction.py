@@ -171,12 +171,11 @@ class JWTTester:
                     if path != "/health":
                         headers["Authorization"] = f"Bearer {token}"
                     
-                    response = await client.get(
-                        f"{self.railway_url}{path}",
-                        headers=headers
-                    )
-                    
-                    print(f"   Status: {response.status_code}")
+        response = requests.get(
+            f"{BASE_URL}{endpoint}",
+            headers=headers,
+            allow_redirects=True  # Seguir redirecionamentos automaticamente
+        )                    print(f"   Status: {response.status_code}")
                     
                     if response.status_code == 200:
                         print(f"   ✅ FUNCIONANDO!")

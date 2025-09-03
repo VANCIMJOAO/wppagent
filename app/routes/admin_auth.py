@@ -327,3 +327,47 @@ async def auth_health_check():
         "jwt_algorithm": "HS256",
         "token_expire_minutes": ACCESS_TOKEN_EXPIRE_MINUTES
     }
+
+# Endpoint temporário para criar admin inicial
+@auth_router.post("/create-initial-admin", include_in_schema=False)
+async def create_initial_admin(
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    🚨 ENDPOINT TEMPORÁRIO - Criar admin inicial
+    Este endpoint deve ser removido após uso em produção
+    """
+    try:
+        # Verificar se já existe admin
+        result = await session.execute(
+            select(AdminUser).where(AdminUser.username == "admin")
+        )
+        existing_admin = result.scalar_one_or_none()
+        
+        if existing_admin:
+            return {"message": "Admin já existe", "status": "exists"}
+        
+        # Criar novo admin
+        hashed_password = pwd_context.hash("admin123")
+        
+        new_admin = AdminUser(
+            username="admin",
+            password_hash=hashed_password,
+            is_active=True
+        )
+        
+        session.add(new_admin)
+        await session.commit()
+        
+        logger.info("✅ Admin inicial criado via endpoint temporário")
+        
+        return {
+            "message": "Admin criado com sucesso",
+            "username": "admin",
+            "status": "created"
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao criar admin inicial: {e}")
+        await session.rollback()
+        raise HTTPException(500, f"Erro interno: {str(e)}")

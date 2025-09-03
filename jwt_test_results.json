@@ -3,7 +3,7 @@
     "login": {
       "success": true,
       "token_received": true,
-      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsInBlcm1pc3Npb25zIjpbInJlYWQiLCJ3cml0ZSIsImFkbWluIiwidXNlcl9tYW5hZ2VtZW50Il0sInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3NTY4NjM3OTcsImV4cCI6MTc1Njg2NTU5NywianRpIjoiZTVkOTU3YzItNDM3Mi00MTk4LTljNzEtYjIzM2M3MDRlZGU5IiwiaXNzIjoid2hhdHNhcHAtYWdlbnQiLCJhdWQiOiJ3aGF0c2FwcC1hZ2VudC1hcGkifQ.8tiSNcA8YxW2tp1le8H7vZs-rg57GIlKvk9dKD1HA3Y"
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsInBlcm1pc3Npb25zIjpbInJlYWQiLCJ3cml0ZSIsImFkbWluIiwidXNlcl9tYW5hZ2VtZW50Il0sInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3NTY4NjQ0NDgsImV4cCI6MTc1Njg2NjI0OCwianRpIjoiNjQzZDViMDEtNTI1NC00ZjI2LThmOGYtNTU2MDcyZjg2MWQ2IiwiaXNzIjoid2hhdHNhcHAtYWdlbnQiLCJhdWQiOiJ3aGF0c2FwcC1hZ2VudC1hcGkifQ.OJaEdc_BzA82NqyiipQG7gdGFNmy9EZ21TN_3O0J9y4"
     },
     "token_analysis": {
       "payload": {
@@ -16,9 +16,9 @@
           "user_management"
         ],
         "type": "access",
-        "iat": 1756863797,
-        "exp": 1756865597,
-        "jti": "e5d957c2-4372-4198-9c71-b233c704ede9",
+        "iat": 1756864448,
+        "exp": 1756866248,
+        "jti": "643d5b01-5254-4f26-8f8f-556072f861d6",
         "iss": "whatsapp-agent",
         "aud": "whatsapp-agent-api"
       },
@@ -57,10 +57,10 @@
         "status_code": 200,
         "success": true,
         "description": "Health check (p\u00fablico)",
-        "response_preview": "{\"status\":\"healthy\",\"timestamp\":\"2025-09-02T22:43:18.807753\",\"service\":\"WhatsApp Agent API\"}"
+        "response_preview": "{\"status\":\"healthy\",\"timestamp\":\"2025-09-02T22:54:09.453122\",\"service\":\"WhatsApp Agent API\"}"
       }
     }
   },
-  "timestamp": "2025-09-02T22:43:19.704636",
+  "timestamp": "2025-09-02T22:54:10.362968",
   "railway_url": "https://wppagent-production.up.railway.app"
 }
