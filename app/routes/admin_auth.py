@@ -328,8 +328,8 @@ async def auth_health_check():
         "token_expire_minutes": ACCESS_TOKEN_EXPIRE_MINUTES
     }
 
-# Endpoint temporário para criar admin inicial
-@auth_router.post("/create-initial-admin", include_in_schema=False)
+# Endpoint temporário para criar admin inicial - PÚBLICO
+@auth_router.post("/create-initial-admin", include_in_schema=False, dependencies=[])
 async def create_initial_admin(
     session: AsyncSession = Depends(get_db)
 ):

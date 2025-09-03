@@ -39,6 +39,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/webhook",  # WhatsApp webhook
             "/auth/login",
             "/admin/login",  # Admin login endpoint
+            "/admin/create-initial-admin",  # TEMPORÁRIO: Criar admin inicial
             # "/auth/auth/login",  # Endpoint removido - era duplicado
             "/auth/register",
             "/metrics"
