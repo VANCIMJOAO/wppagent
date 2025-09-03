@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from app.database import get_db
 from app.utils.logger import get_logger
 from app.models.database import AdminUser, LoginSession
+from app.auth.jwt_manager import jwt_manager
 logger = get_logger(__name__)
 from app.config import settings
 import logging
@@ -29,9 +30,7 @@ logger = logging.getLogger(__name__)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
-# Configurações JWT
-SECRET_KEY = getattr(settings, 'admin_jwt_secret', 'your-super-secret-admin-key-change-in-production')
-ALGORITHM = "HS256"
+# Configurações JWT - usando JWT Manager
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 class TokenData(BaseModel):
@@ -117,12 +116,21 @@ async def get_current_admin_user(
     
     try:
         token = credentials.credentials
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        # Usar nosso JWT Manager em vez de jose.jwt
+        payload = jwt_manager.verify_token(token)
+        
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
+            
+        # Verificar se é token de acesso
+        if payload.get("type") != "access":
+            raise credentials_exception
+            
         token_data = TokenData(username=username)
-    except JWTError:
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao verificar token: {e}")
         raise credentials_exception
     
     admin_user = await get_admin_user(username=token_data.username, session=session)
@@ -316,6 +324,6 @@ async def auth_health_check():
     return {
         "status": "healthy",
         "auth_system": "active",
-        "jwt_algorithm": ALGORITHM,
+        "jwt_algorithm": "HS256",
         "token_expire_minutes": ACCESS_TOKEN_EXPIRE_MINUTES
     }
