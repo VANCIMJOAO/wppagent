@@ -371,3 +371,43 @@ async def create_initial_admin(
         logger.error(f"❌ Erro ao criar admin inicial: {e}")
         await session.rollback()
         raise HTTPException(500, f"Erro interno: {str(e)}")
+
+# Endpoint temporário para debug de login
+@auth_router.post("/debug-admin", include_in_schema=False, dependencies=[])
+async def debug_admin(
+    credentials: AdminLogin,
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    🚨 ENDPOINT TEMPORÁRIO - Debug do admin
+    """
+    try:
+        # Buscar admin
+        result = await session.execute(
+            select(AdminUser).where(AdminUser.username == credentials.username)
+        )
+        admin_user = result.scalar_one_or_none()
+        
+        if not admin_user:
+            return {
+                "status": "user_not_found",
+                "username": credentials.username,
+                "admin_exists": False
+            }
+        
+        # Verificar senha
+        password_ok = verify_password(credentials.password, admin_user.password_hash)
+        
+        return {
+            "status": "debug_complete",
+            "username": credentials.username,
+            "admin_exists": True,
+            "is_active": admin_user.is_active,
+            "password_hash_exists": bool(admin_user.password_hash),
+            "password_verified": password_ok,
+            "hash_preview": admin_user.password_hash[:20] + "..."
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erro no debug admin: {e}")
+        return {"status": "error", "error": str(e)}

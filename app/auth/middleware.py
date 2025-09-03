@@ -40,6 +40,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/auth/login",
             "/admin/login",  # Admin login endpoint
             "/admin/create-initial-admin",  # TEMPORÁRIO: Criar admin inicial
+            "/admin/debug-admin",  # TEMPORÁRIO: Debug admin
             # "/auth/auth/login",  # Endpoint removido - era duplicado
             "/auth/register",
             "/metrics"
