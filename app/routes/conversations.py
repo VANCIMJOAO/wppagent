@@ -103,9 +103,7 @@ async def get_conversations(
             User.nome.label("user_name"),
             User.telefone.label("user_phone"),
             func.count(Message.id).label("total_messages"),
-            func.count(
-                func.case((Message.is_read == False, Message.id), else_=None)
-            ).label("unread_messages"),
+            func.count(Message.id).label("unread_messages"),  # Placeholder - sem campo is_read
             last_message_subquery.c.last_message
         ).select_from(
             Conversation
@@ -314,7 +312,7 @@ async def get_conversation_messages(
                 "sender_type": msg.sender_type,
                 "created_at": msg.created_at,
                 "whatsapp_id": msg.whatsapp_id,
-                "is_read": getattr(msg, 'is_read', True)
+                "is_read": True  # Placeholder - campo is_read não existe
             } for msg in messages
         ]
         
