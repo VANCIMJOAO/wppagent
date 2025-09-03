@@ -83,37 +83,18 @@ async def get_conversations(
     try:
         logger.info(f"🔍 Buscando conversas - Admin: {current_admin.username}")
         
-        # Subquery para última mensagem
-        last_message_subquery = (
-            select(
-                Message.conversation_id,
-                func.max(Message.created_at).label("last_created_at"),
-                func.first_value(Message.content).over(
-                    partition_by=Message.conversation_id,
-                    order_by=desc(Message.created_at)
-                ).label("last_message")
-            )
-            .group_by(Message.conversation_id)
-            .subquery()
-        )
-        
-        # Query principal com JOINs
+        # Query principal simplificada (sem subquery complexa)
         query = select(
             Conversation,
             User.nome.label("user_name"),
             User.telefone.label("user_phone"),
-            func.count(Message.id).label("total_messages"),
-            func.count(Message.id).label("unread_messages"),  # Placeholder - sem campo is_read
-            last_message_subquery.c.last_message
+            func.count(Message.id).label("total_messages")
         ).select_from(
             Conversation
         ).join(
             User, Conversation.user_id == User.id
         ).outerjoin(
             Message, Conversation.id == Message.conversation_id
-        ).outerjoin(
-            last_message_subquery,
-            Conversation.id == last_message_subquery.c.conversation_id
         )
         
         # Aplicar filtros
@@ -134,7 +115,7 @@ async def get_conversations(
         
         # Group by para agregações
         query = query.group_by(
-            Conversation.id, User.id, last_message_subquery.c.last_message
+            Conversation.id, User.id
         )
         
         # Ordenação e paginação
@@ -159,8 +140,8 @@ async def get_conversations(
                 "user_name": row.user_name,
                 "user_phone": row.user_phone,
                 "total_messages": row.total_messages or 0,
-                "unread_messages": row.unread_messages or 0,
-                "last_message": row.last_message
+                "unread_messages": 0,  # Placeholder - sem campo is_read
+                "last_message": "N/A"  # Simplificado por ora
             }
             conversations.append(conversation_data)
         
