@@ -34,7 +34,7 @@ class AppointmentResponse(BaseModel):
     user_id: int
     business_id: int
     service_id: Optional[int]
-    appointment_date: datetime
+    date_time: datetime
     status: str
     notes: Optional[str]
     created_at: datetime
@@ -53,12 +53,12 @@ class AppointmentCreate(BaseModel):
     user_id: int = Field(..., description="ID do cliente")
     business_id: int = Field(..., description="ID do negócio")
     service_id: Optional[int] = Field(None, description="ID do serviço")
-    appointment_date: datetime = Field(..., description="Data e hora do agendamento")
+    date_time: datetime = Field(..., description="Data e hora do agendamento")
     status: str = Field(default="pending", description="Status do agendamento")
     notes: Optional[str] = Field(None, description="Observações")
 
 class AppointmentUpdate(BaseModel):
-    appointment_date: Optional[datetime] = None
+    date_time: Optional[datetime] = None
     status: Optional[str] = None
     notes: Optional[str] = None
     service_id: Optional[int] = None
@@ -108,14 +108,14 @@ async def get_appointments(
         if date_from:
             try:
                 date_from_obj = datetime.strptime(date_from, "%Y-%m-%d").date()
-                conditions.append(func.date(Appointment.appointment_date) >= date_from_obj)
+                conditions.append(func.date(Appointment.date_time) >= date_from_obj)
             except ValueError:
                 raise HTTPException(400, "date_from deve estar no formato YYYY-MM-DD")
         
         if date_to:
             try:
                 date_to_obj = datetime.strptime(date_to, "%Y-%m-%d").date()
-                conditions.append(func.date(Appointment.appointment_date) <= date_to_obj)
+                conditions.append(func.date(Appointment.date_time) <= date_to_obj)
             except ValueError:
                 raise HTTPException(400, "date_to deve estar no formato YYYY-MM-DD")
         
@@ -129,7 +129,7 @@ async def get_appointments(
             query = query.where(and_(*conditions))
         
         # Ordenação e paginação
-        query = query.order_by(desc(Appointment.appointment_date))
+        query = query.order_by(desc(Appointment.date_time))
         query = query.offset(offset).limit(limit)
         
         # Executar query
@@ -145,7 +145,7 @@ async def get_appointments(
                 "user_id": appointment.user_id,
                 "business_id": appointment.business_id,
                 "service_id": appointment.service_id,
-                "appointment_date": appointment.appointment_date,
+                "date_time": appointment.date_time,
                 "status": appointment.status,
                 "notes": appointment.notes,
                 "created_at": appointment.created_at,
@@ -210,7 +210,7 @@ async def create_appointment(
             user_id=appointment_data.user_id,
             business_id=appointment_data.business_id,
             service_id=appointment_data.service_id,
-            appointment_date=appointment_data.appointment_date,
+            date_time=appointment_data.date_time,
             status=appointment_data.status,
             notes=appointment_data.notes
         )
@@ -243,7 +243,7 @@ async def create_appointment(
                 user_id=row.Appointment.user_id,
                 business_id=row.Appointment.business_id,
                 service_id=row.Appointment.service_id,
-                appointment_date=row.Appointment.appointment_date,
+                date_time=row.Appointment.date_time,
                 status=row.Appointment.status,
                 notes=row.Appointment.notes,
                 created_at=row.Appointment.created_at,
@@ -294,7 +294,7 @@ async def get_appointment(
             user_id=row.Appointment.user_id,
             business_id=row.Appointment.business_id,
             service_id=row.Appointment.service_id,
-            appointment_date=row.Appointment.appointment_date,
+            date_time=row.Appointment.date_time,
             status=row.Appointment.status,
             notes=row.Appointment.notes,
             created_at=row.Appointment.created_at,
@@ -330,8 +330,8 @@ async def update_appointment(
             raise HTTPException(404, "Agendamento não encontrado")
         
         # Atualizar campos fornecidos
-        if update_data.appointment_date is not None:
-            appointment.appointment_date = update_data.appointment_date
+        if update_data.date_time is not None:
+            appointment.date_time = update_data.date_time
         if update_data.status is not None:
             appointment.status = update_data.status
         if update_data.notes is not None:
@@ -367,7 +367,7 @@ async def update_appointment(
             user_id=row.Appointment.user_id,
             business_id=row.Appointment.business_id,
             service_id=row.Appointment.service_id,
-            appointment_date=row.Appointment.appointment_date,
+            date_time=row.Appointment.date_time,
             status=row.Appointment.status,
             notes=row.Appointment.notes,
             created_at=row.Appointment.created_at,

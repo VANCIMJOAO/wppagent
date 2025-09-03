@@ -19,7 +19,7 @@ from urllib.parse import urljoin
 # 🌐 Configuração
 BASE_URL = "https://wppagent-production.up.railway.app"
 ADMIN_USER = "admin"
-ADMIN_PASS = "admin123"
+ADMIN_PASS = "senha_admin_segura"
 
 class JWTTester:
     def __init__(self):

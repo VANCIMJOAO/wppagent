@@ -1,66 +1,45 @@
 {
-  "test_results": {
-    "login": {
-      "success": true,
-      "token_received": true,
-      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsInBlcm1pc3Npb25zIjpbInJlYWQiLCJ3cml0ZSIsImFkbWluIiwidXNlcl9tYW5hZ2VtZW50Il0sInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3NTY4NjQ0NDgsImV4cCI6MTc1Njg2NjI0OCwianRpIjoiNjQzZDViMDEtNTI1NC00ZjI2LThmOGYtNTU2MDcyZjg2MWQ2IiwiaXNzIjoid2hhdHNhcHAtYWdlbnQiLCJhdWQiOiJ3aGF0c2FwcC1hZ2VudC1hcGkifQ.OJaEdc_BzA82NqyiipQG7gdGFNmy9EZ21TN_3O0J9y4"
-    },
-    "token_analysis": {
-      "payload": {
-        "sub": "admin",
-        "role": "admin",
-        "permissions": [
-          "read",
-          "write",
-          "admin",
-          "user_management"
-        ],
-        "type": "access",
-        "iat": 1756864448,
-        "exp": 1756866248,
-        "jti": "643d5b01-5254-4f26-8f8f-556072f861d6",
-        "iss": "whatsapp-agent",
-        "aud": "whatsapp-agent-api"
-      },
-      "present_fields": [
-        "sub",
-        "exp",
-        "iat",
-        "type",
-        "role",
-        "permissions",
-        "jti"
+  "login": {
+    "status": "success",
+    "token_received": true
+  },
+  "token_analysis": {
+    "payload": {
+      "sub": "admin",
+      "role": "admin",
+      "permissions": [
+        "read",
+        "write",
+        "admin",
+        "user_management"
       ],
-      "missing_fields": [],
-      "middleware_compatible": true
+      "type": "access",
+      "iat": 1756865726,
+      "exp": 1756867526,
+      "jti": "c5f7b7c0-eafc-42f3-a250-4178e5c20935",
+      "iss": "whatsapp-agent",
+      "aud": "whatsapp-agent-api"
     },
-    "endpoint_tests": {
-      "/appointments": {
-        "status_code": 307,
-        "success": false,
-        "description": "Agendamentos",
-        "response_preview": ""
-      },
-      "/conversations": {
-        "status_code": 307,
-        "success": false,
-        "description": "Conversas",
-        "response_preview": ""
-      },
-      "/admin/me": {
-        "status_code": 500,
-        "success": false,
-        "description": "Info do admin",
-        "response_preview": "{\"error\":\"middleware_error\",\"message\":\"Rate limiting middleware encountered an error\"}"
-      },
-      "/health": {
-        "status_code": 200,
-        "success": true,
-        "description": "Health check (p\u00fablico)",
-        "response_preview": "{\"status\":\"healthy\",\"timestamp\":\"2025-09-02T22:54:09.453122\",\"service\":\"WhatsApp Agent API\"}"
-      }
+    "critical_fields_present": true,
+    "middleware_compatible": true
+  },
+  "endpoint_tests": {
+    "/appointments": {
+      "status": "failed",
+      "code": 401
+    },
+    "/conversations": {
+      "status": "failed",
+      "code": 401
+    },
+    "/admin/me": {
+      "status": "failed",
+      "code": 500
+    },
+    "/health": {
+      "status": "success",
+      "code": 200
     }
   },
-  "timestamp": "2025-09-02T22:54:10.362968",
-  "railway_url": "https://wppagent-production.up.railway.app"
+  "timestamp": "2025-09-02T23:15:25.813736"
 }
