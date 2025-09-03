@@ -36,7 +36,7 @@ class MessageResponse(BaseModel):
     message_text: str
     message_type: str
     sender_type: str
-    timestamp: datetime
+    created_at: datetime
     whatsapp_id: Optional[str] = None
     
     class Config:
@@ -87,10 +87,10 @@ async def get_conversations(
         last_message_subquery = (
             select(
                 Message.conversation_id,
-                func.max(Message.timestamp).label("last_timestamp"),
+                func.max(Message.created_at).label("last_created_at"),
                 func.first_value(Message.message_text).over(
                     partition_by=Message.conversation_id,
-                    order_by=desc(Message.timestamp)
+                    order_by=desc(Message.created_at)
                 ).label("last_message")
             )
             .group_by(Message.conversation_id)
@@ -245,7 +245,7 @@ async def get_conversation(
             messages_result = await session.execute(
                 select(Message)
                 .where(Message.conversation_id == conversation_id)
-                .order_by(desc(Message.timestamp))
+                .order_by(desc(Message.created_at))
                 .limit(messages_limit)
             )
             
@@ -257,7 +257,7 @@ async def get_conversation(
                     message_text=msg.message_text,
                     message_type=msg.message_type,
                     sender_type=msg.sender_type,
-                    timestamp=msg.timestamp,
+                    created_at=msg.created_at,
                     whatsapp_id=msg.whatsapp_id
                 ) for msg in messages
             ]
@@ -291,7 +291,7 @@ async def get_conversation_messages(
         messages_result = await session.execute(
             select(Message)
             .where(Message.conversation_id == conversation_id)
-            .order_by(desc(Message.timestamp))
+            .order_by(desc(Message.created_at))
             .offset(offset)
             .limit(limit)
         )
@@ -312,7 +312,7 @@ async def get_conversation_messages(
                 "message_text": msg.message_text,
                 "message_type": msg.message_type,
                 "sender_type": msg.sender_type,
-                "timestamp": msg.timestamp,
+                "created_at": msg.created_at,
                 "whatsapp_id": msg.whatsapp_id,
                 "is_read": getattr(msg, 'is_read', True)
             } for msg in messages

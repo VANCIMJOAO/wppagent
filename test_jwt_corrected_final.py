@@ -158,7 +158,8 @@ class JWTTester:
                 response = requests.get(
                     f"{BASE_URL}{endpoint}",
                     headers=headers,
-                    allow_redirects=True  # Seguir redirecionamentos
+                    allow_redirects=True,  # Seguir redirecionamentos
+                    timeout=10
                 )
                 
                 print(f"   Status: {response.status_code}")

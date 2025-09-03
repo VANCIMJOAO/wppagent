@@ -14,9 +14,9 @@
         "user_management"
       ],
       "type": "access",
-      "iat": 1756865726,
-      "exp": 1756867526,
-      "jti": "c5f7b7c0-eafc-42f3-a250-4178e5c20935",
+      "iat": 1756866060,
+      "exp": 1756867860,
+      "jti": "e692364d-cdad-4fea-bae4-37220e5679c4",
       "iss": "whatsapp-agent",
       "aud": "whatsapp-agent-api"
     },
@@ -41,5 +41,5 @@
       "code": 200
     }
   },
-  "timestamp": "2025-09-02T23:15:25.813736"
+  "timestamp": "2025-09-02T23:20:59.698409"
 }
