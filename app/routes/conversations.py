@@ -33,7 +33,7 @@ logger = get_logger(__name__)
 class MessageResponse(BaseModel):
     id: int
     conversation_id: int
-    message_text: str
+    content: str
     message_type: str
     sender_type: str
     created_at: datetime
@@ -88,7 +88,7 @@ async def get_conversations(
             select(
                 Message.conversation_id,
                 func.max(Message.created_at).label("last_created_at"),
-                func.first_value(Message.message_text).over(
+                func.first_value(Message.content).over(
                     partition_by=Message.conversation_id,
                     order_by=desc(Message.created_at)
                 ).label("last_message")
@@ -254,7 +254,7 @@ async def get_conversation(
                 MessageResponse(
                     id=msg.id,
                     conversation_id=msg.conversation_id,
-                    message_text=msg.message_text,
+                    content=msg.content,
                     message_type=msg.message_type,
                     sender_type=msg.sender_type,
                     created_at=msg.created_at,
@@ -309,7 +309,7 @@ async def get_conversation_messages(
             {
                 "id": msg.id,
                 "conversation_id": msg.conversation_id,
-                "message_text": msg.message_text,
+                "content": msg.content,
                 "message_type": msg.message_type,
                 "sender_type": msg.sender_type,
                 "created_at": msg.created_at,
