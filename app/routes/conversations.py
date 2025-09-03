@@ -45,7 +45,6 @@ class MessageResponse(BaseModel):
 class ConversationResponse(BaseModel):
     id: int
     user_id: int
-    phone_number: str
     status: str
     last_message_at: Optional[datetime]
     created_at: datetime
@@ -53,6 +52,7 @@ class ConversationResponse(BaseModel):
     
     # Dados relacionados
     user_name: Optional[str] = None
+    user_phone: Optional[str] = None
     total_messages: int = 0
     unread_messages: int = 0
     last_message: Optional[str] = None
@@ -100,7 +100,8 @@ async def get_conversations(
         # Query principal com JOINs
         query = select(
             Conversation,
-            User.name.label("user_name"),
+            User.nome.label("user_name"),
+            User.telefone.label("user_phone"),
             func.count(Message.id).label("total_messages"),
             func.count(
                 Message.id.filter(Message.is_read == False)
@@ -125,9 +126,8 @@ async def get_conversations(
         
         if search:
             search_conditions = or_(
-                User.name.ilike(f"%{search}%"),
-                User.phone.ilike(f"%{search}%"),
-                Conversation.phone_number.ilike(f"%{search}%")
+                User.nome.ilike(f"%{search}%"),
+                User.telefone.ilike(f"%{search}%")
             )
             conditions.append(search_conditions)
         
@@ -154,12 +154,12 @@ async def get_conversations(
             conversation_data = {
                 "id": conversation.id,
                 "user_id": conversation.user_id,
-                "phone_number": conversation.phone_number,
                 "status": conversation.status,
                 "last_message_at": conversation.last_message_at,
                 "created_at": conversation.created_at,
                 "updated_at": conversation.updated_at,
                 "user_name": row.user_name,
+                "user_phone": row.user_phone,
                 "total_messages": row.total_messages or 0,
                 "unread_messages": row.unread_messages or 0,
                 "last_message": row.last_message
@@ -173,9 +173,8 @@ async def get_conversations(
                 Conversation.join(User, Conversation.user_id == User.id)
             ).where(
                 or_(
-                    User.name.ilike(f"%{search}%"),
-                    User.phone.ilike(f"%{search}%"),
-                    Conversation.phone_number.ilike(f"%{search}%")
+                    User.nome.ilike(f"%{search}%"),
+                    User.telefone.ilike(f"%{search}%")
                 )
             )
         if status:
@@ -214,7 +213,8 @@ async def get_conversation(
         conv_result = await session.execute(
             select(
                 Conversation,
-                User.name.label("user_name"),
+                User.nome.label("user_name"),
+                User.telefone.label("user_phone"),
                 func.count(Message.id).label("total_messages")
             ).select_from(Conversation)
             .join(User, Conversation.user_id == User.id)
@@ -231,12 +231,12 @@ async def get_conversation(
         conversation_data = ConversationWithMessages(
             id=conversation.id,
             user_id=conversation.user_id,
-            phone_number=conversation.phone_number,
             status=conversation.status,
             last_message_at=conversation.last_message_at,
             created_at=conversation.created_at,
             updated_at=conversation.updated_at,
             user_name=row.user_name,
+            user_phone=row.user_phone,
             total_messages=row.total_messages or 0
         )
         
