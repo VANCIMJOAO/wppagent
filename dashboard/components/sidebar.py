@@ -136,24 +136,24 @@ def create_elegant_user_section(user_info):
             # Ações rápidas elegantes
             dmc.Group([
                 dmc.Button(
-                    [DashIconify(icon="tabler:user", width=14), "Perfil"],
+                    "Perfil",
                     variant="light",
                     size="compact-sm",
                     color="blue",
                     id="user-profile-btn",
                     className="user-action-elegant",
-                    leftSection=DashIconify(icon="tabler:user", width=14)
+                    leftIcon=DashIconify(icon="tabler:user", width=14)
                 ),
                 dmc.Button(
-                    [DashIconify(icon="tabler:logout", width=14), "Sair"],
+                    "Sair",
                     variant="light",
                     size="compact-sm",
                     color="gray",
                     id="logout-button",
                     className="user-action-elegant",
-                    leftSection=DashIconify(icon="tabler:logout", width=14)
+                    leftIcon=DashIconify(icon="tabler:logout", width=14)
                 )
-            ], justify="space-between", mt="sm")
+            ], position="apart", mt="sm")
             
         ], p="md", radius="xl", className="user-card-elegant", withBorder=True)
     ], className="user-section-elegant")
@@ -267,12 +267,10 @@ def create_elegant_nav_item(item):
                             item["badge"],
                             size="xs",
                             color="red",
-                            variant="filled",
-                            className="nav-badge-elegant pulse-animation"
-                        ) if item.get("badge") else None
-                    ], justify="space-between", align="center"),
-                    
-                    # Descrição elegante
+                        variant="filled",
+                        className="nav-badge-elegant pulse-animation"
+                    ) if item.get("badge") else None
+                ], position="apart", align="center"),                    # Descrição elegante
                     dmc.Text(
                         item["description"],
                         size="xs",
@@ -315,7 +313,7 @@ def create_quick_tools():
         
         # Grid de ferramentas
         dmc.SimpleGrid([
-            dmc.UnstyledButton([
+            dmc.Button([
                 dmc.Stack([
                     dmc.ThemeIcon(
                         DashIconify(icon=tool["icon"], width=16),
@@ -331,7 +329,7 @@ def create_quick_tools():
                         className="tool-label"
                     )
                 ], spacing="xs", align="center")
-            ], className="quick-tool-btn")
+            ], variant="subtle", className="quick-tool-btn")
             for tool in tools
         ], cols=2, spacing="xs")
         

@@ -90,9 +90,29 @@ async def lifespan(app: FastAPI):
         # Iniciar limpeza periódica das correções
         cleanup_task = asyncio.create_task(periodic_cleanup())
         
+        # 🔥 Iniciar serviço WebSocket de heartbeat
+        try:
+            from app.routes.websocket import periodic_heartbeat
+            heartbeat_task = asyncio.create_task(periodic_heartbeat())
+            logger.info("🔥 WebSocket heartbeat service iniciado")
+        except Exception as e:
+            logger.warning(f"⚠️ WebSocket heartbeat não pôde ser inicializado: {e}")
+        
+        # 🔥 Inicializar integração WebSocket
+        try:
+            from app.services.websocket_integration import initialize_websocket_integration
+            websocket_integration_success = await initialize_websocket_integration()
+            if websocket_integration_success:
+                logger.info("🔥 WebSocket integration service inicializado")
+            else:
+                logger.warning("⚠️ WebSocket integration falhou - modo standalone")
+        except Exception as e:
+            logger.warning(f"⚠️ WebSocket integration não pôde ser inicializado: {e}")
+        
         logger.info("✅ WhatsApp Agent API iniciado com sucesso COM CORREÇÕES!")
         logger.info(f"📱 Webhook URL: {settings.webhook_url}")
         logger.info("🛑 Sistema de controle de resposta única ATIVO")
+        logger.info("🔥 WebSocket endpoint disponível em: /ws")
         
     except Exception as e:
         logger.error(f"❌ Erro na inicialização: {e}")
@@ -108,6 +128,16 @@ async def lifespan(app: FastAPI):
         cleanup_task.cancel()
         try:
             await cleanup_task
+        except asyncio.CancelledError:
+            pass
+    
+    # Cancelar task de heartbeat WebSocket
+    if 'heartbeat_task' in locals():
+        heartbeat_task.cancel()
+        try:
+            await heartbeat_task
+        except asyncio.CancelledError:
+            pass
         except asyncio.CancelledError:
             pass
     
@@ -208,6 +238,10 @@ app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 
 from app.routes.conversations import router as conversations_router
 app.include_router(conversations_router, tags=["Dashboard - Conversations"])
+
+# 🔥 WEBSOCKET - Comunicação em Tempo Real 
+from app.routes.websocket import router as websocket_router_realtime
+app.include_router(websocket_router_realtime, tags=["WebSocket - Real Time"])
 
 
 @app.get("/health")

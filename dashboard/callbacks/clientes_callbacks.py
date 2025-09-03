@@ -238,8 +238,8 @@ def register_clientes_callbacks(app):
                                         size="sm", 
                                         c="dimmed"
                                     ) if client["email"] else None
-                                ], gap="md")
-                            ], gap="xs", style={"flex": 1}),
+                                ], spacing="md")
+                            ], spacing="xs", style={"flex": 1}),
                                 dmc.Stack([
                                 dmc.Text(f"💬 {client['total_messages']}", size="xs"),
                                 dmc.Text(f"📅 {client['total_appointments']}", size="xs"),
@@ -267,15 +267,13 @@ def register_clientes_callbacks(app):
                                 ),
                                 dmc.Button(
                                 "WhatsApp",
-                                leftIcon=DashIconify(icon="tabler:brand-whatsapp"),
-                                variant="light",
-                                color="green",
-                                size="xs",
-                                id={"type": "whatsapp-client", "index": client["id"]}
-                                ) if client["phone"] else None
-                                ], justify="flex-end", style={"marginTop": "8px"})
-                                
-                                ], className="client-card-modern", p="md", radius="md", shadow="sm")
+                            leftIcon=DashIconify(icon="tabler:brand-whatsapp"),
+                            variant="light",
+                            color="green",
+                            size="xs",
+                            id={"type": "whatsapp-client", "index": client["id"]}
+                            ) if client["phone"] else None
+                            ], position="right", style={"marginTop": "8px"})                                ], className="client-card-modern", p="md", radius="md", shadow="sm")
                     
                     client_items.append(client_card)
                 

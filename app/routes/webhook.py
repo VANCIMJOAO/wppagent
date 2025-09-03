@@ -33,6 +33,9 @@ from app.utils.whatsapp_sanitizer import sanitize_whatsapp_data, sanitize_messag
 from app.models.database import MetaLog
 from app.config import settings
 
+# 🔥 WebSocket Integration para notificações em tempo real
+from app.services.websocket_integration import notify_new_whatsapp_message, notify_message_sent
+
 logger = get_logger(__name__)
 
 # CACHE ABSOLUTO EM ARQUIVO
@@ -501,11 +504,22 @@ async def process_message_absolute(db: AsyncSession, value: dict):
                     continue
                 
                 # Salvar mensagem recebida
-                await MessageService.create_message(
+                message_record = await MessageService.create_message(
                     db=db, user_id=user.id, conversation_id=conversation.id,
                     direction="in", content=clean_content, message_type="text",
                     message_id=message_id
                 )
+                
+                # 🔥 NOTIFICAR DASHBOARD VIA WEBSOCKET - Nova mensagem
+                try:
+                    await notify_new_whatsapp_message(
+                        conversation_id=str(conversation.id),
+                        message_content=clean_content,
+                        sender_name=contact_info.get("name", "Cliente"),
+                        sender_phone=clean_wa_id
+                    )
+                except Exception as ws_error:
+                    logger.warning(f"⚠️ Erro WebSocket notificação: {ws_error}")
                 
                 # 🎯 GERAR RESPOSTA ÚNICA
                 response = response_generator.generate_single_response(clean_content)
@@ -518,7 +532,7 @@ async def process_message_absolute(db: AsyncSession, value: dict):
                 
                 if send_result and "error" not in send_result:
                     # Salvar resposta
-                    await MessageService.create_message(
+                    response_message = await MessageService.create_message(
                         db=db, user_id=user.id, conversation_id=conversation.id,
                         direction="out", content=safe_response, message_type="text",
                         metadata={
@@ -527,6 +541,16 @@ async def process_message_absolute(db: AsyncSession, value: dict):
                             "whatsapp_response": send_result
                         }
                     )
+                    
+                    # 🔥 NOTIFICAR DASHBOARD VIA WEBSOCKET - Resposta enviada
+                    try:
+                        await notify_message_sent(
+                            conversation_id=str(conversation.id),
+                            message_content=safe_response,
+                            sender_name="WhatsApp Bot"
+                        )
+                    except Exception as ws_error:
+                        logger.warning(f"⚠️ Erro WebSocket resposta: {ws_error}")
                     
                     # MARCAR COMO ENVIADA
                     ABSOLUTE_CONTROL.mark_response_sent(

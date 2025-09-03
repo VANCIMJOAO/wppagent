@@ -296,24 +296,9 @@ def create_home_layout():
                     ], position="apart"),
                     
                     dmc.SimpleGrid([
-                        dmc.UnstyledButton([
-                            dmc.Paper([
-                                dmc.Stack([
-                                    dmc.ThemeIcon(
-                                        DashIconify(icon="tabler:message-plus", width=24),
-                                        size="xl",
-                                        color="blue",
-                                        variant="light"
-                                    ),
-                                    dmc.Stack([
-                                        dmc.Text("Nova Conversa", fw=600, size="sm"),
-                                        dmc.Text("Iniciar atendimento manual", size="xs", c="dimmed")
-                                    ], spacing="xs", align="center")
-                                ], align="center", spacing="md")
-                            ], withBorder=True, p="lg", radius="md", style={"transition": "all 0.2s"})
-                        ], style={"width": "100%"}),
+                        dmc.Button("🗨️ Iniciar Conversa", variant="outline", fullWidth=True, id="quick-action-new-chat"),
                         
-                        dmc.UnstyledButton([
+                        dmc.Button([
                             dmc.Paper([
                                 dmc.Stack([
                                     dmc.ThemeIcon(
@@ -328,41 +313,11 @@ def create_home_layout():
                                     ], spacing="xs", align="center")
                                 ], align="center", spacing="md")
                             ], withBorder=True, p="lg", radius="md", style={"transition": "all 0.2s"})
-                        ], style={"width": "100%"}),
+                        ], variant="subtle", style={"width": "100%"}),
                         
-                        dmc.UnstyledButton([
-                            dmc.Paper([
-                                dmc.Stack([
-                                    dmc.ThemeIcon(
-                                        DashIconify(icon="tabler:user-plus", width=24),
-                                        size="xl",
-                                        color="green",
-                                        variant="light"
-                                    ),
-                                    dmc.Stack([
-                                        dmc.Text("Adicionar Cliente", fw=600, size="sm"),
-                                        dmc.Text("Cadastrar novo cliente", size="xs", c="dimmed")
-                                    ], spacing="xs", align="center")
-                                ], align="center", spacing="md")
-                            ], withBorder=True, p="lg", radius="md", style={"transition": "all 0.2s"})
-                        ], style={"width": "100%"}),
+                        dmc.Button("👤 Adicionar Cliente", variant="outline", fullWidth=True),
                         
-                        dmc.UnstyledButton([
-                            dmc.Paper([
-                                dmc.Stack([
-                                    dmc.ThemeIcon(
-                                        DashIconify(icon="tabler:chart-line", width=24),
-                                        size="xl",
-                                        color="purple",
-                                        variant="light"
-                                    ),
-                                    dmc.Stack([
-                                        dmc.Text("Ver Relatórios", fw=600, size="sm"),
-                                        dmc.Text("Análises detalhadas", size="xs", c="dimmed")
-                                    ], spacing="xs", align="center")
-                                ], align="center", spacing="md")
-                            ], withBorder=True, p="lg", radius="md", style={"transition": "all 0.2s"})
-                        ], style={"width": "100%"})
+                        dmc.Button("📊 Ver Relatórios", variant="outline", fullWidth=True)
                     ], cols=4, spacing="md")
                 ])
             ], withBorder=True, shadow="md", p="xl", radius="md", mb="xl"),

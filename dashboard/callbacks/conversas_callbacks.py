@@ -17,13 +17,15 @@ import dash_mantine_components as dmc
 from dash import html
 from datetime import datetime, timedelta
 
-# Importa utilitários de database
+# Importa APIService para dados reais
 try:
-    from utils.database import get_conversations, get_conversation_messages, create_conversation, add_message_to_conversation
-    DATABASE_AVAILABLE = True
+    from services.api_service import sync_api
+    from services.database_service import get_db_service
+    API_AVAILABLE = True
+    db_service = get_db_service()
 except ImportError:
-    DATABASE_AVAILABLE = False
-    print("⚠️ Database utils não disponível - usando callbacks mock")
+    API_AVAILABLE = False
+    print("⚠️ API Service não disponível - usando callbacks mock")
 
 def register_all_conversas_callbacks(app):
     """Registra todos os callbacks da página de conversas corrigidos"""
@@ -226,10 +228,33 @@ def register_all_conversas_callbacks(app):
         
         try:
             # Cria a conversa
-            if DATABASE_AVAILABLE:
-                new_conv_id = create_conversation(customer_name, first_message)
-                # Recarrega conversas da database
-                updated_conversations = get_conversations()
+            if API_AVAILABLE:
+                # Usar API service para criar conversa
+                try:
+                    conversations = db_service.get_conversations()
+                    # Encontrar próximo ID disponível
+                    next_id = max([c.get('id', 0) for c in conversations]) + 1 if conversations else 1
+                    
+                    # Simular criação de conversa (temporário até implementar endpoint)
+                    new_conversation = {
+                        'id': next_id,
+                        'customer_name': customer_name,
+                        'status': 'active',
+                        'last_message': first_message[:50] + '...' if len(first_message) > 50 else first_message,
+                        'last_message_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        'unread_count': 0
+                    }
+                    
+                    # Simular ID da nova conversa
+                    new_conv_id = next_id
+                    
+                    # Recarrega conversas da API
+                    updated_conversations = db_service.get_conversations()
+                    updated_conversations.append(new_conversation)
+                except Exception as e:
+                    print(f"Erro ao criar conversa via API: {e}")
+                    updated_conversations = []
+                    new_conv_id = None
             else:
                 # Mock - cria conversa simulada
                 new_conv_id = len(current_conversations) + 1
@@ -296,10 +321,16 @@ def register_all_conversas_callbacks(app):
         
         try:
             # Adiciona mensagem do usuário
-            if DATABASE_AVAILABLE:
-                print(f"🔍 Database disponível - tentando salvar mensagem no banco")
-                success = add_message_to_conversation(conversation_id, message_text.strip(), is_user=True)
-                print(f"   Resultado da inserção: {success}")
+            if API_AVAILABLE:
+                print(f"🔍 API disponível - tentando salvar mensagem via API")
+                try:
+                    # Usar API service para enviar mensagem
+                    result = sync_api.send_message(conversation_id, message_text.strip())
+                    success = result and result.get('success', False)
+                    print(f"   Resultado da inserção via API: {success}")
+                except Exception as e:
+                    print(f"Erro ao enviar via API: {e}")
+                    success = False
                 
                 if success:
                     print(f"✅ Mensagem salva com sucesso - preparando resposta da IA")
@@ -316,17 +347,31 @@ def register_all_conversas_callbacks(app):
                     ai_response = random.choice(ai_responses)
                     print(f"   Resposta IA selecionada: '{ai_response}'")
                     
-                    ai_success = add_message_to_conversation(conversation_id, ai_response, is_user=False)
-                    print(f"   Resposta IA salva: {ai_success}")
+                    # Simula resposta automática da IA via API
+                    try:
+                        ai_result = sync_api.send_message(conversation_id, ai_response)
+                        ai_success = ai_result and ai_result.get('success', False)
+                        print(f"   Resposta IA salva via API: {ai_success}")
+                    except Exception as e:
+                        print(f"Erro ao salvar resposta IA via API: {e}")
+                        ai_success = False
                     
-                    # Recarrega mensagens
-                    print(f"🔄 Recarregando mensagens da conversa {conversation_id}")
-                    updated_messages = get_conversation_messages(conversation_id)
-                    print(f"   Número de mensagens carregadas: {len(updated_messages) if updated_messages else 0}")
+                    # Recarrega mensagens via API
+                    print(f"🔄 Recarregando mensagens da conversa {conversation_id} via API")
+                    try:
+                        updated_messages = db_service.get_conversation_messages(conversation_id)
+                        print(f"   Número de mensagens carregadas: {len(updated_messages) if updated_messages else 0}")
+                    except Exception as e:
+                        print(f"Erro ao carregar mensagens via API: {e}")
+                        updated_messages = []
                     
-                    print(f"🔄 Recarregando lista de conversas")
-                    updated_conversations = get_conversations()
-                    print(f"   Número de conversas carregadas: {len(updated_conversations) if updated_conversations else 0}")
+                    print(f"🔄 Recarregando lista de conversas via API")
+                    try:
+                        updated_conversations = db_service.get_conversations()
+                        print(f"   Número de conversas carregadas: {len(updated_conversations) if updated_conversations else 0}")
+                    except Exception as e:
+                        print(f"Erro ao carregar conversas via API: {e}")
+                        updated_conversations = []
                     
                 else:
                     print("❌ Falha ao salvar mensagem no banco")
@@ -369,22 +414,50 @@ def register_all_conversas_callbacks(app):
             print(f"   Stack trace: {traceback.format_exc()}")
             return no_update, no_update, no_update
     
-    # 8. Callback para simular updates em tempo real
+    # 8. Callback para updates em tempo real via WebSocket
     @app.callback(
         Output("ws-updates", "data"),
         Input("realtime-interval", "n_intervals"),
         prevent_initial_call=True
     )
-    def simulate_realtime_updates(intervals):
-        """Simula updates em tempo real via WebSocket"""
+    def handle_realtime_websocket(intervals):
+        """Conecta ao WebSocket real para updates em tempo real"""
         
-        # Simula recebimento de mensagens a cada 30 segundos (6 intervals)
-        if intervals > 0 and intervals % 6 == 0:
-            return intervals
+        # Inicializa serviço de tempo real na primeira execução
+        if intervals == 1:
+            try:
+                from services.realtime_service import start_realtime_service, get_realtime_service
+                
+                # Inicia o serviço WebSocket
+                service = start_realtime_service()
+                
+                # Registra callbacks para diferentes eventos
+                def on_new_message(data):
+                    print(f"📨 Nova mensagem via WebSocket: {data}")
+                    # Aqui seria integrado com o Dash Store
+                    
+                def on_conversation_update(data):
+                    print(f"🔄 Conversa atualizada via WebSocket: {data}")
+                    
+                service.register_callback('new_message', on_new_message)
+                service.register_callback('conversation_update', on_conversation_update)
+                
+                print("✅ Serviço WebSocket real inicializado!")
+                return {"type": "websocket_connected", "timestamp": intervals}
+                
+            except Exception as e:
+                print(f"❌ Erro ao inicializar WebSocket: {e}")
+                # Fallback para simulação em caso de erro
+                if intervals > 0 and intervals % 6 == 0:
+                    return {"type": "simulated_update", "timestamp": intervals}
+        
+        # Heartbeat do WebSocket
+        elif intervals > 1 and intervals % 30 == 0:  # A cada 2.5 minutos
+            return {"type": "websocket_heartbeat", "timestamp": intervals}
         
         return no_update
     
-    # 9. Callback para notificações de novas mensagens
+    # 9. Callback para processamento de updates WebSocket reais
     @app.callback(
         Output("conversations-store", "data", allow_duplicate=True),
         Input("ws-updates", "data"),
@@ -392,19 +465,71 @@ def register_all_conversas_callbacks(app):
         prevent_initial_call=True
     )
     def handle_realtime_updates(ws_data, current_conversations):
-        """Processa updates em tempo real simulados"""
+        """Processa updates em tempo real do WebSocket"""
         
         if not ws_data or not current_conversations:
             raise PreventUpdate
         
-        # Simula nova mensagem recebida
-        import random
-        if random.random() < 0.3:  # 30% de chance
-            # Adiciona mensagem simulada à primeira conversa
-            updated_conversations = current_conversations.copy()
-            if updated_conversations:
-                updated_conversations[0]['last_message'] = "Nova mensagem recebida!"
-                updated_conversations[0]['timestamp'] = datetime.now()
+        update_type = ws_data.get('type', '')
+        
+        # Processa diferentes tipos de updates WebSocket
+        if update_type == 'websocket_connected':
+            print("✅ WebSocket conectado - aguardando updates em tempo real")
+            raise PreventUpdate
+            
+        elif update_type == 'websocket_heartbeat':
+            # Heartbeat - não precisa atualizar dados
+            raise PreventUpdate
+            
+        elif update_type == 'new_message':
+            # Nova mensagem recebida via WebSocket
+            conversation_id = ws_data.get('conversation_id')
+            message_content = ws_data.get('content', '')
+            
+            if conversation_id and message_content:
+                updated_conversations = current_conversations.copy()
+                
+                # Encontra e atualiza a conversa específica
+                for conv in updated_conversations:
+                    if conv.get('id') == conversation_id:
+                        conv['last_message'] = message_content
+                        conv['timestamp'] = datetime.now().isoformat()
+                        conv['unread_count'] = conv.get('unread_count', 0) + 1
+                        break
+                        
+                print(f"📨 Conversa {conversation_id} atualizada com nova mensagem")
+                return updated_conversations
+                
+        elif update_type == 'conversation_update':
+            # Update geral de conversa via WebSocket
+            conversation_id = ws_data.get('conversation_id')
+            updates = ws_data.get('updates', {})
+            
+            if conversation_id and updates:
+                updated_conversations = current_conversations.copy()
+                
+                # Encontra e atualiza a conversa específica
+                for conv in updated_conversations:
+                    if conv.get('id') == conversation_id:
+                        conv.update(updates)
+                        break
+                        
+                print(f"🔄 Conversa {conversation_id} atualizada via WebSocket")
+                return updated_conversations
+                
+        elif update_type == 'simulated_update':
+            # Fallback: simula update quando WebSocket não está disponível
+            import random
+            if random.random() < 0.3:  # 30% de chance
+                updated_conversations = current_conversations.copy()
+                if updated_conversations:
+                    conv = updated_conversations[0]
+                    conv['last_message'] = "Nova mensagem recebida (simulada)"
+                    conv['timestamp'] = datetime.now().isoformat()
+                    conv['unread_count'] = conv.get('unread_count', 0) + 1
+                    
+                print("📨 Update simulado aplicado")
+                return updated_conversations
                 updated_conversations[0]['total_messages'] += 1
                 return updated_conversations
         
