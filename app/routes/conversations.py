@@ -104,7 +104,7 @@ async def get_conversations(
             User.telefone.label("user_phone"),
             func.count(Message.id).label("total_messages"),
             func.count(
-                Message.id.filter(Message.is_read == False)
+                func.case((Message.is_read == False, Message.id), else_=None)
             ).label("unread_messages"),
             last_message_subquery.c.last_message
         ).select_from(
