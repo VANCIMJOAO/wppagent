@@ -58,10 +58,13 @@ const statusLabels = {
 
 export default function ClientesPage() {
   const [clients, setClients] = useState<ApiClient[]>([]);
+  const [allClients, setAllClients] = useState<ApiClient[]>([]); // Todos os clientes
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedClient, setSelectedClient] = useState<ApiClient | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [clientStats, setClientStats] = useState<ClientStats>({
     total: 0,
     active: 0,
@@ -74,13 +77,24 @@ export default function ClientesPage() {
     async function loadData() {
       try {
         setLoading(true);
+        console.log('🔄 Loading clients data...');
         
         const [clientsData, dashboardData] = await Promise.all([
           api.getClients(),
           api.getDashboardStats()
         ]);
 
-        setClients(clientsData);
+        console.log('📊 Clients data loaded:', clientsData?.length || 0, 'clients');
+        console.log('📈 Dashboard data loaded:', dashboardData);
+        console.log('📋 All clients data:', clientsData?.map(c => ({
+          id: c.id,
+          nome: c.nome,
+          telefone: c.telefone,
+          email: c.email
+        })));
+        
+        setAllClients(clientsData); // Guardar todos os clientes
+        setClients(clientsData); // Inicialmente mostrar todos
         
         // Calculate client stats from dashboard data
         setClientStats({
@@ -109,13 +123,46 @@ export default function ClientesPage() {
     loadData();
   }, []);
 
-  const filteredClients = clients.filter(client => {
-    const matchesSearch = client.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  // Filtro que trabalha com todos os dados
+  const filteredClients = allClients.filter(client => {
+    const matchesSearch = !searchTerm || 
+                         client.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          client.telefone?.includes(searchTerm) ||
                          (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = statusFilter === 'all' || true; // Por enquanto aceita todos os status já que não temos campo status na interface
+    const matchesStatus = statusFilter === 'all' || true; // Por enquanto aceita todos os status
+    
+    // Debug detalhado do filtro
+    if (searchTerm && searchTerm.length > 2) {
+      console.log('🔍 Filtro Debug:', {
+        searchTerm,
+        client: {
+          id: client.id,
+          nome: client.nome,
+          telefone: client.telefone,
+          email: client.email
+        },
+        matches: {
+          nome: client.nome?.toLowerCase().includes(searchTerm.toLowerCase()),
+          telefone: client.telefone?.includes(searchTerm),
+          email: client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase()),
+          final: matchesSearch
+        }
+      });
+    }
+    
     return matchesSearch && matchesStatus;
   });
+
+  // Cálculo da paginação
+  const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedClients = filteredClients.slice(startIndex, endIndex);
+
+  // Reset página quando filtro muda
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -235,6 +282,20 @@ export default function ClientesPage() {
                 <SelectItem value="inactive">Inativo</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+              setItemsPerPage(Number(value));
+              setCurrentPage(1);
+            }}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 por página</SelectItem>
+                <SelectItem value="25">25 por página</SelectItem>
+                <SelectItem value="50">50 por página</SelectItem>
+                <SelectItem value="100">100 por página</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -273,7 +334,7 @@ export default function ClientesPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredClients.map((client) => (
+              {paginatedClients.map((client) => (
                 <div
                   key={client.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
@@ -338,6 +399,61 @@ export default function ClientesPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+          
+          {/* Pagination Controls */}
+          {filteredClients.length > 0 && (
+            <div className="mt-6 flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Mostrando {startIndex + 1} a {Math.min(endIndex, filteredClients.length)} de {filteredClients.length} clientes
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Anterior
+                </Button>
+                
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Próxima
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

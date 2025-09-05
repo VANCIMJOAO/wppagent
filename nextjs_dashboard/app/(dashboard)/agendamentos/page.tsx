@@ -43,24 +43,24 @@ interface AppointmentStats {
 }
 
 const statusColors = {
-  'confirmed': 'bg-green-100 text-green-800',
-  'pending': 'bg-yellow-100 text-yellow-800',
-  'cancelled': 'bg-red-100 text-red-800',
-  'completed': 'bg-blue-100 text-blue-800'
+  'confirmado': 'bg-green-100 text-green-800',
+  'agendado': 'bg-yellow-100 text-yellow-800',
+  'cancelado': 'bg-red-100 text-red-800',
+  'realizado': 'bg-blue-100 text-blue-800'
 };
 
 const statusLabels = {
-  'confirmed': 'Confirmado',
-  'pending': 'Pendente',
-  'cancelled': 'Cancelado',
-  'completed': 'Concluído'
+  'confirmado': 'Confirmado',
+  'agendado': 'Agendado',
+  'cancelado': 'Cancelado',
+  'realizado': 'Realizado'
 };
 
 const statusIcons = {
-  'confirmed': CheckCircle,
-  'pending': AlertCircle,
-  'cancelled': XCircle,
-  'completed': CheckCircle
+  'confirmado': CheckCircle,
+  'agendado': AlertCircle,
+  'cancelado': XCircle,
+  'realizado': CheckCircle
 };
 
 export default function AgendamentosPage() {
@@ -92,26 +92,20 @@ export default function AgendamentosPage() {
 
         setAppointments(appointmentsData);
         
-        // Convert dashboard stats to appointment stats
-        setAppointmentStats({
-          total: dashboardData.totalAppointments,
-          today: Math.floor(dashboardData.totalAppointments * 0.1),
-          confirmed: dashboardData.confirmedAppointments,
-          pending: dashboardData.pendingAppointments,
-          completed: Math.floor(dashboardData.totalAppointments * 0.6),
-          cancelled: dashboardData.cancelledAppointments
-        });
+        // Calculate stats from actual appointments data
         const today = new Date().toDateString();
         const calculatedStats = {
-          total: appointmentsData.length,
-          confirmed: appointmentsData.filter(a => a.status === 'confirmed').length,
-          pending: appointmentsData.filter(a => a.status === 'pending').length,
-          cancelled: appointmentsData.filter(a => a.status === 'cancelled').length,
-          completed: appointmentsData.filter(a => a.status === 'completed').length,
+          total: appointmentsData.length || 0,
+          confirmed: appointmentsData.filter(a => a.status === 'confirmado').length || 0,
+          pending: appointmentsData.filter(a => a.status === 'agendado').length || 0,
+          cancelled: appointmentsData.filter(a => a.status === 'cancelado').length || 0,
+          completed: appointmentsData.filter(a => a.status === 'realizado').length || 0,
           today: appointmentsData.filter(a => 
-            new Date(a.dateTime).toDateString() === today
-          ).length
+            new Date(a.data_agendamento).toDateString() === today
+          ).length || 0
         };
+        
+        setAppointmentStats(calculatedStats);
         
       } catch (error) {
         console.error('Erro ao carregar dados dos agendamentos:', error);
@@ -125,23 +119,22 @@ export default function AgendamentosPage() {
   }, []);
 
   const filteredAppointments = appointments.filter(appointment => {
-    const matchesSearch = appointment.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         appointment.phone.includes(searchTerm) ||
-                         appointment.serviceType.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = appointment.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         appointment.servico.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
     
     let matchesDate = true;
     if (dateFilter === 'today') {
       const today = new Date().toDateString();
-      matchesDate = new Date(appointment.dateTime).toDateString() === today;
+      matchesDate = new Date(appointment.data_agendamento).toDateString() === today;
     } else if (dateFilter === 'tomorrow') {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      matchesDate = new Date(appointment.dateTime).toDateString() === tomorrow.toDateString();
+      matchesDate = new Date(appointment.data_agendamento).toDateString() === tomorrow.toDateString();
     } else if (dateFilter === 'week') {
       const weekFromNow = new Date();
       weekFromNow.setDate(weekFromNow.getDate() + 7);
-      matchesDate = new Date(appointment.dateTime) <= weekFromNow;
+      matchesDate = new Date(appointment.data_agendamento) <= weekFromNow;
     }
     
     return matchesSearch && matchesStatus && matchesDate;
@@ -175,7 +168,7 @@ export default function AgendamentosPage() {
   const groupAppointmentsByDate = (appointments: ApiAppointment[]) => {
     const grouped: { [key: string]: ApiAppointment[] } = {};
     appointments.forEach(appointment => {
-      const date = formatDate(appointment.dateTime);
+      const date = formatDate(appointment.data_agendamento);
       if (!grouped[date]) {
         grouped[date] = [];
       }
@@ -327,10 +320,10 @@ export default function AgendamentosPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos os Status</SelectItem>
-                    <SelectItem value="confirmed">Confirmado</SelectItem>
-                    <SelectItem value="pending">Pendente</SelectItem>
-                    <SelectItem value="completed">Concluído</SelectItem>
-                    <SelectItem value="cancelled">Cancelado</SelectItem>
+                    <SelectItem value="confirmado">Confirmado</SelectItem>
+                    <SelectItem value="agendado">Agendado</SelectItem>
+                    <SelectItem value="realizado">Realizado</SelectItem>
+                    <SelectItem value="cancelado">Cancelado</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={dateFilter} onValueChange={setDateFilter}>
@@ -365,15 +358,15 @@ export default function AgendamentosPage() {
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100">
                           <StatusIcon className={`h-5 w-5 ${
-                            appointment.status === 'confirmed' ? 'text-green-600' :
-                            appointment.status === 'pending' ? 'text-yellow-600' :
-                            appointment.status === 'cancelled' ? 'text-red-600' :
+                            appointment.status === 'confirmado' ? 'text-green-600' :
+                            appointment.status === 'agendado' ? 'text-yellow-600' :
+                            appointment.status === 'cancelado' ? 'text-red-600' :
                             'text-blue-600'
                           }`} />
                         </div>
                         <div>
                           <div className="flex items-center space-x-2">
-                            <h3 className="font-medium text-gray-900">{appointment.customerName}</h3>
+                            <h3 className="font-medium text-gray-900">{appointment.cliente_nome}</h3>
                             <Badge className={statusColors[appointment.status]}>
                               {statusLabels[appointment.status]}
                             </Badge>
@@ -381,29 +374,19 @@ export default function AgendamentosPage() {
                           <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
                             <span className="flex items-center">
                               <Calendar className="h-3 w-3 mr-1" />
-                              {formatDate(appointment.dateTime)} às {formatTime(appointment.dateTime)}
-                            </span>
-                            <span className="flex items-center">
-                              <Phone className="h-3 w-3 mr-1" />
-                              {appointment.phone}
+                              {formatDate(appointment.data_agendamento)} às {appointment.horario}
                             </span>
                             <span className="flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              {appointment.duration}min
+                              {appointment.servico}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600 mt-1">{appointment.serviceType}</p>
-                          {appointment.notes && (
-                            <p className="text-xs text-gray-500 mt-1">{appointment.notes}</p>
+                          {appointment.observacoes && (
+                            <p className="text-xs text-gray-500 mt-1">{appointment.observacoes}</p>
                           )}
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        {appointment.price && (
-                          <span className="text-lg font-semibold text-green-600">
-                            R$ {appointment.price.toFixed(2)}
-                          </span>
-                        )}
                         <div className="flex space-x-1">
                           <Button variant="ghost" size="sm">
                             <Eye className="h-4 w-4" />
@@ -434,9 +417,9 @@ export default function AgendamentosPage() {
                 {appointments
                   .filter(appointment => {
                     const today = new Date().toDateString();
-                    return new Date(appointment.dateTime).toDateString() === today;
+                    return new Date(appointment.data_agendamento).toDateString() === today;
                   })
-                  .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+                  .sort((a, b) => new Date(a.data_agendamento).getTime() - new Date(b.data_agendamento).getTime())
                   .map((appointment) => {
                     const StatusIcon = statusIcons[appointment.status];
                     return (
@@ -446,21 +429,20 @@ export default function AgendamentosPage() {
                       >
                         <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100">
                           <StatusIcon className={`h-6 w-6 ${
-                            appointment.status === 'confirmed' ? 'text-green-600' :
-                            appointment.status === 'pending' ? 'text-yellow-600' :
-                            appointment.status === 'cancelled' ? 'text-red-600' :
+                            appointment.status === 'confirmado' ? 'text-green-600' :
+                            appointment.status === 'agendado' ? 'text-yellow-600' :
+                            appointment.status === 'cancelado' ? 'text-red-600' :
                             'text-blue-600'
                           }`} />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <h3 className="font-medium text-gray-900">{appointment.customerName}</h3>
+                            <h3 className="font-medium text-gray-900">{appointment.cliente_nome}</h3>
                             <span className="text-lg font-semibold text-blue-600">
-                              {formatTime(appointment.dateTime)}
+                              {appointment.horario}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600">{appointment.serviceType}</p>
-                          <p className="text-xs text-gray-500">{appointment.phone}</p>
+                          <p className="text-sm text-gray-600">{appointment.servico}</p>
                         </div>
                         <Badge className={statusColors[appointment.status]}>
                           {statusLabels[appointment.status]}
@@ -485,7 +467,7 @@ export default function AgendamentosPage() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">{date}</h3>
                     <div className="space-y-2">
                       {dateAppointments
-                        .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+                        .sort((a, b) => new Date(a.data_agendamento).getTime() - new Date(b.data_agendamento).getTime())
                         .map((appointment) => (
                           <div
                             key={appointment.id}
@@ -493,14 +475,14 @@ export default function AgendamentosPage() {
                           >
                             <div>
                               <div className="flex items-center space-x-2">
-                                <span className="font-medium">{formatTime(appointment.dateTime)}</span>
+                                <span className="font-medium">{appointment.horario}</span>
                                 <span>-</span>
-                                <span className="font-medium">{appointment.customerName}</span>
+                                <span className="font-medium">{appointment.cliente_nome}</span>
                                 <Badge className={statusColors[appointment.status]}>
                                   {statusLabels[appointment.status]}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-gray-600">{appointment.serviceType}</p>
+                              <p className="text-sm text-gray-600">{appointment.servico}</p>
                             </div>
                           </div>
                         ))}

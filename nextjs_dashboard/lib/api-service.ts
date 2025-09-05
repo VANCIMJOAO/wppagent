@@ -395,26 +395,55 @@ export const getMessages = async (): Promise<Message[]> => {
 
 export const getAppointments = async (): Promise<Appointment[]> => {
   try {
-    const appointments = await apiRequest<Appointment[]>('/appointments');
-    return appointments;
+    const response = await apiRequest<any>('/appointments?limit=1000&offset=0');
+    return response?.appointments || response || [];
   } catch (error) {
     console.error('Erro ao buscar agendamentos:', error);
     return [];
   }
 };
 
-export const getClients = async (limit = 100, offset = 0, search?: string): Promise<Client[]> => {
+export const getClients = async (search?: string): Promise<Client[]> => {
   try {
-    let query = `/api/dashboard/clients?limit=${limit}&offset=${offset}`;
-    if (search) query += `&search=${encodeURIComponent(search)}`;
-    
-    console.log('🔍 Fetching clients from:', query);
+    let allClients: Client[] = [];
+    let offset = 0;
+    const limit = 1000;
+    let hasMoreData = true;
+
+    console.log('🔍 Iniciando busca de TODOS os clientes...');
     console.log('🌐 API Base URL:', API_BASE_URL);
+    console.log('🔐 Current Token:', currentToken ? 'Token exists' : 'No token');
+
+    while (hasMoreData) {
+      let query = `/api/dashboard/clients?limit=${limit}&offset=${offset}`;
+      if (search) query += `&search=${encodeURIComponent(search)}`;
+      
+      console.log(`� Buscando página ${Math.floor(offset/limit) + 1}, offset: ${offset}`);
+      
+      const response = await apiRequest<any>(query);
+      const clients = response?.clients || response || [];
+      
+      if (clients.length === 0) {
+        hasMoreData = false;
+      } else {
+        allClients.push(...clients);
+        console.log(`✅ Página ${Math.floor(offset/limit) + 1}: ${clients.length} clientes`);
+        
+        // Se retornou menos que o limite, não há mais dados
+        if (clients.length < limit) {
+          hasMoreData = false;
+        } else {
+          offset += limit;
+        }
+      }
+    }
+
+    console.log(`🎉 TOTAL de clientes carregados: ${allClients.length}`);
+    console.log('📊 Sample client:', allClients?.[0]);
     
-    const clients = await apiRequest<Client[]>(query);
-    return clients || [];
+    return allClients;
   } catch (error) {
-    console.error('Erro ao buscar clientes:', error);
+    console.error('❌ Erro ao buscar clientes:', error);
     return [];
   }
 };
