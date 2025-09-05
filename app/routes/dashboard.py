@@ -281,8 +281,8 @@ async def get_monthly_stats(
         # Query para estatísticas mensais (usando SQL raw por complexidade)
         monthly_query = text("""
             SELECT 
-                EXTRACT(MONTH FROM created_at) as month,
-                EXTRACT(YEAR FROM created_at) as year,
+                EXTRACT(MONTH FROM u.created_at) as month,
+                EXTRACT(YEAR FROM u.created_at) as year,
                 COUNT(DISTINCT c.id) as total_conversations,
                 COUNT(DISTINCT m.id) as total_messages,
                 COUNT(DISTINCT a.id) as total_appointments,

@@ -112,7 +112,7 @@ def register_agendamentos_callbacks(app):
         
         # Aplicar filtros se necessário
         if status_filter and status_filter != "all":
-            formatted_appointments = [apt for apt in formatted_appointments if apt.get("status") == status_filter]
+            formatted_appointments = [apt for apt in formatted_appointments if apt.get("status") == status_filter is not None is not None]
                 # Aplicar filtros de data se especificados
         if start_date or end_date:
             filtered_appointments = []

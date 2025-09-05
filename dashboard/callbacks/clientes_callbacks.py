@@ -12,6 +12,7 @@ Sistema completo usando dados reais da database:
 import dash
 from dash import Input, Output, State, html, callback_context, no_update, ALL
 import dash_mantine_components as dmc
+from dash import html
 from dash_iconify import DashIconify
 from datetime import datetime
 import sys
@@ -132,10 +133,9 @@ def register_clientes_callbacks(app):
         
         if search_term:
             search_term = search_term.lower()
-            clients = [c for c in clients if 
-                      search_term in c.get("name", "").lower() or
+            clients = [c for c in clients if search_term in c.get("name", "").lower() or
                       search_term in c.get("phone", "").lower() or
-                      search_term in c.get("email", "").lower()]
+                      search_term in c.get("email", "").lower() is not None is not None]
         
         # Cria componentes visuais
         if clients:
@@ -190,12 +190,12 @@ def register_clientes_callbacks(app):
                                     client["phone"],
                                     size="sm",
                                     c="dimmed"
-                                ) if client["phone"] else None,
+                                ) if client["phone"] else html.Div(),
                                 dmc.Text(
                                     client["email"],
                                     size="sm", 
                                     c="dimmed"
-                                ) if client["email"] else None
+                                ) if client["email"] else html.Div()
                             ], spacing="md")
                         ], spacing="xs", style={"flex": 1}),
                         dmc.Stack([
@@ -231,7 +231,7 @@ def register_clientes_callbacks(app):
                             color="green",
                             size="xs",
                             id={"type": "whatsapp-client", "index": client["id"]}
-                        ) if client["phone"] else None
+                        ) if client["phone"] else html.Div()
                     ], position="right", style={"marginTop": "8px"})
                 ], className="client-card-modern", p="md", radius="md", shadow="sm")
                 

@@ -141,7 +141,7 @@ def create_simple_table(
         
         return dmc.Card([
             dmc.Stack([
-                dmc.Text(title, size="lg", fw=600, className="heading") if title else None,
+                dmc.Text(title, size="lg", fw=600, className="heading") if title else html.Div(),
                 empty_content
             ], spacing="md")
         ], shadow="sm", p="md", radius="md")
@@ -192,7 +192,7 @@ def create_simple_table(
     
     return dmc.Card([
         dmc.Stack([
-            dmc.Text(title, size="lg", fw=600, className="heading") if title else None,
+            dmc.Text(title, size="lg", fw=600, className="heading") if title else html.Div(),
             *content
         ], spacing="md")
     ], shadow="sm", p="md", radius="md", className="simple-table-card")

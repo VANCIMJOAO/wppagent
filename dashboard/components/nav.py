@@ -159,11 +159,11 @@ def create_page_header(title: str, subtitle: str = None, actions: list = None):
         dmc.Group([
             dmc.Stack([
                 dmc.Title(title, order=1, className="page-title"),
-                dmc.Text(subtitle, c="dimmed") if subtitle else None
+                dmc.Text(subtitle, c="dimmed") if subtitle else html.Div()
             ], spacing="xs"),
             
             # Actions (botões, filtros, etc)
-            dmc.Group(actions or [], spacing="sm") if actions else None
+            dmc.Group(actions or [], spacing="sm") if actions else html.Div()
             
         ], position="space-between", align="flex-start")
     ]

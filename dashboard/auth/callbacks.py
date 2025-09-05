@@ -93,16 +93,15 @@ def register_auth_callbacks(app):
             return None, '/login'
     
     @app.callback(
-        [Output('page-content', 'children', allow_duplicate=True),
-         Output('url', 'pathname', allow_duplicate=True)],
+        Output('url', 'pathname', allow_duplicate=True),
         Input('session-expired-login', 'n_clicks'),
         prevent_initial_call=True
     )
     def redirect_to_login_from_expired(n_clicks):
         """Redireciona para login quando sessão expira"""
         if n_clicks:
-            return no_update, '/login'
-        return no_update, no_update
+            return '/login'
+        return no_update
     
     @app.callback(
         [Output('url', 'pathname', allow_duplicate=True)],

@@ -12,6 +12,20 @@ Correções implementadas:
 
 import dash
 from dash import html, dcc, Input, Output, State, callback, ctx, ALL
+
+
+def safe_component(component):
+    """Wrapper seguro para componentes que podem ser None"""
+    return component if component is not None else html.Div()
+
+def safe_children(children_list):
+    """Garante que lista de children não contém None"""
+    if not children_list:
+        return []
+    if isinstance(children_list, list):
+        return [child for child in children_list if child is not None]
+    return [children_list] if children_list is not None else []
+
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 import plotly.express as px
@@ -436,16 +450,14 @@ def filter_conversations(conversations, search_term="", status_filter="all"):
     # Filtro por texto de busca
     if search_term:
         filtered = [
-            conv for conv in filtered
-            if search_term.lower() in (conv.get('customer_name', '') or '').lower()
+            conv for conv in filtered if search_term.lower() in (conv.get('customer_name', '') or '').lower()
             or search_term.lower() in (conv.get('last_message', '') or '').lower()
         ]
     
     # Filtro por status
     if status_filter != "all":
         filtered = [
-            conv for conv in filtered
-            if conv.get('status', 'active') == status_filter
+            conv for conv in filtered if conv.get('status', 'active') == status_filter
         ]
     
     return filtered

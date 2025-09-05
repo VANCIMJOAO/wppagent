@@ -43,7 +43,7 @@ def create_modern_kpi_card(icon, title, value, subtitle, color, trend=None, id_p
                     dmc.Text(title, size="sm", c="white", fw=500, opacity=0.9),
                     dmc.Group([
                         dmc.Text(str(value), size="xl", fw=700, c="white"),
-                        trend if trend else None
+                        trend if trend else html.Div()
                     ], spacing="xs", align="center")
                 ])
             ], position="apart", align="flex-start")
@@ -73,7 +73,7 @@ def create_modern_kpi_card(icon, title, value, subtitle, color, trend=None, id_p
         "borderRadius": "12px",
         "overflow": "hidden"
     },
-    id=f"{id_prefix}-card" if id_prefix else None,
+    id=f"{id_prefix}-card" if id_prefix else html.Div(),
     className="modern-kpi-card"
     )
 

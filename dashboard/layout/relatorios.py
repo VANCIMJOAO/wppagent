@@ -11,6 +11,20 @@ import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from dash import html, dcc, dash_table, callback
 from dash_iconify import DashIconify
+
+
+def safe_component(component):
+    """Wrapper seguro para componentes que podem ser None"""
+    return component if component is not None else html.Div()
+
+def safe_children(children_list):
+    """Garante que lista de children não contém None"""
+    if not children_list:
+        return []
+    if isinstance(children_list, list):
+        return [child for child in children_list if child is not None]
+    return [children_list] if children_list is not None else []
+
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta, date

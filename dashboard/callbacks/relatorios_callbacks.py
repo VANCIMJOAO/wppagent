@@ -10,6 +10,7 @@ Baseado na estrutura real do banco de dados WppAgent.
 from dash import Input, Output, State, callback, no_update, html, ctx
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
+from dash import html
 import pandas as pd
 import io
 import base64
@@ -111,7 +112,7 @@ def register_relatorios_callbacks(app):
             report_data = ReportsQueries.get_conversations_report(
                 start_date=start_date,
                 end_date=end_date,
-                status_filter=status_filter if status_filter != 'all' else None,
+                status_filter=status_filter if status_filter != 'all' else html.Div(),
                 limit=20,
                 offset=(page - 1) * 20
             )
@@ -208,7 +209,7 @@ def register_relatorios_callbacks(app):
             report_data = ReportsQueries.get_appointments_report(
                 start_date=start_date,
                 end_date=end_date,
-                status_filter=status_filter if status_filter != 'all' else None,
+                status_filter=status_filter if status_filter != 'all' else html.Div(),
                 limit=20,
                 offset=(page - 1) * 20
             )
@@ -328,7 +329,7 @@ def register_relatorios_callbacks(app):
             report_data = ReportsQueries.get_conversations_report(
                 start_date=start_date,
                 end_date=end_date,
-                status_filter=status_filter if status_filter != 'all' else None,
+                status_filter=status_filter if status_filter != 'all' else html.Div(),
                 limit=10000,  # Limite alto para exportar tudo
                 offset=0
             )
@@ -423,7 +424,7 @@ def register_relatorios_callbacks(app):
             report_data = ReportsQueries.get_appointments_report(
                 start_date=start_date,
                 end_date=end_date,
-                status_filter=status_filter if status_filter != 'all' else None,
+                status_filter=status_filter if status_filter != 'all' else html.Div(),
                 limit=10000,
                 offset=0
             )

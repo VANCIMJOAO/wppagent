@@ -1,0 +1,96 @@
+/* Estilos adicionais para Home Layout Elegante */
+
+.action-card {
+    transition: all 0.3s ease;
+    border-radius: 12px !important;
+    cursor: pointer;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.kpi-card-conversations {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.kpi-card-users {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.kpi-card-appointments {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+}
+
+.kpi-card-messages {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+/* Animações suaves */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.kpi-card-safe {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Hover effects para cards */
+.mantine-Card-root:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+/* Estilo do filtro de período */
+#home-period-filter {
+    background: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .mantine-SimpleGrid-root {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .mantine-SimpleGrid-root {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Animações para atividades recentes */
+.recent-activity-item {
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Mini chart styling */
+.mini-chart-bar {
+    animation: growUp 0.8s ease-out;
+}
+
+@keyframes growUp {
+    from { height: 0; }
+    to { height: inherit; }
+}
+
+/* Pulse animation for refresh button */
+.refresh-btn:hover {
+    animation: pulse 0.3s ease;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}

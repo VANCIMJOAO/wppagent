@@ -193,6 +193,7 @@ app.index_string = '''
         <title>{%title%}</title>
         {%favicon%}
         {%css%}
+        <link rel="stylesheet" href="/assets/home_elegant.css">
         <link rel="stylesheet" href="/assets/auth.css">
         <link rel="stylesheet" href="/assets/sidebar.css">
         <link rel="stylesheet" href="/assets/conversations.css">

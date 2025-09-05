@@ -67,15 +67,17 @@ def create_kpi_card(
     card_content = [
         # Header com ícone e título
         dmc.Group([
+            # Renderiza ícone apenas se existir - CORRIGIDO
             dmc.ThemeIcon(
                 icon_component,
                 color=color,
                 variant="light",
                 size="lg"
-            ) if icon_component else None,
+            ) if icon_component else html.Div(),
             dmc.Stack([
                 dmc.Text(title, size="sm", fw=500, c="dimmed"),
-                dmc.Text(subtitle, size="xs", c="dimmed") if subtitle else None
+                # Renderiza subtitle apenas se existir - CORRIGIDO
+                dmc.Text(subtitle, size="xs", c="dimmed") if subtitle else html.Div()
             ], spacing="xs")
         ], position="space-between", align="flex-start"),
         
@@ -92,7 +94,7 @@ def create_kpi_card(
     ]
     
     return dmc.Card([
-        dmc.Stack([comp for comp in card_content if comp], spacing="sm")
+        dmc.Stack([comp for comp in card_content if comp is not None], spacing="sm")
     ], shadow="sm", p="md", radius="md", className="kpi-card")
 
 def create_stat_card(
@@ -150,10 +152,12 @@ def create_chart_card(
     header = dmc.Group([
         dmc.Stack([
             dmc.Text(title, size="lg", fw=600, className="heading"),
-            dmc.Text(subtitle, size="sm", c="dimmed") if subtitle else None
+            # Renderiza subtitle apenas se existir - CORRIGIDO
+            dmc.Text(subtitle, size="sm", c="dimmed") if subtitle else html.Div()
         ], spacing="xs"),
         
-        dmc.Group(actions or [], spacing="sm") if actions else None
+        # Renderiza actions apenas se existir - CORRIGIDO
+        dmc.Group(actions or [], spacing="sm") if actions else html.Div()
     ], position="space-between", align="flex-start")
     
     content = chart_component
@@ -199,12 +203,13 @@ def create_info_card(
     }
     
     header_content = [
+        # Renderiza ícone apenas se existir - CORRIGIDO
         dmc.ThemeIcon(
             icon_map.get(icon, DashIconify(icon="tabler:info-circle", width=20)),
             color=color,
             variant="light",
             size="lg"
-        ) if icon else None,
+        ) if icon else html.Div(),
         dmc.Text(title, size="lg", fw=600, className="heading")
     ]
     
@@ -222,7 +227,7 @@ def create_info_card(
     
     return dmc.Card([
         dmc.Stack([
-            dmc.Group([comp for comp in header_content if comp], spacing="sm"),
+            dmc.Group([comp for comp in header_content if comp is not None], spacing="sm"),
             content if isinstance(content, (list, tuple)) else dmc.Text(content)
         ], spacing="md")
     ], **card_props)
@@ -304,12 +309,13 @@ def create_list_card(
     
     header = dmc.Group([
         dmc.Text(title, size="lg", fw=600, className="heading"),
+        # Renderiza link apenas se existir - CORRIGIDO
         dmc.Anchor(
             "Ver todos",
             href=show_all_href,
             size="sm",
             td="none"
-        ) if show_all_href else None
+        ) if show_all_href else html.Div()
     ], position="space-between")
     
     if not items:
@@ -343,10 +349,11 @@ def create_list_card(
                         dmc.Text(item.get("subtitle", ""), size="xs", c="dimmed")
                     ], spacing="xs"),
                     
+                    # Só renderiza se houver status_badge ou time - CORRIGIDO
                     dmc.Stack([
                         status_badge,
                         dmc.Text(item.get("time", ""), size="xs", c="dimmed")
-                    ], spacing="xs", align="flex-end") if status_badge or item.get("time") else None
+                    ], spacing="xs", align="flex-end") if (status_badge or item.get("time")) else html.Div()
                     
                 ], position="space-between", align="flex-start")
             )

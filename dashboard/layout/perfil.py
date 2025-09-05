@@ -12,6 +12,20 @@ from dash import html, dcc, callback
 from dash_iconify import DashIconify
 from datetime import datetime, timedelta
 
+
+def safe_component(component):
+    """Wrapper seguro para componentes que podem ser None"""
+    return component if component is not None else html.Div()
+
+def safe_children(children_list):
+    """Garante que lista de children não contém None"""
+    if not children_list:
+        return []
+    if isinstance(children_list, list):
+        return [child for child in children_list if child is not None]
+    return [children_list] if children_list is not None else []
+
+
 from components.cards import create_info_card, create_stat_card, create_list_card
 from components.nav import create_page_header
 
@@ -709,7 +723,7 @@ def create_integration_detail_section(title, icon, color, details, actions):
         dmc.Stack([
             dmc.Text(title, size="lg", fw=600),
             dmc.Stack(detail_items, spacing="xs"),
-            dmc.Group(actions, spacing="sm") if actions else None
+            dmc.Group(actions, spacing="sm") if actions else html.Div()
         ], spacing="sm")
         
     ], spacing="lg", align="flex-start")
