@@ -82,6 +82,7 @@ async def get_conversations(
     """
     try:
         logger.info(f"🔍 Buscando conversas - Admin: {current_admin.username}")
+        logger.info(f"📊 Parâmetros: limit={limit}, offset={offset}, status={status}, search={search}")
         
         # Query principal simplificada (sem subquery complexa)
         query = select(
@@ -101,9 +102,11 @@ async def get_conversations(
         conditions = []
         
         if status:
+            logger.info(f"🔍 Aplicando filtro de status: {status}")
             conditions.append(Conversation.status == status)
         
         if search:
+            logger.info(f"🔍 Aplicando filtro de busca: {search}")
             search_conditions = or_(
                 User.nome.ilike(f"%{search}%"),
                 User.telefone.ilike(f"%{search}%")
@@ -123,29 +126,38 @@ async def get_conversations(
         query = query.offset(offset).limit(limit)
         
         # Executar query
+        logger.info("🔍 Executando query principal...")
         result = await session.execute(query)
         rows = result.fetchall()
+        logger.info(f"📊 Query executada: {len(rows)} resultados encontrados")
         
         # Formatear resposta
         conversations = []
-        for row in rows:
-            conversation = row.Conversation
-            conversation_data = {
-                "id": conversation.id,
-                "user_id": conversation.user_id,
-                "status": conversation.status,
-                "last_message_at": conversation.last_message_at,
-                "created_at": conversation.created_at,
-                "updated_at": conversation.updated_at,
-                "user_name": row.user_name,
-                "user_phone": row.user_phone,
-                "total_messages": row.total_messages or 0,
-                "unread_messages": 0,  # Placeholder - sem campo is_read
-                "last_message": "N/A"  # Simplificado por ora
-            }
-            conversations.append(conversation_data)
+        for i, row in enumerate(rows):
+            try:
+                conversation = row.Conversation
+                conversation_data = {
+                    "id": conversation.id,
+                    "user_id": conversation.user_id,
+                    "status": conversation.status,
+                    "last_message_at": conversation.last_message_at,
+                    "created_at": conversation.created_at,
+                    "updated_at": conversation.updated_at,
+                    "user_name": row.user_name,
+                    "user_phone": row.user_phone,
+                    "total_messages": row.total_messages or 0,
+                    "unread_messages": 0,  # Placeholder - sem campo is_read
+                    "last_message": "N/A"  # Simplificado por ora
+                }
+                conversations.append(conversation_data)
+                logger.debug(f"✅ Conversa {i+1}/{len(rows)} processada: ID {conversation.id}")
+            except Exception as conv_error:
+                logger.error(f"❌ Erro ao processar conversa {i+1}: {conv_error}")
+                logger.error(f"💾 Dados da conversa problemática: {vars(row)}")
+                raise
         
         # Count total
+        logger.info("📊 Contando total de conversas...")
         count_query = select(func.count(Conversation.id.distinct()))
         if search:
             count_query = count_query.select_from(
@@ -173,7 +185,11 @@ async def get_conversations(
         }
         
     except Exception as e:
-        logger.error(f"❌ Erro ao buscar conversas: {e}")
+        logger.error(f"❌ Erro inesperado ao buscar conversas: {e}")
+        logger.error(f"💾 Tipo do erro: {type(e).__name__}")
+        logger.error(f"💾 Detalhes: {str(e)}")
+        import traceback
+        logger.error(f"📍 Traceback: {traceback.format_exc()}")
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
 @router.get("/{conversation_id}", response_model=ConversationWithMessages)
@@ -235,9 +251,9 @@ async def get_conversation(
                     conversation_id=msg.conversation_id,
                     content=msg.content,
                     message_type=msg.message_type,
-                    sender_type=msg.sender_type,
+                    sender_type=msg.direction,  # Usar 'direction' em vez de 'sender_type'
                     created_at=msg.created_at,
-                    whatsapp_id=msg.whatsapp_id
+                    whatsapp_id=msg.message_id  # Usar 'message_id' em vez de 'whatsapp_id'
                 ) for msg in messages
             ]
         
@@ -259,14 +275,24 @@ async def get_conversation_messages(
     💬 Buscar mensagens de uma conversa específica
     """
     try:
+        logger.info(f"🔍 Buscando mensagens da conversa {conversation_id} - Admin: {current_admin.username}")
+        logger.info(f"📊 Parâmetros: limit={limit}, offset={offset}")
+        
         # Verificar se conversa existe
+        logger.info(f"🔍 Verificando se conversa {conversation_id} existe...")
         conv_check = await session.execute(
             select(Conversation).where(Conversation.id == conversation_id)
         )
-        if not conv_check.scalar_one_or_none():
+        conversation = conv_check.scalar_one_or_none()
+        
+        if not conversation:
+            logger.warning(f"❌ Conversa {conversation_id} não encontrada")
             raise HTTPException(404, "Conversa não encontrada")
         
+        logger.info(f"✅ Conversa {conversation_id} encontrada - Status: {conversation.status}")
+        
         # Buscar mensagens
+        logger.info(f"🔍 Buscando mensagens da conversa {conversation_id}...")
         messages_result = await session.execute(
             select(Message)
             .where(Message.conversation_id == conversation_id)
@@ -276,28 +302,40 @@ async def get_conversation_messages(
         )
         
         messages = messages_result.scalars().all()
+        logger.info(f"📨 Encontradas {len(messages)} mensagens")
         
         # Count total
+        logger.info(f"📊 Contando total de mensagens...")
         total_result = await session.execute(
             select(func.count(Message.id))
             .where(Message.conversation_id == conversation_id)
         )
         total = total_result.scalar()
+        logger.info(f"📊 Total de mensagens na conversa: {total}")
         
-        messages_data = [
-            {
-                "id": msg.id,
-                "conversation_id": msg.conversation_id,
-                "content": msg.content,
-                "message_type": msg.message_type,
-                "sender_type": msg.sender_type,
-                "created_at": msg.created_at,
-                "whatsapp_id": msg.whatsapp_id,
-                "is_read": True  # Placeholder - campo is_read não existe
-            } for msg in messages
-        ]
+        # Processar mensagens
+        logger.info(f"🔄 Processando mensagens...")
+        messages_data = []
+        for i, msg in enumerate(messages):
+            try:
+                msg_data = {
+                    "id": msg.id,
+                    "conversation_id": msg.conversation_id,
+                    "content": msg.content,
+                    "message_type": msg.message_type,
+                    "sender_type": msg.direction,  # Usar 'direction' em vez de 'sender_type'
+                    "created_at": msg.created_at,
+                    "whatsapp_id": msg.message_id,  # Usar 'message_id' em vez de 'whatsapp_id'
+                    "is_read": True  # Placeholder - campo is_read não existe
+                }
+                messages_data.append(msg_data)
+                logger.debug(f"✅ Mensagem {i+1}/{len(messages)} processada: ID {msg.id}")
+            except Exception as msg_error:
+                logger.error(f"❌ Erro ao processar mensagem {i+1}: {msg_error}")
+                logger.error(f"💾 Dados da mensagem problemática: {vars(msg)}")
+                raise
         
-        return {
+        response_data = {
             "messages": messages_data,
             "total": total,
             "limit": limit,
@@ -305,8 +343,17 @@ async def get_conversation_messages(
             "has_more": (offset + len(messages)) < total
         }
         
+        logger.info(f"✅ Retornando {len(messages_data)} mensagens para conversa {conversation_id}")
+        return response_data
+        
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions as-is
     except Exception as e:
-        logger.error(f"❌ Erro ao buscar mensagens da conversa {conversation_id}: {e}")
+        logger.error(f"❌ Erro inesperado ao buscar mensagens da conversa {conversation_id}: {e}")
+        logger.error(f"💾 Tipo do erro: {type(e).__name__}")
+        logger.error(f"💾 Detalhes: {str(e)}")
+        import traceback
+        logger.error(f"📍 Traceback: {traceback.format_exc()}")
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
 @router.put("/{conversation_id}/status")
