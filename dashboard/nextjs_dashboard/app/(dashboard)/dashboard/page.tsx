@@ -281,7 +281,7 @@ export default function DashboardPage() {
                       {activity.description}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {new Date(activity.created_at).toLocaleString('pt-BR', {
+                      {new Date(activity.timestamp).toLocaleString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit',
                         day: '2-digit',

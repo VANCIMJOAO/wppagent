@@ -74,6 +74,21 @@ class MonthlyStatsResponse(BaseModel):
         from_attributes = True
 
 
+class DailyStatsResponse(BaseModel):
+    """Response para estatísticas diárias"""
+    conversations_today: int
+    messages_today: int
+    appointments_today: int
+    new_clients_today: int
+    total_conversations: int
+    total_messages: int
+    total_appointments: int
+    total_clients: int
+    
+    class Config:
+        from_attributes = True
+
+
 # Router
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -330,6 +345,91 @@ async def get_monthly_stats(
         
     except Exception as e:
         logger.error(f"Erro ao buscar estatísticas mensais: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro interno do servidor: {str(e)}"
+        )
+
+
+@router.get("/stats/daily", response_model=DailyStatsResponse)
+async def get_daily_stats(
+    db: AsyncSession = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin_user)
+):
+    """
+    Estatísticas diárias para o dashboard principal.
+    """
+    try:
+        from datetime import date
+        today = date.today()
+        today_start = datetime.combine(today, datetime.min.time())
+        
+        # Estatísticas de hoje
+        conversations_today_query = select(func.count(Conversation.id)).where(
+            Conversation.created_at >= today_start
+        )
+        conversations_today = await db.execute(conversations_today_query)
+        conversations_today_count = conversations_today.scalar() or 0
+        
+        messages_today_query = select(func.count(Message.id)).where(
+            Message.created_at >= today_start
+        )
+        messages_today = await db.execute(messages_today_query)
+        messages_today_count = messages_today.scalar() or 0
+        
+        appointments_today_query = select(func.count(Appointment.id)).where(
+            Appointment.created_at >= today_start
+        )
+        appointments_today = await db.execute(appointments_today_query)
+        appointments_today_count = appointments_today.scalar() or 0
+        
+        new_clients_today_query = select(func.count(User.id)).where(
+            and_(
+                User.created_at >= today_start,
+                User.nome.isnot(None),
+                User.nome != '',
+                ~User.nome.like('%[DELETED]%')
+            )
+        )
+        new_clients_today = await db.execute(new_clients_today_query)
+        new_clients_today_count = new_clients_today.scalar() or 0
+        
+        # Estatísticas totais
+        total_conversations_query = select(func.count(Conversation.id))
+        total_conversations = await db.execute(total_conversations_query)
+        total_conversations_count = total_conversations.scalar() or 0
+        
+        total_messages_query = select(func.count(Message.id))
+        total_messages = await db.execute(total_messages_query)
+        total_messages_count = total_messages.scalar() or 0
+        
+        total_appointments_query = select(func.count(Appointment.id))
+        total_appointments = await db.execute(total_appointments_query)
+        total_appointments_count = total_appointments.scalar() or 0
+        
+        total_clients_query = select(func.count(User.id)).where(
+            and_(
+                User.nome.isnot(None),
+                User.nome != '',
+                ~User.nome.like('%[DELETED]%')
+            )
+        )
+        total_clients = await db.execute(total_clients_query)
+        total_clients_count = total_clients.scalar() or 0
+        
+        return DailyStatsResponse(
+            conversations_today=conversations_today_count,
+            messages_today=messages_today_count,
+            appointments_today=appointments_today_count,
+            new_clients_today=new_clients_today_count,
+            total_conversations=total_conversations_count,
+            total_messages=total_messages_count,
+            total_appointments=total_appointments_count,
+            total_clients=total_clients_count
+        )
+        
+    except Exception as e:
+        logger.error(f"Erro ao buscar estatísticas diárias: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erro interno do servidor: {str(e)}"
