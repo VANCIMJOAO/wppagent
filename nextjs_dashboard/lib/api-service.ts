@@ -28,6 +28,24 @@ export interface User {
   ultima_interacao: string;
 }
 
+export interface Client {
+  id: number;
+  nome: string;
+  telefone: string;
+  email?: string;
+  created_at: string;
+  updated_at?: string;
+  
+  // Estatísticas calculadas
+  total_conversations: number;
+  total_messages: number;
+  total_appointments: number;
+  confirmed_appointments: number;
+  cancelled_appointments: number;
+  total_spent: number;
+  last_contact?: string;
+}
+
 export interface Message {
   id: number; // Changed from string to number to match backend
   conversation_id: number;
@@ -385,6 +403,22 @@ export const getAppointments = async (): Promise<Appointment[]> => {
   }
 };
 
+export const getClients = async (limit = 100, offset = 0, search?: string): Promise<Client[]> => {
+  try {
+    let query = `/clients?limit=${limit}&offset=${offset}`;
+    if (search) query += `&search=${encodeURIComponent(search)}`;
+    
+    console.log('🔍 Fetching clients from:', query);
+    console.log('🌐 API Base URL:', API_BASE_URL);
+    
+    const clients = await apiRequest<Client[]>(query);
+    return clients || [];
+  } catch (error) {
+    console.error('Erro ao buscar clientes:', error);
+    return [];
+  }
+};
+
 export const getConversations = async (limit = 50, offset = 0, status?: string, search?: string): Promise<{ conversations: Conversation[], total: number }> => {
   try {
     let query = `/conversations/?limit=${limit}&offset=${offset}`;
@@ -500,6 +534,7 @@ const api = {
   getUsers,
   getMessages,
   getAppointments,
+  getClients,
   getConversations,
   getConversationMessages,
   getConversation,
