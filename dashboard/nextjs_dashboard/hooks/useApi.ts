@@ -63,9 +63,12 @@ export function useDashboardData(days: number = 30) {
         ]
       };
 
+      // Buscar atividades recentes
+      const recentActivities = await api.getRecentActivity(8);
+
       setKpis(kpisData);
       setCharts(chartsData);
-      setRecentActivity([]);
+      setRecentActivity(recentActivities);
 
     } catch (err: any) {
       setError(`Erro ao conectar com o backend: ${err.message || 'Verifique se o servidor está funcionando'}`);

@@ -470,3 +470,126 @@ async def export_report(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erro interno do servidor: {str(e)}"
         )
+
+
+class RecentActivityResponse(BaseModel):
+    """Response para atividades recentes"""
+    id: int
+    type: str  # 'new_client', 'new_conversation', 'new_appointment', 'new_message'
+    title: str
+    description: str
+    timestamp: datetime
+    user_name: Optional[str] = None
+    user_phone: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
+
+@router.get("/recent-activity", response_model=List[RecentActivityResponse])
+async def get_recent_activity(
+    limit: int = Query(10, ge=1, le=50, description="Número de atividades para retornar"),
+    db: AsyncSession = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin_user)
+):
+    """
+    Buscar atividades recentes do sistema para o dashboard.
+    """
+    try:
+        activities = []
+        
+        # 1. Novos clientes (últimos 7 dias)
+        recent_users_query = select(User).where(
+            and_(
+                User.created_at >= datetime.now() - timedelta(days=7),
+                User.nome.isnot(None),
+                User.nome != '',
+                ~User.nome.like('%[DELETED]%')
+            )
+        ).order_by(desc(User.created_at)).limit(limit // 2)
+        
+        result = await db.execute(recent_users_query)
+        recent_users = result.scalars().all()
+        
+        for user in recent_users:
+            activities.append(RecentActivityResponse(
+                id=user.id,
+                type="new_client",
+                title="Novo cliente cadastrado",
+                description=f"Cliente {user.nome} se cadastrou no sistema",
+                timestamp=user.created_at,
+                user_name=user.nome,
+                user_phone=user.telefone
+            ))
+        
+        # 2. Conversas recentes (últimos 3 dias)
+        recent_conversations_query = select(Conversation, User).join(
+            User, Conversation.user_id == User.id
+        ).where(
+            and_(
+                Conversation.created_at >= datetime.now() - timedelta(days=3),
+                User.nome.isnot(None),
+                User.nome != '',
+                ~User.nome.like('%[DELETED]%')
+            )
+        ).order_by(desc(Conversation.created_at)).limit(limit // 3)
+        
+        result = await db.execute(recent_conversations_query)
+        recent_conversations = result.all()
+        
+        for conv, user in recent_conversations:
+            activities.append(RecentActivityResponse(
+                id=conv.id,
+                type="new_conversation",
+                title="Nova conversa iniciada",
+                description=f"Conversa iniciada com {user.nome}",
+                timestamp=conv.created_at,
+                user_name=user.nome,
+                user_phone=user.telefone
+            ))
+        
+        # 3. Agendamentos recentes (últimos 7 dias)
+        recent_appointments_query = select(Appointment, User).join(
+            User, Appointment.user_id == User.id
+        ).where(
+            and_(
+                Appointment.created_at >= datetime.now() - timedelta(days=7),
+                User.nome.isnot(None),
+                User.nome != '',
+                ~User.nome.like('%[DELETED]%')
+            )
+        ).order_by(desc(Appointment.created_at)).limit(limit // 3)
+        
+        result = await db.execute(recent_appointments_query)
+        recent_appointments = result.all()
+        
+        for apt, user in recent_appointments:
+            status_text = {
+                'pendente': 'agendado',
+                'confirmado': 'confirmado',
+                'cancelado': 'cancelado',
+                'concluido': 'concluído'
+            }.get(apt.status, apt.status)
+            
+            activities.append(RecentActivityResponse(
+                id=apt.id,
+                type="new_appointment",
+                title=f"Agendamento {status_text}",
+                description=f"Agendamento de {user.nome} para {apt.date_time.strftime('%d/%m/%Y às %H:%M')}",
+                timestamp=apt.created_at,
+                user_name=user.nome,
+                user_phone=user.telefone
+            ))
+        
+        # Ordenar todas as atividades por timestamp (mais recente primeiro)
+        activities.sort(key=lambda x: x.timestamp, reverse=True)
+        
+        # Retornar apenas o limite solicitado
+        return activities[:limit]
+        
+    except Exception as e:
+        logger.error(f"Erro ao buscar atividades recentes: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro interno do servidor: {str(e)}"
+        )
