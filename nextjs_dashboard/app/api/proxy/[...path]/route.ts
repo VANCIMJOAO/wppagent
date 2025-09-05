@@ -37,16 +37,56 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     const backendUrl = `https://wppagent-production.up.railway.app${endpoint}${queryString}`;
     console.log(`Proxy ${method} request to:`, backendUrl);
     
+    const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
+    console.log('Authorization header received:', authHeader ? `${authHeader.substring(0, 50)}... (length: ${authHeader.length})` : 'None');
+    console.log('Full Authorization header:', authHeader);
+    
     const requestBody = method !== 'GET' ? await request.text() : undefined;
     
     const response = await fetch(backendUrl, {
       method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': request.headers.get('authorization') || '',
+        'Authorization': authHeader,
       },
       body: requestBody,
+      redirect: 'manual', // Lidar com redirects manualmente
     });
+
+    // Se recebeu redirect 307, seguir manualmente preservando headers
+    if (response.status === 307) {
+      const locationHeader = response.headers.get('location');
+      if (locationHeader) {
+        console.log(`🔄 Following redirect to: ${locationHeader}`);
+        const redirectResponse = await fetch(locationHeader, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader, // Preservar Authorization header
+          },
+          body: requestBody,
+        });
+        
+        const contentType = redirectResponse.headers.get('content-type');
+        let data;
+        
+        if (contentType && contentType.includes('application/json')) {
+          data = await redirectResponse.json();
+        } else {
+          data = await redirectResponse.text();
+        }
+
+        console.log(`Redirect response ${redirectResponse.status}:`, data);
+        return NextResponse.json(data, { 
+          status: redirectResponse.status,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          }
+        });
+      }
+    }
 
     const contentType = response.headers.get('content-type');
     let data;

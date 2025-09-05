@@ -22,7 +22,15 @@ import {
   Mic
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { api } from '@/lib/api-service';
+import { 
+  getConversations, 
+  getConversationMessages,
+  convertConversationToContact,
+  convertMessageToConversationMessage,
+  type Conversation,
+  type Message as BackendMessage,
+  type ConversationMessage
+} from '@/lib/api-service';
 
 interface Contact {
   id: string;
@@ -125,7 +133,33 @@ export default function ConversationsPage() {
       try {
         setLoading(true);
         
-        // For now, we'll use the mock data since conversations API might not be fully implemented
+        // Fetch real conversations from backend
+        const { conversations } = await getConversations(50, 0, 'active');
+        
+        // Convert backend conversations to frontend Contact format
+        const contactsData = conversations.map(convertConversationToContact);
+        
+        setContacts(contactsData);
+        
+        // Set the first contact as selected if available
+        if (contactsData.length > 0) {
+          const firstContact = contactsData[0];
+          setSelectedContact(firstContact);
+          
+          // Load messages for the first conversation
+          const conversationId = parseInt(firstContact.id);
+          const { messages: backendMessages } = await getConversationMessages(conversationId);
+          
+          // Convert backend messages to frontend format
+          const messagesData = backendMessages.map(convertMessageToConversationMessage);
+          setMessages(messagesData);
+        }
+        
+      } catch (error) {
+        console.error('Erro ao carregar conversas:', error);
+        toast.error('Erro ao carregar conversas');
+        
+        // Fallback to mock data if real data fails
         const mockContactsData: Contact[] = [
           {
             id: '1',
@@ -146,56 +180,9 @@ export default function ConversationsPage() {
             unreadCount: 0,
             status: 'offline',
             tags: ['cliente']
-          },
-          {
-            id: '3',
-            name: 'Pedro Costa',
-            phone: '+55 11 77777-7777',
-            lastMessage: 'Está digitando...',
-            timestamp: '08:20',
-            unreadCount: 1,
-            status: 'typing',
-            tags: ['prospect']
           }
         ];
 
-        const mockMessagesData: Message[] = [
-          {
-            id: '1',
-            contactId: '1',
-            content: 'Olá, gostaria de agendar um horário',
-            timestamp: '2024-01-15T10:30:00',
-            isFromMe: false,
-            type: 'text',
-            status: 'read'
-          },
-          {
-            id: '2',
-            contactId: '1',
-            content: 'Claro! Que dia seria melhor para você?',
-            timestamp: '2024-01-15T10:31:00',
-            isFromMe: true,
-            type: 'text',
-            status: 'read'
-          },
-          {
-            id: '3',
-            contactId: '1',
-            content: 'Amanhã pela manhã, se possível.',
-            timestamp: '2024-01-15T10:32:00',
-            isFromMe: false,
-            type: 'text',
-            status: 'delivered'
-          }
-        ];
-
-        setContacts(mockContactsData);
-        setMessages(mockMessagesData);
-        setSelectedContact(mockContactsData[0]);
-        
-      } catch (error) {
-        console.error('Erro ao carregar conversas:', error);
-        toast.error('Erro ao carregar conversas');
       } finally {
         setLoading(false);
       }
@@ -218,6 +205,25 @@ export default function ConversationsPage() {
   );
 
   const contactMessages = messages.filter(msg => msg.contactId === selectedContact?.id);
+
+  // Function to load messages for selected contact
+  const loadMessagesForContact = async (contact: Contact) => {
+    try {
+      const conversationId = parseInt(contact.id);
+      const { messages: backendMessages } = await getConversationMessages(conversationId);
+      const messagesData = backendMessages.map(convertMessageToConversationMessage);
+      setMessages(messagesData);
+    } catch (error) {
+      console.error('Erro ao carregar mensagens:', error);
+      toast.error('Erro ao carregar mensagens');
+    }
+  };
+
+  // Handle contact selection
+  const handleContactSelect = (contact: Contact) => {
+    setSelectedContact(contact);
+    loadMessagesForContact(contact);
+  };
 
   const sendMessage = () => {
     if (!newMessage.trim() || !selectedContact) return;
@@ -323,7 +329,7 @@ export default function ConversationsPage() {
             filteredContacts.map((contact) => (
               <div
                 key={contact.id}
-                onClick={() => setSelectedContact(contact)}
+                onClick={() => handleContactSelect(contact)}
                 className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
                   selectedContact?.id === contact.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                 }`}

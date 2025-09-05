@@ -236,7 +236,13 @@ app.include_router(db_optimization_router, tags=["Database Optimization"])
 from app.routes.appointments import router as appointments_router
 app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 
-from app.routes.conversations import router as conversations_router
+# Usar versão corrigida das conversas se disponível
+try:
+    from app.routes.conversations_fixed import router as conversations_router
+    logger.info("✅ Usando rotas de conversas CORRIGIDAS")
+except ImportError:
+    from app.routes.conversations import router as conversations_router
+    logger.warning("⚠️ Usando rotas de conversas originais")
 app.include_router(conversations_router, tags=["Dashboard - Conversations"])
 
 from app.routes.dashboard import router as dashboard_router
