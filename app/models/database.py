@@ -6,7 +6,7 @@ Modelos SQLAlchemy para o banco de dados
 """
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey, JSON, Float
+from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey, JSON, Float, Numeric
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -197,7 +197,11 @@ class Appointment(Base):
     confirmed_by = Column(String(20))  # 'customer', 'admin', 'auto'
     
     # Preço no momento do agendamento
-    price_at_booking = Column(String(20))
+    price_at_booking = Column(Numeric)
+    
+    # Campo price (compatibilidade com banco existente)
+    price = Column(Numeric, default=0.00)
+    duration = Column(Integer, default=60)  # duração em minutos
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
