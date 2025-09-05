@@ -395,8 +395,38 @@ export const getMessages = async (): Promise<Message[]> => {
 
 export const getAppointments = async (): Promise<Appointment[]> => {
   try {
-    const response = await apiRequest<any>('/appointments?limit=1000&offset=0');
-    return response?.appointments || response || [];
+    let allAppointments: Appointment[] = [];
+    let offset = 0;
+    const limit = 1000;
+    let hasMoreData = true;
+
+    console.log('🔍 Iniciando busca de TODOS os agendamentos...');
+
+    while (hasMoreData) {
+      let query = `/api/dashboard/appointments?limit=${limit}&offset=${offset}`;
+      
+      console.log(`📥 Buscando página ${Math.floor(offset/limit) + 1}, offset: ${offset}`);
+      
+      const response = await apiRequest<Appointment[]>(query);
+      const appointments = response || [];
+      
+      if (appointments.length === 0) {
+        hasMoreData = false;
+      } else {
+        allAppointments.push(...appointments);
+        console.log(`✅ Página ${Math.floor(offset/limit) + 1}: ${appointments.length} agendamentos`);
+        
+        // Se retornou menos que o limite, não há mais dados
+        if (appointments.length < limit) {
+          hasMoreData = false;
+        } else {
+          offset += limit;
+        }
+      }
+    }
+
+    console.log(`🎉 TOTAL de agendamentos carregados: ${allAppointments.length}`);
+    return allAppointments;
   } catch (error) {
     console.error('Erro ao buscar agendamentos:', error);
     return [];

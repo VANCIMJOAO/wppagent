@@ -23,8 +23,9 @@ from sqlalchemy import select, and_, or_, desc, func, text
 from pydantic import BaseModel, Field
 
 from app.database import get_db
-from app.models.database import User, Conversation, Message, Appointment
+from app.models.database import User, Conversation, Message, Appointment, Service
 from app.routes.admin_auth import get_current_admin_user, AdminUser
+from app.auth.middleware import get_current_user
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -585,6 +586,22 @@ class RecentActivityResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class AppointmentResponse(BaseModel):
+    """Response para agendamentos do dashboard"""
+    id: int
+    cliente_id: int
+    cliente_nome: str
+    data_agendamento: str
+    horario: str
+    servico: str
+    status: str  # 'agendado', 'confirmado', 'realizado', 'cancelado'
+    observacoes: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 
 @router.get("/recent-activity", response_model=List[RecentActivityResponse])
 async def get_recent_activity(
@@ -689,6 +706,93 @@ async def get_recent_activity(
         
     except Exception as e:
         logger.error(f"Erro ao buscar atividades recentes: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro interno do servidor: {str(e)}"
+        )
+
+@router.get("/appointments", response_model=List[AppointmentResponse])
+async def get_dashboard_appointments(
+    limit: int = Query(100, le=1000, description="Limite de resultados"),
+    offset: int = Query(0, ge=0, description="Offset para paginação"),
+    status_filter: Optional[str] = Query(None, description="Filtrar por status"),
+    current_user = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    📅 Buscar agendamentos para o dashboard
+    
+    Retorna lista paginada de agendamentos com dados dos clientes.
+    Usa autenticação regular de usuário, não requer admin.
+    """
+    try:
+        # Query base - ajustada para a estrutura real da tabela appointments
+        query = select(
+            Appointment.id,
+            Appointment.user_id.label('cliente_id'),
+            User.nome.label('cliente_nome'),
+            Appointment.date_time,
+            Appointment.status,
+            Appointment.notes.label('observacoes'),
+            Appointment.created_at,
+            Appointment.updated_at,
+            Service.name.label('servico_nome')
+        ).select_from(
+            Appointment.__table__.join(User, Appointment.user_id == User.id)
+            .outerjoin(Service, Appointment.service_id == Service.id)
+        )
+        
+        # Aplicar filtro de status se fornecido
+        if status_filter:
+            query = query.where(Appointment.status == status_filter)
+        
+        # Adicionar ordenação por data de agendamento (mais recente primeiro)
+        query = query.order_by(desc(Appointment.date_time))
+        
+        # Aplicar paginação
+        query = query.offset(offset).limit(limit)
+        
+        result = await session.execute(query)
+        appointments_data = result.all()
+        
+        appointments = []
+        for row in appointments_data:
+            # Formatar data e horário a partir de date_time
+            if row.date_time:
+                data_formatada = row.date_time.strftime('%Y-%m-%d')
+                horario_formatado = row.date_time.strftime('%H:%M')
+            else:
+                data_formatada = ''
+                horario_formatado = ''
+            
+            # Mapear status para os valores esperados pelo frontend
+            status_map = {
+                'pendente': 'agendado',
+                'confirmado': 'confirmado', 
+                'cancelado': 'cancelado',
+                'concluido': 'realizado',
+                'bloqueado': 'cancelado'
+            }
+            status_frontend = status_map.get(row.status, row.status or 'agendado')
+            
+            appointments.append(AppointmentResponse(
+                id=row.id,
+                cliente_id=row.cliente_id,
+                cliente_nome=row.cliente_nome or 'Nome não disponível',
+                data_agendamento=data_formatada,
+                horario=horario_formatado,
+                servico=row.servico_nome or 'Serviço não especificado',
+                status=status_frontend,
+                observacoes=row.observacoes,
+                created_at=row.created_at,
+                updated_at=row.updated_at
+            ))
+        
+        logger.info(f"Dashboard: Retornando {len(appointments)} agendamentos")
+        return appointments
+        
+    except Exception as e:
+        logger.error(f"Erro ao buscar agendamentos do dashboard: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erro interno do servidor: {str(e)}"
