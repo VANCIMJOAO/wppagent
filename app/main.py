@@ -154,14 +154,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configurar CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# 🔧 CONFIGURAR CORS AVANÇADO - SOLUÇÃO PARA RAILWAY
+from app.cors_config import setup_cors_middleware, add_cors_test_endpoint, get_cors_debug_info
+
+# Aplicar configuração CORS otimizada
+setup_cors_middleware(app, debug=settings.debug)
+
+# Adicionar endpoints de teste CORS
+add_cors_test_endpoint(app)
+
+logger.info("✅ CORS configurado com configurações avançadas para Railway")
 
 # 🔒 Adicionar middleware de segurança HTTPS (primeiro)
 if HTTPS_MIDDLEWARE_AVAILABLE:
@@ -378,6 +380,19 @@ async def root():
         "message": "WhatsApp Agent API",
         "version": "1.0.0",
         "status": "running"
+    }
+
+@app.get("/cors/debug")
+async def cors_debug_info():
+    """Endpoint para debug de configurações CORS"""
+    return {
+        "cors_debug": get_cors_debug_info(),
+        "test_instructions": {
+            "browser_test": "Abra o console do navegador e execute: fetch('https://wppagent-production.up.railway.app/cors/test').then(r => r.json()).then(console.log)",
+            "curl_test": "curl -X OPTIONS https://wppagent-production.up.railway.app/cors/test -H 'Origin: http://localhost:3000' -v",
+            "postman_test": "Criar request OPTIONS para https://wppagent-production.up.railway.app/cors/test com header Origin: http://localhost:3000"
+        },
+        "timestamp": datetime.now().isoformat()
     }
 
 @app.get("/rate-limit/stats")

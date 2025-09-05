@@ -43,7 +43,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/admin/debug-admin",  # TEMPORÁRIO: Debug admin
             # "/auth/auth/login",  # Endpoint removido - era duplicado
             "/auth/register",
-            "/metrics"
+            "/metrics",
+            "/cors/test",  # Endpoint de teste CORS
+            "/cors/debug",  # Endpoint de debug CORS
+            "/",  # Endpoint raiz
         }
         
         # Endpoints que requerem 2FA obrigatório
@@ -56,6 +59,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
     
     async def dispatch(self, request: Request, call_next):
         """Middleware principal"""
+        
+        # 🔧 CORS FIX: Permitir todas as requisições OPTIONS sem autenticação
+        if request.method == "OPTIONS":
+            response = await call_next(request)
+            return response
         
         try:
             # 1. Rate Limiting (sempre aplicado)
