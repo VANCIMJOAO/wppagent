@@ -165,6 +165,81 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="p-4 bg-gray-50">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">+{kpis.clients_today} hoje</p>
+              <p className="text-xs text-gray-500">Base de clientes</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card Agendamentos */}
+        <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white pb-4">
+            <div className="flex items-center justify-between">
+              <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm border border-white/30">
+                <Calendar size={24} />
+              </div>
+              <div className="text-right">
+                <CardTitle className="text-2xl font-bold text-white mb-1">
+                  {kpis.total_appointments}
+                </CardTitle>
+                <p className="text-white/90 text-sm font-medium">Agendamentos</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 bg-gray-50">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">+{kpis.appointments_today} hoje</p>
+              <div className="flex items-center text-xs font-semibold text-green-600">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {kpis.growth_appointments.toFixed(1)}%
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card Mensagens */}
+        <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white pb-4">
+            <div className="flex items-center justify-between">
+              <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm border border-white/30">
+                <MessageSquare size={24} />
+              </div>
+              <div className="text-right">
+                <CardTitle className="text-2xl font-bold text-white mb-1">
+                  {kpis.total_messages.toLocaleString('pt-BR')}
+                </CardTitle>
+                <p className="text-white/90 text-sm font-medium">Mensagens</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 bg-gray-50">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">{kpis.messages_today} hoje</p>
+              <div className="flex items-center text-xs font-semibold text-green-600">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {kpis.growth_messages.toFixed(1)}%
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card Usuários */}
+        <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          <CardHeader className="bg-gradient-to-r from-green-500 to-green-600 text-white pb-4">
+            <div className="flex items-center justify-between">
+              <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm border border-white/30">
+                <Users size={24} />
+              </div>
+              <div className="text-right">
+                <CardTitle className="text-2xl font-bold text-white mb-1">
+                  {kpis.unique_users.toLocaleString('pt-BR')}
+                </CardTitle>
+                <p className="text-white/90 text-sm font-medium">Clientes Únicos</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 bg-gray-50">
             <p className="text-sm text-gray-600">Base de clientes</p>
           </CardContent>
         </Card>
@@ -246,8 +321,8 @@ export default function DashboardPage() {
               <span className="font-semibold text-green-600">{kpis.appointments_today}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Total usuários</span>
-              <span className="font-semibold">{kpis.unique_users}</span>
+              <span className="text-sm text-gray-600">Novos clientes</span>
+              <span className="font-semibold">{kpis.clients_today}</span>
             </div>
           </CardContent>
         </Card>

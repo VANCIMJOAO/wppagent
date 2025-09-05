@@ -6,13 +6,19 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api-service';
 
 interface DashboardKPIs {
+  // Totais gerais (para os cards coloridos)
   total_conversations: number;
   unique_users: number;
   total_appointments: number;
   total_messages: number;
+  
+  // Dados de hoje (para a linha de baixo dos cards)
   messages_today: number;
   conversations_today: number;
   appointments_today: number;
+  clients_today: number;
+  
+  // Dados de crescimento
   growth_conversations: number;
   growth_messages: number;
   growth_appointments: number;
@@ -40,19 +46,22 @@ export function useDashboardData(days: number = 30) {
       const dashboardStats = await api.getDashboardStats();
       
       const kpisData: DashboardKPIs = {
-        total_conversations: dashboardStats.conversas_ativas,
+        // Totais gerais (para os cards coloridos)
+        total_conversations: dashboardStats.total_conversas,
         unique_users: dashboardStats.total_clientes,
-        total_appointments: dashboardStats.agendamentos_hoje,
-        total_messages: dashboardStats.mensagens_nao_lidas,
-        messages_today: dashboardStats.mensagens_nao_lidas,
-        conversations_today: dashboardStats.conversas_ativas,
+        total_appointments: dashboardStats.total_agendamentos,
+        total_messages: dashboardStats.total_mensagens,
+        
+        // Dados de hoje (para a linha de baixo dos cards)
+        messages_today: dashboardStats.mensagens_hoje,
+        conversations_today: dashboardStats.conversas_hoje,
         appointments_today: dashboardStats.agendamentos_hoje,
+        clients_today: dashboardStats.clientes_hoje,
+        
         growth_conversations: dashboardStats.crescimento_clientes,
-        growth_messages: 8.3,
-        growth_appointments: 15.2
-      };
-
-      const chartsData: DashboardCharts = {
+        growth_messages: dashboardStats.crescimento_clientes,
+        growth_appointments: dashboardStats.crescimento_clientes,
+      };      const chartsData: DashboardCharts = {
         conversations_chart: [],
         messages_chart: [],
         appointments_chart: [],
