@@ -498,10 +498,10 @@ async def get_recent_activity(
     try:
         activities = []
         
-        # 1. Novos clientes (últimos 7 dias)
+        # 1. Novos clientes (últimos 30 dias)
         recent_users_query = select(User).where(
             and_(
-                User.created_at >= datetime.now() - timedelta(days=7),
+                User.created_at >= datetime.now() - timedelta(days=30),
                 User.nome.isnot(None),
                 User.nome != '',
                 ~User.nome.like('%[DELETED]%')
@@ -522,12 +522,12 @@ async def get_recent_activity(
                 user_phone=user.telefone
             ))
         
-        # 2. Conversas recentes (últimos 3 dias)
+        # 2. Conversas recentes (últimos 15 dias)
         recent_conversations_query = select(Conversation, User).join(
             User, Conversation.user_id == User.id
         ).where(
             and_(
-                Conversation.created_at >= datetime.now() - timedelta(days=3),
+                Conversation.created_at >= datetime.now() - timedelta(days=15),
                 User.nome.isnot(None),
                 User.nome != '',
                 ~User.nome.like('%[DELETED]%')
@@ -548,12 +548,12 @@ async def get_recent_activity(
                 user_phone=user.telefone
             ))
         
-        # 3. Agendamentos recentes (últimos 7 dias)
+        # 3. Agendamentos recentes (últimos 30 dias)
         recent_appointments_query = select(Appointment, User).join(
             User, Appointment.user_id == User.id
         ).where(
             and_(
-                Appointment.created_at >= datetime.now() - timedelta(days=7),
+                Appointment.created_at >= datetime.now() - timedelta(days=30),
                 User.nome.isnot(None),
                 User.nome != '',
                 ~User.nome.like('%[DELETED]%')
