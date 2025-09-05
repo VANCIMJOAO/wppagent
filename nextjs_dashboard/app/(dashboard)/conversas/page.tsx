@@ -275,13 +275,14 @@ export default function ConversationsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Lista de Conversas */}
-      <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col">
-        {/* Header da Lista */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Conversas</h2>
+    <div className="fixed inset-0 left-80 bg-gray-50"> {/* Use fixed positioning, accounting for sidebar width */}
+      <div className="flex h-full">
+        {/* Lista de Conversas */}
+        <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col">
+          {/* Header da Lista */}
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Conversas</h2>
             <div className="flex gap-2">
               <Button variant="ghost" size="sm">
                 <Filter className="w-4 h-4" />
@@ -490,6 +491,7 @@ export default function ConversationsPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
