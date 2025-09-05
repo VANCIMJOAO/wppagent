@@ -405,7 +405,7 @@ export const getAppointments = async (): Promise<Appointment[]> => {
 
 export const getClients = async (limit = 100, offset = 0, search?: string): Promise<Client[]> => {
   try {
-    let query = `/clients?limit=${limit}&offset=${offset}`;
+    let query = `/api/dashboard/clients?limit=${limit}&offset=${offset}`;
     if (search) query += `&search=${encodeURIComponent(search)}`;
     
     console.log('🔍 Fetching clients from:', query);
@@ -544,3 +544,4 @@ const api = {
 };
 
 export default api;
+export { api };
