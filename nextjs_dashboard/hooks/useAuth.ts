@@ -1,114 +1,206 @@
 /**
- * Hook de autenticação real com backend
+ * 🪝 Hook de Autenticação com Refresh Tokens
+ * ==========================================
+ * 
+ * Hook customizado que integra AuthService com React:
+ * - Estado de autenticação reativo
+ * - Métodos para login/logout
+ * - Sincronização entre componentes
+ * - Loading states para UX
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react';
+import { authService, LoginCredentials, User, TokenPair } from '../lib/auth-service';
 
-export interface User {
-  username: string
-  role: string
-  permissions: string[]
+interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
 }
 
-export interface AuthResponse {
-  access_token: string
-  token_type: string
+interface AuthActions {
+  login: (credentials: LoginCredentials) => Promise<TokenPair>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  clearError: () => void;
 }
 
-export function useAuth() {
-  const [token, setToken] = useState<string | null>(null)
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+export type UseAuthReturn = AuthState & AuthActions;
 
-  useEffect(() => {
-    // Verificar token armazenado
-    const storedToken = localStorage.getItem('auth-token')
-    if (storedToken) {
-      setToken(storedToken)
-      // Decodificar JWT para obter user info
-      try {
-        const payload = JSON.parse(atob(storedToken.split('.')[1]))
-        setUser({
-          username: payload.sub,
-          role: payload.role,
-          permissions: payload.permissions || []
-        })
-      } catch (error) {
-        console.error('Erro ao decodificar token:', error)
-        localStorage.removeItem('auth-token')
-      }
-    }
-    setLoading(false)
-  }, [])
-
-  const login = useCallback(async (username: string, password: string) => {
+/**
+ * 🪝 Hook principal de autenticação
+ */
+export function useAuth(): UseAuthReturn {
+  const [state, setState] = useState<AuthState>({
+    isAuthenticated: false,
+    user: null,
+    isLoading: true,
+    error: null,
+  });
+  
+  /**
+   * 🔄 Atualizar estado de autenticação
+   */
+  const updateAuthState = useCallback(async () => {
     try {
-      const response = await fetch('/api/proxy/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      })
-
-      if (!response.ok) {
-        throw new Error('Credenciais inválidas')
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const isAuthenticated = authService.isAuthenticated();
+      
+      if (isAuthenticated) {
+        const user = await authService.getCurrentUser();
+        setState({
+          isAuthenticated: true,
+          user,
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        setState({
+          isAuthenticated: false,
+          user: null,
+          isLoading: false,
+          error: null,
+        });
       }
-
-      const data: AuthResponse = await response.json()
-      
-      setToken(data.access_token)
-      localStorage.setItem('auth-token', data.access_token)
-      
-      // Decodificar JWT para obter user info
-      const payload = JSON.parse(atob(data.access_token.split('.')[1]))
-      setUser({
-        username: payload.sub,
-        role: payload.role,
-        permissions: payload.permissions || []
-      })
-
-      return true
     } catch (error) {
-      console.error('Erro no login:', error)
-      throw error
+      console.error('❌ Erro ao verificar autenticação:', error);
+      setState({
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Erro desconhecido',
+      });
     }
-  }, [])
-
-  const logout = useCallback(() => {
-    setToken(null)
-    setUser(null)
-    localStorage.removeItem('auth-token')
-  }, [])
-
-  const authenticatedFetch = useCallback(async (url: string, options: RequestInit = {}) => {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string> || {})
+  }, []);
+  
+  /**
+   * 🔑 Função de login
+   */
+  const login = useCallback(async (credentials: LoginCredentials): Promise<TokenPair> => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const tokenPair = await authService.login(credentials);
+      
+      // Atualizar estado após login bem-sucedido
+      await updateAuthState();
+      
+      return tokenPair;
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro no login';
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage,
+      }));
+      throw error;
     }
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`
+  }, [updateAuthState]);
+  
+  /**
+   * 🚪 Função de logout
+   */
+  const logout = useCallback(async (): Promise<void> => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true }));
+      
+      await authService.logout();
+      
+      setState({
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+        error: null,
+      });
+      
+    } catch (error) {
+      console.error('❌ Erro no logout:', error);
+      // Mesmo com erro, limpar estado local
+      setState({
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+        error: null,
+      });
     }
-
-    return fetch(url, {
-      ...options,
-      headers
-    })
-  }, [token])
-
+  }, []);
+  
+  /**
+   * 🔄 Atualizar informações do usuário
+   */
+  const refreshUser = useCallback(async (): Promise<void> => {
+    await updateAuthState();
+  }, [updateAuthState]);
+  
+  /**
+   * 🧹 Limpar erro
+   */
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
+  }, []);
+  
+  /**
+   * 🎬 Effect para verificar autenticação inicial
+   */
+  useEffect(() => {
+    updateAuthState();
+  }, [updateAuthState]);
+  
+  /**
+   * 🎧 Effect para escutar eventos de storage (sincronização entre abas)
+   */
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      // Se tokens foram removidos/alterados em outra aba, atualizar estado
+      if (event.key?.includes('token')) {
+        updateAuthState();
+      }
+    };
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange);
+      
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+      };
+    }
+  }, [updateAuthState]);
+  
   return {
-    token,
-    user,
-    loading,
-    isAuthenticated: !!token,
+    // Estado
+    isAuthenticated: state.isAuthenticated,
+    user: state.user,
+    isLoading: state.isLoading,
+    error: state.error,
+    
+    // Ações
     login,
     logout,
-    authenticatedFetch
-  }
+    refreshUser,
+    clearError,
+  };
 }
 
-export function useAuthenticatedFetch() {
-  const { authenticatedFetch, isAuthenticated } = useAuth()
-  return { authenticatedFetch, isAuthenticated }
+/**
+ * 🛡️ Hook para verificar se usuário tem permissão específica
+ */
+export function usePermission(permission: string): boolean {
+  const { user } = useAuth();
+  
+  // Por enquanto, usuários admin têm todas as permissões
+  // Pode ser expandido futuramente com sistema de roles
+  return user?.is_active === true;
+}
+
+/**
+ * 🔐 Hook para verificar se usuário é super admin
+ */
+export function useSuperAdmin(): boolean {
+  const { user } = useAuth();
+  
+  // Assumindo que existe campo is_super_admin no modelo User
+  return (user as any)?.is_super_admin === true;
 }

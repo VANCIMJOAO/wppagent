@@ -22,9 +22,9 @@ class SimpleJWTManager:
         
         print(f"🔧 JWT Manager inicializado com secret: {self.secret_key[:10]}...")
         
-        # Configurações de tempo
-        self.access_token_expire = timedelta(minutes=30)  # 30 min
-        self.refresh_token_expire = timedelta(days=7)     # 7 dias
+        # Configurações de tempo para refresh tokens
+        self.access_token_expire = timedelta(minutes=15)  # 15 min (conforme especificação)
+        self.refresh_token_expire = timedelta(days=30)     # 30 dias
         
     def create_access_token(self, user_id: str, role: str = "admin", 
                            permissions: list = None) -> str:

@@ -49,6 +49,20 @@ class AdminCredentials(BaseModel):
     password: str
     is_active: bool = True
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+class TokenPair(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    expires_in: int
+
+class RefreshResponse(BaseModel):
+    access_token: str
+    token_type: str
+    expires_in: int
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifica se a senha está correta"""
     return pwd_context.verify(plain_password, hashed_password)
@@ -162,7 +176,7 @@ async def create_login_session(admin_user: AdminUser, token: str, session: Async
 # Router para autenticação
 auth_router = APIRouter(prefix="/admin", tags=["Admin Authentication"])
 
-@auth_router.post("/login", response_model=Token)
+@auth_router.post("/login", response_model=TokenPair)
 async def admin_login(
     credentials: AdminLogin,
     session: AsyncSession = Depends(get_db)
@@ -170,7 +184,7 @@ async def admin_login(
     """
     🔐 Login de administrador
     
-    Autentica admin user e retorna token JWT
+    Autentica admin user e retorna par de tokens (access + refresh)
     """
     try:
         admin_user = await authenticate_admin(
@@ -186,26 +200,85 @@ async def admin_login(
                 headers={"WWW-Authenticate": "Bearer"},
             )
         
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": admin_user.username}, 
-            expires_delta=access_token_expires
-        )
+        # Usar AuthService para criar par de tokens
+        from app.services.auth_service import AuthService
+        auth_service = AuthService(session)
         
-        # Criar sessão
-        await create_login_session(admin_user, access_token, session)
+        token_pair = await auth_service.create_token_pair(admin_user)
         
-        logger.info(f"✅ Login bem-sucedido: {admin_user.username}")
+        # Criar sessão (compatibilidade com sistema existente)
+        await create_login_session(admin_user, token_pair["access_token"], session)
         
-        return {
-            "access_token": access_token,
-            "token_type": "bearer"
-        }
+        logger.info(f"✅ Login bem-sucedido com refresh token: {admin_user.username}")
+        
+        return token_pair
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"❌ Erro no login: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erro interno do servidor"
+        )
+
+@auth_router.post("/refresh", response_model=RefreshResponse)
+async def refresh_token(
+    refresh_request: RefreshTokenRequest,
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    🔄 Renovar access token usando refresh token
+    
+    Permite renovar access token expirado sem fazer novo login
+    """
+    try:
+        from app.services.auth_service import AuthService
+        auth_service = AuthService(session)
+        
+        new_tokens = await auth_service.refresh_access_token(refresh_request.refresh_token)
+        
+        logger.info("✅ Access token renovado com sucesso")
+        
+        return new_tokens
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao renovar token: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token inválido ou expirado",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+@auth_router.post("/revoke")
+async def revoke_tokens(
+    current_admin: AdminUser = Depends(get_current_admin_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    🚫 Revogar todos os tokens do usuário (logout completo)
+    
+    Invalida todos os refresh tokens do usuário atual
+    """
+    try:
+        from app.services.auth_service import AuthService
+        auth_service = AuthService(session)
+        
+        success = await auth_service.revoke_all_tokens(current_admin.id)
+        
+        if success:
+            logger.info(f"✅ Todos os tokens revogados para user {current_admin.username}")
+            return {"message": "Todos os tokens foram revogados com sucesso"}
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erro ao revogar tokens"
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Erro ao revogar tokens: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
@@ -281,18 +354,17 @@ async def admin_logout(
     """
     🚪 Logout de administrador
     
-    Invalida todas as sessões do admin
+    Invalida todas as sessões do admin e revoga todos os refresh tokens
     """
     try:
-        # Invalidar todas as sessões do admin
-        await session.execute(
-            select(LoginSession).where(
-                LoginSession.admin_user_id == current_admin.id,
-                LoginSession.expires_at > datetime.utcnow()
-            )
-        )
+        # Usar AuthService para revogar todos os refresh tokens
+        from app.services.auth_service import AuthService
+        auth_service = AuthService(session)
         
-        # Atualizar para expirar imediatamente
+        # Revogar todos os refresh tokens
+        await auth_service.revoke_all_tokens(current_admin.id)
+        
+        # Invalidar sessões existentes (compatibilidade com sistema existente)
         from sqlalchemy import update
         await session.execute(
             update(LoginSession)
@@ -302,7 +374,7 @@ async def admin_logout(
         
         await session.commit()
         
-        logger.info(f"✅ Logout realizado: {current_admin.username}")
+        logger.info(f"✅ Logout completo realizado (tokens + sessões): {current_admin.username}")
         
         return {
             "success": True,
