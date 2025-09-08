@@ -84,12 +84,12 @@ async def get_conversations(
         logger.info(f"🔍 Buscando conversas - Admin: {current_admin.username}")
         logger.info(f"📊 Parâmetros: limit={limit}, offset={offset}, status={status}, search={search}")
         
-        # Query principal simplificada (sem subquery complexa)
+        # Query principal com correção para evitar ambiguidade e contagem duplicada
         query = select(
             Conversation,
             User.nome.label("user_name"),
             User.telefone.label("user_phone"),
-            func.count(Message.id).label("total_messages")
+            func.count(func.distinct(Message.id)).label("total_messages")
         ).select_from(
             Conversation
         ).join(
@@ -204,13 +204,13 @@ async def get_conversation(
     💬 Buscar conversa específica com mensagens
     """
     try:
-        # Buscar conversa
+        # Buscar conversa com correção de ambiguidade
         conv_result = await session.execute(
             select(
                 Conversation,
                 User.nome.label("user_name"),
                 User.telefone.label("user_phone"),
-                func.count(Message.id).label("total_messages")
+                func.count(func.distinct(Message.id)).label("total_messages")
             ).select_from(Conversation)
             .join(User, Conversation.user_id == User.id)
             .outerjoin(Message, Conversation.id == Message.conversation_id)
@@ -402,15 +402,17 @@ async def get_conversations_stats(
     💬 Estatísticas gerais das conversas
     """
     try:
-        # Stats básicas
+        # Stats básicas - Query corrigida para evitar ambiguidade
         stats_result = await session.execute(
             select(
-                func.count(Conversation.id).label("total_conversations"),
-                func.count(Conversation.id.filter(Conversation.status == "active")).label("active_conversations"),
-                func.count(Conversation.id.filter(Conversation.status == "pending")).label("pending_conversations"),
-                func.count(Message.id).label("total_messages"),
+                func.count(func.distinct(Conversation.id)).label("total_conversations"),
+                func.count(func.distinct(Conversation.id).filter(Conversation.status == "active")).label("active_conversations"),
+                func.count(func.distinct(Conversation.id).filter(Conversation.status == "pending")).label("pending_conversations"),
+                func.count(func.distinct(Message.id)).label("total_messages"),
             ).select_from(
-                Conversation.outerjoin(Message, Conversation.id == Message.conversation_id)
+                Conversation
+            ).outerjoin(
+                Message, Conversation.id == Message.conversation_id
             )
         )
         

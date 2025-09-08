@@ -225,8 +225,8 @@ async def create_appointment(
         complete_result = await session.execute(
             select(
                 Appointment,
-                User.name.label("user_name"),
-                User.phone.label("user_phone"),
+                User.nome.label("user_name"),
+                User.telefone.label("user_phone"),
                 Business.name.label("business_name"),
                 Service.name.label("service_name")
             ).select_from(Appointment)
@@ -274,8 +274,8 @@ async def get_appointment(
         result = await session.execute(
             select(
                 Appointment,
-                User.name.label("user_name"),
-                User.phone.label("user_phone"),
+                User.nome.label("user_name"),
+                User.telefone.label("user_phone"),
                 Business.name.label("business_name"),
                 Service.name.label("service_name")
             ).select_from(Appointment)
@@ -350,8 +350,8 @@ async def update_appointment(
         complete_result = await session.execute(
             select(
                 Appointment,
-                User.name.label("user_name"),
-                User.phone.label("user_phone"),
+                User.nome.label("user_name"),
+                User.telefone.label("user_phone"),
                 Business.name.label("business_name"),
                 Service.name.label("service_name")
             ).select_from(Appointment)
