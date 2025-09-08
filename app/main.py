@@ -118,6 +118,17 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning(f"⚠️ WebSocket integration não pôde ser inicializado: {e}")
         
+        # ⚠️ Inicializar Sistema RBAC - Item 2
+        try:
+            from app.services.rbac_service import rbac_service
+            rbac_initialized = await rbac_service.initialize_system()
+            if rbac_initialized:
+                logger.info("⚠️ Sistema RBAC inicializado com sucesso - Item 2 ativo")
+            else:
+                logger.warning("⚠️ RBAC não pôde ser inicializado - funcionalidade limitada")
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao inicializar RBAC: {e}")
+        
         logger.info("✅ WhatsApp Agent API iniciado com sucesso COM CORREÇÕES!")
         logger.info(f"📱 Webhook URL: {settings.webhook_url}")
         logger.info("🛑 Sistema de controle de resposta única ATIVO")
@@ -200,24 +211,17 @@ else:
 # 🔒 Adicionar middleware de autenticação e autorização
 app.add_middleware(AuthMiddleware)
 
-# 🔧 RATE LIMITING MIDDLEWARE REMOVIDO - Agora usado sistema unificado
-# O controle de resposta única é feito pelo UnifiedResponseControl no webhook
-# 
-# Adicionar rate limiting middleware baseado na configuração
-# Usar middleware corrigido que garante sempre retornar uma resposta
-# try:
-#     if hasattr(settings, 'rate_limit_enabled') and settings.rate_limit_enabled:
-#         app.add_middleware(RateLimitMiddleware, enabled=True)
-#         logger.info("Rate limiting middleware added and enabled")
-#     else:
-#         app.add_middleware(RateLimitMiddleware, enabled=False)
-#         logger.info("Rate limiting middleware added but disabled")
-# except Exception as e:
-#     logger.error(f"Failed to add rate limiting middleware: {e}")
-#     # Adicionar middleware desabilitado como fallback
-#     app.add_middleware(RateLimitMiddleware, enabled=False)
+# � Adicionar middleware de rate limiting por usuário
+try:
+    from app.middleware.user_rate_limit import UserRateLimitMiddleware
+    app.add_middleware(UserRateLimitMiddleware)
+    logger.info("✅ User Rate Limiting middleware ativado")
+except ImportError as e:
+    logger.warning(f"⚠️ User Rate Limiting middleware não disponível: {e}")
+except Exception as e:
+    logger.error(f"❌ Erro ao inicializar User Rate Limiting middleware: {e}")
 
-logger.info("🔧 Sistema unificado de controle ativo - Rate limiting middleware removido")
+logger.info("🔧 Sistema de rate limiting por usuário ativo")
 
 # Adicionar middleware de métricas (último para capturar todas as requests)
 app.add_middleware(MetricsMiddleware)
@@ -260,7 +264,11 @@ app.include_router(db_optimization_router, tags=["Database Optimization"])
 from app.routes.backup import router as backup_router
 app.include_router(backup_router, tags=["Backup System"])
 
-# 📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard
+# � Sistema de Rate Limiting por Usuário
+from app.routes.rate_limit import router as rate_limit_router
+app.include_router(rate_limit_router, tags=["Rate Limiting"])
+
+# �📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard
 from app.routes.appointments import router as appointments_router
 app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 
@@ -286,6 +294,26 @@ app.include_router(clients_router, tags=["Dashboard - Clients"])
 # Dashboard Analytics (executivo)
 app.include_router(analytics_router, tags=["Dashboard - Analytics"])
 
+# 🟡 ANALYTICS AVANÇADAS - Business Intelligence
+from app.routes.analytics_advanced import router as advanced_analytics_router
+app.include_router(advanced_analytics_router, tags=["Advanced Analytics"])
+logger.info("✅ Analytics Avançadas ativadas - Business Intelligence")
+
+# 🟡 SISTEMA DE EXPORTAÇÃO - Relatórios CSV/Excel/PDF
+from app.routes.export import router as export_router
+app.include_router(export_router, tags=["Data Export"])
+logger.info("✅ Sistema de Exportação ativado - CSV/Excel/PDF")
+
+# ⚠️ SISTEMA DE EXPORTAÇÃO DE RELATÓRIOS - Item 2 da Lista
+from app.routes.reports import router as reports_router
+app.include_router(reports_router, tags=["Reports Export"])
+logger.info("⚠️ Sistema de Exportação de Relatórios ativado - Item 2 implementado")
+
+# ⚠️ SISTEMA RBAC - Item 2: Controle Granular de Permissões
+from app.routes.rbac import router as rbac_router
+app.include_router(rbac_router, tags=["RBAC Management"])
+logger.info("⚠️ Sistema RBAC ativado - Item 2: Controle granular de permissões implementado")
+
 # ✅ Usar versão corrigida das conversas - agora na versão principal
 from app.routes.conversations import router as conversations_router
 logger.info("✅ Usando rotas de conversas com correções SQL aplicadas")
@@ -297,6 +325,10 @@ app.include_router(dashboard_router, tags=["Dashboard - Main"])
 # 🔥 WEBSOCKET - Comunicação em Tempo Real 
 from app.routes.websocket import router as websocket_router_realtime
 app.include_router(websocket_router_realtime, tags=["WebSocket - Real Time"])
+
+# 🔔 PUSH NOTIFICATIONS - Sistema de Notificações
+from app.routes.push_notifications import router as push_router
+app.include_router(push_router, tags=["Push Notifications"])
 
 
 @app.get("/health")

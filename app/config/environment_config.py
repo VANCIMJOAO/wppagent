@@ -190,6 +190,33 @@ class BaseConfig(BaseSettings):
     )
     
     # ==============================
+    # PUSH NOTIFICATIONS - VAPID
+    # ==============================
+    vapid_private_key: Optional[SecretStr] = Field(
+        default=None,
+        env="VAPID_PRIVATE_KEY",
+        description="Chave privada VAPID para push notifications (formato PEM)"
+    )
+    
+    vapid_public_key: Optional[str] = Field(
+        default=None,
+        env="VAPID_PUBLIC_KEY",
+        description="Chave pública VAPID para push notifications (formato PEM)"
+    )
+    
+    vapid_public_key_frontend: Optional[str] = Field(
+        default=None,
+        env="NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+        description="Chave pública VAPID para frontend (base64 URL-safe)"
+    )
+    
+    vapid_subject: str = Field(
+        default="mailto:admin@whatsapp-agent.com",
+        env="VAPID_SUBJECT",
+        description="Subject VAPID (mailto: ou https:// URL)"
+    )
+    
+    # ==============================
     # BANCO DE DADOS
     # ==============================
     database_url: str = Field(

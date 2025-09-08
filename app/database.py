@@ -20,7 +20,7 @@ if not database_url:
     db_pass = os.getenv('PGPASSWORD', '')
     database_url = f"postgresql+asyncpg://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
 else:
-    # Garantir que usa asyncpg
+    # Para Railway, usar URL diretamente com +asyncpg
     if database_url.startswith('postgresql://'):
         database_url = database_url.replace('postgresql://', 'postgresql+asyncpg://', 1)
     elif database_url.startswith('postgres://'):
@@ -98,23 +98,47 @@ async def init_db():
     """
     Inicializa o banco de dados criando as tabelas e admin inicial
     """
-    try:
-        from app.models.database import Base
-        # Teste de conectividade primeiro
-        async with engine.begin() as conn:
-            result = await conn.execute(text("SELECT 1"))
-            logger.info("✅ Conexão com banco de dados estabelecida")
-            await conn.run_sync(Base.metadata.create_all)
-            logger.info("✅ Tabelas criadas/verificadas")
+    max_retries = 3
+    retry_count = 0
+    
+    while retry_count < max_retries:
+        try:
+            from app.models.database import Base
+            
+            # Teste de conectividade primeiro
+            logger.info(f"🔄 Tentativa {retry_count + 1}/{max_retries} - Conectando ao banco...")
+            
+            async with engine.begin() as conn:
+                result = await conn.execute(text("SELECT version()"))
+                version_info = result.scalar()
+                logger.info(f"✅ Conexão estabelecida - PostgreSQL: {version_info[:50]}...")
+                
+                # Criar tabelas
+                await conn.run_sync(Base.metadata.create_all)
+                logger.info("✅ Tabelas criadas/verificadas")
+            
+            # Criar admin inicial se não existir
+            await create_initial_admin()
+            logger.info("✅ Banco de dados inicializado com sucesso")
+            return
         
-        # Criar admin inicial se não existir
-        await create_initial_admin()
-        
-    except Exception as e:
-        logger.error(f"❌ Erro ao inicializar banco: {e}")
-        logger.error(f"❌ Tipo do erro: {type(e).__name__}")
-        # Re-raise para falhar o startup se necessário
-        raise
+        except Exception as e:
+            retry_count += 1
+            logger.error(f"❌ Erro na tentativa {retry_count}: {e}")
+            logger.error(f"❌ Tipo do erro: {type(e).__name__}")
+            
+            if retry_count >= max_retries:
+                logger.error("❌ Falha definitiva na inicialização do banco")
+                # Em produção, pode ser melhor continuar sem banco
+                if os.getenv('SKIP_DB_INIT_ON_ERROR', 'false').lower() == 'true':
+                    logger.warning("⚠️  Continuando sem inicialização do banco (SKIP_DB_INIT_ON_ERROR=true)")
+                    return
+                else:
+                    raise
+            else:
+                import asyncio
+                logger.info(f"⏳ Aguardando 2 segundos antes da próxima tentativa...")
+                await asyncio.sleep(2)
 
 
 async def create_initial_admin():

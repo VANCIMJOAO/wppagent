@@ -521,3 +521,63 @@ class ConversationContext(Base):
     
     # Relacionamento
     conversation = relationship("Conversation")
+
+
+class PushSubscription(Base):
+    """
+    🔔 Push Notification Subscriptions
+    
+    Gerencia subscriptions de push notifications para admins.
+    Cada admin pode ter múltiplas subscriptions (diferentes dispositivos/browsers).
+    """
+    __tablename__ = "push_subscriptions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    admin_user_id = Column(Integer, ForeignKey("admin_users.id"), nullable=False, index=True)
+    
+    # Dados da subscription (formato Web Push Protocol)
+    endpoint = Column(String(500), nullable=False, unique=True)  # URL do endpoint
+    p256dh_key = Column(String(255), nullable=False)  # Chave pública do cliente
+    auth_key = Column(String(255), nullable=False)  # Token de autenticação
+    
+    # Metadados
+    user_agent = Column(String(500))  # Browser/device info
+    is_active = Column(Boolean, default=True, index=True)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    last_used_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relacionamento
+    admin_user = relationship("AdminUser", back_populates="push_subscriptions")
+
+
+# Adicionar relacionamento reverso no AdminUser
+AdminUser.push_subscriptions = relationship("PushSubscription", back_populates="admin_user")
+
+
+class PushNotification(Base):
+    """
+    📱 Log de Push Notifications Enviadas
+    
+    Histórico de notificações enviadas para auditoria e analytics.
+    """
+    __tablename__ = "push_notifications"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    subscription_id = Column(Integer, ForeignKey("push_subscriptions.id"), nullable=False)
+    
+    # Conteúdo da notificação
+    title = Column(String(255), nullable=False)
+    body = Column(Text)
+    data = Column(JSON)  # Dados adicionais
+    
+    # Status
+    status = Column(String(50), default="sent")  # sent, delivered, failed, expired
+    error_message = Column(Text)
+    
+    # Timestamps
+    sent_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relacionamento
+    subscription = relationship("PushSubscription")

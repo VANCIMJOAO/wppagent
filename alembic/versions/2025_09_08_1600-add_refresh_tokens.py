@@ -1,7 +1,7 @@
 """add_refresh_tokens_table
 
 Revision ID: add_refresh_tokens
-Revises: fix_appointment_schema_inconsistencies
+Revises: 115422716842
 Create Date: 2025-09-08 16:00:00.000000
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.sql import func
 
 # revision identifiers, used by Alembic.
 revision = 'add_refresh_tokens'
-down_revision = 'fix_appointment_schema_inconsistencies'
+down_revision = '115422716842'
 branch_labels = None
 depends_on = None
 

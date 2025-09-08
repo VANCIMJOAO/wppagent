@@ -11,7 +11,8 @@ from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 import asyncio
 
-from app.auth.middleware import verify_admin_token, AdminUser
+from app.routes.admin_auth import get_current_admin_user
+from app.models.database import AdminUser
 from app.services.backup_service import BackupService
 from app.services.backup_scheduler import backup_scheduler
 from app.utils.logger import get_logger
@@ -35,7 +36,7 @@ class RestoreRequest(BaseModel):
     confirm: bool = False
 
 @router.get("/status")
-async def get_backup_status(admin_user: AdminUser = Depends(verify_admin_token)):
+async def get_backup_status(admin_user: AdminUser = Depends(get_current_admin_user)):
     """
     Obter status completo do sistema de backup
     """
@@ -63,7 +64,7 @@ async def get_backup_status(admin_user: AdminUser = Depends(verify_admin_token))
 async def trigger_backup(
     request: BackupTriggerRequest,
     background_tasks: BackgroundTasks,
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: AdminUser = Depends(get_current_admin_user)
 ):
     """
     Disparar backup manual
@@ -139,7 +140,7 @@ async def trigger_backup(
 async def list_backups(
     limit: int = 20,
     backup_type: Optional[str] = None,
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: AdminUser = Depends(get_current_admin_user)
 ):
     """
     Listar backups disponíveis
@@ -171,7 +172,7 @@ async def list_backups(
 @router.delete("/cleanup")
 async def cleanup_backups(
     force: bool = False,
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: AdminUser = Depends(get_current_admin_user)
 ):
     """
     Executar limpeza de backups antigos
@@ -206,7 +207,7 @@ async def cleanup_backups(
 @router.get("/download/{filename}")
 async def download_backup(
     filename: str,
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: AdminUser = Depends(get_current_admin_user)
 ):
     """
     Download de arquivo de backup
@@ -241,7 +242,7 @@ async def download_backup(
 @router.post("/verify/{filename}")
 async def verify_backup(
     filename: str,
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: AdminUser = Depends(get_current_admin_user)
 ):
     """
     Verificar integridade de backup específico
@@ -287,7 +288,7 @@ async def verify_backup(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/config")
-async def get_backup_config(admin_user: AdminUser = Depends(verify_admin_token)):
+async def get_backup_config(admin_user: AdminUser = Depends(get_current_admin_user)):
     """
     Obter configuração atual do sistema de backup
     """
@@ -316,7 +317,7 @@ async def get_backup_config(admin_user: AdminUser = Depends(verify_admin_token))
 @router.post("/schedule/update")
 async def update_backup_schedule(
     config: BackupScheduleConfig,
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: AdminUser = Depends(get_current_admin_user)
 ):
     """
     Atualizar agendamento de backup
@@ -363,7 +364,7 @@ async def update_backup_schedule(
 @router.get("/logs")
 async def get_backup_logs(
     lines: int = 100,
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: AdminUser = Depends(get_current_admin_user)
 ):
     """
     Obter logs recentes do sistema de backup
@@ -399,7 +400,7 @@ async def get_backup_logs(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/health")
-async def backup_health_check(admin_user: AdminUser = Depends(verify_admin_token)):
+async def backup_health_check(admin_user: AdminUser = Depends(get_current_admin_user)):
     """
     Verificação de saúde do sistema de backup
     """

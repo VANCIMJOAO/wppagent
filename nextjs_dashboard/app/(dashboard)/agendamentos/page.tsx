@@ -35,6 +35,7 @@ import {
 import { api } from '@/lib/api-service';
 import type { Appointment as ApiAppointment, AppointmentStatus } from '@/types/api';
 import { toast } from 'sonner';
+import { ExportButtons } from '@/components/export-buttons';
 
 interface AppointmentStats {
   total: number;
@@ -49,24 +50,27 @@ interface AppointmentStats {
 
 // Definir tipos específicos para os mapeamentos
 const statusColors: Record<AppointmentStatus, string> = {
-  'confirmado': 'bg-green-100 text-green-800',
-  'agendado': 'bg-yellow-100 text-yellow-800', 
-  'cancelado': 'bg-red-100 text-red-800',
-  'realizado': 'bg-blue-100 text-blue-800'
+    'confirmado': 'bg-green-100 text-green-800',
+    'agendado': 'bg-yellow-100 text-yellow-800',
+    'cancelado': 'bg-red-100 text-red-800',
+    'realizado': 'bg-blue-100 text-blue-800',
+    pendente: ''
 };
 
 const statusLabels: Record<AppointmentStatus, string> = {
   'confirmado': 'Confirmado',
   'agendado': 'Agendado',
   'cancelado': 'Cancelado',
-  'realizado': 'Realizado'
+  'realizado': 'Realizado',
+  'pendente': 'Pendente'
 };
 
 const statusIcons: Record<AppointmentStatus, LucideIcon> = {
   'confirmado': CheckCircle,
   'agendado': AlertCircle,
   'cancelado': XCircle,
-  'realizado': CheckCircle
+  'realizado': CheckCircle,
+  'pendente': Clock
 };export default function AgendamentosPage() {
   const [appointments, setAppointments] = useState<ApiAppointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,7 +140,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
 
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = appointment.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         appointment.servico.toLowerCase().includes(searchTerm.toLowerCase());
+                         appointment.servico_nome.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
     
     let matchesDate = true;
@@ -201,10 +205,17 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
           <h1 className="text-3xl font-bold text-gray-900">Agendamentos</h1>
           <p className="text-gray-600 mt-1">Gestão de agenda e compromissos</p>
         </div>
-        <Button>
-          <CalendarPlus className="h-4 w-4 mr-2" />
-          Novo Agendamento
-        </Button>
+        <div className="flex items-center space-x-3">
+          <ExportButtons 
+            startDate={new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0]}
+            endDate={new Date().toISOString().split('T')[0]}
+            className="bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600"
+          />
+          <Button>
+            <CalendarPlus className="h-4 w-4 mr-2" />
+            Novo Agendamento
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -394,7 +405,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                             </span>
                             <span className="flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              {appointment.servico}
+                              {appointment.servico_nome}
                             </span>
                           </div>
                           {appointment.observacoes && (
@@ -458,7 +469,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                               {appointment.horario}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600">{appointment.servico}</p>
+                          <p className="text-sm text-gray-600">{appointment.servico_nome}</p>
                         </div>
                         <Badge className={statusColors[appointment.status]}>
                           {statusLabels[appointment.status]}
@@ -498,7 +509,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                                   {statusLabels[appointment.status]}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-gray-600">{appointment.servico}</p>
+                              <p className="text-sm text-gray-600">{appointment.servico_nome}</p>
                             </div>
                           </div>
                         ))}

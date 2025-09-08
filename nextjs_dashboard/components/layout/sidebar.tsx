@@ -103,6 +103,14 @@ export default function Sidebar({ children }: SidebarProps) {
       description: 'Analytics'
     },
     {
+      id: 'reports',
+      label: 'Exportar Relatórios',
+      icon: FileText,
+      href: '/reports',
+      description: 'CSV/Excel/PDF',
+      badge: 'NEW'
+    },
+    {
       id: 'bloqueados',
       label: 'Bloqueados',
       icon: UserX,

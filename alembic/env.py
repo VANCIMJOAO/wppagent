@@ -69,13 +69,21 @@ async def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = AsyncEngine(
-        engine_from_config(
-            config.get_section(config.config_ini_section),
-            prefix="sqlalchemy.",
-            poolclass=pool.NullPool,
-        )
-    )
+    from sqlalchemy.ext.asyncio import create_async_engine
+    import os
+    
+    # Primeiro tenta pegar do alembic.ini, depois das variáveis de ambiente
+    database_url = config.get_main_option("sqlalchemy.url")
+    if not database_url:
+        database_url = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///./whatsapp_agent.db")
+    
+    # Converter para driver assíncrono se necessário
+    if database_url.startswith("postgresql://"):
+        database_url = database_url.replace("postgresql://", "postgresql+asyncpg://")
+    elif database_url.startswith("sqlite:///"):
+        database_url = database_url.replace("sqlite:///", "sqlite+aiosqlite:///")
+    
+    connectable = create_async_engine(database_url)
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)

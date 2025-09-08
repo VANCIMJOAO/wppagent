@@ -30,6 +30,11 @@ class CompatibilitySettings:
             'meta_api_version': lambda: self._config.meta_api_version,
             'whatsapp_webhook_secret': lambda: self._config.whatsapp_webhook_secret.get_secret_value() if self._config.whatsapp_webhook_secret else None,
             'database_dsn': lambda: self._config.database_url,
+            # VAPID configuration
+            'VAPID_PRIVATE_KEY': lambda: self._config.vapid_private_key.get_secret_value() if self._config.vapid_private_key else None,
+            'VAPID_PUBLIC_KEY': lambda: self._config.vapid_public_key,
+            'VAPID_PUBLIC_KEY_FRONTEND': lambda: self._config.vapid_public_key_frontend,
+            'VAPID_SUBJECT': lambda: self._config.vapid_subject,
         }
         
         if name in mapping:
