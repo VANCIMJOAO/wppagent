@@ -549,3 +549,278 @@ async def delete_appointment(
         logger.error(f"❌ Erro ao excluir agendamento {appointment_id}: {e}")
         await session.rollback()
         raise HTTPException(500, f"Erro interno: {str(e)}")
+
+
+# ================================================================
+# 🧪 FUNÇÕES DE TESTE E VALIDAÇÃO
+# ================================================================
+
+@router.get("/test/schema-validation")
+async def test_schema_validation(
+    current_admin: AdminUser = Depends(get_current_admin_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    🧪 Teste de validação de schema unificado
+    
+    Verifica se todos os agendamentos seguem o schema padronizado
+    """
+    try:
+        # Buscar uma amostra de agendamentos
+        result = await session.execute(
+            select(
+                Appointment.id,
+                Appointment.user_id,
+                Appointment.business_id,
+                Appointment.service_id,
+                Appointment.date_time,
+                Appointment.duration_minutes,
+                Appointment.price,
+                Appointment.status,
+                User.nome.label("user_name"),
+                Service.name.label("service_name")
+            ).select_from(Appointment)
+            .join(User, Appointment.user_id == User.id)
+            .outerjoin(Service, Appointment.service_id == Service.id)
+            .limit(5)
+        )
+        
+        rows = result.fetchall()
+        validation_results = []
+        
+        for row in rows:
+            # Testar conversão para schema unificado
+            try:
+                appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
+                unified_appointment = AppointmentResponseUnified(**appointment_dict)
+                
+                validation_results.append({
+                    "id": row.id,
+                    "status": "✅ VÁLIDO",
+                    "schema_fields": list(appointment_dict.keys()),
+                    "unified_model": "OK"
+                })
+                
+            except Exception as e:
+                validation_results.append({
+                    "id": row.id,
+                    "status": "❌ ERRO",
+                    "error": str(e),
+                    "unified_model": "FALHOU"
+                })
+        
+        return {
+            "test_name": "Schema Validation Test",
+            "total_tested": len(validation_results),
+            "passed": len([r for r in validation_results if "✅" in r["status"]]),
+            "failed": len([r for r in validation_results if "❌" in r["status"]]),
+            "details": validation_results
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erro no teste de schema: {e}")
+        raise HTTPException(500, f"Erro no teste: {str(e)}")
+
+
+@router.get("/test/performance")
+async def test_performance(
+    current_admin: AdminUser = Depends(get_current_admin_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    🧪 Teste de performance das queries
+    
+    Mede tempo de resposta das operações principais
+    """
+    import time
+    
+    try:
+        performance_results = {}
+        
+        # Teste 1: Lista de agendamentos
+        start_time = time.time()
+        result = await session.execute(
+            select(func.count(Appointment.id))
+        )
+        total_appointments = result.scalar()
+        list_time = time.time() - start_time
+        
+        performance_results["count_query"] = {
+            "duration_ms": round((list_time * 1000), 2),
+            "total_records": total_appointments,
+            "status": "✅ OK" if list_time < 0.1 else "⚠️ LENTO"
+        }
+        
+        # Teste 2: Query complexa com JOINs
+        start_time = time.time()
+        complex_result = await session.execute(
+            select(
+                Appointment.id,
+                User.nome,
+                Business.name,
+                Service.name
+            ).select_from(Appointment)
+            .join(User, Appointment.user_id == User.id)
+            .join(Business, Appointment.business_id == Business.id)
+            .outerjoin(Service, Appointment.service_id == Service.id)
+            .limit(10)
+        )
+        complex_rows = complex_result.fetchall()
+        complex_time = time.time() - start_time
+        
+        performance_results["join_query"] = {
+            "duration_ms": round((complex_time * 1000), 2),
+            "records_fetched": len(complex_rows),
+            "status": "✅ OK" if complex_time < 0.5 else "⚠️ LENTO"
+        }
+        
+        # Teste 3: Cache hit rate simulation
+        cache_start = time.time()
+        cache_key = "test:performance:check"
+        
+        # Simular busca em cache
+        cached_value = await cache_service.get(cache_key)
+        if cached_value is None:
+            await cache_service.set(cache_key, {"test": "data"}, ttl=60)
+            cache_status = "MISS"
+        else:
+            cache_status = "HIT"
+            
+        cache_time = time.time() - cache_start
+        
+        performance_results["cache_test"] = {
+            "duration_ms": round((cache_time * 1000), 2),
+            "cache_status": cache_status,
+            "status": "✅ OK" if cache_time < 0.01 else "⚠️ LENTO"
+        }
+        
+        # Análise geral
+        total_duration = sum([
+            performance_results["count_query"]["duration_ms"],
+            performance_results["join_query"]["duration_ms"],
+            performance_results["cache_test"]["duration_ms"]
+        ])
+        
+        overall_status = "✅ EXCELENTE" if total_duration < 100 else "⚠️ REVISAR" if total_duration < 500 else "❌ CRÍTICO"
+        
+        return {
+            "test_name": "Performance Test",
+            "timestamp": datetime.now().isoformat(),
+            "overall_duration_ms": round(total_duration, 2),
+            "overall_status": overall_status,
+            "results": performance_results,
+            "recommendations": [
+                "Considere indexação adicional se queries > 500ms",
+                "Monitore cache hit rate em produção",
+                "Otimize JOINs para datasets grandes"
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erro no teste de performance: {e}")
+        raise HTTPException(500, f"Erro no teste: {str(e)}")
+
+
+@router.post("/test/data-integrity")
+async def test_data_integrity(
+    current_admin: AdminUser = Depends(get_current_admin_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    🧪 Teste de integridade de dados
+    
+    Verifica inconsistências e problemas de dados
+    """
+    try:
+        integrity_issues = []
+        
+        # Teste 1: Agendamentos sem usuário
+        orphaned_appointments = await session.execute(
+            select(Appointment.id)
+            .outerjoin(User, Appointment.user_id == User.id)
+            .where(User.id.is_(None))
+        )
+        orphaned_count = len(orphaned_appointments.fetchall())
+        
+        if orphaned_count > 0:
+            integrity_issues.append({
+                "issue": "Agendamentos órfãos (sem usuário)",
+                "count": orphaned_count,
+                "severity": "HIGH"
+            })
+        
+        # Teste 2: Agendamentos sem business
+        no_business_appointments = await session.execute(
+            select(Appointment.id)
+            .outerjoin(Business, Appointment.business_id == Business.id)
+            .where(Business.id.is_(None))
+        )
+        no_business_count = len(no_business_appointments.fetchall())
+        
+        if no_business_count > 0:
+            integrity_issues.append({
+                "issue": "Agendamentos sem negócio",
+                "count": no_business_count,
+                "severity": "HIGH"
+            })
+        
+        # Teste 3: Status inválidos
+        invalid_status = await session.execute(
+            select(Appointment.id, Appointment.status)
+            .where(~Appointment.status.in_(["agendado", "confirmado", "cancelado", "realizado"]))
+        )
+        invalid_status_rows = invalid_status.fetchall()
+        
+        if invalid_status_rows:
+            integrity_issues.append({
+                "issue": "Status inválidos",
+                "count": len(invalid_status_rows),
+                "severity": "MEDIUM",
+                "examples": [row.status for row in invalid_status_rows[:3]]
+            })
+        
+        # Teste 4: Datas no passado com status "agendado"
+        past_scheduled = await session.execute(
+            select(Appointment.id)
+            .where(
+                and_(
+                    Appointment.status == "agendado",
+                    Appointment.date_time < datetime.now()
+                )
+            )
+        )
+        past_scheduled_count = len(past_scheduled.fetchall())
+        
+        if past_scheduled_count > 0:
+            integrity_issues.append({
+                "issue": "Agendamentos passados ainda com status 'agendado'",
+                "count": past_scheduled_count,
+                "severity": "MEDIUM"
+            })
+        
+        # Resultado final
+        severity_counts = {
+            "HIGH": len([i for i in integrity_issues if i["severity"] == "HIGH"]),
+            "MEDIUM": len([i for i in integrity_issues if i["severity"] == "MEDIUM"]),
+            "LOW": len([i for i in integrity_issues if i["severity"] == "LOW"])
+        }
+        
+        overall_health = "✅ EXCELENTE" if not integrity_issues else "⚠️ ATENÇÃO" if severity_counts["HIGH"] == 0 else "❌ CRÍTICO"
+        
+        return {
+            "test_name": "Data Integrity Test",
+            "timestamp": datetime.now().isoformat(),
+            "overall_health": overall_health,
+            "total_issues": len(integrity_issues),
+            "severity_breakdown": severity_counts,
+            "issues_found": integrity_issues,
+            "recommendations": [
+                "Execute limpeza de dados órfãos",
+                "Implemente validação de status mais rigorosa",
+                "Configure job para atualizar status de agendamentos passados"
+            ] if integrity_issues else ["Dados íntegros - nenhuma ação necessária"]
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erro no teste de integridade: {e}")
+        raise HTTPException(500, f"Erro no teste: {str(e)}")
