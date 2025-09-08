@@ -107,20 +107,44 @@ export interface Message {
   metadata?: Record<string, any>;
 }
 
-// Agendamento (compatível com api-service.ts)
+// ✅ AGENDAMENTO PADRONIZADO - Consistente com backend
 export interface Appointment {
   id: number;
-  cliente_id: number;
-  cliente_nome: string;
-  data_agendamento: string;
-  horario: string;
-  servico: string;
-  status: 'agendado' | 'confirmado' | 'realizado' | 'cancelado';
-  observacoes?: string;
+  user_id: number;  // ✅ Padronizado
+  business_id: number;
+  service_id?: number;
+  
+  // ✅ Campos padronizados com backend
+  date_time: string;  // ✅ ISO string format
+  duration_minutes: number;  // ✅ Padronizado
+  end_time?: string;  // ISO string
+  price: number;  // ✅ Unificado
+  
+  // Status e observações
+  status: 'pendente' | 'confirmado' | 'realizado' | 'cancelado' | 'concluido' | 'bloqueado';
+  notes?: string;
+  
+  // ✅ Campos relacionados com nomes padronizados
+  cliente_nome?: string;  // Mapeado de user.nome
+  cliente_telefone?: string;  // Mapeado de user.telefone
+  cliente_email?: string;  // Mapeado de user.email
+  servico_nome?: string;  // Mapeado de service.name
+  business_name?: string;
+  
+  // Auditoria
+  created_at: string;
+  updated_at?: string;
+  
+  // Campos de cancelamento/confirmação (opcionais)
+  cancelled_at?: string;
+  cancellation_reason?: string;
+  cancelled_by?: string;
+  confirmed_at?: string;
+  confirmed_by?: string;
 }
 
-// Tipos para mapeamento de status
-export type AppointmentStatus = 'agendado' | 'confirmado' | 'realizado' | 'cancelado';
+// ✅ Tipos para mapeamento de status padronizados
+export type AppointmentStatus = 'pendente' | 'confirmado' | 'realizado' | 'cancelado' | 'concluido' | 'bloqueado';
 
 // Resposta de agendamentos
 export interface AppointmentsResponse {

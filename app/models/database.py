@@ -177,7 +177,8 @@ class Appointment(Base):
     
     # Data e horário
     date_time = Column(DateTime(timezone=True), nullable=False, index=True)
-    end_time = Column(DateTime(timezone=True))  # Calculado automaticamente
+    duration_minutes = Column(Integer, default=60, nullable=False)  # ✅ Padronizado 
+    end_time = Column(DateTime(timezone=True))  # Calculado automaticamente via trigger
     
     # Status do agendamento
     status = Column(String(20), default="pendente", index=True)  # pendente, confirmado, cancelado, concluido, bloqueado
@@ -196,12 +197,8 @@ class Appointment(Base):
     confirmed_at = Column(DateTime(timezone=True))
     confirmed_by = Column(String(20))  # 'customer', 'admin', 'auto'
     
-    # Preço no momento do agendamento
-    price_at_booking = Column(Numeric)
-    
-    # Campo price (compatibilidade com banco existente)
-    price = Column(Numeric, default=0.00)
-    duration = Column(Integer, default=60)  # duração em minutos
+    # ✅ PREÇO UNIFICADO - Removidos campos duplicados
+    price = Column(Numeric(10, 2), default=0.00, nullable=False)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -210,6 +207,30 @@ class Appointment(Base):
     user = relationship("User", back_populates="appointments")
     business = relationship("Business", back_populates="appointments")
     service = relationship("Service", back_populates="appointments")
+    
+    def calculate_end_time(self):
+        """Calcula automaticamente o end_time baseado em date_time + duration_minutes"""
+        if self.date_time and self.duration_minutes:
+            from datetime import timedelta
+            self.end_time = self.date_time + timedelta(minutes=self.duration_minutes)
+        return self.end_time
+    
+    def to_dict(self):
+        """Converte o appointment para dict com campos padronizados"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'business_id': self.business_id,
+            'service_id': self.service_id,
+            'date_time': self.date_time.isoformat() if self.date_time else None,
+            'duration_minutes': self.duration_minutes,
+            'end_time': self.end_time.isoformat() if self.end_time else None,
+            'price': float(self.price) if self.price else 0.00,
+            'status': self.status,
+            'notes': self.notes,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
 
 
 class BlockedTime(Base):

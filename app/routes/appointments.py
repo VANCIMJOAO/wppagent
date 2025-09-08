@@ -23,51 +23,156 @@ from pydantic import BaseModel, Field
 
 from app.database import get_db
 from app.models.database import Appointment, User, Business, Service
+from app.schemas.appointments import (
+    AppointmentResponse, 
+    AppointmentCreate, 
+    AppointmentUpdate,
+    AppointmentSummary,
+    AppointmentsListResponse,
+    AppointmentStats
+)
 from app.routes.admin_auth import get_current_admin_user, AdminUser
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Schemas Pydantic
-class AppointmentResponse(BaseModel):
-    id: int
-    user_id: int
-    business_id: int
-    service_id: Optional[int]
-    date_time: datetime
-    status: str
-    notes: Optional[str]
-    created_at: datetime
-    updated_at: Optional[datetime]
-    
-    # Dados relacionados
-    user_name: Optional[str] = None
-    user_phone: Optional[str] = None
-    business_name: Optional[str] = None
-    service_name: Optional[str] = None
-    
-    class Config:
-        from_attributes = True
-
-class AppointmentCreate(BaseModel):
-    user_id: int = Field(..., description="ID do cliente")
-    business_id: int = Field(..., description="ID do negócio")
-    service_id: Optional[int] = Field(None, description="ID do serviço")
-    date_time: datetime = Field(..., description="Data e hora do agendamento")
-    status: str = Field(default="pending", description="Status do agendamento")
-    notes: Optional[str] = Field(None, description="Observações")
-
-class AppointmentUpdate(BaseModel):
-    date_time: Optional[datetime] = None
-    status: Optional[str] = None
-    notes: Optional[str] = None
-    service_id: Optional[int] = None
-
 # Router
 router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
-@router.get("/", response_model=Dict[str, Any])
+@router.get("/", response_model=AppointmentsListResponse)
 async def get_appointments(
+    limit: int = Query(10, le=100, description="Limite de resultados"),
+    page: int = Query(1, ge=1, description="Página atual"),
+    status: Optional[str] = Query(None, description="Filtrar por status"),
+    date_from: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(None, description="Data final (YYYY-MM-DD)"),
+    user_id: Optional[int] = Query(None, description="Filtrar por ID do cliente"),
+    session: AsyncSession = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin_user)
+):
+    """
+    📅 Lista agendamentos com filtros e paginação
+    ✅ SCHEMA PADRONIZADO - Elimina inconsistências frontend/backend
+    """
+    try:
+        # Calcular offset
+        offset = (page - 1) * limit
+        
+        # Query base com JOINs padronizados
+        query = select(
+            Appointment.id,
+            Appointment.user_id,
+            Appointment.business_id, 
+            Appointment.service_id,
+            Appointment.date_time,
+            Appointment.duration_minutes,  # ✅ Campo padronizado
+            Appointment.end_time,
+            Appointment.price,  # ✅ Campo unificado
+            Appointment.status,
+            Appointment.notes,
+            Appointment.created_at,
+            Appointment.updated_at,
+            # ✅ Campos relacionados com aliases padronizados
+            User.nome.label("cliente_nome"),
+            User.telefone.label("cliente_telefone"), 
+            User.email.label("cliente_email"),
+            Service.name.label("servico_nome"),
+            Service.description.label("servico_descricao"),
+            Business.name.label("business_name")
+        ).join(
+            User, Appointment.user_id == User.id
+        ).join(
+            Business, Appointment.business_id == Business.id
+        ).outerjoin(
+            Service, Appointment.service_id == Service.id
+        )
+        
+        # ✅ Aplicar filtros padronizados
+        conditions = []
+        
+        if status:
+            conditions.append(Appointment.status == status)
+        
+        if user_id:
+            conditions.append(Appointment.user_id == user_id)
+        
+        if date_from:
+            try:
+                date_from_obj = datetime.strptime(date_from, "%Y-%m-%d").date()
+                conditions.append(func.date(Appointment.date_time) >= date_from_obj)
+            except ValueError:
+                raise HTTPException(400, "date_from deve estar no formato YYYY-MM-DD")
+        
+        if date_to:
+            try:
+                date_to_obj = datetime.strptime(date_to, "%Y-%m-%d").date()
+                conditions.append(func.date(Appointment.date_time) <= date_to_obj)
+            except ValueError:
+                raise HTTPException(400, "date_to deve estar no formato YYYY-MM-DD")
+        
+        # Aplicar condições
+        if conditions:
+            query = query.where(and_(*conditions))
+        
+        # Query de contagem
+        count_query = select(func.count(Appointment.id))
+        if conditions:
+            count_query = count_query.where(and_(*conditions))
+        
+        # Executar queries
+        total_result = await session.execute(count_query)
+        total = total_result.scalar()
+        
+        # Query principal com ordenação e paginação
+        query = query.order_by(desc(Appointment.date_time)).limit(limit).offset(offset)
+        result = await session.execute(query)
+        rows = result.fetchall()
+        
+        # ✅ Converter para schema padronizado
+        appointments = []
+        for row in rows:
+            appointment_dict = {
+                'id': row.id,
+                'user_id': row.user_id,
+                'business_id': row.business_id,
+                'service_id': row.service_id,
+                'date_time': row.date_time,
+                'duration_minutes': row.duration_minutes,
+                'end_time': row.end_time,
+                'price': float(row.price) if row.price else 0.00,
+                'status': row.status,
+                'notes': row.notes,
+                'created_at': row.created_at,
+                'updated_at': row.updated_at,
+                # Campos relacionados
+                'cliente_nome': row.cliente_nome,
+                'cliente_telefone': row.cliente_telefone,
+                'cliente_email': row.cliente_email,
+                'servico_nome': row.servico_nome,
+                'servico_descricao': row.servico_descricao,
+                'business_name': row.business_name
+            }
+            appointments.append(AppointmentResponse(**appointment_dict))
+        
+        has_more = (page * limit) < total
+        
+        return AppointmentsListResponse(
+            appointments=appointments,
+            total=total,
+            page=page,
+            per_page=limit,
+            has_more=has_more
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Erro ao buscar agendamentos: {e}")
+        raise HTTPException(500, f"Erro interno do servidor: {str(e)}")
+
+
+@router.get("/legacy", response_model=Dict[str, Any])
+async def get_appointments_legacy(
     limit: int = Query(50, le=500, description="Limite de resultados"),
     offset: int = Query(0, ge=0, description="Offset para paginação"),
     date_from: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
