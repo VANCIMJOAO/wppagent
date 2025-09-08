@@ -26,20 +26,48 @@ export interface PaginatedResponse<T> {
 // Cliente (compatível com api-service.ts)
 export interface Client {
   id: number;
-  nome: string;
-  telefone: string;
+  wa_id: string;
+  nome?: string;
+  telefone?: string;
   email?: string;
   created_at: string;
   updated_at?: string;
   
-  // Estatísticas calculadas
+  // Campos calculados
   total_conversations: number;
   total_messages: number;
   total_appointments: number;
-  confirmed_appointments: number;
-  cancelled_appointments: number;
-  total_spent: number;
-  last_contact?: string;
+  last_interaction?: string;
+  status: 'active' | 'inactive' | 'new' | 'vip';
+}
+
+// Estatísticas detalhadas de um cliente
+export interface ClientStatistics {
+  total_conversations: number;
+  total_messages: number;
+  total_appointments: number;
+  last_interaction?: string;
+  avg_response_time_seconds: number;
+}
+
+// Detalhes completos de um cliente
+export interface ClientDetail extends Client {
+  statistics: ClientStatistics;
+}
+
+// Interface para update de cliente
+export interface ClientUpdate {
+  nome?: string;
+  telefone?: string;
+  email?: string;
+}
+
+// Interface para criação de cliente
+export interface ClientCreate {
+  wa_id: string;
+  nome: string;
+  telefone: string;
+  email?: string;
 }
 
 // Resposta específica para clientes
@@ -189,10 +217,8 @@ export interface ChartData {
 export interface ClientStats {
   total: number;
   active: number;
-  inactive: number;
-  blocked: number;
   new_this_month: number;
-  growth_percentage: number;
+  inactive: number;
 }
 
 // Configuração do Bot

@@ -244,6 +244,9 @@ app.include_router(db_optimization_router, tags=["Database Optimization"])
 from app.routes.appointments import router as appointments_router
 app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 
+from app.routes.clients import router as clients_router
+app.include_router(clients_router, tags=["Dashboard - Clients"])
+
 # ✅ Usar versão corrigida das conversas - agora na versão principal
 from app.routes.conversations import router as conversations_router
 logger.info("✅ Usando rotas de conversas com correções SQL aplicadas")

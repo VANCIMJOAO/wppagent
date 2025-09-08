@@ -449,6 +449,69 @@ export const getClients = async (search?: string): Promise<ApiClient[]> => {
   }
 };
 
+export const getClientStats = async (): Promise<{total: number, active: number, new_this_month: number, inactive: number}> => {
+  try {
+    const response = await apiRequest<{total: number, active: number, new_this_month: number, inactive: number}>('/clients/stats');
+    return response;
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas de clientes:', error);
+    return {
+      total: 0,
+      active: 0,
+      new_this_month: 0,
+      inactive: 0
+    };
+  }
+};
+
+export const getClientDetail = async (clientId: number): Promise<any | null> => {
+  try {
+    const response = await apiRequest<any>(`/clients/${clientId}`);
+    return response;
+  } catch (error) {
+    console.error(`Erro ao buscar detalhes do cliente ${clientId}:`, error);
+    return null;
+  }
+};
+
+export const updateClient = async (clientId: number, data: any): Promise<ApiClient | null> => {
+  try {
+    const response = await apiRequest<ApiClient>(`/clients/${clientId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    return response;
+  } catch (error) {
+    console.error(`Erro ao atualizar cliente ${clientId}:`, error);
+    return null;
+  }
+};
+
+export const deleteClient = async (clientId: number): Promise<boolean> => {
+  try {
+    await apiRequest(`/clients/${clientId}`, {
+      method: 'DELETE'
+    });
+    return true;
+  } catch (error) {
+    console.error(`Erro ao excluir cliente ${clientId}:`, error);
+    return false;
+  }
+};
+
+export const createClient = async (data: any): Promise<ApiClient | null> => {
+  try {
+    const response = await apiRequest<ApiClient>('/clients/', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    return response;
+  } catch (error) {
+    console.error('Erro ao criar cliente:', error);
+    return null;
+  }
+};
+
 export const getConversations = async (limit = 50, offset = 0, status?: string, search?: string): Promise<{ conversations: Conversation[], total: number }> => {
   try {
     let query = `/conversations/?limit=${limit}&offset=${offset}`;
@@ -571,6 +634,13 @@ const api = {
   updateConversationStatus,
   convertConversationToContact,
   convertMessageToConversationMessage,
+  
+  // Cliente endpoints
+  getClientStats,
+  getClientDetail,
+  updateClient,
+  deleteClient,
+  createClient,
 };
 
 export default api;

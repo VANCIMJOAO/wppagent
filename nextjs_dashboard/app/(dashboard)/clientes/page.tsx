@@ -367,7 +367,7 @@ export default function ClientesPage() {
                         )}
                         <span className="flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
-                          Última interação: {client.last_contact ? formatDate(client.last_contact) : 'Nunca'}
+                          Última interação: {client.last_interaction ? formatDate(client.last_interaction) : 'Nunca'}
                         </span>
                       </div>
                     </div>
@@ -503,7 +503,7 @@ export default function ClientesPage() {
                   </div>
                   <div>
                     <Label>Última interação</Label>
-                    <p className="font-medium">{selectedClient.last_contact ? formatDate(selectedClient.last_contact) : 'Nunca'}</p>
+                    <p className="font-medium">{selectedClient.last_interaction ? formatDate(selectedClient.last_interaction) : 'Nunca'}</p>
                   </div>
                 </div>
 
