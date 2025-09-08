@@ -15,6 +15,12 @@ import type {
   Message,
   Conversation
 } from '@/types/api'
+import type {
+  BusinessOverview,
+  ConversationFunnel,
+  PerformanceMetrics,
+  TimeSeriesData
+} from '@/types/analytics'
 
 // Environment configuration
 // CORREÇÃO: Desabilitar proxy e usar conexão direta
@@ -620,6 +626,155 @@ export const convertMessageToConversationMessage = (message: Message): Conversat
   };
 };
 
+// ============================
+// ANALYTICS ENDPOINTS
+// ============================
+
+// Business Overview - Métricas executivas principais
+export const getBusinessOverview = async (
+  startDate?: string,
+  endDate?: string
+): Promise<BusinessOverview> => {
+  const token = await getValidToken();
+  
+  const params = new URLSearchParams();
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  
+  const queryString = params.toString();
+  const url = `${API_BASE_URL}/analytics/business-overview${queryString ? `?${queryString}` : ''}`;
+  
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Erro ao buscar dados de negócio: ${response.status}`);
+  }
+  
+  return await response.json();
+};
+
+// Conversation Funnel - Análise do funil de conversão
+export const getConversationFunnel = async (
+  startDate?: string,
+  endDate?: string
+): Promise<ConversationFunnel> => {
+  const token = await getValidToken();
+  
+  const params = new URLSearchParams();
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  
+  const queryString = params.toString();
+  const url = `${API_BASE_URL}/analytics/conversation-funnel${queryString ? `?${queryString}` : ''}`;
+  
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Erro ao buscar dados do funil: ${response.status}`);
+  }
+  
+  return await response.json();
+};
+
+// Performance Metrics - Métricas de performance do sistema
+export const getPerformanceMetrics = async (
+  startDate?: string,
+  endDate?: string
+): Promise<PerformanceMetrics> => {
+  const token = await getValidToken();
+  
+  const params = new URLSearchParams();
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  
+  const queryString = params.toString();
+  const url = `${API_BASE_URL}/analytics/performance-metrics${queryString ? `?${queryString}` : ''}`;
+  
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Erro ao buscar métricas de performance: ${response.status}`);
+  }
+  
+  return await response.json();
+};
+
+// Time Series Data - Dados para gráficos temporais
+export const getTimeSeriesData = async (
+  metricType: 'conversations' | 'revenue' | 'appointments' | 'clients',
+  granularity: 'hour' | 'day' | 'week' | 'month' = 'day',
+  startDate?: string,
+  endDate?: string
+): Promise<TimeSeriesData> => {
+  const token = await getValidToken();
+  
+  const params = new URLSearchParams();
+  params.append('metric_type', metricType);
+  params.append('granularity', granularity);
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  
+  const url = `${API_BASE_URL}/analytics/time-series?${params.toString()}`;
+  
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Erro ao buscar dados temporais: ${response.status}`);
+  }
+  
+  return await response.json();
+};
+
+// Export Analytics - Exportar dados em diferentes formatos
+export const exportAnalytics = async (
+  reportType: 'overview' | 'conversations' | 'clients' | 'full',
+  format: 'json' | 'csv' | 'excel' = 'csv',
+  startDate?: string,
+  endDate?: string
+): Promise<Blob> => {
+  const token = await getValidToken();
+  
+  const params = new URLSearchParams();
+  params.append('report_type', reportType);
+  params.append('format', format);
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  
+  const url = `${API_BASE_URL}/analytics/export?${params.toString()}`;
+  
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Erro ao exportar dados: ${response.status}`);
+  }
+  
+  return await response.blob();
+};
+
 // Default export for easy importing
 const api = {
   getDashboardStats,
@@ -641,6 +796,13 @@ const api = {
   updateClient,
   deleteClient,
   createClient,
+  
+  // Analytics endpoints
+  getBusinessOverview,
+  getConversationFunnel,
+  getPerformanceMetrics,
+  getTimeSeriesData,
+  exportAnalytics,
 };
 
 export default api;
