@@ -18,13 +18,26 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
-        <AuthProvider>
-          <ErrorBoundary>
+        <ErrorBoundary
+          level="global"
+          name="RootLayout"
+          onError={(error, errorInfo) => {
+            // Log crítico para erros globais
+            console.error('🚨 Critical Global Error:', {
+              message: error.message,
+              stack: error.stack,
+              componentStack: errorInfo.componentStack,
+              timestamp: new Date().toISOString(),
+              url: typeof window !== 'undefined' ? window.location.href : 'SSR'
+            });
+          }}
+        >
+          <AuthProvider>
             <div className="min-h-screen bg-gray-50">
               {children}
             </div>
-          </ErrorBoundary>
-        </AuthProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

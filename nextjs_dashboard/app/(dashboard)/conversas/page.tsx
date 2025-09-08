@@ -22,6 +22,7 @@ import {
   Mic
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ConversasErrorBoundary, DataTableErrorBoundary, ComponentErrorBoundary } from '@/components/error-boundaries';
 import { 
   getConversations, 
   getConversationMessages,
@@ -274,223 +275,235 @@ export default function ConversationsPage() {
   };
 
   return (
-    <div className="fixed inset-0 left-80 bg-gray-50"> {/* Use fixed positioning, accounting for sidebar width */}
-      <div className="flex h-full">
-        {/* Lista de Conversas */}
-        <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col">
-          {/* Header da Lista */}
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Conversas</h2>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="sm">
-                <Filter className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Archive className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-          
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Buscar conversas..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
-        {/* Lista de Contatos */}
-        <div className="flex-1 overflow-y-auto">
-          {loading ? (
-            // Loading skeleton
-            Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="p-4 border-b border-gray-100">
-                <div className="flex items-start space-x-3">
-                  <Skeleton className="w-12 h-12 rounded-full" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-3 w-12" />
-                    </div>
-                    <Skeleton className="h-4 w-full max-w-48" />
-                    <div className="flex items-center mt-2 space-x-2">
-                      <Skeleton className="h-5 w-16" />
-                      <Skeleton className="h-5 w-12" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            filteredContacts.map((contact) => (
-              <div
-                key={contact.id}
-                onClick={() => handleContactSelect(contact)}
-                className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
-                  selectedContact?.id === contact.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                }`}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="relative">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={contact.avatar} />
-                      <AvatarFallback>{contact.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${getStatusColor(contact.status)}`} />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900 truncate">{contact.name}</h3>
-                    <span className="text-xs text-gray-500">{contact.timestamp}</span>
-                  </div>
-                  
-                  <p className="text-sm text-gray-600 truncate mt-1">{contact.lastMessage}</p>
-                  
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex flex-wrap gap-1">
-                      {contact.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className={`text-xs ${getTagColor(tag)}`}>
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    {contact.unreadCount > 0 && (
-                      <Badge className="bg-blue-500 text-white text-xs">
-                        {contact.unreadCount}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-          )}
-        </div>
-      </div>
-
-      {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {selectedContact ? (
-          <>
-            {/* Header do Chat */}
-            <div className="bg-white border-b border-gray-200 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Avatar className="w-10 h-10">
-                    <AvatarImage src={selectedContact.avatar} />
-                    <AvatarFallback>{selectedContact.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  
-                  <div>
-                    <h3 className="font-medium text-gray-900">{selectedContact.name}</h3>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-600">{selectedContact.phone}</span>
-                      <div className={`w-2 h-2 rounded-full ${getStatusColor(selectedContact.status)}`} />
-                      <span className="text-sm text-gray-500 capitalize">{selectedContact.status}</span>
-                    </div>
+    <ConversasErrorBoundary>
+      <div className="fixed inset-0 left-80 bg-gray-50">
+        <div className="flex h-full">
+          {/* Lista de Conversas */}
+          <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col">
+            {/* Header da Lista */}
+            <ComponentErrorBoundary name="ConversationsHeader">
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900">Conversas</h2>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm">
+                      <Filter className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Archive className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <Button variant="ghost" size="sm">
-                    <Phone className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Video className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Star className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Área de Mensagens */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-              {contactMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.isFromMe ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    message.isFromMe 
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-white text-gray-900 border border-gray-200'
-                  }`}>
-                    <p className="text-sm">{message.content}</p>
-                    <div className={`flex items-center justify-end mt-1 space-x-1 ${
-                      message.isFromMe ? 'text-blue-100' : 'text-gray-500'
-                    }`}>
-                      <span className="text-xs">{message.timestamp}</span>
-                      {message.isFromMe && (
-                        <div className="text-xs">
-                          {message.status === 'sent' && '✓'}
-                          {message.status === 'delivered' && '✓✓'}
-                          {message.status === 'read' && <span className="text-blue-200">✓✓</span>}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input de Mensagem */}
-            <div className="bg-white border-t border-gray-200 p-4">
-              <div className="flex items-end space-x-3">
-                <Button variant="ghost" size="sm" className="mb-2">
-                  <Paperclip className="w-4 h-4" />
-                </Button>
-                
-                <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    placeholder="Digite sua mensagem..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                    className="resize-none"
+                    placeholder="Buscar conversas..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
                   />
                 </div>
-                
-                <Button variant="ghost" size="sm" className="mb-2">
-                  <Smile className="w-4 h-4" />
-                </Button>
-                
-                <Button variant="ghost" size="sm" className="mb-2">
-                  <Mic className="w-4 h-4" />
-                </Button>
-                
-                <Button 
-                  onClick={sendMessage}
-                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                  disabled={!newMessage.trim()}
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
               </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <MessageCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma conversa selecionada</h3>
-              <p className="text-gray-600">Selecione uma conversa para começar a chatear</p>
-            </div>
+            </ComponentErrorBoundary>
+
+            {/* Lista de Contatos */}
+            <DataTableErrorBoundary dataType="conversas">
+              <div className="flex-1 overflow-y-auto">
+                {loading ? (
+                  // Loading skeleton
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <div key={index} className="p-4 border-b border-gray-100">
+                      <div className="flex items-start space-x-3">
+                        <Skeleton className="w-12 h-12 rounded-full" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-3 w-12" />
+                          </div>
+                          <Skeleton className="h-4 w-full max-w-48" />
+                          <div className="flex items-center mt-2 space-x-2">
+                            <Skeleton className="h-5 w-16" />
+                            <Skeleton className="h-5 w-12" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  filteredContacts.map((contact) => (
+                    <div
+                      key={contact.id}
+                      onClick={() => handleContactSelect(contact)}
+                      className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
+                        selectedContact?.id === contact.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                      }`}
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="relative">
+                          <Avatar className="w-12 h-12">
+                            <AvatarImage src={contact.avatar} />
+                            <AvatarFallback>{contact.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                          </Avatar>
+                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${getStatusColor(contact.status)}`} />
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium text-gray-900 truncate">{contact.name}</h3>
+                            <span className="text-xs text-gray-500">{contact.timestamp}</span>
+                          </div>
+                          
+                          <p className="text-sm text-gray-600 truncate mt-1">{contact.lastMessage}</p>
+                          
+                          <div className="flex items-center justify-between mt-2">
+                            <div className="flex flex-wrap gap-1">
+                              {contact.tags.map((tag) => (
+                                <Badge key={tag} variant="secondary" className={`text-xs ${getTagColor(tag)}`}>
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                            
+                            {contact.unreadCount > 0 && (
+                              <Badge className="bg-blue-500 text-white text-xs">
+                                {contact.unreadCount}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </DataTableErrorBoundary>
           </div>
-        )}
+
+          {/* Chat Area */}
+          <div className="flex-1 flex flex-col">
+            {selectedContact ? (
+              <>
+                {/* Header do Chat */}
+                <ComponentErrorBoundary name="ChatHeader">
+                  <div className="bg-white border-b border-gray-200 p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={selectedContact.avatar} />
+                          <AvatarFallback>{selectedContact.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        
+                        <div>
+                          <h3 className="font-medium text-gray-900">{selectedContact.name}</h3>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-600">{selectedContact.phone}</span>
+                            <div className={`w-2 h-2 rounded-full ${getStatusColor(selectedContact.status)}`} />
+                            <span className="text-sm text-gray-500 capitalize">{selectedContact.status}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Button variant="ghost" size="sm">
+                          <Phone className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Video className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Star className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </ComponentErrorBoundary>
+
+                {/* Área de Mensagens */}
+                <ComponentErrorBoundary name="MessagesArea">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                    {contactMessages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.isFromMe ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          message.isFromMe 
+                            ? 'bg-blue-500 text-white' 
+                            : 'bg-white text-gray-900 border border-gray-200'
+                        }`}>
+                          <p className="text-sm">{message.content}</p>
+                          <div className={`flex items-center justify-end mt-1 space-x-1 ${
+                            message.isFromMe ? 'text-blue-100' : 'text-gray-500'
+                          }`}>
+                            <span className="text-xs">{message.timestamp}</span>
+                            {message.isFromMe && (
+                              <div className="text-xs">
+                                {message.status === 'sent' && '✓'}
+                                {message.status === 'delivered' && '✓✓'}
+                                {message.status === 'read' && <span className="text-blue-200">✓✓</span>}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </ComponentErrorBoundary>
+
+                {/* Input de Mensagem */}
+                <ComponentErrorBoundary name="MessageInput">
+                  <div className="bg-white border-t border-gray-200 p-4">
+                    <div className="flex items-end space-x-3">
+                      <Button variant="ghost" size="sm" className="mb-2">
+                        <Paperclip className="w-4 h-4" />
+                      </Button>
+                      
+                      <div className="flex-1">
+                        <Input
+                          placeholder="Digite sua mensagem..."
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                          className="resize-none"
+                        />
+                      </div>
+                      
+                      <Button variant="ghost" size="sm" className="mb-2">
+                        <Smile className="w-4 h-4" />
+                      </Button>
+                      
+                      <Button variant="ghost" size="sm" className="mb-2">
+                        <Mic className="w-4 h-4" />
+                      </Button>
+                      
+                      <Button 
+                        onClick={sendMessage}
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                        disabled={!newMessage.trim()}
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </ComponentErrorBoundary>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                  <MessageCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma conversa selecionada</h3>
+                  <p className="text-gray-600">Selecione uma conversa para começar a chatear</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-    </div>
+    </ConversasErrorBoundary>
   );
 }
