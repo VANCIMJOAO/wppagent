@@ -66,6 +66,14 @@ async def lifespan(app: FastAPI):
         await cache_service.initialize()
         logger.info("Cache service inicializado")
         
+        # 🔄 Inicializar sistema de backup automatizado
+        try:
+            from app.services.backup_scheduler import backup_scheduler
+            await backup_scheduler.start()
+            logger.info("🔄 Sistema de backup automatizado inicializado")
+        except Exception as e:
+            logger.warning(f"⚠️ Sistema de backup não pôde ser inicializado: {e}")
+        
         # 🚀 Inicializar sistemas de performance (com tratamento de erro)
         try:
             db_optimizer = DatabaseOptimizer()
@@ -141,6 +149,14 @@ async def lifespan(app: FastAPI):
             pass
         except asyncio.CancelledError:
             pass
+    
+    # 🔄 Parar sistema de backup
+    try:
+        from app.services.backup_scheduler import backup_scheduler
+        await backup_scheduler.stop()
+        logger.info("🔄 Sistema de backup finalizado")
+    except Exception as e:
+        logger.warning(f"⚠️ Erro ao finalizar sistema de backup: {e}")
     
     await cache_service.close()
     logger.info("Finalizando WhatsApp Agent API COM CORREÇÕES...")
@@ -239,6 +255,10 @@ app.include_router(auth_router, tags=["Admin Authentication"])
 # Incluir rotas de otimização do banco de dados
 from app.routes.database_optimization import router as db_optimization_router
 app.include_router(db_optimization_router, tags=["Database Optimization"])
+
+# 🔄 Sistema de Backup Automatizado
+from app.routes.backup import router as backup_router
+app.include_router(backup_router, tags=["Backup System"])
 
 # 📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard
 from app.routes.appointments import router as appointments_router
