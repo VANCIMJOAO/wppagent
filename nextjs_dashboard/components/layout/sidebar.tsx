@@ -14,7 +14,8 @@ import {
   ChevronDown,
   Bell,
   HelpCircle,
-  UserX
+  UserX,
+  Activity
 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -114,6 +115,13 @@ export default function Sidebar({ children }: SidebarProps) {
       icon: HelpCircle,
       href: '/diagnostic',
       description: 'Backend Status'
+    },
+    {
+      id: 'monitoring',
+      label: 'Monitoramento',
+      icon: Activity,
+      href: '/monitoring',
+      description: 'Sistema & Alertas'
     },
     {
       id: 'suporte',
