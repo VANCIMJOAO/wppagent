@@ -23,15 +23,15 @@ from pydantic import BaseModel, Field
 
 from app.database import get_db
 from app.models.database import Appointment, User, Business, Service
-from app.schemas.appointments import (
-    AppointmentResponse, 
-    AppointmentCreate, 
-    AppointmentUpdate,
-    AppointmentSummary,
-    AppointmentsListResponse,
-    AppointmentStats
+from app.schemas.unified import (
+    AppointmentResponseUnified,
+    AppointmentCreateRequest,
+    AppointmentUpdateRequest,
+    AppointmentsListResponseUnified,
+    SchemaTransformer
 )
 from app.routes.admin_auth import get_current_admin_user, AdminUser
+from app.services.cache_optimized import cache_service, CacheKeys
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -39,7 +39,7 @@ logger = get_logger(__name__)
 # Router
 router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
-@router.get("/", response_model=AppointmentsListResponse)
+@router.get("/", response_model=AppointmentsListResponseUnified)
 async def get_appointments(
     limit: int = Query(10, le=100, description="Limite de resultados"),
     page: int = Query(1, ge=1, description="Página atual"),
@@ -53,122 +53,152 @@ async def get_appointments(
     """
     📅 Lista agendamentos com filtros e paginação
     ✅ SCHEMA PADRONIZADO - Elimina inconsistências frontend/backend
+    ✅ CACHE OTIMIZADO - TTL de 2 minutos para listas frequentes
     """
-    try:
-        # Calcular offset
-        offset = (page - 1) * limit
-        
-        # Query base com JOINs padronizados
-        query = select(
-            Appointment.id,
-            Appointment.user_id,
-            Appointment.business_id, 
-            Appointment.service_id,
-            Appointment.date_time,
-            Appointment.duration_minutes,  # ✅ Campo padronizado
-            Appointment.end_time,
-            Appointment.price,  # ✅ Campo unificado
-            Appointment.status,
-            Appointment.notes,
-            Appointment.created_at,
-            Appointment.updated_at,
-            # ✅ Campos relacionados com aliases padronizados
-            User.nome.label("cliente_nome"),
-            User.telefone.label("cliente_telefone"), 
-            User.email.label("cliente_email"),
-            Service.name.label("servico_nome"),
-            Service.description.label("servico_descricao"),
-            Business.name.label("business_name")
-        ).join(
-            User, Appointment.user_id == User.id
-        ).join(
-            Business, Appointment.business_id == Business.id
-        ).outerjoin(
-            Service, Appointment.service_id == Service.id
-        )
-        
-        # ✅ Aplicar filtros padronizados
-        conditions = []
-        
-        if status:
-            conditions.append(Appointment.status == status)
-        
-        if user_id:
-            conditions.append(Appointment.user_id == user_id)
-        
-        if date_from:
-            try:
-                date_from_obj = datetime.strptime(date_from, "%Y-%m-%d").date()
-                conditions.append(func.date(Appointment.date_time) >= date_from_obj)
-            except ValueError:
-                raise HTTPException(400, "date_from deve estar no formato YYYY-MM-DD")
-        
-        if date_to:
-            try:
-                date_to_obj = datetime.strptime(date_to, "%Y-%m-%d").date()
-                conditions.append(func.date(Appointment.date_time) <= date_to_obj)
-            except ValueError:
-                raise HTTPException(400, "date_to deve estar no formato YYYY-MM-DD")
-        
-        # Aplicar condições
-        if conditions:
-            query = query.where(and_(*conditions))
-        
-        # Query de contagem
-        count_query = select(func.count(Appointment.id))
-        if conditions:
-            count_query = count_query.where(and_(*conditions))
-        
-        # Executar queries
-        total_result = await session.execute(count_query)
-        total = total_result.scalar()
-        
-        # Query principal com ordenação e paginação
-        query = query.order_by(desc(Appointment.date_time)).limit(limit).offset(offset)
-        result = await session.execute(query)
-        rows = result.fetchall()
-        
-        # ✅ Converter para schema padronizado
-        appointments = []
-        for row in rows:
-            appointment_dict = {
-                'id': row.id,
-                'user_id': row.user_id,
-                'business_id': row.business_id,
-                'service_id': row.service_id,
-                'date_time': row.date_time,
-                'duration_minutes': row.duration_minutes,
-                'end_time': row.end_time,
-                'price': float(row.price) if row.price else 0.00,
-                'status': row.status,
-                'notes': row.notes,
-                'created_at': row.created_at,
-                'updated_at': row.updated_at,
-                # Campos relacionados
-                'cliente_nome': row.cliente_nome,
-                'cliente_telefone': row.cliente_telefone,
-                'cliente_email': row.cliente_email,
-                'servico_nome': row.servico_nome,
-                'servico_descricao': row.servico_descricao,
-                'business_name': row.business_name
+    
+    # ✅ Gerar chave de cache baseada nos parâmetros
+    cache_key = CacheKeys.appointments_list(
+        limit=limit,
+        page=page,
+        status=status,
+        business_id=None,  # Pode ser adicionado quando necessário
+        date_from=date_from,
+        date_to=date_to
+    )
+    
+    async def fetch_appointments():
+        """Função para buscar dados frescos quando cache miss"""
+        try:
+            # Calcular offset
+            offset = (page - 1) * limit
+            
+            # Query base com JOINs padronizados e aliases explícitos
+            query = select(
+                Appointment.id.label("appointment_id"),
+                Appointment.user_id,
+                Appointment.business_id, 
+                Appointment.service_id,
+                Appointment.date_time,
+                Appointment.duration_minutes,  # ✅ Campo padronizado
+                Appointment.end_time,
+                Appointment.price,  # ✅ Campo unificado
+                Appointment.status,
+                Appointment.notes,
+                Appointment.created_at,
+                Appointment.updated_at,
+                # ✅ Usar aliases explícitos para evitar ambiguidade
+                User.nome.label("user_name"),
+                User.telefone.label("user_phone"), 
+                User.email.label("user_email"),
+                Service.name.label("service_name"),
+                Service.description.label("service_description"),
+                Business.name.label("business_name")
+            ).select_from(
+                Appointment
+            ).join(
+                User, Appointment.user_id == User.id
+            ).join(
+                Business, Appointment.business_id == Business.id
+            ).outerjoin(
+                Service, Appointment.service_id == Service.id
+            )
+            
+            # ✅ Aplicar filtros padronizados
+            conditions = []
+            
+            if status:
+                conditions.append(Appointment.status == status)
+            
+            if user_id:
+                conditions.append(Appointment.user_id == user_id)
+            
+            if date_from:
+                try:
+                    date_from_obj = datetime.strptime(date_from, "%Y-%m-%d").date()
+                    conditions.append(func.date(Appointment.date_time) >= date_from_obj)
+                except ValueError:
+                    raise HTTPException(400, "date_from deve estar no formato YYYY-MM-DD")
+            
+            if date_to:
+                try:
+                    date_to_obj = datetime.strptime(date_to, "%Y-%m-%d").date()
+                    conditions.append(func.date(Appointment.date_time) <= date_to_obj)
+                except ValueError:
+                    raise HTTPException(400, "date_to deve estar no formato YYYY-MM-DD")
+            
+            # Aplicar condições
+            if conditions:
+                query = query.where(and_(*conditions))
+            
+            # Query de contagem
+            count_query = select(func.count(Appointment.id))
+            if conditions:
+                count_query = count_query.where(and_(*conditions))
+            
+            # Executar queries
+            total_result = await session.execute(count_query)
+            total = total_result.scalar()
+            
+            # Query principal com ordenação e paginação
+            query = query.order_by(desc(Appointment.date_time)).limit(limit).offset(offset)
+            result = await session.execute(query)
+            rows = result.fetchall()
+            
+            # ✅ Converter para schema padronizado
+            appointments = []
+            for row in rows:
+                appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
+                appointments.append(AppointmentResponseUnified(**appointment_dict))
+            
+            has_more = (page * limit) < total
+            
+            return {
+                "appointments": [appt.dict() for appt in appointments],
+                "total": total,
+                "page": page,
+                "per_page": limit,
+                "has_more": has_more
             }
-            appointments.append(AppointmentResponse(**appointment_dict))
-        
-        has_more = (page * limit) < total
-        
-        return AppointmentsListResponse(
-            appointments=appointments,
-            total=total,
-            page=page,
-            per_page=limit,
-            has_more=has_more
+            
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"❌ Erro ao buscar agendamentos: {e}")
+            raise HTTPException(500, f"Erro interno do servidor: {str(e)}")
+    
+    # ✅ Usar cache com TTL de 2 minutos para listas
+    try:
+        cached_data = await cache_service.get_or_set(
+            key=cache_key,
+            fetch_function=fetch_appointments,
+            ttl=120,  # 2 minutos
+            cache_type='appointments_list'
         )
         
-    except HTTPException:
-        raise
+        # Converter de volta para Pydantic models
+        appointments = [AppointmentResponseUnified(**appt) for appt in cached_data["appointments"]]
+        
+        return AppointmentsListResponseUnified(
+            appointments=appointments,
+            total=cached_data["total"],
+            page=cached_data["page"],
+            per_page=cached_data["per_page"],
+            has_more=cached_data["has_more"]
+        )
+        
     except Exception as e:
-        logger.error(f"❌ Erro ao buscar agendamentos: {e}")
-        raise HTTPException(500, f"Erro interno do servidor: {str(e)}")
+        logger.error(f"❌ Erro no cache de agendamentos: {e}")
+        # Fallback sem cache
+        result = await fetch_appointments()
+        appointments = [AppointmentResponseUnified(**appt) for appt in result["appointments"]]
+        
+        return AppointmentsListResponseUnified(
+            appointments=appointments,
+            total=result["total"],
+            page=result["page"],
+            per_page=result["per_page"],
+            has_more=result["has_more"]
+        )
 
 
 @router.get("/legacy", response_model=Dict[str, Any])
@@ -284,14 +314,15 @@ async def get_appointments_legacy(
         logger.error(f"❌ Erro ao buscar agendamentos: {e}")
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
-@router.post("/", response_model=AppointmentResponse)
+@router.post("/", response_model=AppointmentResponseUnified)
 async def create_appointment(
-    appointment_data: AppointmentCreate,
+    appointment_data: AppointmentCreateRequest,
     current_admin: AdminUser = Depends(get_current_admin_user),
     session: AsyncSession = Depends(get_db)
 ):
     """
     📅 Criar novo agendamento
+    ✅ CACHE INVALIDATION - Limpa cache relacionado após criação
     """
     try:
         logger.info(f"➕ Criando agendamento - Admin: {current_admin.username}")
@@ -324,6 +355,11 @@ async def create_appointment(
         await session.commit()
         await session.refresh(new_appointment)
         
+        # ✅ INVALIDAR CACHE após criação
+        cache_service.invalidate_pattern("appointments:list:*")
+        cache_service.invalidate_pattern("dashboard:stats:*")
+        logger.info(f"✅ Cache invalidado após criação do agendamento {new_appointment.id}")
+        
         logger.info(f"✅ Agendamento criado com ID: {new_appointment.id}")
         
         # Buscar dados completos para resposta
@@ -343,21 +379,8 @@ async def create_appointment(
         
         row = complete_result.fetchone()
         if row:
-            return AppointmentResponse(
-                id=row.Appointment.id,
-                user_id=row.Appointment.user_id,
-                business_id=row.Appointment.business_id,
-                service_id=row.Appointment.service_id,
-                date_time=row.Appointment.date_time,
-                status=row.Appointment.status,
-                notes=row.Appointment.notes,
-                created_at=row.Appointment.created_at,
-                updated_at=row.Appointment.updated_at,
-                user_name=row.user_name,
-                user_phone=row.user_phone,
-                business_name=row.business_name,
-                service_name=row.service_name
-            )
+            appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
+            return AppointmentResponseUnified(**appointment_dict)
         
         return new_appointment
         
@@ -366,7 +389,7 @@ async def create_appointment(
         await session.rollback()
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
-@router.get("/{appointment_id}", response_model=AppointmentResponse)
+@router.get("/{appointment_id}", response_model=AppointmentResponseUnified)
 async def get_appointment(
     appointment_id: int,
     current_admin: AdminUser = Depends(get_current_admin_user),
@@ -374,8 +397,14 @@ async def get_appointment(
 ):
     """
     📅 Buscar agendamento específico
+    ✅ CACHE OTIMIZADO - TTL de 5 minutos para detalhes individuais
     """
-    try:
+    
+    # ✅ Gerar chave de cache para agendamento específico
+    cache_key = f"appointments:detail:{appointment_id}"
+    
+    async def fetch_appointment():
+        """Função para buscar dados frescos quando cache miss"""
         result = await session.execute(
             select(
                 Appointment,
@@ -394,35 +423,38 @@ async def get_appointment(
         if not row:
             raise HTTPException(404, "Agendamento não encontrado")
         
-        return AppointmentResponse(
-            id=row.Appointment.id,
-            user_id=row.Appointment.user_id,
-            business_id=row.Appointment.business_id,
-            service_id=row.Appointment.service_id,
-            date_time=row.Appointment.date_time,
-            status=row.Appointment.status,
-            notes=row.Appointment.notes,
-            created_at=row.Appointment.created_at,
-            updated_at=row.Appointment.updated_at,
-            user_name=row.user_name,
-            user_phone=row.user_phone,
-            business_name=row.business_name,
-            service_name=row.service_name
+        appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
+        return appointment_dict
+    
+    # ✅ Usar cache com TTL de 5 minutos para detalhes
+    try:
+        cached_data = await cache_service.get_or_set(
+            key=cache_key,
+            fetch_function=fetch_appointment,
+            ttl=300,  # 5 minutos
+            cache_type='appointment_detail'
         )
         
+        return AppointmentResponseUnified(**cached_data)
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"❌ Erro ao buscar agendamento {appointment_id}: {e}")
-        raise HTTPException(500, f"Erro interno: {str(e)}")
+        logger.error(f"❌ Erro no cache do agendamento {appointment_id}: {e}")
+        # Fallback sem cache
+        appointment_dict = await fetch_appointment()
+        return AppointmentResponseUnified(**appointment_dict)
 
-@router.put("/{appointment_id}", response_model=AppointmentResponse)
+@router.put("/{appointment_id}", response_model=AppointmentResponseUnified)
 async def update_appointment(
     appointment_id: int,
-    update_data: AppointmentUpdate,
+    update_data: AppointmentUpdateRequest,
     current_admin: AdminUser = Depends(get_current_admin_user),
     session: AsyncSession = Depends(get_db)
 ):
     """
     📅 Atualizar agendamento
+    ✅ CACHE INVALIDATION - Limpa cache relacionado após atualização
     """
     try:
         # Buscar agendamento
@@ -449,6 +481,12 @@ async def update_appointment(
         await session.commit()
         await session.refresh(appointment)
         
+        # ✅ INVALIDAR CACHE após atualização
+        cache_service.invalidate_pattern("appointments:list:*")
+        cache_service.invalidate_pattern("dashboard:stats:*")
+        cache_service.delete(f"appointments:detail:{appointment_id}")
+        logger.info(f"✅ Cache invalidado após atualização do agendamento {appointment_id}")
+        
         logger.info(f"✅ Agendamento {appointment_id} atualizado")
         
         # Buscar dados completos para resposta
@@ -467,21 +505,8 @@ async def update_appointment(
         )
         
         row = complete_result.fetchone()
-        return AppointmentResponse(
-            id=row.Appointment.id,
-            user_id=row.Appointment.user_id,
-            business_id=row.Appointment.business_id,
-            service_id=row.Appointment.service_id,
-            date_time=row.Appointment.date_time,
-            status=row.Appointment.status,
-            notes=row.Appointment.notes,
-            created_at=row.Appointment.created_at,
-            updated_at=row.Appointment.updated_at,
-            user_name=row.user_name,
-            user_phone=row.user_phone,
-            business_name=row.business_name,
-            service_name=row.service_name
-        )
+        appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
+        return AppointmentResponseUnified(**appointment_dict)
         
     except Exception as e:
         logger.error(f"❌ Erro ao atualizar agendamento {appointment_id}: {e}")
@@ -496,6 +521,7 @@ async def delete_appointment(
 ):
     """
     📅 Excluir agendamento
+    ✅ CACHE INVALIDATION - Limpa cache relacionado após exclusão
     """
     try:
         result = await session.execute(
@@ -508,6 +534,12 @@ async def delete_appointment(
         
         await session.delete(appointment)
         await session.commit()
+        
+        # ✅ INVALIDAR CACHE após exclusão
+        cache_service.invalidate_pattern("appointments:list:*")
+        cache_service.invalidate_pattern("dashboard:stats:*")
+        cache_service.delete(f"appointments:detail:{appointment_id}")
+        logger.info(f"✅ Cache invalidado após exclusão do agendamento {appointment_id}")
         
         logger.info(f"✅ Agendamento {appointment_id} excluído")
         
