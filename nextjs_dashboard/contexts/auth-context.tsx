@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { debugLog } from '@/lib/debug';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -20,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Verificar autenticação ao carregar
   useEffect(() => {
     const checkAuth = () => {
-      console.log('AuthContext: Verificando autenticação...')
+      debugLog.auth('Verificando autenticação...')
       
       // Verificar tanto cookies quanto localStorage
       const authToken = document.cookie
@@ -29,14 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       const userStorage = localStorage.getItem('user');
       
-      console.log('AuthContext: Auth token:', authToken)
-      console.log('AuthContext: User storage:', userStorage)
+      debugLog.auth('Status de autenticação', !!authToken)
+      debugLog.info('User storage exists', !!userStorage)
       
       if (authToken || userStorage) {
-        console.log('AuthContext: Usuário autenticado!')
+        debugLog.success('Usuário autenticado!')
         setIsAuthenticated(true);
       } else {
-        console.log('AuthContext: Usuário não autenticado')
+        debugLog.info('Usuário não autenticado')
         setIsAuthenticated(false);
       }
       setLoading(false);

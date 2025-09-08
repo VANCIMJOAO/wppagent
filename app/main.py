@@ -11,10 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from app.config import settings
 from app.utils.logger import get_logger
-from app.routes.webhook import router as webhook_router, cleanup_response_control
+from app.routes.webhook import router as webhook_router
 from app.database import init_db
 from app.services.health_checker import health_checker, HealthStatus
-from app.middleware.rate_limit import RateLimitMiddleware, get_rate_limit_stats
+# Rate limiting removido - usando sistema unificado
+# from app.middleware.rate_limit import RateLimitMiddleware, get_rate_limit_stats
 from app.services.alert_manager import alert_manager
 from app.services.llm_advanced import advanced_llm_service
 from app.services.strategy_compatibility import hybrid_service
@@ -183,19 +184,24 @@ else:
 # 🔒 Adicionar middleware de autenticação e autorização
 app.add_middleware(AuthMiddleware)
 
+# 🔧 RATE LIMITING MIDDLEWARE REMOVIDO - Agora usado sistema unificado
+# O controle de resposta única é feito pelo UnifiedResponseControl no webhook
+# 
 # Adicionar rate limiting middleware baseado na configuração
 # Usar middleware corrigido que garante sempre retornar uma resposta
-try:
-    if hasattr(settings, 'rate_limit_enabled') and settings.rate_limit_enabled:
-        app.add_middleware(RateLimitMiddleware, enabled=True)
-        logger.info("Rate limiting middleware added and enabled")
-    else:
-        app.add_middleware(RateLimitMiddleware, enabled=False)
-        logger.info("Rate limiting middleware added but disabled")
-except Exception as e:
-    logger.error(f"Failed to add rate limiting middleware: {e}")
-    # Adicionar middleware desabilitado como fallback
-    app.add_middleware(RateLimitMiddleware, enabled=False)
+# try:
+#     if hasattr(settings, 'rate_limit_enabled') and settings.rate_limit_enabled:
+#         app.add_middleware(RateLimitMiddleware, enabled=True)
+#         logger.info("Rate limiting middleware added and enabled")
+#     else:
+#         app.add_middleware(RateLimitMiddleware, enabled=False)
+#         logger.info("Rate limiting middleware added but disabled")
+# except Exception as e:
+#     logger.error(f"Failed to add rate limiting middleware: {e}")
+#     # Adicionar middleware desabilitado como fallback
+#     app.add_middleware(RateLimitMiddleware, enabled=False)
+
+logger.info("🔧 Sistema unificado de controle ativo - Rate limiting middleware removido")
 
 # Adicionar middleware de métricas (último para capturar todas as requests)
 app.add_middleware(MetricsMiddleware)
@@ -238,13 +244,9 @@ app.include_router(db_optimization_router, tags=["Database Optimization"])
 from app.routes.appointments import router as appointments_router
 app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 
-# Usar versão corrigida das conversas se disponível
-try:
-    from app.routes.conversations_fixed import router as conversations_router
-    logger.info("✅ Usando rotas de conversas CORRIGIDAS")
-except ImportError:
-    from app.routes.conversations import router as conversations_router
-    logger.warning("⚠️ Usando rotas de conversas originais")
+# ✅ Usar versão corrigida das conversas - agora na versão principal
+from app.routes.conversations import router as conversations_router
+logger.info("✅ Usando rotas de conversas com correções SQL aplicadas")
 app.include_router(conversations_router, tags=["Dashboard - Conversations"])
 
 from app.routes.dashboard import router as dashboard_router
@@ -395,26 +397,27 @@ async def cors_debug_info():
         "timestamp": datetime.now().isoformat()
     }
 
-@app.get("/rate-limit/stats")
-async def get_rate_limit_statistics():
-    """Endpoint para obter estatísticas de rate limiting"""
+@app.get("/response-control/stats")
+async def get_response_control_statistics():
+    """Endpoint para obter estatísticas do sistema unificado de controle"""
     try:
-        stats = get_rate_limit_stats()
+        from app.services.response_control import unified_response_control
+        stats = await unified_response_control.get_stats()
         return stats
     except Exception as e:
-        logger.error(f"Erro ao obter estatísticas de rate limit: {e}")
+        logger.error(f"Erro ao obter estatísticas do sistema unificado: {e}")
         raise HTTPException(status_code=500, detail="Erro interno do servidor")
 
 
-@app.get("/rate-limit/client/{client_id}")
-async def get_client_rate_limit_info(client_id: str):
-    """Endpoint para obter informações de rate limit de um cliente específico"""
+@app.get("/response-control/client/{client_id}")
+async def get_client_response_control_info(client_id: str):
+    """Endpoint para obter informações de controle de resposta de um cliente específico"""
     try:
-        from app.services.rate_limiter import rate_limiter
-        stats = rate_limiter.get_client_stats(client_id)
+        from app.services.response_control import unified_response_control
+        stats = await unified_response_control.get_client_stats(client_id)
         
-        if "error" in stats:
-            raise HTTPException(status_code=404, detail="Cliente não encontrado")
+        if not stats:
+            raise HTTPException(status_code=404, detail="Cliente não encontrado ou sem dados")
         
         return stats
     except HTTPException:
@@ -1013,7 +1016,8 @@ async def periodic_cleanup():
     while True:
         try:
             await asyncio.sleep(300)  # A cada 5 minutos
-            await cleanup_response_control()
+            from app.services.response_control import unified_response_control
+            await unified_response_control.cleanup_expired()
             logger.info("🧹 Limpeza periódica executada")
         except asyncio.CancelledError:
             logger.info("🛑 Limpeza periódica cancelada")

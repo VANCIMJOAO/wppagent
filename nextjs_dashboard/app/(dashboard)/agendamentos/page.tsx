@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +32,8 @@ import {
   Trash2,
   Loader2
 } from 'lucide-react';
-import { api, Appointment as ApiAppointment } from '@/lib/api-service';
+import { api } from '@/lib/api-service';
+import type { Appointment as ApiAppointment, AppointmentStatus } from '@/types/api';
 import { toast } from 'sonner';
 
 interface AppointmentStats {
@@ -40,30 +43,31 @@ interface AppointmentStats {
   cancelled: number;
   completed: number;
   today: number;
+  thisWeek: number;
+  thisMonth: number;
 }
 
-const statusColors = {
+// Definir tipos específicos para os mapeamentos
+const statusColors: Record<AppointmentStatus, string> = {
   'confirmado': 'bg-green-100 text-green-800',
-  'agendado': 'bg-yellow-100 text-yellow-800',
+  'agendado': 'bg-yellow-100 text-yellow-800', 
   'cancelado': 'bg-red-100 text-red-800',
   'realizado': 'bg-blue-100 text-blue-800'
 };
 
-const statusLabels = {
+const statusLabels: Record<AppointmentStatus, string> = {
   'confirmado': 'Confirmado',
   'agendado': 'Agendado',
   'cancelado': 'Cancelado',
   'realizado': 'Realizado'
 };
 
-const statusIcons = {
+const statusIcons: Record<AppointmentStatus, LucideIcon> = {
   'confirmado': CheckCircle,
   'agendado': AlertCircle,
   'cancelado': XCircle,
   'realizado': CheckCircle
-};
-
-export default function AgendamentosPage() {
+};export default function AgendamentosPage() {
   const [appointments, setAppointments] = useState<ApiAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,7 +80,9 @@ export default function AgendamentosPage() {
     pending: 0,
     cancelled: 0,
     completed: 0,
-    today: 0
+    today: 0,
+    thisWeek: 0,
+    thisMonth: 0
   });
 
   // Load data from API
@@ -94,7 +100,11 @@ export default function AgendamentosPage() {
         
         // Calculate stats from actual appointments data
         const today = new Date().toDateString();
-        const calculatedStats = {
+        const thisWeek = new Date();
+        thisWeek.setDate(thisWeek.getDate() - thisWeek.getDay()); // Start of week
+        const thisMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // Start of month
+        
+        const calculatedStats: AppointmentStats = {
           total: appointmentsData.length || 0,
           confirmed: appointmentsData.filter(a => a.status === 'confirmado').length || 0,
           pending: appointmentsData.filter(a => a.status === 'agendado').length || 0,
@@ -102,6 +112,12 @@ export default function AgendamentosPage() {
           completed: appointmentsData.filter(a => a.status === 'realizado').length || 0,
           today: appointmentsData.filter(a => 
             new Date(a.data_agendamento).toDateString() === today
+          ).length || 0,
+          thisWeek: appointmentsData.filter(a => 
+            new Date(a.data_agendamento) >= thisWeek
+          ).length || 0,
+          thisMonth: appointmentsData.filter(a => 
+            new Date(a.data_agendamento) >= thisMonth
           ).length || 0
         };
         

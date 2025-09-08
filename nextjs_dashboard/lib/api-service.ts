@@ -3,6 +3,19 @@
  * Handles authentication, API requests, and data management
  */
 
+import { debugLog, maskToken } from './debug'
+import type { 
+  Client as ApiClient, 
+  Appointment as ApiAppointment, 
+  ApiResponse, 
+  PaginatedResponse, 
+  ClientsResponse, 
+  AppointmentsResponse,
+  User,
+  Message,
+  Conversation
+} from '@/types/api'
+
 // Environment configuration
 // CORREÇÃO: Desabilitar proxy e usar conexão direta
 const API_BASE_URL = 'https://wppagent-production.up.railway.app';
@@ -18,44 +31,7 @@ let loginPromise: Promise<string> | null = null; // Para evitar múltiplos login
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'senha_admin_segura';
 
-// Types and interfaces
-export interface User {
-  id: number;
-  nome: string;
-  telefone: string;
-  data_cadastro: string;
-  status: 'ativo' | 'inativo' | 'bloqueado';
-  ultima_interacao: string;
-}
-
-export interface Client {
-  id: number;
-  nome: string;
-  telefone: string;
-  email?: string;
-  created_at: string;
-  updated_at?: string;
-  
-  // Estatísticas calculadas
-  total_conversations: number;
-  total_messages: number;
-  total_appointments: number;
-  confirmed_appointments: number;
-  cancelled_appointments: number;
-  total_spent: number;
-  last_contact?: string;
-}
-
-export interface Message {
-  id: number; // Changed from string to number to match backend
-  conversation_id: number;
-  content: string;
-  message_type: string;
-  sender_type: string;
-  created_at: string;
-  whatsapp_id?: string | null;
-}
-
+// Types and interfaces específicos para este arquivo
 export interface ConversationMessage {
   id: string;
   contactId: string;
@@ -76,31 +52,6 @@ export interface Contact {
   status: 'online' | 'offline' | 'typing';
   avatar?: string;
   tags: string[];
-}
-
-export interface Appointment {
-  id: number;
-  cliente_id: number;
-  cliente_nome: string;
-  data_agendamento: string;
-  horario: string;
-  servico: string;
-  status: 'agendado' | 'confirmado' | 'realizado' | 'cancelado';
-  observacoes?: string;
-}
-
-export interface Conversation {
-  id: number; // Changed from string to number to match backend
-  user_id: number;
-  status: string;
-  last_message_at: string | null;
-  created_at: string;
-  updated_at: string | null;
-  user_name?: string;
-  user_phone?: string;
-  total_messages?: number;
-  unread_messages?: number;
-  last_message?: string;
 }
 
 export interface DashboardStats {
@@ -175,29 +126,29 @@ async function login(): Promise<string> {
     }
 
     currentToken = data.access_token;
-    console.log('✅ Login successful, token acquired and stored');
-    console.log('📝 Token length:', data.access_token.length);
-    console.log('📝 Token expires at:', new Date(tokenExpiry).toISOString());
+    debugLog.success('Login successful, token acquired and stored');
+    debugLog.info('Token length:', data.access_token.length);
+    debugLog.info('Token expires at:', new Date(tokenExpiry).toISOString());
     return currentToken!;
   } catch (error) {
-    console.error('❌ Login error:', error);
+    debugLog.error('Login error:', error);
     throw error;
   }
 }
 
 // Get valid token (login if needed)
 async function getValidToken(): Promise<string> {
-  console.log('🔄 Getting valid token...');
-  console.log('🔍 Current token exists:', !!currentToken);
-  console.log('🔍 Token expiry:', tokenExpiry ? new Date(tokenExpiry).toISOString() : 'None');
+  debugLog.info('Getting valid token...');
+  debugLog.auth('Current token exists', !!currentToken);
+  debugLog.info('Token expiry:', tokenExpiry ? new Date(tokenExpiry).toISOString() : 'None');
   
   // If no token or token expired, login
   if (!currentToken || !tokenExpiry || Date.now() > tokenExpiry - 60000) { // Refresh 1 min before expiry
-    console.log('🔄 Need to login - token missing or expired');
+    debugLog.info('Need to login - token missing or expired');
     
     // Se já existe uma tentativa de login em andamento, aguarda ela
     if (loginPromise) {
-      console.log('🔄 Aguardando login em andamento...');
+      debugLog.info('Aguardando login em andamento...');
       return await loginPromise;
     }
     
@@ -214,7 +165,7 @@ async function getValidToken(): Promise<string> {
     }
   }
   
-  console.log('✅ Using existing token');
+  debugLog.success('Using existing token');
   return currentToken;
 }
 
@@ -224,9 +175,9 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     const token = await getValidToken();
     const url = USE_PROXY ? `${PROXY_BASE_URL}${endpoint}` : `${API_BASE_URL}${endpoint}`;
     
-    console.log('🌐 Making API request to:', url);
-    console.log('🔑 Using token with length:', token.length);
-    console.log('🔑 Token starts with:', token.substring(0, 20) + '...');
+    debugLog.api('Making API request to:', url);
+    debugLog.info('Using token with length:', token.length);
+    debugLog.info('Token preview:', maskToken(token));
     
     const response = await fetch(url, {
       ...options,
@@ -251,7 +202,10 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
       tokenExpiry = null;
       
       const newToken = await getValidToken();
-      console.log('🔄 New token acquired for retry, old:', oldToken?.substring(0, 20) + '...', 'new:', newToken.substring(0, 20) + '...');
+      debugLog.info('New token acquired for retry', { 
+        oldToken: maskToken(oldToken || undefined), 
+        newToken: maskToken(newToken) 
+      });
       
       const retryResponse = await fetch(url, {
         ...options,
@@ -393,9 +347,9 @@ export const getMessages = async (): Promise<Message[]> => {
   }
 };
 
-export const getAppointments = async (): Promise<Appointment[]> => {
+export const getAppointments = async (): Promise<ApiAppointment[]> => {
   try {
-    let allAppointments: Appointment[] = [];
+    let allAppointments: ApiAppointment[] = [];
     let offset = 0;
     const limit = 1000;
     let hasMoreData = true;
@@ -407,7 +361,7 @@ export const getAppointments = async (): Promise<Appointment[]> => {
       
       console.log(`📥 Buscando página ${Math.floor(offset/limit) + 1}, offset: ${offset}`);
       
-      const response = await apiRequest<Appointment[]>(query);
+      const response = await apiRequest<ApiAppointment[]>(query);
       const appointments = response || [];
       
       if (appointments.length === 0) {
@@ -426,6 +380,8 @@ export const getAppointments = async (): Promise<Appointment[]> => {
     }
 
     console.log(`🎉 TOTAL de agendamentos carregados: ${allAppointments.length}`);
+    console.log('📊 Sample appointment:', allAppointments?.[0]);
+    
     return allAppointments;
   } catch (error) {
     console.error('Erro ao buscar agendamentos:', error);
@@ -433,16 +389,31 @@ export const getAppointments = async (): Promise<Appointment[]> => {
   }
 };
 
-export const getClients = async (search?: string): Promise<Client[]> => {
+// Função auxiliar para mapear status
+function mapStatusFromBackend(backendStatus: string): "agendado" | "confirmado" | "realizado" | "cancelado" {
+  const statusMap: { [key: string]: "agendado" | "confirmado" | "realizado" | "cancelado" } = {
+    'pendente': 'agendado',
+    'confirmado': 'confirmado',
+    'cancelado': 'cancelado',
+    'concluido': 'realizado',
+    'realizado': 'realizado',
+    'agendado': 'agendado'
+  };
+  
+  const mappedStatus = statusMap[backendStatus.toLowerCase()];
+  return mappedStatus || 'agendado';
+}
+
+export const getClients = async (search?: string): Promise<ApiClient[]> => {
   try {
-    let allClients: Client[] = [];
+    let allClients: ApiClient[] = [];
     let offset = 0;
     const limit = 1000;
     let hasMoreData = true;
 
-    console.log('🔍 Iniciando busca de TODOS os clientes...');
-    console.log('🌐 API Base URL:', API_BASE_URL);
-    console.log('🔐 Current Token:', currentToken ? 'Token exists' : 'No token');
+    debugLog.info('Iniciando busca de TODOS os clientes...');
+    debugLog.api('API Base URL:', API_BASE_URL);
+    debugLog.auth('Current Token exists', !!currentToken);
 
     while (hasMoreData) {
       let query = `/api/dashboard/clients?limit=${limit}&offset=${offset}`;
@@ -450,8 +421,8 @@ export const getClients = async (search?: string): Promise<Client[]> => {
       
       console.log(`� Buscando página ${Math.floor(offset/limit) + 1}, offset: ${offset}`);
       
-      const response = await apiRequest<any>(query);
-      const clients = response?.clients || response || [];
+      const response = await apiRequest<ClientsResponse | ApiClient[]>(query);
+      const clients = Array.isArray(response) ? response : (response.clients || []);
       
       if (clients.length === 0) {
         hasMoreData = false;

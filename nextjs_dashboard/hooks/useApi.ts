@@ -1,108 +1,232 @@
-/**
- * Hooks personalizados para integração com API
- */
+'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import api from '@/lib/api-service';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
-interface DashboardKPIs {
-  // Totais gerais (para os cards coloridos)
-  total_conversations: number;
-  unique_users: number;
-  total_appointments: number;
-  total_messages: number;
-  
-  // Dados de hoje (para a linha de baixo dos cards)
-  messages_today: number;
-  conversations_today: number;
-  appointments_today: number;
-  clients_today: number;
-  
-  // Dados de crescimento
-  growth_conversations: number;
-  growth_messages: number;
-  growth_appointments: number;
+interface UseApiOptions {
+  timeout?: number;
+  retries?: number;
+  retryDelay?: number;
+  baseUrl?: string;
 }
 
-interface DashboardCharts {
-  conversations_chart: Array<{ date: string; count: number }>;
-  messages_chart: Array<{ date: string; count: number }>;
-  appointments_chart: Array<{ date: string; count: number }>;
-  status_distribution: Array<{ status: string; count: number }>;
+interface UseApiResult<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+  request: (endpoint: string, options?: RequestInit) => Promise<void>;
+  reset: () => void;
 }
 
-export function useDashboardData(days: number = 30) {
-  const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
-  const [charts, setCharts] = useState<DashboardCharts | null>(null);
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
+  const {
+    timeout = 30000,
+    retries = 3,
+    retryDelay = 1000,
+    baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://wppagent-production.up.railway.app'
+  } = options;
+
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const request = useCallback(async (endpoint: string, requestOptions: RequestInit = {}) => {
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
+    const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), timeout);
+    
     setLoading(true);
     setError(null);
 
+    const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const response = await fetch(url, {
+          ...requestOptions,
+          signal: abortControllerRef.current.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            ...requestOptions.headers,
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        setData(result);
+        setLoading(false);
+        return;
+
+      } catch (err) {
+        clearTimeout(timeoutId);
+        
+        if (err instanceof Error && err.name === 'AbortError') {
+          return; // Request was cancelled
+        }
+
+        if (attempt === retries) {
+          // Last attempt failed
+          setError(err instanceof Error ? err.message : 'Request failed');
+          setLoading(false);
+          return;
+        }
+
+        // Wait before retry with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, retryDelay * Math.pow(2, attempt)));
+      }
+    }
+  }, [baseUrl, retries, retryDelay, timeout]);
+
+  const reset = useCallback(() => {
+    setData(null);
+    setError(null);
+    setLoading(false);
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  return { data, loading, error, request, reset };
+}
+
+// Specialized hooks for common HTTP methods
+export function useApiGet<T>(endpoint: string, options?: UseApiOptions) {
+  const api = useApi<T>(options);
+  
+  const get = useCallback(() => {
+    return api.request(endpoint, { method: 'GET' });
+  }, [api.request, endpoint]);
+
+  return { ...api, get };
+}
+
+export function useApiPost<T>(options?: UseApiOptions) {
+  const api = useApi<T>(options);
+  
+  const post = useCallback((endpoint: string, body: unknown) => {
+    return api.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }, [api.request]);
+
+  return { ...api, post };
+}
+
+export function useApiPut<T>(options?: UseApiOptions) {
+  const api = useApi<T>(options);
+  
+  const put = useCallback((endpoint: string, body: unknown) => {
+    return api.request(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }, [api.request]);
+
+  return { ...api, put };
+}
+
+export function useApiDelete<T>(options?: UseApiOptions) {
+  const api = useApi<T>(options);
+  
+  const del = useCallback((endpoint: string) => {
+    return api.request(endpoint, { method: 'DELETE' });
+  }, [api.request]);
+
+  return { ...api, delete: del };
+}
+
+// Hook específico para dados do dashboard
+export function useDashboardData() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const dashboardStats = await api.getDashboardStats();
-      
-      const kpisData: DashboardKPIs = {
-        // Totais gerais (para os cards coloridos)
-        total_conversations: dashboardStats.total_conversations,
-        unique_users: dashboardStats.total_clients,
-        total_appointments: dashboardStats.total_appointments,
-        total_messages: dashboardStats.total_messages,
-        
-        // Dados de hoje (para a linha de baixo dos cards)
-        messages_today: dashboardStats.messages_today,
-        conversations_today: dashboardStats.conversations_today,
-        appointments_today: dashboardStats.appointments_today,
-        clients_today: dashboardStats.new_clients_today,
-        
-        // Crescimentos (dados não disponíveis no backend, usando valores padrão)
-        growth_conversations: 5.2,
-        growth_messages: 8.1,
-        growth_appointments: 3.7,
-      };      const chartsData: DashboardCharts = {
-        conversations_chart: [],
-        messages_chart: [],
-        appointments_chart: [],
-        status_distribution: [
-          { status: 'confirmed', count: Math.floor(dashboardStats.appointments_today * 0.6) },
-          { status: 'pending', count: Math.floor(dashboardStats.appointments_today * 0.3) },
-          { status: 'cancelled', count: Math.floor(dashboardStats.appointments_today * 0.1) }
+      // Simular dados do dashboard para desenvolvimento
+      const mockData = {
+        kpis: {
+          totalClients: 150,
+          totalConversations: 45,
+          totalAppointments: 12,
+          totalMessages: 328
+        },
+        charts: {
+          conversationsOverTime: [],
+          appointmentsByStatus: [],
+          clientGrowth: []
+        },
+        recentActivity: [
+          {
+            id: 1,
+            type: 'conversation',
+            title: 'Nova conversa',
+            description: 'Cliente João iniciou uma conversa',
+            timestamp: new Date().toISOString()
+          },
+          {
+            id: 2,
+            type: 'appointment',
+            title: 'Agendamento confirmado',
+            description: 'Consulta com Maria confirmada',
+            timestamp: new Date().toISOString()
+          }
         ]
       };
-
-      // Buscar atividades recentes
-      const recentActivities = await api.getRecentActivity(8);
-
-      setKpis(kpisData);
-      setCharts(chartsData);
-      setRecentActivity(recentActivities);
-
-    } catch (err: any) {
-      setError(`Erro ao conectar com o backend: ${err.message || 'Verifique se o servidor está funcionando'}`);
-      console.error('Erro no useDashboardData:', err);
       
-      // Limpar dados em caso de erro
-      setKpis(null);
-      setCharts(null);
-      setRecentActivity([]);
+      setData(mockData);
+      return mockData;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      setError(errorMessage);
+      throw err;
     } finally {
       setLoading(false);
     }
-  }, [days]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
+  }, []);
+  
+  const refetch = useCallback(() => {
+    return fetchDashboardData();
+  }, [fetchDashboardData]);
+  
+  // Extrair dados para compatibilidade
+  const kpis = data?.kpis;
+  const charts = data?.charts;
+  const recentActivity = data?.recentActivity;
+  
   return {
     kpis,
     charts,
     recentActivity,
+    data,
     loading,
     error,
-    refetch: fetchData
+    fetchDashboardData,
+    refetch,
+    reset: () => {
+      setData(null);
+      setError(null);
+    }
   };
 }

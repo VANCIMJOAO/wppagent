@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  console.log('Middleware: Verificando rota:', pathname)
+  if (isDev) console.log('Middleware: Verificando rota:', pathname)
   
   // Pular verificações para arquivos estáticos e API
   if (
@@ -13,33 +15,33 @@ export function middleware(request: NextRequest) {
     pathname.includes('.') ||
     pathname === '/favicon.ico'
   ) {
-    console.log('Middleware: Pulando verificação para arquivo estático/API')
+    if (isDev) console.log('Middleware: Pulando verificação para arquivo estático/API')
     return NextResponse.next();
   }
   
   // Verificar se existe um token de autenticação
   const isAuthenticated = request.cookies.get('auth-token')?.value;
-  console.log('Middleware: Token encontrado:', isAuthenticated)
+  if (isDev) console.log('Middleware: Token existe:', !!isAuthenticated)
   
   // Rotas que requerem autenticação
   const protectedRoutes = ['/dashboard'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   
-  console.log('Middleware: É rota protegida?', isProtectedRoute)
+  if (isDev) console.log('Middleware: É rota protegida?', isProtectedRoute)
   
   // Se não está autenticado e tenta acessar rota protegida
   if (!isAuthenticated && isProtectedRoute) {
-    console.log('Middleware: Redirecionando para login (não autenticado)')
+    if (isDev) console.log('Middleware: Redirecionando para login (não autenticado)')
     return NextResponse.redirect(new URL('/login', request.url));
   }
   
   // Se está autenticado e tenta acessar login
   if (isAuthenticated && pathname === '/login') {
-    console.log('Middleware: Redirecionando para dashboard (já autenticado)')
+    if (isDev) console.log('Middleware: Redirecionando para dashboard (já autenticado)')
     return NextResponse.redirect(new URL('/dashboard/dashboard', request.url));
   }
   
-  console.log('Middleware: Permitindo acesso')
+  if (isDev) console.log('Middleware: Permitindo acesso')
   return NextResponse.next();
 }
 

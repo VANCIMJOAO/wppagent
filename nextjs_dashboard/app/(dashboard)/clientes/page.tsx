@@ -32,7 +32,8 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
-import { api, Client as ApiClient } from '@/lib/api-service';
+import { api } from '@/lib/api-service';
+import type { Client as ApiClient } from '@/types/api';
 import { toast } from 'sonner';
 
 interface ClientStats {
@@ -343,7 +344,7 @@ export default function ClientesPage() {
                   <div className="flex items-center space-x-4">
                     <Avatar>
                       <AvatarFallback>
-                        {client.nome?.split(' ').map(n => n[0]).join('').toUpperCase() || 'CL'}
+                        {client.nome?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'CL'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
@@ -476,7 +477,7 @@ export default function ClientesPage() {
                 <div className="flex items-center space-x-4">
                   <Avatar className="w-16 h-16">
                     <AvatarFallback className="text-xl">
-                      {selectedClient.nome?.split(' ').map(n => n[0]).join('').toUpperCase() || 'CL'}
+                      {selectedClient.nome?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'CL'}
                     </AvatarFallback>
                   </Avatar>
                   <div>

@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { MessageCircle, Lock, Mail, Eye, EyeOff } from "lucide-react"
+import { MessageCircle, Lock, User, Eye, EyeOff } from "lucide-react"
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -22,63 +22,46 @@ export default function LoginPage() {
     setIsLoading(true)
     setError('')
 
-    console.log('Tentando login com:', { email, password })
-
     try {
-      // Para agora, usar autenticação local simples
-      // TODO: Implementar autenticação real com backend
-      
-      if (email === 'admin' && password === 'senha_admin_segura') {
-        console.log('Login bem-sucedido!')
-        
-        // Salvar token e dados do usuário
-        const userData = {
-          id: '1',
-          email: email,
-          name: 'Administrador',
-          role: 'admin',
-          avatar_url: null,
-          access_token: 'authenticated',
-          token_type: 'Bearer',
-          expires_in: 3600
-        }
-        
-        localStorage.setItem('user', JSON.stringify(userData))
-        console.log('Dados salvos no localStorage:', userData)
-        
-        // Salvar também no cookie para o middleware
-        document.cookie = `auth-token=authenticated; path=/; max-age=3600`;
-        console.log('Cookie JWT definido. Redirecionando...')
-        
-        // Redirecionar para dashboard
-        router.push('/dashboard')
-      } else {
-        setError('Credenciais incorretas. Use: admin / senha_admin_segura')
+      // Login real com backend
+      const response = await fetch('/api/proxy/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      })
+
+      if (!response.ok) {
+        throw new Error('Credenciais inválidas')
       }
-    } catch (err) {
-      console.error('Erro durante login:', err)
+
+      const data = await response.json()
       
-      // Fallback para demonstração se API não estiver disponível
-      if (email === 'admin' && password === 'senha_admin_segura') {
-        console.log('API indisponível, usando fallback demo...')
-        
-        const userData = {
-          id: 1,
-          email: email,
-          name: 'Administrador',
-          role: 'admin',
-          avatar_url: null,
-          access_token: 'demo-token',
-          token_type: 'bearer'
-        }
-        
-        localStorage.setItem('user', JSON.stringify(userData))
-        document.cookie = 'auth-token=demo-token; path=/; max-age=86400';
-        
-        router.push('/dashboard')
-      } else {
-        setError('Credenciais incorretas. Use: admin / senha_admin_segura')
+      // Salvar token no localStorage
+      localStorage.setItem('auth-token', data.access_token)
+      
+      // Salvar token no cookie via API
+      await fetch('/api/auth/set-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token: data.access_token })
+      })
+      
+      // Decodificar JWT para user info
+      const payload = JSON.parse(atob(data.access_token.split('.')[1]))
+      const userData = {
+        username: payload.sub,
+        role: payload.role,
+        permissions: payload.permissions || []
       }
+      localStorage.setItem('user', JSON.stringify(userData))
+
+      router.push('/dashboard')
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Erro ao fazer login')
     } finally {
       setIsLoading(false)
     }
@@ -116,15 +99,15 @@ export default function LoginPage() {
 
               {/* Campo Username */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">Username</Label>
+                <Label htmlFor="username" className="text-white">Username</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-300" />
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-300" />
                   <Input
-                    id="email"
+                    id="username"
                     type="text"
                     placeholder="admin"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-300 focus:border-white/40"
                     required
                   />
@@ -157,11 +140,11 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Credenciais de Demonstração */}
+              {/* Credenciais */}
               <div className="bg-white/5 rounded-lg p-3 text-sm">
-                <p className="text-blue-100 font-medium mb-1">Credenciais de demonstração:</p>
-                <p className="text-blue-200">Email: admin@exemplo.com</p>
-                <p className="text-blue-200">Senha: admin123</p>
+                <p className="text-blue-100 font-medium mb-1">Credenciais reais:</p>
+                <p className="text-blue-200">Username: admin</p>
+                <p className="text-blue-200">Senha: senha_admin_segura</p>
               </div>
             </CardContent>
 
@@ -179,7 +162,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-blue-100 text-sm">
-          <p>&copy; 2024 WppAgent Dashboard</p>
+          <p>&copy; 2024 WppAgent Dashboard - Dados Reais do Backend</p>
         </div>
       </div>
     </div>

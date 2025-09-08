@@ -27,10 +27,9 @@ import {
   getConversationMessages,
   convertConversationToContact,
   convertMessageToConversationMessage,
-  type Conversation,
-  type Message as BackendMessage,
   type ConversationMessage
 } from '@/lib/api-service';
+import type { Conversation, Message as BackendMessage } from '@/types/api';
 
 interface Contact {
   id: string;

@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Backend URL configurado para produção
-const BACKEND_URL = 'https://wppagent-production.up.railway.app';
+const isDev = process.env.NODE_ENV === 'development';
+
+// Backend URL para Railway
+const BACKEND_URL = process.env.BACKEND_URL || 'https://wppagent-production.up.railway.app';
 
 export async function GET(
   request: Request,
@@ -39,14 +41,14 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
   try {
     // Construir URL do backend
     const backendUrl = `${BACKEND_URL}${endpoint}${queryString}`;
-    console.log(`[Proxy] ${method} request to:`, backendUrl);
+    if (isDev) console.log(`[Proxy] ${method} request to:`, backendUrl);
     
     // Extrair Authorization header
     const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
-    console.log('[Proxy] Authorization header presente:', !!authHeader);
+    if (isDev) console.log('[Proxy] Authorization header presente:', !!authHeader);
     
-    if (authHeader) {
-      console.log('[Proxy] Authorization header format:', authHeader.substring(0, 10) + '...');
+    if (authHeader && isDev) {
+      console.log('[Proxy] Authorization header preview:', authHeader.substring(0, 10) + '...');
     }
     
     // Preparar headers para o backend
@@ -65,7 +67,7 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     if (method !== 'GET' && method !== 'HEAD') {
       try {
         body = await request.text();
-        console.log('[Proxy] Request body length:', body?.length || 0);
+        if (isDev) console.log('[Proxy] Request body length:', body?.length || 0);
       } catch (e) {
         console.log('[Proxy] No body or error reading body');
       }

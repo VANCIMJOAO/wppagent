@@ -19,7 +19,7 @@ import BackendError from "@/components/ui/backend-error"
 
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("30")
-  const { kpis, charts, recentActivity, loading, error, refetch } = useDashboardData(parseInt(timeRange))
+  const { kpis, charts, recentActivity, loading, error, refetch } = useDashboardData()
 
   // Mostrar erro quando houver problemas com backend
   if (error && !loading) {

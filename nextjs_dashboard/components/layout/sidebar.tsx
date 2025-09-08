@@ -43,6 +43,7 @@ interface SidebarProps {
 
 export default function Sidebar({ children }: SidebarProps) {
   const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -54,6 +55,7 @@ export default function Sidebar({ children }: SidebarProps) {
     } else {
       router.push('/login')
     }
+    setIsLoading(false)
   }, [router])
 
   const handleLogout = () => {
@@ -107,6 +109,13 @@ export default function Sidebar({ children }: SidebarProps) {
       description: 'Horários'
     },
     {
+      id: 'diagnostic',
+      label: '🔍 Diagnóstico',
+      icon: HelpCircle,
+      href: '/diagnostic',
+      description: 'Backend Status'
+    },
+    {
       id: 'suporte',
       label: 'Suporte',
       icon: HelpCircle,
@@ -139,7 +148,7 @@ export default function Sidebar({ children }: SidebarProps) {
     )
   }
 
-  if (!user) {
+  if (isLoading || !user) {
     return <div>Carregando...</div>
   }
 
@@ -166,17 +175,17 @@ export default function Sidebar({ children }: SidebarProps) {
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={user.avatar_url} />
+                  <AvatarImage src={user?.avatar_url} />
                   <AvatarFallback className="bg-blue-500 text-white">
-                    {user.name.charAt(0).toUpperCase()}
+                    {user?.name?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-gray-900">{user.name}</p>
+                <p className="font-semibold text-gray-900">{user?.name || 'Usuário'}</p>
                 <div className="flex items-center space-x-2 mt-1">
-                  {getRoleBadge(user.role)}
+                  {user?.role && getRoleBadge(user.role)}
                   <Badge variant="outline" className="text-green-600 border-green-200">
                     Online
                   </Badge>
@@ -296,14 +305,14 @@ export default function Sidebar({ children }: SidebarProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar_url} />
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={user?.avatar_url} />
+                      <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+                  <DropdownMenuLabel>{user?.name || 'Usuário'}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <User className="mr-2 h-4 w-4" />
