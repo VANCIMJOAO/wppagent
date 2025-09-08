@@ -246,6 +246,17 @@ app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 
 from app.routes.clients import router as clients_router
 
+# 🚨 Sistema de Alertas
+from app.routes.alerts import router as alerts_router
+app.include_router(alerts_router, tags=["Alert System"])
+
+# Router público para endpoints de saúde (sem autenticação)
+from app.routes.public_health import public_router
+app.include_router(public_router, tags=["Public Health"])
+
+# Dashboard Routes
+from app.routes.clients import router as clients_router
+
 # Analytics routes - Relatórios Executivos
 from app.routes.analytics import router as analytics_router
 
