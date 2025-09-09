@@ -11,14 +11,33 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from urllib.parse import urlparse
-
-from pywebpush import webpush, WebPushException
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from ..models.database import PushSubscription, PushNotification, AdminUser
 from ..database import get_db
 from ..config import get_settings
+
+# 🛡️ Safe import - não quebra a API se pywebpush não estiver disponível
+PYWEBPUSH_AVAILABLE = False
+WebPushException = None
+webpush = None
+
+try:
+    from pywebpush import webpush, WebPushException
+    PYWEBPUSH_AVAILABLE = True
+    print("📱 pywebpush module loaded successfully")
+except ImportError as e:
+    print(f"⚠️ pywebpush not available: {e}")
+    print("🔄 Push notifications will be disabled until dependencies are installed")
+    
+    # Mock classes para não quebrar a aplicação
+    class WebPushException(Exception):
+        pass
+    
+    def webpush(*args, **kwargs):
+        print("🚫 webpush() called but pywebpush not available")
+        return None
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -170,6 +189,13 @@ class PushNotificationService:
         Returns:
             True se enviada com sucesso, False caso contrário
         """
+        
+        # 🛡️ Verificar se pywebpush está disponível
+        if not PYWEBPUSH_AVAILABLE:
+            logger.warning("🚫 Push notification request ignored - pywebpush not available")
+            logger.info(f"📄 Would send: '{title}' - '{body}' to {subscription.endpoint}")
+            return False
+            
         try:
             # Preparar payload
             payload = {

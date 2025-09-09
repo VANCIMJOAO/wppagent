@@ -39,6 +39,11 @@ python-multipart==0.0.7
 python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 
+# Push Notifications
+pywebpush>=1.14.0
+http-ece>=1.2.0
+cryptography>=42.0.0
+
 # Authentication & Security
 PyJWT==2.10.1
 cryptography==44.0.1
