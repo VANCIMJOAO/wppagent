@@ -285,9 +285,14 @@ app.include_router(db_optimization_router, tags=["Database Optimization"])
 from app.routes.backup import router as backup_router
 app.include_router(backup_router, tags=["Backup System"])
 
-# � Sistema de Rate Limiting por Usuário
+# 📊 Sistema de Rate Limiting por Usuário
 from app.routes.rate_limit import router as rate_limit_router
 app.include_router(rate_limit_router, tags=["Rate Limiting"])
+
+# 🛡️ Sistema de Rate Limiting para Webhooks (Avançado)
+from app.routes.webhook_rate_limit_admin import router as webhook_rate_limit_admin_router
+app.include_router(webhook_rate_limit_admin_router, tags=["Webhook Rate Limiting Admin"])
+logger.info("🛡️ Sistema de Rate Limiting de Webhooks ativado - Proteção contra spam e DDoS")
 
 # �📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard
 from app.routes.appointments import router as appointments_router

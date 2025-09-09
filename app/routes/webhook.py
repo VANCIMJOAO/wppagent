@@ -21,6 +21,9 @@ from app.services.response_control import unified_response_control
 from app.utils.whatsapp_sanitizer import sanitize_whatsapp_data, sanitize_message, sanitize_phone
 from app.models.database import MetaLog
 
+# 🔥 Advanced Webhook Rate Limiting
+from app.auth.webhook_rate_limiter import webhook_rate_limit, webhook_rate_limiter
+
 # 🔥 WebSocket Integration
 from app.services.websocket_integration import notify_new_whatsapp_message, notify_message_sent
 
@@ -61,25 +64,38 @@ Digite "mais serviços" para ver outras opções! 😊""",
 response_generator = SimplifiedResponseGenerator()
 
 @router.post("")
+@webhook_rate_limit(webhook_type="whatsapp_business")
 async def webhook_endpoint(
     request: Request,
     db: AsyncSession = Depends(get_db)
 ):
     """
-    🔧 Endpoint principal do webhook - Versão unificada e otimizada
+    🔧 Endpoint principal do webhook - Versão unificada e otimizada com rate limiting avançado
+    
+    Features de Rate Limiting:
+    - Burst protection: 50 req/10s
+    - Sustained limit: 100 req/min
+    - Escalation system com bloqueio automático
+    - Detecção de padrões suspeitos
     """
     try:
+        # Log informações de rate limiting se disponíveis
+        rate_info = getattr(request.state, 'webhook_rate_info', {})
+        if rate_info:
+            logger.info(f"🛡️ Rate limiting info: level={rate_info.get('level', 'UNKNOWN')}, config={rate_info.get('config_applied', 'default')}")
+        
         # Obter dados do webhook
         raw_data = await request.json()
         logger.info(f"📥 Webhook recebido: {json.dumps(raw_data, indent=2)[:500]}...")
         
-        # Log para auditoria
+        # Log para auditoria com informações de rate limiting
         log_entry = MetaLog(
             direction="in",
             endpoint="/webhook",
             method="POST",
             status_code=200,
-            payload=raw_data
+            payload=raw_data,
+            headers=dict(request.headers) if hasattr(request, 'headers') else None
         )
         db.add(log_entry)
         await db.commit()
