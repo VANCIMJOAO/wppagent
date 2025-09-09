@@ -316,9 +316,10 @@ app.include_router(clients_router, tags=["Dashboard - Clients"])
 app.include_router(analytics_router, tags=["Dashboard - Analytics"])
 
 # 🟡 ANALYTICS AVANÇADAS - Business Intelligence
-from app.routes.analytics_advanced import router as advanced_analytics_router
-app.include_router(advanced_analytics_router, tags=["Advanced Analytics"])
-logger.info("✅ Analytics Avançadas ativadas - Business Intelligence")
+# TEMPORARIAMENTE DESABILITADO - CONFLITO COM analytics.py
+# from app.routes.analytics_advanced import router as advanced_analytics_router
+# app.include_router(advanced_analytics_router, tags=["Advanced Analytics"])
+# logger.info("✅ Analytics Avançadas ativadas - Business Intelligence")
 
 # 🟡 SISTEMA DE EXPORTAÇÃO - Relatórios CSV/Excel/PDF
 from app.routes.export import router as export_router
