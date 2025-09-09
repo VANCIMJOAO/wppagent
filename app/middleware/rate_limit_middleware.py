@@ -33,7 +33,7 @@ from app.utils.rate_limiter import (
 )
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # Configurar logging
 logger = logging.getLogger(__name__)

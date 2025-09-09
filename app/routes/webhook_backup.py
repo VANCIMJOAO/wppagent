@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 🚨 WEBHOOK CORRIGIDO - CONTROLE DE RESPOSTA ÚNICA
 ===============================================
 
@@ -22,14 +25,11 @@ from fastapi import APIRouter, Request, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.utils.logger import get_logger
 from app.services.whatsapp import whatsapp_service
 from app.services.data import UserService, ConversationService, MessageService
 from app.utils.whatsapp_sanitizer import sanitize_whatsapp_data, sanitize_message, sanitize_phone
 from app.models.database import MetaLog
 from app.config import settings
-
-logger = get_logger(__name__)
 
 # 🚨 CONTROLE GLOBAL DE RESPOSTA ÚNICA
 GLOBAL_RESPONSE_CONTROL = {

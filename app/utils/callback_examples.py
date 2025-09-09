@@ -1,15 +1,16 @@
 # 🛡️ EXEMPLO DE USO DAS VALIDAÇÕES NO DASHBOARD
 
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Exemplos de como usar as validações robustas em callbacks do Dash.
 Este arquivo demonstra as melhores práticas de segurança.
 """
 
 from dash import callback, Input, Output, State, html, dbc
 from app.utils.validators import ValidationError, validate_dashboard_form, sanitize_dashboard_input
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
 # ==================== EXEMPLO DE CALLBACK SEGURO ====================
 
 @callback(

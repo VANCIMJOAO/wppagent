@@ -1,6 +1,6 @@
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 Sistema de Gerenciamento de Estratégias LLM
 Implementação limpa baseada no padrão Strategy

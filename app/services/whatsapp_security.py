@@ -20,7 +20,7 @@ from fastapi import HTTPException, Request
 from app.config import settings
 from app.utils.logger import get_logger
 import logging
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 import aiohttp
 from enum import Enum
 

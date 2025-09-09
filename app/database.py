@@ -5,10 +5,10 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 import os
+import logging
 from app.config import settings
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 # Configurar DATABASE_URL com fallback
 database_url = os.getenv('DATABASE_URL')
 if not database_url:

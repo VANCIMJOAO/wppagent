@@ -259,7 +259,7 @@ class LoggerSetup:
         self._configure_third_party_loggers()
         
         # Log da inicialização
-        logger = get_logger(__name__)
+        logger = logging.getLogger(__name__)
         logger.info("Sistema de logging configurado", {
             'environment': self.config.environment.value,
             'log_level': self.config.log_level,
@@ -376,7 +376,7 @@ def log_performance(operation_name: Optional[str] = None):
             name = operation_name or f"{func.__module__}.{func.__name__}"
             start_time = time.time()
             
-            logger = get_logger(func.__module__)
+            logger = logging.getLogger(__name__)
             try:
                 result = await func(*args, **kwargs)
                 duration = (time.time() - start_time) * 1000
@@ -393,7 +393,7 @@ def log_performance(operation_name: Optional[str] = None):
             name = operation_name or f"{func.__module__}.{func.__name__}"
             start_time = time.time()
             
-            logger = get_logger(func.__module__)
+            logger = logging.getLogger(__name__)
             try:
                 result = func(*args, **kwargs)
                 duration = (time.time() - start_time) * 1000
@@ -420,7 +420,7 @@ def log_function_call(include_args: bool = False, include_result: bool = False):
     def decorator(func):
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
-            logger = get_logger(func.__module__)
+            logger = logging.getLogger(__name__)
             func_name = f"{func.__module__}.{func.__name__}"
             
             log_data = {'function': func_name}
@@ -442,7 +442,7 @@ def log_function_call(include_args: bool = False, include_result: bool = False):
         
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
-            logger = get_logger(func.__module__)
+            logger = logging.getLogger(__name__)
             func_name = f"{func.__module__}.{func.__name__}"
             
             log_data = {'function': func_name}
@@ -507,7 +507,7 @@ def safe_print(*args, level: LogLevel = LogLevel.INFO, logger_name: str = "app",
     Substituição segura para print() que usa o sistema de logging
     Usado para migração gradual de print statements
     """
-    logger = get_logger(logger_name)
+    logger = logging.getLogger(__name__)
     message = " ".join(str(arg) for arg in args)
     
     level_methods = {
@@ -525,7 +525,7 @@ if __name__ == "__main__":
     # Teste do sistema de logging
     init_logging()
     
-    logger = get_logger(__name__)
+    logger = logging.getLogger(__name__)
     
     logger.info("Teste do sistema de logging")
     logger.warning("Teste de warning")

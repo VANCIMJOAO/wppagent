@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 🔒 CSP Middleware Manager
 ========================
 
@@ -18,9 +21,6 @@ from typing import Optional, Dict, Any
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 class CSPMiddleware(BaseHTTPMiddleware):
     """

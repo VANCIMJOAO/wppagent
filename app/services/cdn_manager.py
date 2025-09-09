@@ -1,6 +1,6 @@
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 🚀 CDN Manager - Sistema de CDN para Assets Estáticos
 Gerencia cache de assets, compressão, e entrega otimizada

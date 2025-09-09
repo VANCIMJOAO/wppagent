@@ -1,6 +1,6 @@
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 Sistema de Handoff Inteligente
 Gerencia quando e como transferir conversas para atendimento humano

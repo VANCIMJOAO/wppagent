@@ -4,9 +4,8 @@ Edite este arquivo para modificar o comportamento do bot
 """
 
 from app.utils.dynamic_prompts import get_dynamic_system_prompt
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 # Função para obter prompt principal do sistema com dados da database
 async def get_system_prompt_with_database() -> str:
     """

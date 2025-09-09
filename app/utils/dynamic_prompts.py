@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Utilitários para prompts dinâmicos - VERSÃO CORRIGIDA
 Gera prompts com data atual e dados REAIS da database Railway
 """
@@ -6,9 +9,6 @@ Gera prompts com data atual e dados REAIS da database Railway
 from datetime import datetime
 import locale
 from typing import Dict, Any
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 # Importar funções de formatação
 try:

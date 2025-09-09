@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Custom HTTP Middleware for Request/Response Metrics
 Integrates with Prometheus metrics to monitor all HTTP requests
 """
@@ -7,9 +10,6 @@ import time
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.utils.metrics import metrics_collector
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 class MetricsMiddleware(BaseHTTPMiddleware):
     """

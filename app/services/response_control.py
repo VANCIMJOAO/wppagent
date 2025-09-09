@@ -71,7 +71,7 @@ class UnifiedResponseControl:
             if redis_config and redis_config.available:
                 # Criar cliente Redis assíncrono
                 self.redis_client = redis.from_url(
-                    redis_config.url or "redis://localhost:6379/0",
+                    redis_config.url or "redis://${REDIS_HOST:-localhost}:${REDIS_PORT:-6379}",
                     encoding="utf-8",
                     decode_responses=True,
                     socket_timeout=2,

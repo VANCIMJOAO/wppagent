@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Rotas de Monitoramento e Dashboard
 =================================
 
@@ -18,10 +21,8 @@ from app.services.comprehensive_monitoring import (
     BusinessMetric,
     AlertSeverity
 )
-from app.utils.logger import get_logger
 from app.config.config_factory import ConfigFactory
 
-logger = get_logger(__name__)
 router = APIRouter(prefix="/monitoring", tags=["monitoring"])
 
 

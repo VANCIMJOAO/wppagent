@@ -10,10 +10,6 @@ from app.models.database import (
     User, CustomerDataCollection, BotConfiguration, 
     MessageTemplate, ConversationContext, Conversation
 )
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
-
 
 class DynamicDataCollectionService:
     """Serviço para coleta dinâmica de dados do cliente baseado em configurações do banco"""

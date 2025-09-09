@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 📅 API REST - Agendamentos
 ==========================
 
@@ -37,9 +40,6 @@ from app.services.cache_invalidation import (
     CacheEvent,
     invalidate_appointment_cache
 )
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 # Router
 router = APIRouter(prefix="/appointments", tags=["Appointments"])

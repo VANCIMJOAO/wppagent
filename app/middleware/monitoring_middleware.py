@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Middleware de Monitoramento
 ==========================
 
@@ -15,12 +18,8 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from app.utils.logger import get_logger, set_request_context, clear_request_context
 from app.services.comprehensive_monitoring import monitoring_system, record_api_call, record_business_event
 from app.config.config_factory import ConfigFactory
-
-logger = get_logger(__name__)
-
 
 class MonitoringMiddleware(BaseHTTPMiddleware):
     """

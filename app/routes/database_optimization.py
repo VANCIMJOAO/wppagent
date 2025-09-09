@@ -15,7 +15,7 @@ from typing import Dict, Any
 from app.services.database_optimization import db_optimizer
 from app.utils.logger import get_logger
 from app.models.database import AdminUser
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 from app.routes.admin_auth import get_current_admin_user
 import logging
 

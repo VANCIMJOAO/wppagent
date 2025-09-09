@@ -1,6 +1,5 @@
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 Configurações da aplicação usando Sistema Robusto por Ambiente
 DEPRECATED: Este arquivo será substituído pelo novo sistema de configuração

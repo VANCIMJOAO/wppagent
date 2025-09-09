@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Sistema Completo de Monitoramento e SLA
 =====================================
 
@@ -23,11 +26,7 @@ from pathlib import Path
 import aiofiles
 import aiohttp
 
-from app.utils.logger import get_logger, log_performance
 from app.config.config_factory import ConfigFactory
-
-logger = get_logger(__name__)
-
 
 class AlertSeverity(Enum):
     """Níveis de severidade de alertas"""

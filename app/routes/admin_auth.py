@@ -20,7 +20,7 @@ from app.database import get_db
 from app.utils.logger import get_logger
 from app.models.database import AdminUser, LoginSession
 from app.auth.jwt_manager import jwt_manager
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 from app.config import settings
 import logging
 

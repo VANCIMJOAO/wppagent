@@ -1,6 +1,4 @@
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
 """
 Utilitários para prompts dinâmicos
 Gera prompts com data atual automaticamente

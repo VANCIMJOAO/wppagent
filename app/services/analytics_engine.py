@@ -13,7 +13,7 @@ import logging
 from app.models.database import Appointment, Conversation, Message, User
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class AdvancedAnalyticsEngine:
     """Engine avançado para análises de negócio"""

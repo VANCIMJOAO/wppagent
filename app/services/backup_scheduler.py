@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Agendador de Backups Automatizados
 Gerencia execução periódica de backups usando APScheduler
 """
@@ -18,10 +21,8 @@ from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 
 from app.services.backup_service import BackupService
 from app.services.alert_system import alert_manager
-from app.utils.logger import get_logger
 from app.config import get_settings
 
-logger = get_logger(__name__)
 config = get_settings()
 
 class BackupScheduler:

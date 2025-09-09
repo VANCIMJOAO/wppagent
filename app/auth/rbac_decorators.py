@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Decoradores e Middleware RBAC
 Sistema de verificação de permissões para FastAPI
 """
@@ -14,9 +17,6 @@ import jwt
 
 from app.models.rbac import PermissionType, RoleType
 from app.services.rbac_service import rbac_service
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 # Bearer token security
 security = HTTPBearer()

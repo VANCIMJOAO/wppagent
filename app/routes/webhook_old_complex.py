@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 � WEBHOOK COM SISTEMA UNIFICADO DE CONTROLE DE RESPOSTA
 =======================================================
 
@@ -23,7 +26,6 @@ from fastapi import APIRouter, Request, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.utils.logger import get_logger
 from app.services.whatsapp import whatsapp_service
 from app.services.data import UserService, ConversationService, MessageService
 from app.services.response_control import unified_response_control
@@ -33,8 +35,6 @@ from app.config import settings
 
 # 🔥 WebSocket Integration para notificações em tempo real
 from app.services.websocket_integration import notify_new_whatsapp_message, notify_message_sent
-
-logger = get_logger(__name__)
 
 class ResponseControl:
     def __init__(self):

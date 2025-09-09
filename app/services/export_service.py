@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Report Export Service - Sistema de Exportação de Relatórios
 Gera relatórios em CSV, Excel e PDF para dashboard analytics
 """
@@ -17,9 +20,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict, Any, List
 
 from app.models.database import User, Message, Appointment, Business, Service, Conversation
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 class ReportExportService:
     """

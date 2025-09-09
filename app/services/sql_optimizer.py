@@ -16,6 +16,9 @@ Autor: Claude AI
 Status: Solução crítica para performance SQL
 """
 
+import logging
+logger = logging.getLogger(__name__)
+
 import asyncio
 import time
 import re
@@ -27,12 +30,8 @@ from sqlalchemy import select, text, func, and_, or_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
-from app.utils.logger import get_logger
 from app.database import get_db
 from app.models.database import User, Appointment, Business, Service, Conversation, Message
-
-logger = get_logger(__name__)
-
 
 class QueryProblemType(str, Enum):
     """Tipos de problemas SQL identificados"""
@@ -63,8 +62,8 @@ class SQLOptimizer:
     
     def __init__(self, session: AsyncSession):
         self.session = session
-        self.logger = get_logger(__name__)
-    
+        self._setup_optimization_patterns()
+        
     def _setup_optimization_patterns(self):
         """🔧 Configurar patterns de otimização conhecidos"""
         

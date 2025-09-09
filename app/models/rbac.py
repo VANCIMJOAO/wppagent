@@ -534,8 +534,8 @@ class RBACPermission(Base):
     permission_type = Column(String(100), unique=True, nullable=False)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    category = Column(SQLEnum(PermissionCategory), nullable=False)
-    risk_level = Column(SQLEnum(RiskLevel), nullable=False)
+    category = Column(SQLEnum(PermissionCategory, name="permissioncategory"), nullable=False)
+    risk_level = Column(SQLEnum(RiskLevel, name="risklevel"), nullable=False)
     requires_2fa = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -545,6 +545,61 @@ class RBACPermission(Base):
     roles = relationship("RBACRole", secondary=role_permissions, back_populates="permissions")
 
 # Modelos de resposta para API
+import enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Enum as SQLEnum
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
+from datetime import datetime
+from typing import Optional
+
+Base = declarative_base()
+
+class PermissionCategory(enum.Enum):
+    """Categorias de permissões alinhadas com PostgreSQL"""
+    DASHBOARD = "DASHBOARD"
+    APPOINTMENTS = "APPOINTMENTS" 
+    CONVERSATIONS = "CONVERSATIONS"
+    CLIENTS = "CLIENTS"
+    REPORTS = "REPORTS"
+    SYSTEM = "SYSTEM"
+
+class RiskLevel(enum.Enum):
+    """Níveis de risco alinhados com PostgreSQL"""
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+class PermissionType(enum.Enum):
+    """Tipos de permissão específicos"""
+    # Dashboard
+    DASHBOARD_VIEW = "DASHBOARD_VIEW"
+    DASHBOARD_EDIT = "DASHBOARD_EDIT"
+    
+    # Appointments
+    APPOINTMENTS_VIEW = "APPOINTMENTS_VIEW"
+    APPOINTMENTS_CREATE = "APPOINTMENTS_CREATE"
+    APPOINTMENTS_EDIT = "APPOINTMENTS_EDIT"
+    APPOINTMENTS_DELETE = "APPOINTMENTS_DELETE"
+    
+    # Conversations
+    CONVERSATIONS_VIEW = "CONVERSATIONS_VIEW"
+    CONVERSATIONS_MANAGE = "CONVERSATIONS_MANAGE"
+    
+    # Clients
+    CLIENTS_VIEW = "CLIENTS_VIEW"
+    CLIENTS_CREATE = "CLIENTS_CREATE"
+    CLIENTS_EDIT = "CLIENTS_EDIT"
+    CLIENTS_DELETE = "CLIENTS_DELETE"
+    
+    # Reports
+    REPORTS_VIEW = "REPORTS_VIEW"
+    REPORTS_EXPORT = "REPORTS_EXPORT"
+    
+    # System
+    SYSTEM_CONFIG = "SYSTEM_CONFIG"
+    SYSTEM_ADMIN = "SYSTEM_ADMIN"
+
 @dataclass
 class UserResponse:
     """Resposta de usuário para API"""

@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Export Routes - Endpoints para exportação de relatórios
 Fornece download de CSV, Excel e PDF com autenticação admin
 """
@@ -14,9 +17,7 @@ from app.database import get_db
 from app.auth.middleware import require_admin
 from app.services.analytics_engine import AdvancedAnalyticsEngine
 from app.services.export_service import ReportExportService
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
 router = APIRouter(prefix="/export", tags=["Data Export"])
 
 @router.get("/appointments/csv")

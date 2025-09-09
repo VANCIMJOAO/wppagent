@@ -10,7 +10,7 @@ import logging
 import time
 import re
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ServiceData:

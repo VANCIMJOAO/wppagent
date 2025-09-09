@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 🔧 WEBHOOK SIMPLIFICADO COM SISTEMA UNIFICADO
 ============================================
 
@@ -14,7 +17,6 @@ from fastapi import APIRouter, Request, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.utils.logger import get_logger
 from app.services.whatsapp import whatsapp_service
 from app.services.data import UserService, ConversationService, MessageService
 from app.services.response_control import unified_response_control
@@ -24,7 +26,6 @@ from app.models.database import MetaLog
 # 🔥 WebSocket Integration
 from app.services.websocket_integration import notify_new_whatsapp_message, notify_message_sent
 
-logger = get_logger(__name__)
 router = APIRouter(prefix="/webhook", tags=["WhatsApp Webhook"])
 
 # Sistema de resposta simplificado

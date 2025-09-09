@@ -15,7 +15,7 @@ import logging
 from app.config import settings
 from app.utils.logger import get_logger
 from app.models.database import User, Conversation, Message, Appointment
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 from app.utils.dynamic_prompts import get_dynamic_llm_system_prompt, get_dynamic_data_extraction_prompt
 from .retry_handler import retry_handler
 from .alert_manager import alert_llm_service_error

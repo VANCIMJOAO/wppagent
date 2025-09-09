@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 from app.models.database import User, Conversation, Message, Appointment, MetaLog, Business, Service
 from app.utils.logger import get_logger
 import logging
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 

@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Any
 from app.config import settings
 from app.utils.logger import get_logger
 from app.database import engine
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 from sqlalchemy import text, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 import json

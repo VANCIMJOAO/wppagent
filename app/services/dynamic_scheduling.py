@@ -9,11 +9,7 @@ from app.models.database import (
     Business, Service, Appointment, BlockedTime, 
     AvailableSlot, BotConfiguration
 )
-from app.utils.logger import get_logger
 import json
-
-logger = get_logger(__name__)
-
 
 class DynamicSchedulingService:
     """Serviço para gerenciamento dinâmico de horários e agendamentos"""

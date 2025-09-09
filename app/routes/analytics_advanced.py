@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Analytics Routes - Endpoints para dashboard de business intelligence
 Fornece APIs REST para análises avançadas do WhatsApp Agent
 """
@@ -11,9 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.auth.middleware import require_admin
 from app.services.analytics_engine import AdvancedAnalyticsEngine
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
 router = APIRouter(prefix="/analytics", tags=["Advanced Analytics"])
 
 @router.get("/funnel")

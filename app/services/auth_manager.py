@@ -8,11 +8,7 @@ from typing import Optional, Dict, Any
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import AsyncSessionLocal, SessionLocal
-from app.utils.logger import get_logger
 from app.models.database import AdminUser, LoginSession
-logger = get_logger(__name__)
-
-
 class AuthManager:
     """Gerenciador de autenticação"""
     

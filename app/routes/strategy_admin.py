@@ -9,7 +9,7 @@ import logging
 from app.services.strategy_manager import strategy_manager
 from app.utils.logger import get_logger
 from app.services.strategy_compatibility import compatibility_service
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 from app.services.cache_service import cache_service
 from app.services.metrics_service import metrics_service
 from app.services.state_manager import get_state_manager, ConversationStatus

@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional
 from app.services.secrets_manager import secrets_manager, SecretsConfig, SecretProvider
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 

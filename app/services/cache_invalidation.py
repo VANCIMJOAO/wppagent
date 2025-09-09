@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 🔄 Sistema de Cache Invalidation Centralizada
 =============================================
 
@@ -20,11 +23,7 @@ import asyncio
 from typing import Dict, List, Optional, Any, Set
 from enum import Enum
 from dataclasses import dataclass, field
-from app.utils.logger import get_logger
 from app.services.cache_optimized import cache_service
-
-logger = get_logger(__name__)
-
 
 class CacheEvent(str, Enum):
     """Eventos que podem trigger invalidation de cache"""

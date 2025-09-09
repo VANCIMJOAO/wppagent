@@ -16,7 +16,7 @@ from app.config import settings
 from app.utils.logger import get_logger
 from app.config.redis_config import redis_manager
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 

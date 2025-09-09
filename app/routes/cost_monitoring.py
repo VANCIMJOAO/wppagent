@@ -10,7 +10,7 @@ from datetime import datetime
 from app.services.cost_tracker import cost_tracker
 from app.utils.logger import get_logger
 from app.middleware.rate_limit import RateLimiter
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/costs", tags=["costs"])

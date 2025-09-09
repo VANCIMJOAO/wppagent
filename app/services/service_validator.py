@@ -12,7 +12,7 @@ from difflib import SequenceMatcher
 from app.models.database import Service, Business
 from app.utils.logger import get_logger
 # REMOVIDO: from app.prompts import SERVICES (agora usa dados da database)
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 

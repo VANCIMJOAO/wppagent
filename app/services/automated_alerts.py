@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Sistema de Alertas Automáticos para Produção
 ==========================================
 
@@ -22,12 +25,7 @@ from email.mime.multipart import MIMEMultipart
 import httpx
 from pathlib import Path
 
-from app.services.production_logger import alerts_logger, log_security_event
-from app.utils.logger import get_logger
 from app.config import settings
-logger = get_logger(__name__)
-
-
 class AlertSeverity(Enum):
     """Níveis de severidade de alertas"""
     LOW = "low"

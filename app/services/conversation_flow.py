@@ -1,6 +1,6 @@
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 Sistema de Fluxo Conversacional Não-Linear
 Permite conversas naturais e flexíveis com mudança de contexto dinâmica

@@ -1,7 +1,8 @@
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Componentes de autenticação para o dashboard
 """
 import dash_bootstrap_components as dbc

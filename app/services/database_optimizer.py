@@ -20,7 +20,7 @@ import json
 from app.config import settings
 from app.utils.logger import get_logger
 from app.services.cache_service import CacheService, CacheType
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 

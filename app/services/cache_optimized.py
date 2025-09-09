@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 🚀 Cache Otimizado para Queries Frequentes
 ==========================================
 
@@ -14,10 +17,6 @@ import os
 import redis
 from typing import Any, Optional, Dict, List, Callable
 from datetime import timedelta
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
-
 
 class OptimizedCacheService:
     """

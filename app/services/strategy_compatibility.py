@@ -1,6 +1,6 @@
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 Adaptador para migração suave do sistema híbrido antigo para o novo StrategyManager
 Mantém compatibilidade enquanto introduz o novo sistema

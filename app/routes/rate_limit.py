@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 API endpoints para gerenciamento de Rate Limiting por Usuário
 """
 
@@ -13,9 +16,6 @@ from pydantic import BaseModel
 from app.routes.admin_auth import get_current_admin_user
 from app.models.database import AdminUser
 from app.middleware.user_rate_limit import get_user_rate_limiter
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 router = APIRouter(prefix="/admin/rate-limit", tags=["rate-limiting"])
 

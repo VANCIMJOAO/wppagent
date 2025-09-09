@@ -11,7 +11,7 @@ import asyncio
 from app.models.database import Service, Appointment, User, Business
 from app.utils.logger import get_logger
 from sqlalchemy.ext.asyncio import AsyncSession
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 from sqlalchemy import select, and_, or_
 import logging
 

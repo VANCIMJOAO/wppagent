@@ -35,7 +35,7 @@ class RedisManager:
     def _detect_redis(self) -> RedisConfig:
         """Detecta se Redis está disponível"""
         redis_urls = [
-            "redis://localhost:6379/0",
+            "redis://${REDIS_HOST:-localhost}:${REDIS_PORT:-6379}",
             "redis://redis:6379/0",  # Docker
             "redis://127.0.0.1:6379/0"
         ]

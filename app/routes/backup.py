@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 API endpoints para sistema de backup
 """
 
@@ -15,9 +18,6 @@ from app.routes.admin_auth import get_current_admin_user
 from app.models.database import AdminUser
 from app.services.backup_service import BackupService
 from app.services.backup_scheduler import backup_scheduler
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 router = APIRouter(prefix="/admin/backup", tags=["backup"])
 

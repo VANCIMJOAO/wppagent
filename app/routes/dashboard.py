@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 📊 API REST - Dashboard
 =======================
 
@@ -26,9 +29,6 @@ from app.database import get_db
 from app.models.database import User, Conversation, Message, Appointment, Service
 from app.routes.admin_auth import get_current_admin_user, AdminUser
 from app.auth.middleware import get_current_user
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 # Schemas Pydantic
 class ClientResponse(BaseModel):

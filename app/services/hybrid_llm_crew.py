@@ -13,7 +13,7 @@ from .lead_scoring import lead_scoring_service, LeadCategory
 from app.config import settings
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 

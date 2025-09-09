@@ -8,7 +8,7 @@ from app.utils.logger import get_logger
 from app.database import AsyncSessionLocal
 from sqlalchemy import select, func, and_
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class AlertSeverity(Enum):
     LOW = "low"

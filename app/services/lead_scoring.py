@@ -1,6 +1,6 @@
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 Sistema Avançado de Lead Scoring para WhatsApp Agent
 Identifica e prioriza oportunidades de negócio em tempo real

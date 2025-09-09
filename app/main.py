@@ -10,7 +10,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from app.config import settings
-from app.utils.logger import get_logger
 from app.routes.webhook import router as webhook_router
 from app.database import init_db
 from app.services.health_checker import health_checker, HealthStatus
@@ -34,11 +33,10 @@ from app.middleware.metrics import MetricsMiddleware
 from app.services.database_optimizer import DatabaseOptimizer
 from app.services.cache_service_optimized import OptimizedCacheService
 from app.services.cdn_manager import CDNManager
-from app.utils.logger import init_logging, get_logger
 
 # Inicializar sistema de logging estruturado
 init_logging()
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # 🔒 Sistema de Segurança HTTPS - Verificar disponibilidade
 try:

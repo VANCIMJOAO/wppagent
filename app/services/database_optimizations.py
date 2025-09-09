@@ -1,6 +1,4 @@
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
 """
 🚀 Database Performance Optimizer - Otimizações de Índices e Queries
 Cria índices otimizados e implementa queries com melhor performance

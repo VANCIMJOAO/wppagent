@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Sistema de Monitoramento de Performance Completo
 ===============================================
 
@@ -20,10 +23,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 import json
 
-from app.services.production_logger import performance_logger, log_performance_metric
-from app.utils.logger import get_logger
 from app.services.automated_alerts import alert_manager, AlertSeverity, AlertCategory
-logger = get_logger(__name__)
 from app.services.business_metrics import metrics_collector
 from app.database import AsyncSessionLocal
 from sqlalchemy import text

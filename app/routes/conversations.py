@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 💬 API REST - Conversas WhatsApp
 ================================
 
@@ -25,9 +28,6 @@ from pydantic import BaseModel, Field
 from app.database import get_db
 from app.models.database import Conversation, Message, User
 from app.routes.admin_auth import get_current_admin_user, AdminUser
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 # Schemas
 class MessageResponse(BaseModel):

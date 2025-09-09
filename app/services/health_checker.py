@@ -11,7 +11,7 @@ import httpx
 from app.config import settings
 from app.utils.logger import get_logger
 from app.database import AsyncSessionLocal
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 from app.services.retry_handler import retry_handler
 from app.services.alert_manager import (
     alert_manager, 

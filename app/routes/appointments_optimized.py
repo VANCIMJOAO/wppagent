@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Updated Appointments Routes with Optimized Queries
 Replaces N+1 queries with efficient JOINs and preloading
 """
@@ -12,11 +15,8 @@ from app.database import get_db
 from app.services.optimized_queries import OptimizedQueries
 from app.services.sql_optimizer import SQLOptimizer, QueryPerformanceBenchmark
 from app.services.cache_invalidation import CacheInvalidationService
-from app.utils.logger import get_logger
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
-logger = get_logger(__name__)
-
 # Cache invalidation service
 cache_service = CacheInvalidationService()
 

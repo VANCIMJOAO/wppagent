@@ -210,7 +210,7 @@ class ConversationStateManager:
                 redis_url = config.redis_url
                 logger.info(f"🔗 Using configured Redis: {redis_url.split('@')[-1]}")  # Log sem credenciais
             except Exception as e:
-                redis_url = "redis://localhost:6379/0"
+                redis_url = "redis://${REDIS_HOST:-localhost}:${REDIS_PORT:-6379}"
                 logger.warning(f"⚠️ Using Redis fallback: {e}")
         
         self.redis_url = redis_url

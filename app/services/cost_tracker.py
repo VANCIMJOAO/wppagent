@@ -1,6 +1,6 @@
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 Sistema de Monitoramento de Custos OpenAI
 Rastreia uso e custos da API OpenAI em tempo real

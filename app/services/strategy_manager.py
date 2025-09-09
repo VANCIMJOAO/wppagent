@@ -1,6 +1,6 @@
 from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 """
 Gerenciador Principal de Estratégias LLM - Versão Limpa
 Sistema limpo e extensível para gerenciar diferentes abordagens de processamento

@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Optimized Queries Service - SQL N+1 Problem Solutions
 Provides optimized da                appointments_dict[appointment.id] = {
                     "id": appointment.id,
@@ -18,10 +21,6 @@ from sqlalchemy.orm import joinedload, selectinload, contains_eager
 from app.models.database import (
     User, Appointment, Business, Service, Conversation, Message
 )
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
-
 
 class OptimizedQueries:
     """

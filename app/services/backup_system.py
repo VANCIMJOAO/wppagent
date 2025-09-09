@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Sistema de Backup Automatizado do Banco de Dados
 ===============================================
 
@@ -25,10 +28,7 @@ import schedule
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from app.services.production_logger import business_logger
-from app.utils.logger import get_logger
 from app.services.automated_alerts import alert_manager, AlertSeverity, AlertCategory
-logger = get_logger(__name__)
 from app.config import settings
 
 

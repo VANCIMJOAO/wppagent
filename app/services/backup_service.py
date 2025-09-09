@@ -19,7 +19,7 @@ from app.utils.logger import get_logger
 from app.services.alert_system import alert_manager
 from app.config import get_settings
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 config = get_settings()
 
 class BackupService:

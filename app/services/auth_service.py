@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Serviço de Autenticação com Refresh Tokens
 """
 import hashlib
@@ -10,10 +13,6 @@ from sqlalchemy import and_
 
 from app.models.database import AdminUser, RefreshToken
 from app.auth.jwt_manager import SimpleJWTManager
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
-
 
 class AuthService:
     """Serviço para gerenciamento de autenticação com refresh tokens"""

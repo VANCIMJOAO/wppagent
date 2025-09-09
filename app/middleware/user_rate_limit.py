@@ -54,7 +54,7 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             redis_url = config.redis_url
             if not redis_url:
                 # Fallback para desenvolvimento local
-                redis_url = "redis://localhost:6379"
+                redis_url = "redis://${REDIS_HOST:-localhost}:${REDIS_PORT:-6379}"
                 logger.warning("⚠️ Using local Redis fallback - configure REDIS_URL for production")
             else:
                 logger.info(f"🔗 Connecting to Redis: {redis_url.split('@')[-1]}")  # Log sem credenciais

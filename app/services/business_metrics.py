@@ -1,4 +1,7 @@
 """
+import logging
+logger = logging.getLogger(__name__)
+
 Sistema de Métricas de Negócio Centralizadas
 ===========================================
 
@@ -21,10 +24,6 @@ from pathlib import Path
 from collections import defaultdict, deque
 import statistics
 
-from app.services.production_logger import business_logger, log_business_event
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 class MetricType(Enum):
     """Tipos de métricas de negócio"""
