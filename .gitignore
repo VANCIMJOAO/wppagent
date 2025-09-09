@@ -28,6 +28,11 @@ whatsapp_test_config.json
 logs/
 tmp/
 .tmp/
+temp/
+*.db
+*.sqlite
+*.sqlite3
+test_*.db
 .docker-build-timestamp
 .pids/
 

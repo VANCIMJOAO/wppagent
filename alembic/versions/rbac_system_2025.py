@@ -2,7 +2,7 @@
 Migração RBAC - Sistema de Controle de Acesso
 
 Revision ID: rbac_system_2025
-Revises: add_performance_indexes
+Revises: d08ef6b15ecb
 Create Date: 2025-09-08 14:00:00.000000
 """
 from alembic import op
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers
 revision = 'rbac_system_2025'
-down_revision = 'add_performance_indexes'
+down_revision = 'd08ef6b15ecb'
 branch_labels = None
 depends_on = None
 
