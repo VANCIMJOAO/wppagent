@@ -2,19 +2,37 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 
+interface ApiError extends Error {
+  status?: number;
+  statusText?: string;
+  data?: any;
+  endpoint?: string;
+  method?: string;
+  isNetworkError?: boolean;
+  isTimeoutError?: boolean;
+  isRetryable?: boolean;
+}
+
 interface UseApiOptions {
   timeout?: number;
   retries?: number;
   retryDelay?: number;
   baseUrl?: string;
+  showToast?: boolean;
+  showLoading?: boolean;
+  onError?: (error: ApiError) => void;
+  onSuccess?: (data: any) => void;
+  requireAuth?: boolean;
 }
 
 interface UseApiResult<T> {
   data: T | null;
   loading: boolean;
-  error: string | null;
+  error: ApiError | null;
   request: (endpoint: string, options?: RequestInit) => Promise<void>;
   reset: () => void;
+  refetch: () => Promise<void>;
+  abort: () => void;
 }
 
 export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
@@ -27,7 +45,7 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
 
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const request = useCallback(async (endpoint: string, requestOptions: RequestInit = {}) => {
@@ -75,7 +93,13 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
 
         if (attempt === retries) {
           // Last attempt failed
-          setError(err instanceof Error ? err.message : 'Request failed');
+          const apiError: ApiError = {
+            name: 'ApiError',
+            message: err instanceof Error ? err.message : 'Request failed',
+            status: err instanceof Response ? err.status : 0,
+            statusText: err instanceof Response ? err.statusText : 'Unknown error'
+          };
+          setError(apiError);
           setLoading(false);
           return;
         }
@@ -95,6 +119,17 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
     }
   }, []);
 
+  const abort = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  }, []);
+
+  const refetch = useCallback(async () => {
+    // This would need to store the last request parameters
+    // For now, it's a placeholder
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -104,7 +139,7 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
     };
   }, []);
 
-  return { data, loading, error, request, reset };
+  return { data, loading, error, request, reset, refetch, abort };
 }
 
 // Specialized hooks for common HTTP methods
