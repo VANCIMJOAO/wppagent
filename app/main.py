@@ -10,7 +10,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from app.config import settings
-from app.utils.logger import get_logger
+
+# 🔍 SISTEMA APM E LOGGING ESTRUTURADO
+from app.services.structured_apm import (
+    setup_structured_logging, get_structured_logger, APMMiddleware
+)
+
 from app.routes.webhook import router as webhook_router
 from app.database import init_db
 from app.services.health_checker import health_checker, HealthStatus
@@ -34,20 +39,19 @@ from app.middleware.metrics import MetricsMiddleware
 from app.services.database_optimizer import DatabaseOptimizer
 from app.services.cache_service_optimized import OptimizedCacheService
 from app.services.cdn_manager import CDNManager
-from app.utils.logger import init_logging, get_logger
 
-# Inicializar sistema de logging estruturado
-init_logging()
-logger = get_logger(__name__)
+# Inicializar sistema de logging estruturado APM
+setup_structured_logging()
+logger = get_structured_logger(__name__)
 
 # 🔒 Sistema de Segurança HTTPS - Verificar disponibilidade
 try:
     from app.security.https_middleware import HTTPSMiddleware
     HTTPS_MIDDLEWARE_AVAILABLE = True
-    logger.info("✅ HTTPS Middleware carregado")
+    logger.info("HTTPS Middleware loaded successfully")
 except ImportError:
     HTTPS_MIDDLEWARE_AVAILABLE = False
-    logger.warning("⚠️ HTTPS Middleware não disponível")
+    logger.warning("HTTPS Middleware not available")
 
 # 🔒 Sistema CSP Security
 try:
@@ -193,11 +197,15 @@ app = FastAPI(
 )
 
 # Add CSP Security Middleware (first, before other middlewares)
+# 🔍 Adicionar middleware APM (primeiro para capturar todas as requests)
+app.add_middleware(APMMiddleware)
+logger.info("APM Middleware activated - Request tracking enabled")
+
 if CSP_MIDDLEWARE_AVAILABLE:
     app.add_middleware(CSPMiddleware, report_only=False)
-    logger.info("✅ CSP Middleware adicionado")
+    logger.info("CSP Middleware added successfully")
 else:
-    logger.warning("⚠️ CSP Middleware não disponível - pulando")
+    logger.warning("CSP Middleware not available - skipping")
 
 # 🔧 CONFIGURAR CORS AVANÇADO - SOLUÇÃO PARA RAILWAY
 from app.cors_config import setup_cors_middleware, add_cors_test_endpoint, get_cors_debug_info
@@ -208,7 +216,7 @@ setup_cors_middleware(app, debug=settings.debug)
 # Adicionar endpoints de teste CORS
 add_cors_test_endpoint(app)
 
-logger.info("✅ CORS configurado com configurações avançadas para Railway")
+logger.info("CORS configured with advanced settings for Railway")
 
 # 🔒 Adicionar middleware de segurança HTTPS (primeiro)
 if HTTPS_MIDDLEWARE_AVAILABLE:
@@ -221,9 +229,9 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
         allow_localhost=settings.debug,  # Permitir localhost apenas em desenvolvimento
         development_mode=settings.debug
     )
-    logger.info("✅ HTTPS Middleware ativado")
+    logger.info("HTTPS Middleware activated")
 else:
-    logger.warning("⚠️ HTTPS Middleware não disponível")
+    logger.warning("HTTPS Middleware not available")
 
 # 🔒 Adicionar middleware de autenticação e autorização
 app.add_middleware(AuthMiddleware)
@@ -292,9 +300,14 @@ app.include_router(rate_limit_router, tags=["Rate Limiting"])
 # 🛡️ Sistema de Rate Limiting para Webhooks (Avançado)
 from app.routes.webhook_rate_limit_admin import router as webhook_rate_limit_admin_router
 app.include_router(webhook_rate_limit_admin_router, tags=["Webhook Rate Limiting Admin"])
-logger.info("🛡️ Sistema de Rate Limiting de Webhooks ativado - Proteção contra spam e DDoS")
+logger.info("Webhook Rate Limiting System activated - DDoS and spam protection enabled")
 
-# �📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard
+# 🔍 APM E MONITORAMENTO DE LOGS ESTRUTURADOS
+from app.routes.apm_monitoring import router as apm_monitoring_router
+app.include_router(apm_monitoring_router, tags=["APM & Structured Logging"])
+logger.info("APM and Structured Logging Dashboard activated - Real-time monitoring enabled")
+
+# 📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard
 from app.routes.appointments import router as appointments_router
 app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 

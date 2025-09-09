@@ -14,7 +14,10 @@ from fastapi import APIRouter, Request, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.utils.logger import get_logger
+from app.services.structured_apm import (
+    get_structured_logger, LogCategory, log_performance, 
+    log_business_event, log_security_event, BusinessEvent
+)
 from app.services.whatsapp import whatsapp_service
 from app.services.data import UserService, ConversationService, MessageService
 from app.services.response_control import unified_response_control
@@ -27,7 +30,7 @@ from app.auth.webhook_rate_limiter import webhook_rate_limit, webhook_rate_limit
 # 🔥 WebSocket Integration
 from app.services.websocket_integration import notify_new_whatsapp_message, notify_message_sent
 
-logger = get_logger(__name__)
+logger = get_structured_logger(__name__)
 router = APIRouter(prefix="/webhook", tags=["WhatsApp Webhook"])
 
 # Sistema de resposta simplificado
@@ -63,30 +66,52 @@ Digite "mais serviços" para ver outras opções! 😊""",
 
 response_generator = SimplifiedResponseGenerator()
 
-@router.post("")
+@router.post("", summary="Receber webhooks do WhatsApp Business API")
 @webhook_rate_limit(webhook_type="whatsapp_business")
-async def webhook_endpoint(
+@log_performance("webhook.process")
+async def receive_webhook(
     request: Request,
     db: AsyncSession = Depends(get_db)
 ):
     """
-    🔧 Endpoint principal do webhook - Versão unificada e otimizada com rate limiting avançado
+    � WEBHOOK PRINCIPAL COM RATE LIMITING AVANÇADO E LOGGING ESTRUTURADO
     
-    Features de Rate Limiting:
-    - Burst protection: 50 req/10s
+    Sistema de proteção implementado:
+    - Burst protection: 50 req/10s  
     - Sustained limit: 100 req/min
     - Escalation system com bloqueio automático
     - Detecção de padrões suspeitos
+    - Logging estruturado com APM
     """
     try:
         # Log informações de rate limiting se disponíveis
         rate_info = getattr(request.state, 'webhook_rate_info', {})
         if rate_info:
-            logger.info(f"🛡️ Rate limiting info: level={rate_info.get('level', 'UNKNOWN')}, config={rate_info.get('config_applied', 'default')}")
+            logger.info(
+                "Rate limiting applied",
+                metadata={
+                    "rate_limit_level": rate_info.get('level', 'UNKNOWN'),
+                    "config_applied": rate_info.get('config_applied', 'default'),
+                    "client_ip": request.client.host if request.client else None
+                },
+                category=LogCategory.SECURITY
+            )
         
         # Obter dados do webhook
         raw_data = await request.json()
-        logger.info(f"📥 Webhook recebido: {json.dumps(raw_data, indent=2)[:500]}...")
+        
+        # Log estruturado do webhook recebido
+        logger.info(
+            "WhatsApp webhook received",
+            metadata={
+                "webhook_size": len(json.dumps(raw_data)),
+                "entries_count": len(raw_data.get("entry", [])),
+                "client_ip": request.client.host if request.client else None,
+                "user_agent": request.headers.get("user-agent", ""),
+                "webhook_preview": json.dumps(raw_data, indent=2)[:500]
+            },
+            category=LogCategory.WEBHOOK
+        )
         
         # Log para auditoria com informações de rate limiting
         log_entry = MetaLog(
@@ -102,7 +127,11 @@ async def webhook_endpoint(
         
         # Validar estrutura básica
         if "entry" not in raw_data:
-            logger.warning("⚠️ Webhook sem campo 'entry'")
+            logger.warning(
+                "Invalid webhook structure: missing entry field",
+                metadata={"webhook_structure": list(raw_data.keys())},
+                category=LogCategory.WEBHOOK
+            )
             return {"status": "ignored", "reason": "no_entry_field"}
         
         total_processed = 0
@@ -126,7 +155,31 @@ async def webhook_endpoint(
                     else:
                         total_blocked += 1
         
-        logger.info(f"✅ Webhook finalizado: {total_processed} processadas, {total_blocked} bloqueadas")
+        # Log estruturado de conclusão
+        logger.info(
+            "Webhook processing completed",
+            metadata={
+                "messages_processed": total_processed,
+                "messages_blocked": total_blocked,
+                "success_rate": total_processed / (total_processed + total_blocked) if (total_processed + total_blocked) > 0 else 1.0,
+                "processing_result": "success"
+            },
+            category=LogCategory.WEBHOOK
+        )
+        
+        # Log evento de negócio se houve processamento
+        if total_processed > 0:
+            log_business_event(
+                event_type="whatsapp_messages",
+                entity_type="message",
+                entity_id="batch",
+                action="processed",
+                metadata={
+                    "total_processed": total_processed,
+                    "total_blocked": total_blocked,
+                    "batch_size": total_processed + total_blocked
+                }
+            )
         
         return {
             "status": "success",
@@ -136,27 +189,93 @@ async def webhook_endpoint(
         }
         
     except Exception as e:
-        logger.error(f"❌ Erro no webhook: {e}")
+        logger.error(
+            "Webhook processing failed",
+            metadata={
+                "error_type": e.__class__.__name__,
+                "client_ip": request.client.host if request.client else None,
+                "webhook_endpoint": str(request.url)
+            },
+            category=LogCategory.WEBHOOK,
+            exception=e
+        )
+        
+        # Log evento de segurança em caso de erro suspeito
+        log_security_event(
+            "webhook_processing_error",
+            {
+                "error_type": e.__class__.__name__,
+                "client_ip": request.client.host if request.client else None,
+                "endpoint": str(request.url),
+                "user_agent": request.headers.get("user-agent", "")
+            },
+            severity="WARNING"
+        )
+        
         return {"status": "error", "error": str(e)}
 
+@log_performance("webhook.process_message")
 async def process_single_message(message_data: Dict[str, Any], db: AsyncSession) -> Dict[str, Any]:
-    """Processa uma única mensagem com controle unificado"""
+    """Processa uma única mensagem com controle unificado e logging estruturado"""
     
     try:
         # Sanitizar dados
         wa_id, clean_content, contact_info = sanitize_whatsapp_data(message_data)
         
         if not wa_id or not clean_content:
+            logger.warning(
+                "Invalid message data received",
+                metadata={
+                    "has_wa_id": bool(wa_id),
+                    "has_content": bool(clean_content),
+                    "message_type": message_data.get("type", "unknown")
+                },
+                category=LogCategory.WEBHOOK
+            )
             return {"processed": False, "reason": "invalid_data"}
         
         # 🔧 CONTROLE UNIFICADO - Verificação única
         can_process, reason = await unified_response_control.can_process_message(wa_id, clean_content)
         
         if not can_process:
-            logger.warning(f"🚫 BLOQUEADO: {wa_id} - {reason}")
+            # Log estruturado de bloqueio
+            logger.warning(
+                "Message blocked by unified control",
+                metadata={
+                    "wa_id": wa_id,
+                    "block_reason": reason,
+                    "message_preview": clean_content[:50],
+                    "contact_info": contact_info
+                },
+                category=LogCategory.SECURITY
+            )
+            
+            # Log evento de segurança
+            log_security_event(
+                "message_blocked",
+                {
+                    "wa_id": wa_id,
+                    "reason": reason,
+                    "message_preview": clean_content[:100],
+                    "block_type": "unified_control"
+                },
+                severity="INFO"
+            )
+            
             return {"processed": False, "reason": reason}
         
-        logger.info(f"📨 PROCESSANDO: {wa_id} - {clean_content[:50]}...")
+        # Log início do processamento
+        logger.info(
+            "Processing WhatsApp message",
+            metadata={
+                "wa_id": wa_id,
+                "message_preview": clean_content[:50],
+                "message_type": message_data.get("type", "text"),
+                "message_length": len(clean_content),
+                "contact_name": contact_info.get("name", "unknown")
+            },
+            category=LogCategory.WEBHOOK
+        )
         
         # Criar/buscar usuário
         user = await UserService.get_or_create_user(
@@ -166,6 +285,20 @@ async def process_single_message(message_data: Dict[str, Any], db: AsyncSession)
             telefone=sanitize_phone(wa_id)
         )
         
+        # Log evento de negócio: usuário ativo
+        log_business_event(
+            event_type="user_interaction",
+            entity_type="user",
+            entity_id=str(user.id),
+            action="message_received",
+            metadata={
+                "wa_id": wa_id,
+                "message_type": message_data.get("type", "text"),
+                "user_name": contact_info.get("name"),
+                "is_new_user": user.created_at.timestamp() > (datetime.utcnow().timestamp() - 300)  # 5 min
+            }
+        )
+        
         # Criar/buscar conversa
         conversation = await ConversationService.get_or_create_conversation(
             db=db,
@@ -173,7 +306,7 @@ async def process_single_message(message_data: Dict[str, Any], db: AsyncSession)
         )
         
         # Salvar mensagem recebida
-        await MessageService.create_message(
+        message_in = await MessageService.create_message(
             db=db,
             user_id=user.id,
             conversation_id=conversation.id,
@@ -186,12 +319,24 @@ async def process_single_message(message_data: Dict[str, Any], db: AsyncSession)
         # Gerar e enviar resposta
         response_text = response_generator.generate_single_response(clean_content)
         
+        # Log de geração de resposta
+        logger.debug(
+            "Response generated for message",
+            metadata={
+                "wa_id": wa_id,
+                "message_id": message_in.id,
+                "response_preview": response_text[:100],
+                "response_length": len(response_text)
+            },
+            category=LogCategory.BUSINESS
+        )
+        
         # Enviar via WhatsApp
         whatsapp_response = await whatsapp_service.send_text_message(wa_id, response_text)
         
         if whatsapp_response.get("success"):
             # Salvar mensagem enviada
-            await MessageService.create_message(
+            message_out = await MessageService.create_message(
                 db=db,
                 user_id=user.id,
                 conversation_id=conversation.id,
@@ -205,59 +350,261 @@ async def process_single_message(message_data: Dict[str, Any], db: AsyncSession)
             conversation.last_message_at = datetime.utcnow()
             await db.commit()
             
-            # Notificações WebSocket
-            await notify_new_whatsapp_message(user.wa_id, clean_content)
-            await notify_message_sent(user.wa_id, response_text)
+            # Log sucesso estruturado
+            logger.info(
+                "WhatsApp message processed successfully",
+                metadata={
+                    "wa_id": wa_id,
+                    "conversation_id": conversation.id,
+                    "message_in_id": message_in.id,
+                    "message_out_id": message_out.id,
+                    "response_sent": True,
+                    "whatsapp_message_id": whatsapp_response.get("message_id")
+                },
+                category=LogCategory.BUSINESS
+            )
             
-            logger.info(f"✅ SUCESSO: {wa_id} - Resposta enviada")
-            return {"processed": True, "response_sent": True}
+            # Log evento de negócio: resposta enviada
+            log_business_event(
+                event_type="message_response",
+                entity_type="conversation",
+                entity_id=str(conversation.id),
+                action="response_sent",
+                metadata={
+                    "wa_id": wa_id,
+                    "user_id": user.id,
+                    "response_type": "automated",
+                    "original_message": clean_content[:100],
+                    "response_preview": response_text[:100]
+                }
+            )
+            
+            # WebSocket notification
+            try:
+                await notify_new_whatsapp_message({
+                    "user_id": user.id,
+                    "wa_id": wa_id,
+                    "message": clean_content,
+                    "conversation_id": conversation.id
+                })
+                
+                await notify_message_sent({
+                    "user_id": user.id,
+                    "wa_id": wa_id,
+                    "response": response_text,
+                    "conversation_id": conversation.id
+                })
+                
+            except Exception as ws_error:
+                logger.warning(
+                    "WebSocket notification failed",
+                    metadata={
+                        "wa_id": wa_id,
+                        "error": str(ws_error),
+                        "websocket_event": "message_notifications"
+                    },
+                    category=LogCategory.SYSTEM
+                )
+            
+            return {"processed": True, "message_id": message_out.id}
+        
         else:
-            logger.error(f"❌ Erro ao enviar resposta: {whatsapp_response}")
-            return {"processed": True, "response_sent": False}
+            # Log erro no envio
+            logger.error(
+                "Failed to send WhatsApp response",
+                metadata={
+                    "wa_id": wa_id,
+                    "whatsapp_error": whatsapp_response,
+                    "response_text": response_text[:100]
+                },
+                category=LogCategory.API
+            )
             
+            return {"processed": False, "reason": "whatsapp_send_failed"}
+        
     except Exception as e:
-        logger.error(f"❌ Erro processando mensagem: {e}")
-        return {"processed": False, "reason": f"error: {str(e)}"}
+        logger.error(
+            "Error processing single message",
+            metadata={
+                "wa_id": wa_id if 'wa_id' in locals() else "unknown",
+                "message_preview": clean_content[:50] if 'clean_content' in locals() else "unknown",
+                "error_type": e.__class__.__name__
+            },
+            category=LogCategory.WEBHOOK,
+            exception=e
+        )
+        
+        return {"processed": False, "reason": f"processing_error: {str(e)}"}
+
 
 @router.get("/verify")
+@log_performance("webhook.verify")
 async def verify_webhook(
     hub_mode: str = Query(None, alias="hub.mode"),
     hub_challenge: str = Query(None, alias="hub.challenge"),
     hub_verify_token: str = Query(None, alias="hub.verify_token")
 ):
-    """Verificação do webhook do WhatsApp"""
+    """Verificação do webhook do WhatsApp com logging estruturado"""
     
     # Verificar token (use uma variável de ambiente em produção)
     expected_token = "your_verify_token_here"  # TODO: Mover para config
     
     if hub_mode == "subscribe" and hub_verify_token == expected_token:
-        logger.info("✅ Webhook verificado com sucesso")
+        logger.info(
+            "Webhook verification successful",
+            metadata={
+                "hub_mode": hub_mode,
+                "challenge_provided": bool(hub_challenge),
+                "verification_result": "success"
+            },
+            category=LogCategory.SECURITY
+        )
+        
+        # Log evento de segurança: webhook verificado
+        log_security_event(
+            "webhook_verification_success",
+            {
+                "hub_mode": hub_mode,
+                "timestamp": datetime.utcnow().isoformat()
+            },
+            severity="INFO"
+        )
+        
         return int(hub_challenge)
     else:
-        logger.warning("❌ Falha na verificação do webhook")
+        logger.warning(
+            "Webhook verification failed",
+            metadata={
+                "hub_mode": hub_mode,
+                "token_provided": bool(hub_verify_token),
+                "expected_mode": "subscribe",
+                "verification_result": "failed"
+            },
+            category=LogCategory.SECURITY
+        )
+        
+        # Log evento de segurança: tentativa de verificação inválida
+        log_security_event(
+            "webhook_verification_failed",
+            {
+                "hub_mode": hub_mode,
+                "invalid_token": bool(hub_verify_token),
+                "timestamp": datetime.utcnow().isoformat()
+            },
+            severity="WARNING"
+        )
+        
         raise HTTPException(status_code=403, detail="Token de verificação inválido")
 
+
 @router.get("/stats")
+@log_performance("webhook.stats")
 async def get_webhook_stats():
-    """Estatísticas do sistema de controle unificado"""
-    return await unified_response_control.get_stats()
+    """Estatísticas do sistema de controle unificado com logging"""
+    
+    try:
+        stats = await unified_response_control.get_stats()
+        
+        logger.info(
+            "Webhook stats requested",
+            metadata={
+                "messages_processed": stats.get("messages_processed", 0),
+                "blocked_percentage": stats.get("blocked_percentage", 0),
+                "redis_available": stats.get("redis_available", False)
+            },
+            category=LogCategory.SYSTEM
+        )
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(
+            "Failed to get webhook stats",
+            metadata={"error_type": e.__class__.__name__},
+            category=LogCategory.SYSTEM,
+            exception=e
+        )
+        raise HTTPException(status_code=500, detail="Erro interno ao obter estatísticas")
+
 
 @router.post("/clear-cache")
+@log_performance("webhook.clear_cache")
 async def clear_webhook_cache():
-    """Limpar cache do sistema de controle (para debug/testes)"""
-    return await unified_response_control.clear_cache()
+    """Limpar cache do sistema de controle com logging de segurança"""
+    
+    try:
+        result = await unified_response_control.clear_cache()
+        
+        logger.warning(
+            "Webhook cache cleared",
+            metadata={
+                "cache_clear_result": result,
+                "admin_action": "cache_clear"
+            },
+            category=LogCategory.SECURITY
+        )
+        
+        # Log evento de segurança: cache limpo
+        log_security_event(
+            "webhook_cache_cleared",
+            {
+                "result": result,
+                "timestamp": datetime.utcnow().isoformat(),
+                "action_type": "administrative"
+            },
+            severity="WARNING"
+        )
+        
+        return result
+        
+    except Exception as e:
+        logger.error(
+            "Failed to clear webhook cache",
+            metadata={"error_type": e.__class__.__name__},
+            category=LogCategory.SYSTEM,
+            exception=e
+        )
+        raise HTTPException(status_code=500, detail="Erro interno ao limpar cache")
+
 
 @router.get("/health")
+@log_performance("webhook.health")
 async def webhook_health():
-    """Verificação de saúde do webhook"""
-    stats = await unified_response_control.get_stats()
+    """Verificação de saúde do webhook com métricas estruturadas"""
     
-    return {
-        "status": "healthy",
-        "system": "unified_response_control",
-        "redis_available": stats["redis_available"],
-        "messages_processed_total": stats["messages_processed"],
-        "blocked_percentage": stats["blocked_percentage"],
-        "memory_cache_size": stats["memory_cache_size"],
-        "timestamp": datetime.utcnow().isoformat()
-    }
+    try:
+        stats = await unified_response_control.get_stats()
+        
+        health_status = {
+            "status": "healthy" if stats.get("redis_available", False) else "degraded",
+            "system": "unified_response_control",
+            "redis_available": stats.get("redis_available", False),
+            "messages_processed_total": stats.get("messages_processed", 0),
+            "blocked_percentage": stats.get("blocked_percentage", 0),
+            "memory_cache_size": stats.get("memory_cache_size", 0),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        logger.info(
+            "Webhook health check performed",
+            metadata=health_status,
+            category=LogCategory.SYSTEM
+        )
+        
+        return health_status
+        
+    except Exception as e:
+        logger.error(
+            "Webhook health check failed",
+            metadata={"error_type": e.__class__.__name__},
+            category=LogCategory.SYSTEM,
+            exception=e
+        )
+        
+        # Retornar status de erro
+        return {
+            "status": "error",
+            "system": "unified_response_control",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
