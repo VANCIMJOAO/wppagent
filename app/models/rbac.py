@@ -103,13 +103,13 @@ PERMISSION_DEFINITIONS = {
     PermissionType.DASHBOARD_VIEW: PermissionDefinition(
         PermissionType.DASHBOARD_VIEW,
         "Visualizar dashboard principal",
-        "Dashboard",
+        "DASHBOARD",
         "LOW"
     ),
     PermissionType.DASHBOARD_ADMIN: PermissionDefinition(
         PermissionType.DASHBOARD_ADMIN,
         "Administrar configurações do dashboard",
-        "Dashboard",
+        "DASHBOARD",
         "MEDIUM"
     ),
     
@@ -117,32 +117,32 @@ PERMISSION_DEFINITIONS = {
     PermissionType.APPOINTMENTS_VIEW: PermissionDefinition(
         PermissionType.APPOINTMENTS_VIEW,
         "Visualizar agendamentos",
-        "Agendamentos",
+        "APPOINTMENTS",
         "LOW"
     ),
     PermissionType.APPOINTMENTS_CREATE: PermissionDefinition(
         PermissionType.APPOINTMENTS_CREATE,
         "Criar novos agendamentos",
-        "Agendamentos",
+        "APPOINTMENTS",
         "MEDIUM"
     ),
     PermissionType.APPOINTMENTS_UPDATE: PermissionDefinition(
         PermissionType.APPOINTMENTS_UPDATE,
         "Editar agendamentos existentes",
-        "Agendamentos",
+        "APPOINTMENTS",
         "MEDIUM"
     ),
     PermissionType.APPOINTMENTS_DELETE: PermissionDefinition(
         PermissionType.APPOINTMENTS_DELETE,
         "Excluir agendamentos",
-        "Agendamentos",
+        "APPOINTMENTS",
         "HIGH",
         requires_2fa=True
     ),
     PermissionType.APPOINTMENTS_ADMIN: PermissionDefinition(
         PermissionType.APPOINTMENTS_ADMIN,
         "Administração completa de agendamentos",
-        "Agendamentos",
+        "APPOINTMENTS",
         "HIGH",
         requires_2fa=True
     ),
@@ -151,26 +151,26 @@ PERMISSION_DEFINITIONS = {
     PermissionType.CONVERSATIONS_VIEW: PermissionDefinition(
         PermissionType.CONVERSATIONS_VIEW,
         "Visualizar conversas WhatsApp",
-        "Conversas",
+        "CONVERSATIONS",
         "LOW"
     ),
     PermissionType.CONVERSATIONS_RESPOND: PermissionDefinition(
         PermissionType.CONVERSATIONS_RESPOND,
         "Responder conversas WhatsApp",
-        "Conversas",
+        "CONVERSATIONS",
         "MEDIUM"
     ),
     PermissionType.CONVERSATIONS_DELETE: PermissionDefinition(
         PermissionType.CONVERSATIONS_DELETE,
         "Excluir conversas",
-        "Conversas",
+        "CONVERSATIONS",
         "HIGH",
         requires_2fa=True
     ),
     PermissionType.CONVERSATIONS_ADMIN: PermissionDefinition(
         PermissionType.CONVERSATIONS_ADMIN,
         "Administração completa de conversas",
-        "Conversas",
+        "CONVERSATIONS",
         "HIGH"
     ),
     
@@ -178,32 +178,32 @@ PERMISSION_DEFINITIONS = {
     PermissionType.CLIENTS_VIEW: PermissionDefinition(
         PermissionType.CLIENTS_VIEW,
         "Visualizar dados de clientes",
-        "Clientes",
+        "CLIENTS",
         "LOW"
     ),
     PermissionType.CLIENTS_CREATE: PermissionDefinition(
         PermissionType.CLIENTS_CREATE,
         "Criar novos clientes",
-        "Clientes",
+        "CLIENTS",
         "MEDIUM"
     ),
     PermissionType.CLIENTS_UPDATE: PermissionDefinition(
         PermissionType.CLIENTS_UPDATE,
         "Editar dados de clientes",
-        "Clientes",
+        "CLIENTS",
         "MEDIUM"
     ),
     PermissionType.CLIENTS_DELETE: PermissionDefinition(
         PermissionType.CLIENTS_DELETE,
         "Excluir clientes",
-        "Clientes",
+        "CLIENTS",
         "HIGH",
         requires_2fa=True
     ),
     PermissionType.CLIENTS_ADMIN: PermissionDefinition(
         PermissionType.CLIENTS_ADMIN,
         "Administração completa de clientes",
-        "Clientes",
+        "CLIENTS",
         "HIGH"
     ),
     
@@ -211,19 +211,19 @@ PERMISSION_DEFINITIONS = {
     PermissionType.REPORTS_VIEW: PermissionDefinition(
         PermissionType.REPORTS_VIEW,
         "Visualizar relatórios",
-        "Relatórios",
+        "REPORTS",
         "LOW"
     ),
     PermissionType.REPORTS_EXPORT: PermissionDefinition(
         PermissionType.REPORTS_EXPORT,
         "Exportar relatórios (CSV/Excel/PDF)",
-        "Relatórios",
+        "REPORTS",
         "MEDIUM"
     ),
     PermissionType.REPORTS_ADMIN: PermissionDefinition(
         PermissionType.REPORTS_ADMIN,
         "Administração de relatórios",
-        "Relatórios",
+        "REPORTS",
         "HIGH"
     ),
     
@@ -231,21 +231,21 @@ PERMISSION_DEFINITIONS = {
     PermissionType.SYSTEM_ADMIN: PermissionDefinition(
         PermissionType.SYSTEM_ADMIN,
         "Administração completa do sistema",
-        "Sistema",
+        "SYSTEM",
         "CRITICAL",
         requires_2fa=True
     ),
     PermissionType.USER_MANAGEMENT: PermissionDefinition(
         PermissionType.USER_MANAGEMENT,
         "Gerenciar usuários",
-        "Sistema",
+        "SYSTEM",
         "HIGH",
         requires_2fa=True
     ),
     PermissionType.ROLE_MANAGEMENT: PermissionDefinition(
         PermissionType.ROLE_MANAGEMENT,
         "Gerenciar roles",
-        "Sistema",
+        "SYSTEM",
         "CRITICAL",
         requires_2fa=True
     ),

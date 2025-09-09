@@ -14,10 +14,12 @@ Status: Resolução completa do problema 4.1 Real-time Updates Parciais
 
 import json
 import asyncio
-from typing import Dict, Any
+import logging
+from datetime import datetime
+from typing import Dict, Any, List, Set
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
-import logging
+from starlette.websockets import WebSocketState
 
 from app.websocket.connection_manager import (
     connection_manager, 
@@ -29,7 +31,7 @@ from app.websocket.connection_manager import (
 from app.auth import get_current_user_from_token
 from app.database import get_db
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

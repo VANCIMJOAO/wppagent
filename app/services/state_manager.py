@@ -1,6 +1,3 @@
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
 """
 Sistema Avançado de Gestão de Estado para Conversações
 Gerenciamento distribuído com Redis e fallback em memória
@@ -8,11 +5,11 @@ Gerenciamento distribuído com Redis e fallback em memória
 import json
 import asyncio
 import time
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List, Union
 from dataclasses import dataclass, field, asdict
 from enum import Enum
-import logging
 
 try:
     import redis.asyncio as redis
@@ -205,7 +202,18 @@ class ConversationStateManager:
     """
     
     def __init__(self, redis_url: str = None, default_ttl: int = 1800):
-        self.redis_url = redis_url or "redis://localhost:6379/0"
+        # 🚀 Usar configuração do sistema se não especificado
+        if not redis_url:
+            try:
+                from app.config import get_settings
+                config = get_settings()
+                redis_url = config.redis_url
+                logger.info(f"🔗 Using configured Redis: {redis_url.split('@')[-1]}")  # Log sem credenciais
+            except Exception as e:
+                redis_url = "redis://localhost:6379/0"
+                logger.warning(f"⚠️ Using Redis fallback: {e}")
+        
+        self.redis_url = redis_url
         self.default_ttl = default_ttl  # 30 minutos
         self.redis_client = None
         self.memory_cache: Dict[str, ConversationState] = {}
