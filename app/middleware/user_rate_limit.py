@@ -50,22 +50,17 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
         if redis_client:
             self.redis = redis_client
         else:
-            # 🚀 Usar configuração do Railway Redis
-            redis_url = config.redis_url
+            # 🚀 FORÇAR Railway Redis diretamente (ignorar config por enquanto)
+            redis_url = "redis://default:SvSHiMNuuQEtmIUgGIEGqPpXsdZeInDG@yamanote.proxy.rlwy.net:14106"
+            logger.info("🚀 FORCED Railway Redis URL (bypassing config)")
             
-            logger.info(f"🔗 Current redis_url from config: {redis_url}")
-            
-            # Se não configurado, usar Railway Redis
-            if not redis_url or redis_url == "redis://localhost:6379/0":
-                # URL do Redis da Railway
-                redis_url = "redis://default:SvSHiMNuuQEtmIUgGIEGqPpXsdZeInDG@yamanote.proxy.rlwy.net:14106"
-                logger.info("🚀 Using hardcoded Railway Redis URL")
-            else:
-                logger.info(f"🔗 Using configured Redis URL: {redis_url.split('@')[-1] if '@' in redis_url else redis_url}")
+            # DEBUG: também mostrar o que vem do config
+            config_url = config.redis_url
+            logger.info(f"🔍 Config redis_url would be: {config_url}")
             
             try:
                 self.redis = redis.from_url(redis_url, decode_responses=True)
-                logger.info(f"✅ Redis connection initialized with URL: {redis_url.split('@')[-1] if '@' in redis_url else redis_url}")
+                logger.info(f"✅ Redis connection initialized with Railway URL")
             except Exception as e:
                 logger.error(f"❌ Redis connection failed: {e}")
                 logger.warning("⚠️ Rate limiting will be disabled due to Redis connection failure")
