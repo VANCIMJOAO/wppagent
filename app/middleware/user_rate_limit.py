@@ -52,14 +52,22 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
         else:
             # 🚀 Usar configuração do Railway Redis
             redis_url = config.redis_url
-            if not redis_url:
-                # Fallback para desenvolvimento local
-                redis_url = "redis://localhost:6379"
-                logger.warning("⚠️ Using local Redis fallback - configure REDIS_URL for production")
-            else:
-                logger.info(f"🔗 Connecting to Redis: {redis_url.split('@')[-1]}")  # Log sem credenciais
             
-            self.redis = redis.from_url(redis_url, decode_responses=True)
+            # Se não configurado, usar Railway Redis
+            if not redis_url or redis_url == "redis://localhost:6379/0":
+                # URL do Redis da Railway
+                redis_url = "redis://default:SvSHiMNuuQEtmIUgGIEGqPpXsdZeInDG@yamanote.proxy.rlwy.net:14106"
+                logger.info("🚀 Using Railway Redis URL")
+            else:
+                logger.info(f"🔗 Using configured Redis URL: {redis_url.split('@')[-1] if '@' in redis_url else redis_url}")
+            
+            try:
+                self.redis = redis.from_url(redis_url, decode_responses=True)
+                logger.info("✅ Redis connection initialized")
+            except Exception as e:
+                logger.error(f"❌ Redis connection failed: {e}")
+                logger.warning("⚠️ Rate limiting will be disabled due to Redis connection failure")
+                self.redis = None
         
         # Configurações de limite por endpoint e método
         self.limits = ENDPOINT_RATE_LIMITS
@@ -249,6 +257,18 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
     
     async def _check_rate_limit(self, user_id: str, endpoint_key: str, config: Dict) -> Dict:
         """Verificar se rate limit foi excedido"""
+        
+        # Se Redis não está disponível, permitir requisição
+        if not self.redis:
+            logger.debug("Redis not available, skipping rate limit check")
+            return {
+                'exceeded': False,
+                'current_requests': 0,
+                'limit': config['requests'],
+                'reset_time': int(time.time()) + config['window'],
+                'retry_after': 0
+            }
+        
         current_time = int(time.time())
         window_start = current_time - config['window']
         
@@ -309,6 +329,12 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
     
     async def _increment_counter(self, user_id: str, endpoint_key: str, config: Dict):
         """Incrementar contadores de rate limit"""
+        
+        # Se Redis não está disponível, skip
+        if not self.redis:
+            logger.debug("Redis not available, skipping counter increment")
+            return
+            
         current_time = time.time()
         
         main_key = f"rate_limit:user:{user_id}:{endpoint_key}"
@@ -379,6 +405,14 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
     
     async def _add_rate_limit_headers(self, response: Response, user_id: str, endpoint_key: str, config: Dict):
         """Adicionar headers de rate limit à resposta"""
+        
+        # Se Redis não está disponível, adicionar headers básicos
+        if not self.redis:
+            response.headers["X-RateLimit-Limit"] = str(config['requests'])
+            response.headers["X-RateLimit-Remaining"] = str(config['requests'])
+            response.headers["X-RateLimit-Status"] = "redis-unavailable"
+            return
+            
         try:
             current_time = int(time.time())
             
@@ -406,6 +440,9 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             
         except Exception as e:
             logger.error(f"Failed to add rate limit headers: {e}")
+            # Adicionar headers básicos mesmo com erro
+            response.headers["X-RateLimit-Limit"] = str(config['requests'])
+            response.headers["X-RateLimit-Status"] = "error"
     
     async def get_user_rate_limit_status(self, user_id: str, endpoint: str = None) -> Dict:
         """Obter status de rate limit para usuário específico"""
