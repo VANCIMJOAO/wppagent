@@ -5,8 +5,8 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
-from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import and_, select, update, delete
 
 from app.models.database import AdminUser, RefreshToken
 from app.auth.jwt_manager import SimpleJWTManager
@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 class AuthService:
     """Serviço para gerenciamento de autenticação com refresh tokens"""
     
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db = db
         self.jwt_manager = SimpleJWTManager()
     
@@ -73,12 +73,15 @@ class AuthService:
         """Armazena refresh token no banco de dados"""
         try:
             # Invalidar tokens antigos do usuário (mantém apenas os últimos 5)
-            old_tokens = self.db.query(RefreshToken).filter(
+            old_tokens_query = select(RefreshToken).filter(
                 and_(
                     RefreshToken.admin_user_id == user_id,
                     RefreshToken.is_revoked == False
                 )
-            ).order_by(RefreshToken.created_at.desc()).offset(4).all()
+            ).order_by(RefreshToken.created_at.desc()).offset(4)
+            
+            result = await self.db.execute(old_tokens_query)
+            old_tokens = result.scalars().all()
             
             for token in old_tokens:
                 token.is_revoked = True
@@ -94,14 +97,14 @@ class AuthService:
             )
             
             self.db.add(refresh_token_obj)
-            self.db.commit()
+            await self.db.commit()
             
             logger.info(f"Refresh token stored for user {user_id}")
             return refresh_token_obj
             
         except Exception as e:
             logger.error(f"Error storing refresh token for user {user_id}: {e}")
-            self.db.rollback()
+            await self.db.rollback()
             raise
     
     async def refresh_access_token(self, refresh_token: str) -> Dict[str, Any]:
@@ -121,12 +124,15 @@ class AuthService:
             refresh_token_hash = self._hash_token(refresh_token)
             
             # Buscar refresh token no banco
-            token_obj = self.db.query(RefreshToken).filter(
+            token_query = select(RefreshToken).filter(
                 and_(
                     RefreshToken.token_hash == refresh_token_hash,
                     RefreshToken.is_revoked == False
                 )
-            ).first()
+            )
+            
+            result = await self.db.execute(token_query)
+            token_obj = result.scalar_one_or_none()
             
             if not token_obj:
                 logger.warning("Invalid refresh token provided")
@@ -136,15 +142,18 @@ class AuthService:
             if token_obj.expires_at < datetime.now(timezone.utc):
                 logger.warning(f"Expired refresh token for user {token_obj.admin_user_id}")
                 token_obj.is_revoked = True
-                self.db.commit()
+                await self.db.commit()
                 raise Exception("Refresh token expired")
             
             # Buscar usuário
-            user = self.db.query(AdminUser).filter(AdminUser.id == token_obj.admin_user_id).first()
+            user_query = select(AdminUser).filter(AdminUser.id == token_obj.admin_user_id)
+            result = await self.db.execute(user_query)
+            user = result.scalar_one_or_none()
+            
             if not user or not user.is_active:
                 logger.warning(f"User {token_obj.admin_user_id} not found or inactive")
                 token_obj.is_revoked = True
-                self.db.commit()
+                await self.db.commit()
                 raise Exception("User not found or inactive")
             
             # Criar novo access token
@@ -178,21 +187,24 @@ class AuthService:
         """
         try:
             # Marcar todos os refresh tokens como revogados
-            updated_count = self.db.query(RefreshToken).filter(
+            update_query = update(RefreshToken).where(
                 and_(
                     RefreshToken.admin_user_id == user_id,
                     RefreshToken.is_revoked == False
                 )
-            ).update({"is_revoked": True})
+            ).values(is_revoked=True)
             
-            self.db.commit()
+            result = await self.db.execute(update_query)
+            updated_count = result.rowcount
+            
+            await self.db.commit()
             
             logger.info(f"Revoked {updated_count} refresh tokens for user {user_id}")
             return True
             
         except Exception as e:
             logger.error(f"Error revoking tokens for user {user_id}: {e}")
-            self.db.rollback()
+            await self.db.rollback()
             return False
     
     async def revoke_refresh_token(self, refresh_token: str) -> bool:
@@ -208,13 +220,16 @@ class AuthService:
         try:
             refresh_token_hash = self._hash_token(refresh_token)
             
-            token_obj = self.db.query(RefreshToken).filter(
+            token_query = select(RefreshToken).filter(
                 RefreshToken.token_hash == refresh_token_hash
-            ).first()
+            )
+            
+            result = await self.db.execute(token_query)
+            token_obj = result.scalar_one_or_none()
             
             if token_obj:
                 token_obj.is_revoked = True
-                self.db.commit()
+                await self.db.commit()
                 logger.info(f"Refresh token revoked for user {token_obj.admin_user_id}")
                 return True
             
@@ -222,7 +237,7 @@ class AuthService:
             
         except Exception as e:
             logger.error(f"Error revoking refresh token: {e}")
-            self.db.rollback()
+            await self.db.rollback()
             return False
     
     async def cleanup_expired_tokens(self) -> int:
@@ -236,11 +251,14 @@ class AuthService:
             current_time = datetime.now(timezone.utc)
             
             # Deletar tokens expirados há mais de 1 dia
-            deleted_count = self.db.query(RefreshToken).filter(
+            delete_query = delete(RefreshToken).where(
                 RefreshToken.expires_at < current_time - timedelta(days=1)
-            ).delete()
+            )
             
-            self.db.commit()
+            result = await self.db.execute(delete_query)
+            deleted_count = result.rowcount
+            
+            await self.db.commit()
             
             if deleted_count > 0:
                 logger.info(f"Cleaned up {deleted_count} expired refresh tokens")
@@ -249,5 +267,5 @@ class AuthService:
             
         except Exception as e:
             logger.error(f"Error cleaning up expired tokens: {e}")
-            self.db.rollback()
+            await self.db.rollback()
             return 0
