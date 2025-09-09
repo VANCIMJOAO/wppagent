@@ -117,6 +117,15 @@ async def lifespan(app: FastAPI):
         else:
             logger.warning("⚠️ LGPD Compliance System não disponível")
         
+        # 🌐 Inicializar WebSocket Real-Time Manager
+        try:
+            from app.services.realtime_websocket_manager import get_realtime_manager
+            websocket_manager = get_realtime_manager()
+            await websocket_manager.start_background_tasks()
+            logger.info("🌐 WebSocket Real-Time Manager inicializado")
+        except Exception as e:
+            logger.warning(f"⚠️ WebSocket Real-Time Manager não pôde ser inicializado: {e}")
+        
         # 🔄 Inicializar sistema de backup automatizado
         try:
             from app.services.backup_scheduler import backup_scheduler
@@ -184,6 +193,7 @@ async def lifespan(app: FastAPI):
         logger.info(f"📱 Webhook URL: {settings.webhook_url}")
         logger.info("🛑 Sistema de controle de resposta única ATIVO")
         logger.info("🔥 WebSocket endpoint disponível em: /ws")
+        logger.info("🌐 WebSocket Real-Time para chat implementado")
         
     except Exception as e:
         logger.error(f"❌ Erro na inicialização: {e}")
@@ -193,6 +203,15 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("Encerrando WhatsApp Agent API...")
+    
+    # 🌐 Parar WebSocket Real-Time Manager
+    try:
+        from app.services.realtime_websocket_manager import get_realtime_manager
+        websocket_manager = get_realtime_manager()
+        await websocket_manager.cleanup_all()
+        logger.info("🌐 WebSocket Real-Time Manager encerrado")
+    except Exception as e:
+        logger.error(f"⚠️ Erro ao encerrar WebSocket Manager: {e}")
     
     # Parar LGPD Scheduler
     if LGPD_COMPLIANCE_AVAILABLE:
@@ -413,6 +432,15 @@ try:
 except ImportError as e:
     logger.error(f"⚠️ Erro ao carregar LGPD Compliance: {e}")
     logger.warning("⚠️ LGPD Compliance não disponível")
+
+# 🌐 WEBSOCKET REAL-TIME AVANÇADO - Sistema de tempo real para chat
+try:
+    from app.routes.websocket_realtime_advanced import router as websocket_realtime_router
+    app.include_router(websocket_realtime_router, tags=["WebSocket Real-Time"])
+    logger.info("🌐 WebSocket Real-Time ativado - Chat em tempo real implementado")
+except ImportError as e:
+    logger.error(f"⚠️ Erro ao carregar WebSocket Real-Time: {e}")
+    logger.warning("⚠️ WebSocket Real-Time não disponível")
     logger.info("✅ Cache Invalidation Manual ativado - Sistema de invalidação manual")
 except ImportError as e:
     logger.error(f"⚠️ Erro ao carregar Cache Invalidation: {e}")
