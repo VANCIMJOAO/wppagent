@@ -315,7 +315,12 @@ app.include_router(clients_router, tags=["Dashboard - Clients"])
 # Dashboard Analytics (executivo)
 app.include_router(analytics_router, tags=["Dashboard - Analytics"])
 
-# 🟡 ANALYTICS AVANÇADAS - Business Intelligence
+# � DEBUG ROUTER - Para testar autenticação
+from app.routes.debug_auth import router as debug_auth_router
+app.include_router(debug_auth_router, tags=["Debug"])
+logger.info("🔧 Debug Auth Router ativado - Para troubleshooting")
+
+# �🟡 ANALYTICS AVANÇADAS - Business Intelligence
 # TEMPORARIAMENTE DESABILITADO - CONFLITO COM analytics.py
 # from app.routes.analytics_advanced import router as advanced_analytics_router
 # app.include_router(advanced_analytics_router, tags=["Advanced Analytics"])
