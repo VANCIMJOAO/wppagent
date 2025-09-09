@@ -28,6 +28,21 @@ from app.services.lead_scoring import lead_scoring_service
 from app.services.conversation_flow import conversation_flow_service
 from app.services.cache_service import cache_service
 
+# Cache Invalidation Manual System
+try:
+    from app.services.cache_invalidation_manual import CacheInvalidationManager
+    CACHE_INVALIDATION_AVAILABLE = True
+except ImportError:
+    CACHE_INVALIDATION_AVAILABLE = False
+
+# LGPD Compliance System
+try:
+    from app.services.lgpd_compliance import LGPDComplianceManager
+    from app.services.lgpd_scheduler import start_lgpd_scheduler, stop_lgpd_scheduler
+    LGPD_COMPLIANCE_AVAILABLE = True
+except ImportError:
+    LGPD_COMPLIANCE_AVAILABLE = False
+
 # Sistema de Autenticação e Autorização
 from app.auth import AuthMiddleware
 
@@ -79,6 +94,28 @@ async def lifespan(app: FastAPI):
         # Inicializar cache service
         await cache_service.initialize()
         logger.info("Cache service inicializado")
+        
+        # Inicializar Cache Invalidation Manual System
+        if CACHE_INVALIDATION_AVAILABLE:
+            try:
+                from app.services.cache_invalidation_manual import get_cache_invalidation_manager
+                cache_invalidation_manager = get_cache_invalidation_manager()
+                await cache_invalidation_manager.initialize()
+                logger.info("✅ Cache Invalidation Manager inicializado")
+            except Exception as e:
+                logger.error(f"⚠️ Erro ao inicializar Cache Invalidation Manager: {e}")
+        else:
+            logger.warning("⚠️ Cache Invalidation Manager não disponível")
+        
+        # Inicializar LGPD Compliance System
+        if LGPD_COMPLIANCE_AVAILABLE:
+            try:
+                start_lgpd_scheduler()
+                logger.info("✅ LGPD Compliance e Scheduler inicializados")
+            except Exception as e:
+                logger.error(f"⚠️ Erro ao inicializar LGPD System: {e}")
+        else:
+            logger.warning("⚠️ LGPD Compliance System não disponível")
         
         # 🔄 Inicializar sistema de backup automatizado
         try:
@@ -156,6 +193,14 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("Encerrando WhatsApp Agent API...")
+    
+    # Parar LGPD Scheduler
+    if LGPD_COMPLIANCE_AVAILABLE:
+        try:
+            stop_lgpd_scheduler()
+            logger.info("✅ LGPD Scheduler parado")
+        except Exception as e:
+            logger.error(f"⚠️ Erro ao parar LGPD Scheduler: {e}")
     
     # Cancelar task de limpeza
     if 'cleanup_task' in locals():
@@ -344,6 +389,42 @@ logger.info("🔧 Debug Auth Router ativado - Para troubleshooting")
 from app.routes.analytics_advanced import router as advanced_analytics_router
 app.include_router(advanced_analytics_router, tags=["Advanced Analytics"])
 logger.info("✅ Analytics Avançadas ativadas - Business Intelligence")
+
+# � CACHE INVALIDATION MANUAL - Sistema de Invalidação de Cache Manual
+try:
+    from app.routes.cache_invalidation import router as cache_invalidation_router
+    app.include_router(cache_invalidation_router, prefix="/cache", tags=["Cache Management"])
+    logger.info("✅ Cache Invalidation Manual ativado - Sistema de invalidação manual")
+except ImportError as e:
+    logger.error(f"⚠️ Erro ao carregar Cache Invalidation: {e}")
+    logger.warning("⚠️ Cache Invalidation Manual não disponível")
+
+# � LGPD COMPLIANCE COMPLETO - Sistema de Conformidade LGPD
+try:
+    from app.routes.lgpd_compliance import router as lgpd_router
+    app.include_router(lgpd_router, tags=["LGPD Compliance"])
+    logger.info("✅ LGPD Compliance ativado - Conformidade completa")
+    
+    # Dashboard LGPD
+    from app.services.lgpd_dashboard import router as lgpd_dashboard_router
+    app.include_router(lgpd_dashboard_router, tags=["LGPD Admin"])
+    logger.info("✅ LGPD Dashboard ativado - Interface administrativa")
+    
+except ImportError as e:
+    logger.error(f"⚠️ Erro ao carregar LGPD Compliance: {e}")
+    logger.warning("⚠️ LGPD Compliance não disponível")
+    logger.info("✅ Cache Invalidation Manual ativado - Sistema de invalidação manual")
+except ImportError as e:
+    logger.error(f"⚠️ Erro ao carregar Cache Invalidation: {e}")
+    logger.warning("⚠️ Cache Invalidation Manual não disponível")
+
+    # 🗂️ Cache Invalidation Manual System - Sistema de invalidação manual de cache
+    try:
+        from .routes.cache_invalidation import router as cache_router
+        app.include_router(cache_router, prefix="", tags=["Cache Management"])
+        logger.info("🗂️ Cache Invalidation Manual System ativado - Gerenciamento avançado", category="system")
+    except Exception as e:
+        logger.error(f"❌ Erro ao carregar Cache Invalidation: {e}", category="system")
 
 # 🟡 SISTEMA DE EXPORTAÇÃO - Relatórios CSV/Excel/PDF
 from app.routes.export import router as export_router
