@@ -75,8 +75,11 @@ async def webhook_endpoint(
         
         # Log para auditoria
         log_entry = MetaLog(
-            webhook_data=raw_data,
-            processed_at=datetime.utcnow()
+            direction="in",
+            endpoint="/webhook",
+            method="POST",
+            status_code=200,
+            payload=raw_data
         )
         db.add(log_entry)
         await db.commit()
