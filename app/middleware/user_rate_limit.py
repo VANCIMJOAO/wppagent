@@ -53,17 +53,19 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             # 🚀 Usar configuração do Railway Redis
             redis_url = config.redis_url
             
+            logger.info(f"🔗 Current redis_url from config: {redis_url}")
+            
             # Se não configurado, usar Railway Redis
             if not redis_url or redis_url == "redis://localhost:6379/0":
                 # URL do Redis da Railway
                 redis_url = "redis://default:SvSHiMNuuQEtmIUgGIEGqPpXsdZeInDG@yamanote.proxy.rlwy.net:14106"
-                logger.info("🚀 Using Railway Redis URL")
+                logger.info("🚀 Using hardcoded Railway Redis URL")
             else:
                 logger.info(f"🔗 Using configured Redis URL: {redis_url.split('@')[-1] if '@' in redis_url else redis_url}")
             
             try:
                 self.redis = redis.from_url(redis_url, decode_responses=True)
-                logger.info("✅ Redis connection initialized")
+                logger.info(f"✅ Redis connection initialized with URL: {redis_url.split('@')[-1] if '@' in redis_url else redis_url}")
             except Exception as e:
                 logger.error(f"❌ Redis connection failed: {e}")
                 logger.warning("⚠️ Rate limiting will be disabled due to Redis connection failure")
