@@ -13,7 +13,7 @@ Complete WebSocket implementation with:
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query, HTTPException
 from app.services.websocket_manager import websocket_manager, WebSocketEventType
-from app.auth.middleware import get_current_admin_user
+from app.routes.admin_auth import get_current_admin_user
 from app.auth.jwt_manager import verify_token
 from typing import List
 from datetime import datetime

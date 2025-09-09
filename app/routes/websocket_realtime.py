@@ -13,8 +13,8 @@ Complete WebSocket implementation with:
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query, HTTPException
 from app.services.websocket_manager import websocket_manager, WebSocketEventType
-from app.auth.middleware import get_current_admin_user
-from app.auth.jwt_manager import verify_token
+from app.routes.admin_auth import get_current_admin_user
+from app.auth.jwt_manager import jwt_manager
 from typing import List
 from datetime import datetime
 import logging
@@ -25,7 +25,7 @@ router = APIRouter()
 async def get_current_admin_user_ws(token: str):
     """Validate WebSocket token and return user"""
     try:
-        payload = verify_token(token)
+        payload = jwt_manager.verify_token(token)
         if not payload:
             raise HTTPException(status_code=401, detail="Invalid token")
         

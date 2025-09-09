@@ -84,6 +84,9 @@ class WebSocketManager:
     async def connect(self, websocket: WebSocket, user_id: str, subscriptions: List[str] = None) -> bool:
         """Connect a new WebSocket client"""
         try:
+            # Start cleanup task if not already started
+            start_cleanup_task()
+            
             await websocket.accept()
             
             connection = WebSocketConnection(
@@ -380,5 +383,17 @@ async def cleanup_stale_connections_task():
         except Exception as e:
             logger.error(f"Error in WebSocket cleanup task: {e}")
 
-# Start cleanup task when module is imported
-asyncio.create_task(cleanup_stale_connections_task())
+# Global variable to track if cleanup task has been started
+_cleanup_task_started = False
+
+def start_cleanup_task():
+    """Start the cleanup task if not already started"""
+    global _cleanup_task_started
+    if not _cleanup_task_started:
+        try:
+            asyncio.create_task(cleanup_stale_connections_task())
+            _cleanup_task_started = True
+            logger.info("WebSocket cleanup task started")
+        except RuntimeError:
+            # No event loop running, will be started later
+            pass
