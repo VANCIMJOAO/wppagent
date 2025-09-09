@@ -6,7 +6,8 @@ import uvicorn
 import asyncio
 from datetime import datetime
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from app.security.csp_manager import CSPMiddleware, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from app.config import settings
@@ -180,6 +181,11 @@ app = FastAPI(
     version="1.0.0",
     debug=settings.debug,
     lifespan=lifespan
+
+# Add CSP Security Middleware
+app.add_middleware(CSPMiddleware)
+app.add_middleware(HTTPSMiddleware)
+
 )
 
 # 🔧 CONFIGURAR CORS AVANÇADO - SOLUÇÃO PARA RAILWAY
