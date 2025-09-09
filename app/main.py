@@ -181,12 +181,10 @@ app = FastAPI(
     version="1.0.0",
     debug=settings.debug,
     lifespan=lifespan
-
-# Add CSP Security Middleware
-app.add_middleware(CSPMiddleware)
-app.add_middleware(HTTPSMiddleware)
-
 )
+
+# Add CSP Security Middleware (first, before other middlewares)
+app.add_middleware(CSPMiddleware)
 
 # 🔧 CONFIGURAR CORS AVANÇADO - SOLUÇÃO PARA RAILWAY
 from app.cors_config import setup_cors_middleware, add_cors_test_endpoint, get_cors_debug_info
