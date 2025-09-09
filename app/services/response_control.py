@@ -24,15 +24,15 @@ import hashlib
 import time
 import json
 import asyncio
+import logging
 from typing import Dict, Optional, Tuple, Any
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 import redis.asyncio as redis
 
 from app.config.redis_config import redis_manager
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class ResponseControlStats:
@@ -263,6 +263,35 @@ class UnifiedResponseControl:
                 "error": str(e),
                 "status": "error"
             }
+    
+    async def cleanup_expired(self):
+        """
+        Remove registros expirados do cache (chamado periodicamente)
+        
+        Para Redis: chaves com TTL são removidas automaticamente
+        Para cache em memória: remove entradas mais antigas que window_seconds
+        """
+        try:
+            current_time = time.time()
+            expired_keys = []
+            
+            # Limpar apenas cache em memória (Redis tem TTL automático)
+            async with self._lock:
+                for key, timestamp in list(self.memory_cache.items()):
+                    if current_time - timestamp > self.window_seconds:
+                        expired_keys.append(key)
+                
+                for key in expired_keys:
+                    del self.memory_cache[key]
+            
+            if expired_keys:
+                logger.info(f"🧹 Cleanup: {len(expired_keys)} chaves expiradas removidas da memória")
+            
+            return {"expired_keys_removed": len(expired_keys)}
+            
+        except Exception as e:
+            logger.error(f"❌ Erro no cleanup: {e}")
+            return {"error": str(e)}
 
 # Instância global unificada
 unified_response_control = UnifiedResponseControl()

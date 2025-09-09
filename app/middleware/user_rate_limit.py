@@ -6,6 +6,7 @@ Controle granular de taxa de requisições por usuário autenticado
 import time
 import json
 import asyncio
+import logging
 from typing import Dict, Optional, Tuple
 from datetime import datetime, timedelta
 
@@ -14,7 +15,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 import redis.asyncio as redis
 
-from app.utils.logger import get_logger
 from app.config import get_settings
 from app.config.rate_limit_config import (
     ENDPOINT_RATE_LIMITS,
@@ -27,7 +27,7 @@ from app.config.rate_limit_config import (
     EXEMPT_ENDPOINTS
 )
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 config = get_settings()
 
 class UserRateLimitMiddleware(BaseHTTPMiddleware):
@@ -50,7 +50,15 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
         if redis_client:
             self.redis = redis_client
         else:
-            redis_url = config.redis_url or "redis://localhost:6379"
+            # 🚀 Usar configuração do Railway Redis
+            redis_url = config.redis_url
+            if not redis_url:
+                # Fallback para desenvolvimento local
+                redis_url = "redis://localhost:6379"
+                logger.warning("⚠️ Using local Redis fallback - configure REDIS_URL for production")
+            else:
+                logger.info(f"🔗 Connecting to Redis: {redis_url.split('@')[-1]}")  # Log sem credenciais
+            
             self.redis = redis.from_url(redis_url, decode_responses=True)
         
         # Configurações de limite por endpoint e método
