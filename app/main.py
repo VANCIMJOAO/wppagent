@@ -343,9 +343,9 @@ app.include_router(conversations_router, tags=["Dashboard - Conversations"])
 from app.routes.dashboard import router as dashboard_router
 app.include_router(dashboard_router, tags=["Dashboard - Main"])
 
-# 🔥 WEBSOCKET - Comunicação em Tempo Real 
-from app.routes.websocket import router as websocket_router_realtime
-app.include_router(websocket_router_realtime, tags=["WebSocket - Real Time"])
+# 🔥 WEBSOCKET - Comunicação em Tempo Real (Temporariamente desabilitado para fix de import)
+# from app.routes.websocket import router as websocket_router_realtime
+# app.include_router(websocket_router_realtime, tags=["WebSocket - Real Time"])
 
 # 🔔 PUSH NOTIFICATIONS - Sistema de Notificações
 from app.routes.push_notifications import router as push_router

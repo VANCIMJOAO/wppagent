@@ -21,7 +21,7 @@ from enum import Enum
 import logging
 from dataclasses import dataclass, asdict
 import jwt
-from app.core.config import settings
+from app.config import settings
 
 # Configure logging
 logger = logging.getLogger(__name__)

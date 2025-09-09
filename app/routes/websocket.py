@@ -26,8 +26,8 @@ from app.websocket.connection_manager import (
     RoomType,
     ConnectionInfo
 )
-from app.core.auth import get_current_user_from_token
-from app.core.database import get_db
+from app.auth import get_current_user_from_token
+from app.database import get_db
 
 logger = get_logger(__name__)
 

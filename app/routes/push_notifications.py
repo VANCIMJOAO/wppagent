@@ -15,7 +15,7 @@ import logging
 from ..database import get_db
 from ..services.push_service import push_service, send_alert_notification
 from ..models.database import AdminUser
-from ..auth.middleware import verify_admin_token
+from ..auth.middleware import require_admin, get_current_user
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class AlertNotificationRequest(BaseModel):
 async def subscribe_push_notifications(
     request: PushSubscriptionRequest,
     db: Session = Depends(get_db),
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: Dict = Depends(require_admin)
 ):
     """
     🔔 Registra admin para receber push notifications
@@ -99,7 +99,7 @@ async def subscribe_push_notifications(
 async def unsubscribe_push_notifications(
     endpoint: Optional[str] = None,
     db: Session = Depends(get_db),
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: Dict = Depends(require_admin)
 ):
     """
     ❌ Remove subscription de push notifications
@@ -127,7 +127,7 @@ async def unsubscribe_push_notifications(
 @router.get("/subscriptions")
 async def list_admin_subscriptions(
     db: Session = Depends(get_db),
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: Dict = Depends(require_admin)
 ):
     """
     📋 Lista subscriptions ativas do admin
@@ -162,7 +162,7 @@ async def send_push_notification(
     admin_user_id: Optional[int] = None,
     send_to_all: bool = False,
     db: Session = Depends(get_db),
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: Dict = Depends(require_admin)
 ):
     """
     📤 Envia push notification
@@ -247,7 +247,7 @@ async def send_push_notification(
 async def send_alert_push_notification(
     request: AlertNotificationRequest,
     db: Session = Depends(get_db),
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: Dict = Depends(require_admin)
 ):
     """
     🚨 Envia push notification para alerta HIGH/CRITICAL
@@ -292,7 +292,7 @@ async def send_alert_push_notification(
 @router.get("/stats")
 async def get_push_notification_stats(
     db: Session = Depends(get_db),
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: Dict = Depends(require_admin)
 ):
     """
     📊 Estatísticas de push notifications
@@ -309,7 +309,7 @@ async def get_push_notification_stats(
 @router.post("/test")
 async def test_push_notification(
     db: Session = Depends(get_db),
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: Dict = Depends(require_admin)
 ):
     """
     🧪 Envia notificação de teste para o admin atual
@@ -337,7 +337,7 @@ async def test_push_notification(
 @router.delete("/cleanup")
 async def cleanup_invalid_subscriptions(
     db: Session = Depends(get_db),
-    admin_user: AdminUser = Depends(verify_admin_token)
+    admin_user: Dict = Depends(require_admin)
 ):
     """
     🧹 Remove subscriptions inválidas (apenas super admin)
