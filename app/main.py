@@ -6,8 +6,7 @@ import uvicorn
 import asyncio
 from datetime import datetime
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from app.security.csp_manager import CSPMiddleware, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from app.config import settings
@@ -48,6 +47,16 @@ try:
     logger.info("✅ HTTPS Middleware carregado")
 except ImportError:
     HTTPS_MIDDLEWARE_AVAILABLE = False
+    logger.warning("⚠️ HTTPS Middleware não disponível")
+
+# 🔒 Sistema CSP Security
+try:
+    from app.security.csp_manager import CSPMiddleware
+    CSP_MIDDLEWARE_AVAILABLE = True
+    logger.info("✅ CSP Middleware carregado")
+except ImportError:
+    CSP_MIDDLEWARE_AVAILABLE = False
+    logger.warning("⚠️ CSP Middleware não disponível")
     HTTPSMiddleware = None
     logger.warning("⚠️ HTTPS Middleware não disponível - executando sem HTTPS obrigatório")
 
@@ -184,7 +193,11 @@ app = FastAPI(
 )
 
 # Add CSP Security Middleware (first, before other middlewares)
-app.add_middleware(CSPMiddleware)
+if CSP_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(CSPMiddleware, report_only=False)
+    logger.info("✅ CSP Middleware adicionado")
+else:
+    logger.warning("⚠️ CSP Middleware não disponível - pulando")
 
 # 🔧 CONFIGURAR CORS AVANÇADO - SOLUÇÃO PARA RAILWAY
 from app.cors_config import setup_cors_middleware, add_cors_test_endpoint, get_cors_debug_info
