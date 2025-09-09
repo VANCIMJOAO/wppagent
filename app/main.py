@@ -352,10 +352,10 @@ app.include_router(dashboard_router, tags=["Dashboard - Main"])
 from app.routes.websocket_realtime import router as websocket_realtime_router
 app.include_router(websocket_realtime_router, prefix="/api/websocket", tags=["WebSocket - Real Time"])
 
-# 🧪 Endpoints de Teste para WebSocket
-from app.routes.websocket_test import router as websocket_test_router  
-app.include_router(websocket_test_router, prefix="/api/websocket-test", tags=["WebSocket - Testing"])
-logger.info("🧪 Endpoints de teste WebSocket ativados")
+# 🧪 Endpoints de Teste para WebSocket (DESABILITADO - Arquivo de teste)
+# from app.routes.websocket_test import router as websocket_test_router  
+# app.include_router(websocket_test_router, prefix="/api/websocket-test", tags=["WebSocket - Testing"])
+# logger.info("🧪 Endpoints de teste WebSocket ativados")
 
 # 🔥 WEBSOCKET - Comunicação em Tempo Real (Ativo com Cache Sync)
 from app.services.websocket_cache_sync import websocket_cache_sync
