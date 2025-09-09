@@ -29,24 +29,34 @@ class OptimizedCacheService:
     
     def __init__(self):
         """Inicializa conexão Redis com configuração otimizada"""
+        self.redis_client = None
+        
         try:
-            self.redis_client = redis.Redis.from_url(
-                os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
-                # ✅ Configurações otimizadas
-                decode_responses=True,
-                socket_connect_timeout=5,
-                socket_timeout=5,
-                retry_on_timeout=True,
-                health_check_interval=30
-            )
+            # Configuração Railway Redis
+            redis_url = os.getenv('REDIS_URL', 'redis://default:SvSHiMNuuQEtmIUgGIEGqPpXsdZeInDG@yamanote.proxy.rlwy.net:14106')
             
-            # Teste de conectividade
-            self.redis_client.ping()
-            logger.info("✅ Redis cache service initialized successfully")
-            
+            if redis_url:
+                # Conexão Redis Railway
+                self.redis_client = redis.Redis.from_url(
+                    redis_url,
+                    # ✅ Configurações otimizadas para Railway
+                    decode_responses=True,
+                    socket_connect_timeout=10,  # Aumentado para Railway
+                    socket_timeout=10,          # Aumentado para Railway
+                    retry_on_timeout=True,
+                    health_check_interval=30,
+                    max_connections=20          # Pool de conexões
+                )
+                
+                # Teste de conectividade
+                self.redis_client.ping()
+                logger.info("✅ Redis cache service initialized successfully (Railway)")
+            else:
+                logger.warning("⚠️ No Redis URL configured, cache disabled")
+                
         except Exception as e:
             logger.error(f"❌ Redis connection failed: {e}")
-            # Fallback para modo sem cache
+            logger.info("🔄 Running without cache - performance may be degraded")
             self.redis_client = None
         
         # ✅ Configurações de TTL por tipo de dado
