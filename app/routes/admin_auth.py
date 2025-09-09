@@ -333,18 +333,15 @@ async def create_admin_user(
         )
 
 @auth_router.get("/me")
-async def get_current_admin_info(
-    current_admin: AdminUser = Depends(get_current_admin_user)
-):
+async def get_current_admin_info():
     """
-    👤 Informações do admin atual
+    👤 Informações do admin atual - TESTE SIMPLIFICADO
     """
-    return {
-        "username": current_admin.username,
-        "is_active": current_admin.is_active,
-        "created_at": current_admin.created_at,
-        "last_login": current_admin.last_login
-    }
+    try:
+        return {"status": "ok", "test": True}
+    except Exception as e:
+        logger.error(f"❌ Erro em get_current_admin_info: {e}")
+        return {"error": str(e), "status": "error"}
 
 @auth_router.post("/logout")
 async def admin_logout(
