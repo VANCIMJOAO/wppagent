@@ -77,6 +77,15 @@ class PermissionType(str, Enum):
     BACKUP_RESTORE = "backup:restore"
     BACKUP_ADMIN = "backup:admin"
 
+class PermissionCategory(str, Enum):
+    """Categorias de permissões"""
+    DASHBOARD = "DASHBOARD"
+    APPOINTMENTS = "APPOINTMENTS"
+    CONVERSATIONS = "CONVERSATIONS"
+    CLIENTS = "CLIENTS"
+    REPORTS = "REPORTS"
+    SYSTEM = "SYSTEM"
+
 class RoleType(str, Enum):
     """Roles predefinidos do sistema"""
     
@@ -103,13 +112,13 @@ PERMISSION_DEFINITIONS = {
     PermissionType.DASHBOARD_VIEW: PermissionDefinition(
         PermissionType.DASHBOARD_VIEW,
         "Visualizar dashboard principal",
-        "DASHBOARD",
+        PermissionCategory.DASHBOARD,
         "LOW"
     ),
     PermissionType.DASHBOARD_ADMIN: PermissionDefinition(
         PermissionType.DASHBOARD_ADMIN,
         "Administrar configurações do dashboard",
-        "DASHBOARD",
+        PermissionCategory.DASHBOARD,
         "MEDIUM"
     ),
     
@@ -117,32 +126,32 @@ PERMISSION_DEFINITIONS = {
     PermissionType.APPOINTMENTS_VIEW: PermissionDefinition(
         PermissionType.APPOINTMENTS_VIEW,
         "Visualizar agendamentos",
-        "APPOINTMENTS",
+        PermissionCategory.APPOINTMENTS,
         "LOW"
     ),
     PermissionType.APPOINTMENTS_CREATE: PermissionDefinition(
         PermissionType.APPOINTMENTS_CREATE,
         "Criar novos agendamentos",
-        "APPOINTMENTS",
+        PermissionCategory.APPOINTMENTS,
         "MEDIUM"
     ),
     PermissionType.APPOINTMENTS_UPDATE: PermissionDefinition(
         PermissionType.APPOINTMENTS_UPDATE,
         "Editar agendamentos existentes",
-        "APPOINTMENTS",
+        PermissionCategory.APPOINTMENTS,
         "MEDIUM"
     ),
     PermissionType.APPOINTMENTS_DELETE: PermissionDefinition(
         PermissionType.APPOINTMENTS_DELETE,
         "Excluir agendamentos",
-        "APPOINTMENTS",
+        PermissionCategory.APPOINTMENTS,
         "HIGH",
         requires_2fa=True
     ),
     PermissionType.APPOINTMENTS_ADMIN: PermissionDefinition(
         PermissionType.APPOINTMENTS_ADMIN,
         "Administração completa de agendamentos",
-        "APPOINTMENTS",
+        PermissionCategory.APPOINTMENTS,
         "HIGH",
         requires_2fa=True
     ),
@@ -151,26 +160,26 @@ PERMISSION_DEFINITIONS = {
     PermissionType.CONVERSATIONS_VIEW: PermissionDefinition(
         PermissionType.CONVERSATIONS_VIEW,
         "Visualizar conversas WhatsApp",
-        "CONVERSATIONS",
+        PermissionCategory.CONVERSATIONS,
         "LOW"
     ),
     PermissionType.CONVERSATIONS_RESPOND: PermissionDefinition(
         PermissionType.CONVERSATIONS_RESPOND,
         "Responder conversas WhatsApp",
-        "CONVERSATIONS",
+        PermissionCategory.CONVERSATIONS,
         "MEDIUM"
     ),
     PermissionType.CONVERSATIONS_DELETE: PermissionDefinition(
         PermissionType.CONVERSATIONS_DELETE,
         "Excluir conversas",
-        "CONVERSATIONS",
+        PermissionCategory.CONVERSATIONS,
         "HIGH",
         requires_2fa=True
     ),
     PermissionType.CONVERSATIONS_ADMIN: PermissionDefinition(
         PermissionType.CONVERSATIONS_ADMIN,
         "Administração completa de conversas",
-        "CONVERSATIONS",
+        PermissionCategory.CONVERSATIONS,
         "HIGH"
     ),
     
@@ -178,32 +187,32 @@ PERMISSION_DEFINITIONS = {
     PermissionType.CLIENTS_VIEW: PermissionDefinition(
         PermissionType.CLIENTS_VIEW,
         "Visualizar dados de clientes",
-        "CLIENTS",
+        PermissionCategory.CLIENTS,
         "LOW"
     ),
     PermissionType.CLIENTS_CREATE: PermissionDefinition(
         PermissionType.CLIENTS_CREATE,
         "Criar novos clientes",
-        "CLIENTS",
+        PermissionCategory.CLIENTS,
         "MEDIUM"
     ),
     PermissionType.CLIENTS_UPDATE: PermissionDefinition(
         PermissionType.CLIENTS_UPDATE,
         "Editar dados de clientes",
-        "CLIENTS",
+        PermissionCategory.CLIENTS,
         "MEDIUM"
     ),
     PermissionType.CLIENTS_DELETE: PermissionDefinition(
         PermissionType.CLIENTS_DELETE,
         "Excluir clientes",
-        "CLIENTS",
+        PermissionCategory.CLIENTS,
         "HIGH",
         requires_2fa=True
     ),
     PermissionType.CLIENTS_ADMIN: PermissionDefinition(
         PermissionType.CLIENTS_ADMIN,
         "Administração completa de clientes",
-        "CLIENTS",
+        PermissionCategory.CLIENTS,
         "HIGH"
     ),
     
@@ -211,19 +220,19 @@ PERMISSION_DEFINITIONS = {
     PermissionType.REPORTS_VIEW: PermissionDefinition(
         PermissionType.REPORTS_VIEW,
         "Visualizar relatórios",
-        "REPORTS",
+        PermissionCategory.REPORTS,
         "LOW"
     ),
     PermissionType.REPORTS_EXPORT: PermissionDefinition(
         PermissionType.REPORTS_EXPORT,
         "Exportar relatórios (CSV/Excel/PDF)",
-        "REPORTS",
+        PermissionCategory.REPORTS,
         "MEDIUM"
     ),
     PermissionType.REPORTS_ADMIN: PermissionDefinition(
         PermissionType.REPORTS_ADMIN,
         "Administração de relatórios",
-        "REPORTS",
+        PermissionCategory.REPORTS,
         "HIGH"
     ),
     
@@ -231,28 +240,28 @@ PERMISSION_DEFINITIONS = {
     PermissionType.SYSTEM_ADMIN: PermissionDefinition(
         PermissionType.SYSTEM_ADMIN,
         "Administração completa do sistema",
-        "SYSTEM",
+        PermissionCategory.SYSTEM,
         "CRITICAL",
         requires_2fa=True
     ),
     PermissionType.USER_MANAGEMENT: PermissionDefinition(
         PermissionType.USER_MANAGEMENT,
         "Gerenciar usuários",
-        "SYSTEM",
+        PermissionCategory.SYSTEM,
         "HIGH",
         requires_2fa=True
     ),
     PermissionType.ROLE_MANAGEMENT: PermissionDefinition(
         PermissionType.ROLE_MANAGEMENT,
         "Gerenciar roles",
-        "SYSTEM",
+        PermissionCategory.SYSTEM,
         "CRITICAL",
         requires_2fa=True
     ),
     PermissionType.PERMISSIONS_MANAGEMENT: PermissionDefinition(
         PermissionType.PERMISSIONS_MANAGEMENT,
         "Gerenciar permissões",
-        "Sistema",
+        PermissionCategory.SYSTEM,
         "CRITICAL",
         requires_2fa=True
     ),
@@ -261,13 +270,13 @@ PERMISSION_DEFINITIONS = {
     PermissionType.MONITORING_VIEW: PermissionDefinition(
         PermissionType.MONITORING_VIEW,
         "Visualizar métricas de monitoramento",
-        "Monitoramento",
+        PermissionCategory.SYSTEM,
         "LOW"
     ),
     PermissionType.MONITORING_ADMIN: PermissionDefinition(
         PermissionType.MONITORING_ADMIN,
         "Administrar sistema de monitoramento",
-        "Monitoramento",
+        PermissionCategory.SYSTEM,
         "HIGH"
     ),
     
@@ -275,20 +284,20 @@ PERMISSION_DEFINITIONS = {
     PermissionType.BACKUP_CREATE: PermissionDefinition(
         PermissionType.BACKUP_CREATE,
         "Criar backups",
-        "Backup",
+        PermissionCategory.SYSTEM,
         "MEDIUM"
     ),
     PermissionType.BACKUP_RESTORE: PermissionDefinition(
         PermissionType.BACKUP_RESTORE,
         "Restaurar backups",
-        "Backup",
+        PermissionCategory.SYSTEM,
         "CRITICAL",
         requires_2fa=True
     ),
     PermissionType.BACKUP_ADMIN: PermissionDefinition(
         PermissionType.BACKUP_ADMIN,
         "Administração completa de backup",
-        "Backup",
+        PermissionCategory.SYSTEM,
         "HIGH",
         requires_2fa=True
     ),
@@ -507,7 +516,7 @@ class RBACPermission(Base):
     permission_type = Column(String(100), unique=True, nullable=False)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    category = Column(String, nullable=False)
+    category = Column(SQLEnum(PermissionCategory), nullable=False)
     risk_level = Column(String, nullable=False)  # LOW, MEDIUM, HIGH, CRITICAL
     requires_2fa = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
