@@ -164,7 +164,7 @@ async def create_login_session(admin_user: AdminUser, token: str, session: Async
     try:
         login_session = LoginSession(
             admin_user_id=admin_user.id,
-            token_hash=get_password_hash(token),
+            session_token=get_password_hash(token),
             expires_at=datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         )
         session.add(login_session)
