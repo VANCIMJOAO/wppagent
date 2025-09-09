@@ -107,6 +107,24 @@ class SimpleJWTManager:
                 "error": str(e)
             }
 
+    def get_current_user_from_token(self, token: str) -> Optional[Dict[str, Any]]:
+        """Obtém dados do usuário atual a partir do token (para WebSocket)"""
+        try:
+            payload = self.verify_token(token)
+            return {
+                "id": payload.get("sub"),
+                "user_id": payload.get("sub"),
+                "role": payload.get("role", "user"),
+                "permissions": payload.get("permissions", [])
+            }
+        except jwt.InvalidTokenError:
+            return None
+
 
 # Instância global simplificada
 jwt_manager = SimpleJWTManager()
+
+# Função global para compatibilidade
+def get_current_user_from_token(token: str) -> Optional[Dict[str, Any]]:
+    """Função global para compatibilidade com WebSocket"""
+    return jwt_manager.get_current_user_from_token(token)
