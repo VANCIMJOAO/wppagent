@@ -67,6 +67,15 @@ class PermissionType(str, Enum):
     USER_MANAGEMENT = "users:manage"
     ROLE_MANAGEMENT = "roles:manage"
     PERMISSIONS_MANAGEMENT = "permissions:manage"
+    
+    # Monitoramento
+    MONITORING_VIEW = "monitoring:view"
+    MONITORING_ADMIN = "monitoring:admin"
+    
+    # Backup e Manutenção  
+    BACKUP_CREATE = "backup:create"
+    BACKUP_RESTORE = "backup:restore"
+    BACKUP_ADMIN = "backup:admin"
 
 
 class PermissionCategory(str, Enum):
@@ -85,15 +94,6 @@ class RiskLevel(str, Enum):
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
     CRITICAL = "CRITICAL"
-    
-    # Monitoramento
-    MONITORING_VIEW = "monitoring:view"
-    MONITORING_ADMIN = "monitoring:admin"
-    
-    # Backup e Manutenção
-    BACKUP_CREATE = "backup:create"
-    BACKUP_RESTORE = "backup:restore"
-    BACKUP_ADMIN = "backup:admin"
 
 class PermissionCategory(str, Enum):
     """Categorias de permissões"""
