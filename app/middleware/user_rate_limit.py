@@ -84,20 +84,27 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         """Processar requisição com rate limiting"""
         
+        logger.debug(f"Rate limiting middleware started for {request.url.path}")
+        
         # Pular rate limiting para certos paths
         if self._should_skip_rate_limiting(request):
+            logger.debug(f"Skipping rate limiting for {request.url.path}")
             return await call_next(request)
         
+        logger.debug(f"Getting user info for {request.url.path}")
         # Obter informações do usuário
         user_info = await self._get_user_info(request)
         
         if not user_info:
+            logger.debug(f"No user info, handling IP rate limiting for {request.url.path}")
             # Se não há usuário autenticado, usar rate limiting básico por IP
             return await self._handle_ip_rate_limiting(request, call_next)
         
         user_id = user_info['id']
         user_type = user_info.get('type', 'regular')
         endpoint_key = self._get_endpoint_key(request)
+        
+        logger.debug(f"User rate limiting for user {user_id}, endpoint {endpoint_key}")
         
         # Obter configuração de limite
         limit_config = self._get_limit_config(endpoint_key, user_type)
@@ -107,17 +114,21 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             rate_limit_result = await self._check_rate_limit(user_id, endpoint_key, limit_config)
             
             if rate_limit_result['exceeded']:
+                logger.debug(f"Rate limit exceeded for user {user_id}")
                 return await self._handle_rate_limit_exceeded(rate_limit_result, limit_config)
             
             # Incrementar contador
             await self._increment_counter(user_id, endpoint_key, limit_config)
             
+            logger.debug(f"Calling next middleware for user {user_id}")
             # Processar requisição
             response = await call_next(request)
             
+            logger.debug(f"Adding rate limit headers for user {user_id}")
             # Adicionar headers de rate limit
             await self._add_rate_limit_headers(response, user_id, endpoint_key, limit_config)
             
+            logger.debug(f"Rate limiting completed successfully for user {user_id}")
             return response
             
         except Exception as e:
@@ -127,6 +138,7 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             
             response = await call_next(request)
             response.headers["X-RateLimit-Status"] = "disabled-error"
+            logger.debug(f"Rate limiting error handled, returning response")
             return response
     
     def _should_skip_rate_limiting(self, request: Request) -> bool:
