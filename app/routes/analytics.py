@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.auth.middleware import require_admin
 from app.models.database import AdminUser
+from app.routes.admin_auth import get_current_admin_user
 from app.services.analytics_engine import AdvancedAnalyticsEngine
 from app.utils.logger import get_logger
 
@@ -28,7 +29,7 @@ async def get_conversion_funnel_analysis(
         description="Data fim (ISO format). Default: hoje"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
+    current_admin: AdminUser = Depends(get_current_admin_user)
 ):
     """
     📊 Análise completa do funil de conversão
@@ -83,7 +84,7 @@ async def get_time_based_analytics(
         description="Período em dias (1-365)"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
+    current_admin: AdminUser = Depends(get_current_admin_user)
 ):
     """
     🕐 Análise temporal detalhada de atividade
@@ -135,7 +136,7 @@ async def get_customer_insights_analysis(
         description="Incluir detalhes completos dos clientes"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
+    current_admin: AdminUser = Depends(get_current_admin_user)
 ):
     """
     👥 Insights detalhados sobre base de clientes
@@ -195,7 +196,7 @@ async def get_business_metrics_analysis(
         description="Incluir métricas financeiras detalhadas"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
+    current_admin: AdminUser = Depends(get_current_admin_user)
 ):
     """
     💰 Métricas de negócio essenciais
@@ -252,7 +253,7 @@ async def get_dashboard_summary(
         description="Período em dias (máx 30 para performance)"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
+    current_admin: AdminUser = Depends(get_current_admin_user)
 ):
     """
     🎯 Resumo executivo para dashboard principal
@@ -321,7 +322,7 @@ async def export_analytics_data(
     format: str = Query("json", regex="^(json|csv)$"),
     days: int = Query(30, le=365, ge=1),
     session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
+    current_admin: AdminUser = Depends(get_current_admin_user)
 ):
     """
     📥 Exportar dados de analytics em diferentes formatos
