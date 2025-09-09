@@ -15,9 +15,8 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import Optional, Dict, Any
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class WebSocketIntegrationService:

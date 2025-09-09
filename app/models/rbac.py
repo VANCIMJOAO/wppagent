@@ -504,7 +504,7 @@ class RBACPermission(Base):
     __tablename__ = "rbac_permissions"
     
     id = Column(Integer, primary_key=True, index=True)
-    permission_type = Column(SQLEnum(PermissionType), unique=True, nullable=False)
+    permission_type = Column(String(100), unique=True, nullable=False)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     category = Column(String, nullable=False)
@@ -512,6 +512,7 @@ class RBACPermission(Base):
     requires_2fa = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relacionamentos
     roles = relationship("RBACRole", secondary=role_permissions, back_populates="permissions")

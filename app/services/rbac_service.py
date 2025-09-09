@@ -4,6 +4,7 @@ Sistema completo de controle de acesso baseado em funções
 """
 
 import asyncio
+import logging
 from typing import List, Dict, Set, Optional, Tuple
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,9 +19,8 @@ from app.models.rbac import (
     PERMISSION_DEFINITIONS, ROLE_CONFIGURATIONS,
     UserResponse, RoleResponse, PermissionResponse
 )
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class RBACService:
     """Serviço principal para gerenciamento RBAC"""
