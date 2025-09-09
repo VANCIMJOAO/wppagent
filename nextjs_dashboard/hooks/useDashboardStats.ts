@@ -7,6 +7,7 @@
 import { useApiGet } from '@/hooks/useApi'
 import { DashboardStatsComplete } from '@/types/api'
 import { useAuth } from '@/hooks/useAuth'
+import { authService } from '@/lib/auth-service'
 
 import { useState, useEffect } from 'react'
 
@@ -36,11 +37,11 @@ export function useDashboardStats() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { authenticatedFetch, isAuthenticated, loading: authLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
 
   useEffect(() => {
     // Aguardar carregamento da autenticação
-    if (authLoading) {
+    if (isLoading) {
       return
     }
 
@@ -56,7 +57,10 @@ export function useDashboardStats() {
 
       try {
         // Buscar estatísticas diárias principais
-        const dailyResponse = await authenticatedFetch('/api/proxy/api/dashboard/stats/daily')
+        const token = await authService.getValidToken()
+        const dailyResponse = await fetch('/api/proxy/api/dashboard/stats/daily', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        })
 
         if (!dailyResponse.ok) {
           throw new Error(`Erro ao buscar dados: ${dailyResponse.status} ${dailyResponse.statusText}`)
@@ -67,7 +71,9 @@ export function useDashboardStats() {
         // Buscar estatísticas de clientes em paralelo (opcional)
         let clientStats = {}
         try {
-          const clientStatsResponse = await authenticatedFetch('/api/proxy/api/dashboard/clients/stats')
+          const clientStatsResponse = await fetch('/api/proxy/api/dashboard/clients/stats', {
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+          })
           if (clientStatsResponse.ok) {
             clientStats = await clientStatsResponse.json()
           }
@@ -113,7 +119,7 @@ export function useDashboardStats() {
     }
 
     fetchStats()
-  }, [isAuthenticated, authLoading, authenticatedFetch]) // Refetch quando authentication status muda
+  }, [isAuthenticated, isLoading]) // Refetch quando authentication status muda
 
   return { stats, loading, error }
 }

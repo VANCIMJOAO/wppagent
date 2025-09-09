@@ -32,6 +32,11 @@ from app.schemas.unified import (
 )
 from app.routes.admin_auth import get_current_admin_user, AdminUser
 from app.services.cache_optimized import cache_service, CacheKeys
+from app.services.cache_invalidation import (
+    cache_invalidation_service, 
+    CacheEvent,
+    invalidate_appointment_cache
+)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -355,12 +360,16 @@ async def create_appointment(
         await session.commit()
         await session.refresh(new_appointment)
         
-        # ✅ INVALIDAR CACHE após criação
-        cache_service.invalidate_pattern("appointments:list:*")
-        cache_service.invalidate_pattern("dashboard:stats:*")
-        logger.info(f"✅ Cache invalidado após criação do agendamento {new_appointment.id}")
+        # ✅ INVALIDAR CACHE de forma centralizada após criação
+        await invalidate_appointment_cache(
+            event=CacheEvent.APPOINTMENT_CREATED,
+            appointment_id=new_appointment.id,
+            client_id=new_appointment.user_id,
+            business_id=new_appointment.business_id
+        )
         
         logger.info(f"✅ Agendamento criado com ID: {new_appointment.id}")
+        logger.info(f"✅ Cache invalidado automaticamente para appointment_created")
         
         # Buscar dados completos para resposta
         complete_result = await session.execute(
@@ -481,13 +490,16 @@ async def update_appointment(
         await session.commit()
         await session.refresh(appointment)
         
-        # ✅ INVALIDAR CACHE após atualização
-        cache_service.invalidate_pattern("appointments:list:*")
-        cache_service.invalidate_pattern("dashboard:stats:*")
-        cache_service.delete(f"appointments:detail:{appointment_id}")
-        logger.info(f"✅ Cache invalidado após atualização do agendamento {appointment_id}")
+        # ✅ INVALIDAR CACHE de forma centralizada após atualização
+        await invalidate_appointment_cache(
+            event=CacheEvent.APPOINTMENT_UPDATED,
+            appointment_id=appointment_id,
+            client_id=appointment.user_id,
+            business_id=appointment.business_id
+        )
         
         logger.info(f"✅ Agendamento {appointment_id} atualizado")
+        logger.info(f"✅ Cache invalidado automaticamente para appointment_updated")
         
         # Buscar dados completos para resposta
         complete_result = await session.execute(
@@ -535,13 +547,16 @@ async def delete_appointment(
         await session.delete(appointment)
         await session.commit()
         
-        # ✅ INVALIDAR CACHE após exclusão
-        cache_service.invalidate_pattern("appointments:list:*")
-        cache_service.invalidate_pattern("dashboard:stats:*")
-        cache_service.delete(f"appointments:detail:{appointment_id}")
-        logger.info(f"✅ Cache invalidado após exclusão do agendamento {appointment_id}")
+        # ✅ INVALIDAR CACHE de forma centralizada após exclusão
+        await invalidate_appointment_cache(
+            event=CacheEvent.APPOINTMENT_DELETED,
+            appointment_id=appointment_id,
+            client_id=appointment.user_id,
+            business_id=appointment.business_id
+        )
         
         logger.info(f"✅ Agendamento {appointment_id} excluído")
+        logger.info(f"✅ Cache invalidado automaticamente para appointment_deleted")
         
         return {"message": "Agendamento excluído com sucesso", "id": appointment_id}
         

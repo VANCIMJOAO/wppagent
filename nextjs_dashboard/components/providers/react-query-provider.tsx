@@ -3,7 +3,7 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
-import { queryClient } from '@/lib/react-query'
+import { createQueryClient } from '@/lib/react-query'
 
 interface ReactQueryProviderProps {
   children: React.ReactNode
@@ -11,7 +11,7 @@ interface ReactQueryProviderProps {
 
 export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
   // Usar useState para garantir que o queryClient seja estável
-  const [client] = useState(() => queryClient)
+  const [client] = useState(() => createQueryClient())
 
   return (
     <QueryClientProvider client={client}>
@@ -20,7 +20,7 @@ export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
       {process.env.NODE_ENV === 'development' && (
         <ReactQueryDevtools 
           initialIsOpen={false}
-          position="bottom-right"
+          position="bottom"
         />
       )}
     </QueryClientProvider>

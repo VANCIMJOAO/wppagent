@@ -4,7 +4,20 @@
  */
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DashboardStats } from '@/hooks/useDashboardStats'
+// import type { DashboardStats } from '@/hooks/useDashboardStats'
+// Define the DashboardStats type here if not exported from the hook
+interface DashboardStats {
+  total_clients: number;
+  growth_rate?: number;
+  conversations_today: number;
+  total_conversations: number;
+  appointments_today: number;
+  total_appointments: number;
+  conversion_rate?: number;
+  messages_today: number;
+  total_messages: number;
+  new_clients_today: number;
+}
 import { 
   Users, 
   MessageCircle, 

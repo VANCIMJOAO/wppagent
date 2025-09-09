@@ -1,25 +1,33 @@
 """
-WebSocket Router - Tempo Real
-============================
+🌐 WebSocket Router - Real-time Updates System
+==============================================
 
-Implementa endpoints WebSocket para comunicação em tempo real
-entre o backend e o dashboard.
+Router principal para WebSocket com:
+- Endpoint WebSocket robusto
+- Event handlers para diferentes tipos de mensagem
+- Integration com Connection Manager
+- Broadcasting automático de eventos
+- Error handling e reconnection
 
-Eventos suportados:
-- new_message: Nova mensagem recebida
-- conversation_update: Atualização de conversa
-- appointment_update: Atualização de agendamento
-- status_change: Mudança de status
+Status: Resolução completa do problema 4.1 Real-time Updates Parciais
 """
 
 import json
 import asyncio
+from typing import Dict, Any
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
+from fastapi.security import HTTPBearer
 import logging
-from datetime import datetime
-from typing import Dict, List, Set
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
-from fastapi.websockets import WebSocketState
-from app.utils.logger import get_logger
+
+from app.websocket.connection_manager import (
+    connection_manager, 
+    WebSocketMessage, 
+    EventType, 
+    RoomType,
+    ConnectionInfo
+)
+from app.core.auth import get_current_user_from_token
+from app.core.database import get_db
 
 logger = get_logger(__name__)
 

@@ -244,6 +244,10 @@ app.include_router(secrets_router, prefix="/secrets", tags=["Secrets Management"
 from app.routes.security import router as security_router
 app.include_router(security_router, prefix="/security", tags=["Security & Encryption"])
 
+# 🛡️ Incluir CSP Security Reporter
+from app.security.csp_reporter import security_router as csp_security_router
+app.include_router(csp_security_router, tags=["CSP Security"])
+
 # Incluir rotas de administração de estratégias
 from app.routes.strategy_admin import router as strategy_admin_router
 app.include_router(strategy_admin_router, tags=["Strategy Management"])

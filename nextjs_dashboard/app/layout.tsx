@@ -10,8 +10,6 @@ export const metadata = {
   title: 'WhatsApp Agent Dashboard',
   description: 'Dashboard de gestão do WhatsApp Agent - Funciona offline como PWA',
   manifest: '/manifest.json',
-  themeColor: '#366092',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -26,6 +24,15 @@ export const metadata = {
       { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' }
     ]
   }
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  themeColor: '#366092'
 }
 
 export default function RootLayout({
@@ -64,18 +71,8 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ErrorBoundary
-          level="global"
-          name="RootLayout"
-          onError={(error, errorInfo) => {
-            // Log crítico para erros globais
-            console.error('🚨 Critical Global Error:', {
-              message: error.message,
-              stack: error.stack,
-              componentStack: errorInfo.componentStack,
-              timestamp: new Date().toISOString(),
-              url: typeof window !== 'undefined' ? window.location.href : 'SSR'
-            });
-          }}
+        level="global"
+        name="RootLayout"
         >
           <PWAWrapper>
             <AuthProvider>

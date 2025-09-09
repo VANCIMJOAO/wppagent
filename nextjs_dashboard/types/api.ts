@@ -441,3 +441,130 @@ export const CONVERSATION_STATUSES: ConversationStatus[] = [
 export const CLIENT_STATUSES: ClientStatus[] = [
   'active', 'inactive', 'new', 'vip'
 ];
+
+// ✅ TIPOS PARA DASHBOARD
+
+/**
+ * 📊 Métricas do Dashboard
+ */
+export interface DashboardMetrics {
+  total_clients: number;
+  active_conversations: number;
+  pending_appointments: number;
+  messages_today: number;
+  response_time_avg: number;
+  client_satisfaction: number;
+  growth_rate: number;
+  active_sessions: number;
+}
+
+/**
+ * 📊 Dados de gráfico
+ */
+export interface ChartData {
+  date: string;
+  messages: number;
+  conversations: number;
+  appointments: number;
+  clients: number;
+}
+
+/**
+ * 📊 Estatísticas de clientes
+ */
+export interface ClientStats {
+  total: number;
+  active: number;
+  new_this_month: number;
+  inactive: number;
+  blocked?: number;
+  growth_percentage?: number;
+}
+
+/**
+ * 📊 Dados do Dashboard
+ */
+export interface DashboardData {
+  metrics: DashboardMetrics;
+  recent_conversations: Conversation[];
+  upcoming_appointments: Appointment[];
+  activity_chart: ChartData[];
+  client_stats: ClientStats;
+}
+
+/**
+ * 📊 Atividade Recente
+ */
+export interface RecentActivity {
+  id: number;
+  type: 'conversation' | 'appointment' | 'message' | 'client' | 'system';
+  title: string;
+  description: string;
+  timestamp: string;
+  icon?: string;
+  status?: string;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * 📊 Dashboard Stats Completos para Loading States
+ */
+export interface DashboardStatsComplete extends DashboardData {
+  kpis: {
+    totalClients: number;
+    totalConversations: number;
+    totalAppointments: number;
+    totalMessages: number;
+    responseTimeAvg?: number;
+    satisfactionScore?: number;
+    growthRate?: number;
+    activeUsers?: number;
+  };
+  charts: {
+    conversationsOverTime: ChartData[];
+    appointmentsByStatus: any[];
+    clientGrowth: ChartData[];
+    messageVolume?: ChartData[];
+  };
+  recentActivity: RecentActivity[];
+  loading?: boolean;
+  error?: string | null;
+  conversation_stats?: {
+    total: number;
+    resolved: number;
+    pending: number;
+    escalated: number;
+    avg_resolution_time: number;
+    satisfaction_rate: number;
+  };
+  appointment_stats?: {
+    total: number;
+    confirmed: number;
+    pending: number;
+    cancelled: number;
+    completion_rate: number;
+    no_show_rate: number;
+  };
+  performance_metrics?: {
+    response_time: {
+      avg: number;
+      median: number;
+      p95: number;
+    };
+    resolution_time: {
+      avg: number;
+      median: number;
+      p95: number;
+    };
+    satisfaction_score: number;
+    first_contact_resolution: number;
+  };
+  alerts?: any[];
+  system_health?: {
+    api_status: string;
+    database_status: string;
+    webhook_status: string;
+    last_backup: string;
+    uptime_percentage: number;
+  };
+}
