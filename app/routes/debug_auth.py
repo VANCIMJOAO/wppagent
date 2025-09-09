@@ -8,7 +8,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.routes.admin_auth import get_current_admin_user, AdminUser
-from app.services.jwt_manager import jwt_manager
+from app.auth.jwt_manager import jwt_manager
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)

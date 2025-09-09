@@ -316,6 +316,23 @@ class CacheInvalidationService:
                 f"{len(errors)} errors"
             )
             
+            # 🔔 NOTIFICAR VIA WEBSOCKET - Integração automática
+            try:
+                # Import dinâmico para evitar circular imports
+                from app.services.websocket_cache_sync import notify_cache_invalidation
+                
+                # Notificar clientes WebSocket sobre a invalidação
+                websocket_result = await notify_cache_invalidation(
+                    event=event,
+                    entity_id=context.get('appointment_id') or context.get('client_id') or context.get('conversation_id'),
+                    context=context
+                )
+                
+                logger.debug(f"🔔 WebSocket notification sent: {websocket_result}")
+                
+            except Exception as ws_error:
+                logger.debug(f"WebSocket notification falhou (não crítico): {ws_error}")
+            
             return {
                 "success": True,
                 "event": str(event),

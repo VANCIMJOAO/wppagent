@@ -1,425 +1,460 @@
 """
-Analytics Routes - Endpoints para dashboard de business intelligence
-Fornece APIs REST para análises avançadas do WhatsApp Agent
+🚀 ANALYTICS AVANÇADAS - BUSINESS INTELLIGENCE
+Endpoints para analytics avançadas incluindo:
+- Conversion Funnel Analysis
+- Customer Segmentation (RFM)
+- Churn Prediction
+- ROI Metrics & Performance
 """
 
-from fastapi import APIRouter, Depends, Query, HTTPException
-from datetime import datetime, timedelta
-from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timedelta
+from typing import Optional, List, Dict, Any
+import logging
 
-from app.database import get_db
-from app.auth.middleware import require_admin
-from app.services.analytics_engine import AdvancedAnalyticsEngine
-from app.utils.logger import get_logger
+from ..database import get_db
+from ..services.analytics_engine_advanced import AdvancedAnalyticsEngine
+from ..auth.middleware import require_admin
 
-logger = get_logger(__name__)
-router = APIRouter(prefix="/analytics", tags=["Advanced Analytics"])
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/analytics/advanced", tags=["Analytics Avançadas"])
 
-@router.get("/funnel")
+
+@router.get("/conversion-funnel")
 async def get_conversion_funnel_analysis(
-    start_date: Optional[datetime] = Query(
-        default=None,
-        description="Data início (ISO format). Default: 30 dias atrás"
-    ),
-    end_date: Optional[datetime] = Query(
-        default=None,
-        description="Data fim (ISO format). Default: hoje"
-    ),
-    session: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
+    start_date: Optional[str] = Query(None, description="Data início (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="Data fim (YYYY-MM-DD)"),
+    custom_stages: Optional[List[str]] = Query(None, description="Estágios customizados do funil"),
+    include_cohort: bool = Query(True, description="Incluir análise de coorte"),
+    segment_by: Optional[str] = Query(None, enum=["channel", "month", "week"]),
     current_admin: dict = Depends(require_admin)
 ):
     """
-    📊 Análise completa do funil de conversão
+    🔍 **ANÁLISE DETALHADA DO FUNIL DE CONVERSÃO**
     
-    Retorna:
-    - Número de usuários em cada etapa do funil
-    - Taxas de conversão entre etapas
-    - Análise de drop-off
-    - Recomendações de otimização
+    Retorna análise completa do funil de conversão com:
+    - Taxa de conversão entre estágios
+    - Identificação de gargalos
+    - Análise temporal de coortes
+    - Segmentação por canal ou período
+    - Métricas de performance detalhadas
+    
+    **Casos de uso:**
+    - Identificar onde clientes abandonam o processo
+    - Otimizar taxa de conversão
+    - Comparar performance entre canais
+    - Análise de tendências temporais
     """
-    logger.info(f"🔍 Admin {current_admin.username} solicitou análise do funil")
-    
     try:
-        # Define período padrão se não fornecido
-        if not end_date:
-            end_date = datetime.now()
-        if not start_date:
-            start_date = end_date - timedelta(days=30)
+        logger.info(f"🔍 Admin {current_admin.get('username', 'unknown')} solicitou análise do funil")
         
-        # Validar período
-        if start_date >= end_date:
-            raise HTTPException(status_code=400, detail="Data início deve ser anterior à data fim")
+        analytics_engine = AdvancedAnalyticsEngine(db)
         
-        if (end_date - start_date).days > 365:
-            raise HTTPException(status_code=400, detail="Período máximo: 365 dias")
+        # Parse dates se fornecidas
+        parsed_start = datetime.fromisoformat(start_date) if start_date else None
+        parsed_end = datetime.fromisoformat(end_date) if end_date else None
         
-        analytics = AdvancedAnalyticsEngine(session)
-        result = await analytics.get_conversion_funnel(start_date, end_date)
-        
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-        
-        logger.info(f"✅ Funil analisado: {result['conversion_rates']['overall_conversion']:.1f}% conversão")
-        return {
-            "status": "success",
-            "data": result,
-            "message": f"Funil analisado para período de {(end_date - start_date).days} dias"
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ Erro na análise do funil: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
-
-@router.get("/time-analysis")
-async def get_time_based_analytics(
-    days: int = Query(
-        30, 
-        le=365, 
-        ge=1,
-        description="Período em dias (1-365)"
-    ),
-    session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
-):
-    """
-    🕐 Análise temporal detalhada de atividade
-    
-    Retorna:
-    - Padrões por hora do dia
-    - Atividade por dia da semana  
-    - Tendências diárias
-    - Insights e recomendações
-    """
-    logger.info(f"🕐 Admin {current_admin.username} solicitou análise temporal - {days} dias")
-    
-    try:
-        analytics = AdvancedAnalyticsEngine(session)
-        result = await analytics.get_time_based_analytics(days)
-        
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-        
-        # Estatísticas do resultado
-        total_messages = sum(h.get("messages", 0) for h in result.get("hourly_patterns", []))
-        peak_hour = max(result.get("hourly_patterns", []), key=lambda x: x.get("messages", 0), default={})
-        
-        logger.info(f"✅ Análise temporal concluída: {total_messages} mensagens, pico às {peak_hour.get('hour', 'N/A')}h")
-        return {
-            "status": "success",
-            "data": result,
-            "summary": {
-                "total_messages_analyzed": total_messages,
-                "peak_hour": peak_hour.get("hour", None),
-                "analysis_period_days": days
-            }
-        }
-        
-    except Exception as e:
-        logger.error(f"❌ Erro na análise temporal: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
-
-@router.get("/customer-insights")
-async def get_customer_insights_analysis(
-    days: int = Query(
-        30, 
-        le=365, 
-        ge=1,
-        description="Período em dias para análise"
-    ),
-    include_detailed: bool = Query(
-        False,
-        description="Incluir detalhes completos dos clientes"
-    ),
-    session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
-):
-    """
-    👥 Insights detalhados sobre base de clientes
-    
-    Retorna:
-    - Clientes VIP (alto valor)
-    - Clientes em churn (inativos)
-    - Prospects de alto valor
-    - Métricas de segmentação
-    """
-    logger.info(f"👥 Admin {current_admin.username} solicitou insights de clientes - {days} dias")
-    
-    try:
-        analytics = AdvancedAnalyticsEngine(session)
-        result = await analytics.get_customer_insights(days)
-        
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-        
-        # Remover dados sensíveis se não solicitado detalhamento
-        if not include_detailed:
-            for customer_list in ["vip_customers", "churned_customers", "high_value_prospects"]:
-                for customer in result.get(customer_list, []):
-                    if "phone" in customer:
-                        # Mascarar telefone
-                        phone = customer["phone"]
-                        customer["phone"] = phone[:2] + "*" * (len(phone) - 4) + phone[-2:] if phone and len(phone) > 4 else "***"
-        
-        summary = result.get("customer_summary", {})
-        logger.info(f"✅ Insights calculados: {summary.get('total_vip', 0)} VIPs, {summary.get('total_prospects', 0)} prospects")
-        
-        return {
-            "status": "success",
-            "data": result,
-            "summary": {
-                "total_segments_analyzed": 3,
-                "total_customers": summary.get("total_vip", 0) + summary.get("total_churned", 0),
-                "analysis_period_days": days,
-                "data_privacy": "enabled" if not include_detailed else "disabled"
-            }
-        }
-        
-    except Exception as e:
-        logger.error(f"❌ Erro nos insights de clientes: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
-
-@router.get("/business-metrics")
-async def get_business_metrics_analysis(
-    days: int = Query(
-        30,
-        le=365,
-        ge=1, 
-        description="Período em dias para análise"
-    ),
-    include_financial: bool = Query(
-        True,
-        description="Incluir métricas financeiras detalhadas"
-    ),
-    session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
-):
-    """
-    💰 Métricas de negócio essenciais
-    
-    Retorna:
-    - Revenue metrics (receita, AOV, etc.)
-    - Customer metrics (CAC, LTV, etc.) 
-    - Growth metrics (crescimento, tendências)
-    - Efficiency metrics (ROI, conversão)
-    """
-    logger.info(f"💰 Admin {current_admin.username} solicitou métricas de negócio - {days} dias")
-    
-    try:
-        analytics = AdvancedAnalyticsEngine(session)
-        result = await analytics.get_business_metrics(days)
-        
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-        
-        # Filtrar métricas financeiras se solicitado
-        if not include_financial:
-            result["revenue_metrics"] = {
-                k: v for k, v in result.get("revenue_metrics", {}).items() 
-                if k not in ["total_revenue", "revenue_per_customer"]
-            }
-            result["customer_metrics"]["estimated_marketing_spend"] = "***"
-        
-        revenue = result.get("revenue_metrics", {}).get("total_revenue", 0)
-        roi = result.get("efficiency_metrics", {}).get("roi_percentage", 0)
-        
-        logger.info(f"✅ Métricas calculadas: R$ {revenue:.2f} receita, {roi:.1f}% ROI")
-        
-        return {
-            "status": "success", 
-            "data": result,
-            "summary": {
-                "analysis_period_days": days,
-                "revenue_analyzed": revenue if include_financial else "***",
-                "roi_percentage": roi,
-                "financial_details_included": include_financial
-            }
-        }
-        
-    except Exception as e:
-        logger.error(f"❌ Erro nas métricas de negócio: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
-
-@router.get("/dashboard-summary")
-async def get_dashboard_summary(
-    days: int = Query(
-        7,
-        le=30,
-        ge=1,
-        description="Período em dias (máx 30 para performance)"
-    ),
-    session: AsyncSession = Depends(get_db),
-    current_admin: dict = Depends(require_admin)
-):
-    """
-    🎯 Resumo executivo para dashboard principal
-    
-    Combina métricas essenciais de todas as análises em um endpoint otimizado
-    """
-    logger.info(f"🎯 Admin {current_admin.username} solicitou resumo do dashboard - {days} dias")
-    
-    try:
-        analytics = AdvancedAnalyticsEngine(session)
-        
-        # Executar análises em paralelo (versões simplificadas)
-        funnel_data = await analytics.get_conversion_funnel(
-            datetime.now() - timedelta(days=days),
-            datetime.now()
+        result = await analytics_engine.calculate_detailed_conversion_funnel(
+            start_date=parsed_start,
+            end_date=parsed_end,
+            custom_stages=custom_stages,
+            include_cohort_analysis=include_cohort,
+            segment_by=segment_by
         )
         
-        customer_data = await analytics.get_customer_insights(days)
-        business_data = await analytics.get_business_metrics(days)
+        logger.info(f"✅ Funil de conversão calculado: {len(result.get('stages', []))} estágios")
         
-        # Compilar resumo executivo
-        summary = {
-            "period": {
-                "days": days,
-                "start_date": (datetime.now() - timedelta(days=days)).isoformat(),
-                "end_date": datetime.now().isoformat()
-            },
-            "key_metrics": {
-                "overall_conversion_rate": funnel_data.get("conversion_rates", {}).get("overall_conversion", 0),
-                "total_customers": customer_data.get("customer_summary", {}).get("total_vip", 0),
-                "total_revenue": business_data.get("revenue_metrics", {}).get("total_revenue", 0),
-                "roi_percentage": business_data.get("efficiency_metrics", {}).get("roi_percentage", 0)
-            },
-            "alerts": [],
-            "quick_insights": [
-                f"Taxa de conversão: {funnel_data.get('conversion_rates', {}).get('overall_conversion', 0):.1f}%",
-                f"Clientes VIP: {customer_data.get('customer_summary', {}).get('total_vip', 0)}",
-                f"ROI: {business_data.get('efficiency_metrics', {}).get('roi_percentage', 0):.1f}%"
-            ]
-        }
-        
-        # Adicionar alertas baseados em métricas
-        conversion_rate = funnel_data.get("conversion_rates", {}).get("overall_conversion", 0)
-        if conversion_rate < 5:
-            summary["alerts"].append("⚠️ Taxa de conversão baixa - revisar estratégia")
-        
-        churn_rate = customer_data.get("customer_summary", {}).get("churn_rate", 0)
-        if churn_rate > 20:
-            summary["alerts"].append("⚠️ Taxa de churn elevada - focar retenção")
-        
-        logger.info(f"✅ Resumo gerado: {conversion_rate:.1f}% conversão, {len(summary['alerts'])} alertas")
-        
-        return {
-            "status": "success",
-            "data": summary,
-            "generated_at": datetime.now().isoformat()
-        }
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "data": result,
+                "message": "Análise de funil de conversão concluída com sucesso"
+            }
+        )
         
     except Exception as e:
-        logger.error(f"❌ Erro no resumo do dashboard: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+        logger.error(f"❌ Erro na análise do funil de conversão: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno: {str(e)}"
+        )
 
-@router.get("/export/{analysis_type}")
-async def export_analytics_data(
-    analysis_type: str,
-    format: str = Query("json", regex="^(json|csv)$"),
-    days: int = Query(30, le=365, ge=1),
-    session: AsyncSession = Depends(get_db),
+
+@router.get("/customer-segmentation")
+async def get_customer_segmentation(
+    db: AsyncSession = Depends(get_db),
+    analysis_date: Optional[str] = Query(None, description="Data da análise (YYYY-MM-DD)"),
+    include_actions: bool = Query(True, description="Incluir ações recomendadas"),
+    min_transactions: int = Query(1, description="Mínimo de transações para análise"),
+    segment_details: bool = Query(True, description="Incluir detalhes dos segmentos"),
     current_admin: dict = Depends(require_admin)
 ):
     """
-    📥 Exportar dados de analytics em diferentes formatos
+    👥 **SEGMENTAÇÃO AVANÇADA DE CLIENTES (RFM)**
     
-    Tipos disponíveis: funnel, time-analysis, customer-insights, business-metrics
-    Formatos: json, csv
+    Análise RFM completa com:
+    - Segmentação em 8 categorias estratégicas
+    - Scoring de Recency, Frequency, Monetary
+    - Ações recomendadas por segmento
+    - Características detalhadas de cada grupo
+    - Insights para estratégias de marketing
+    
+    **Segmentos identificados:**
+    - VIP Champions: Clientes mais valiosos
+    - Loyal Customers: Base leal e consistente
+    - Potential Loyalists: Alta oportunidade
+    - New Customers: Recém-chegados
+    - At Risk: Precisam de atenção
+    - Cannot Lose Them: Retenção crítica
+    - Lost Customers: Reativação necessária
     """
-    logger.info(f"📥 Admin {current_admin.username} exportando {analysis_type} - {format}")
-    
     try:
-        analytics = AdvancedAnalyticsEngine(session)
+        logger.info(f"👥 Admin {current_admin.get('username', 'unknown')} solicitou segmentação RFM")
         
-        # Executar análise baseada no tipo solicitado
-        if analysis_type == "funnel":
-            data = await analytics.get_conversion_funnel(
-                datetime.now() - timedelta(days=days),
-                datetime.now()
-            )
-        elif analysis_type == "time-analysis":
-            data = await analytics.get_time_based_analytics(days)
-        elif analysis_type == "customer-insights":
-            data = await analytics.get_customer_insights(days)
-        elif analysis_type == "business-metrics":
-            data = await analytics.get_business_metrics(days)
-        else:
-            raise HTTPException(status_code=400, detail="Tipo de análise inválido")
+        analytics_engine = AdvancedAnalyticsEngine(db)
         
-        if "error" in data:
-            raise HTTPException(status_code=500, detail=data["error"])
+        # Parse date se fornecida
+        parsed_date = datetime.fromisoformat(analysis_date) if analysis_date else None
         
-        # Para CSV, converter dados complexos em formato tabular
-        if format == "csv":
-            import csv
-            import io
-            
-            output = io.StringIO()
-            
-            if analysis_type == "funnel":
-                writer = csv.writer(output)
-                writer.writerow(["Etapa", "Quantidade", "Taxa_Conversao"])
-                stages = data.get("funnel_stages", {})
-                rates = data.get("conversion_rates", {})
-                
-                writer.writerow(["Primeiro Contato", stages.get("first_contact", 0), "100%"])
-                writer.writerow(["Bot Response", stages.get("bot_response", 0), f"{rates.get('contact_to_response', 0):.1f}%"])
-                writer.writerow(["Agendado", stages.get("scheduled", 0), f"{rates.get('contact_to_schedule', 0):.1f}%"])
-                writer.writerow(["Confirmado", stages.get("confirmed", 0), f"{rates.get('schedule_to_confirm', 0):.1f}%"])
-                writer.writerow(["Realizado", stages.get("completed", 0), f"{rates.get('confirm_to_complete', 0):.1f}%"])
-            
-            csv_content = output.getvalue()
-            output.close()
-            
-            from fastapi.responses import Response
-            return Response(
-                content=csv_content,
-                media_type="text/csv",
-                headers={"Content-Disposition": f"attachment; filename={analysis_type}_{days}days.csv"}
-            )
+        result = await analytics_engine.calculate_rfm_segmentation(
+            analysis_date=parsed_date,
+            include_recommendations=include_actions,
+            min_transactions=min_transactions
+        )
         
-        # Formato JSON (padrão)
-        return {
-            "status": "success",
-            "analysis_type": analysis_type,
-            "format": format,
-            "period_days": days,
-            "exported_at": datetime.now().isoformat(),
-            "data": data
+        segments_count = len(result) if isinstance(result, list) else 0
+        logger.info(f"✅ Segmentação RFM calculada: {segments_count} segmentos")
+        
+        # Preparar resposta estruturada
+        response_data = {
+            "segments": result,
+            "summary": {
+                "total_segments": segments_count,
+                "analysis_date": (parsed_date or datetime.utcnow()).isoformat(),
+                "methodology": "RFM (Recency, Frequency, Monetary) Analysis"
+            }
         }
         
-    except HTTPException:
-        raise
+        if segment_details:
+            # Adicionar estatísticas por tipo de segmento
+            segment_stats = {}
+            for segment in result:
+                seg_type = segment.segment_type
+                if seg_type not in segment_stats:
+                    segment_stats[seg_type] = {"count": 0, "total_value": 0.0}
+                segment_stats[seg_type]["count"] += 1
+                segment_stats[seg_type]["total_value"] += segment.total_spent
+            
+            response_data["segment_statistics"] = segment_stats
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "data": response_data,
+                "message": f"Segmentação RFM concluída: {segments_count} clientes analisados"
+            }
+        )
+        
     except Exception as e:
-        logger.error(f"❌ Erro na exportação: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+        logger.error(f"❌ Erro na segmentação de clientes: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno: {str(e)}"
+        )
 
-# Health check específico para analytics
-@router.get("/health")
-async def analytics_health_check(
-    session: AsyncSession = Depends(get_db)
+
+@router.get("/churn-prediction")
+async def get_churn_prediction(
+    db: AsyncSession = Depends(get_db),
+    analysis_date: Optional[str] = Query(None, description="Data da análise (YYYY-MM-DD)"),
+    include_low_risk: bool = Query(False, description="Incluir clientes de baixo risco"),
+    risk_threshold: str = Query("medium", enum=["low", "medium", "high"], description="Filtro mínimo de risco"),
+    current_admin: dict = Depends(require_admin)
 ):
-    """🏥 Health check do sistema de analytics"""
+    """
+    🔮 **PREDIÇÃO DE CHURN INTELIGENTE**
+    
+    Sistema avançado de predição de churn com:
+    - Score de risco 0-100 usando múltiplos fatores
+    - Probabilidade de churn calculada
+    - Identificação de fatores-chave de risco
+    - Ações específicas de prevenção
+    - Análise de revenue em risco
+    
+    **Algoritmo considera:**
+    - Recency: Tempo desde último contato (peso 40%)
+    - Frequency: Frequência de interações (peso 25%)
+    - Monetary: Valor monetário (peso 15%)
+    - Engagement: Padrões comportamentais (peso 20%)
+    
+    **Níveis de risco:**
+    - Alto (70-100): Ação imediata necessária
+    - Médio (40-69): Monitoramento próximo
+    - Baixo (0-39): Acompanhamento preventivo
+    """
     try:
-        # Teste básico de conexão com banco
-        from sqlalchemy import select, func
-        result = await session.execute(select(func.now()))
-        db_time = result.scalar()
+        logger.info(f"🔮 Admin {current_admin.get('username', 'unknown')} solicitou predição de churn")
         
-        return {
-            "status": "healthy",
-            "service": "analytics-engine",
-            "database": "connected",
-            "server_time": datetime.now().isoformat(),
-            "database_time": db_time.isoformat() if db_time else None,
-            "version": "1.0.0"
-        }
+        analytics_engine = AdvancedAnalyticsEngine(db)
+        
+        # Parse date se fornecida
+        parsed_date = datetime.fromisoformat(analysis_date) if analysis_date else None
+        
+        result = await analytics_engine.calculate_churn_prediction(
+            analysis_date=parsed_date,
+            include_predictions=include_low_risk or risk_threshold == "low"
+        )
+        
+        # Filtrar por threshold se necessário
+        if not include_low_risk and risk_threshold != "low":
+            filtered_predictions = []
+            for pred in result.get("predictions", []):
+                if risk_threshold == "high" and pred.churn_risk == "high":
+                    filtered_predictions.append(pred)
+                elif risk_threshold == "medium" and pred.churn_risk in ["high", "medium"]:
+                    filtered_predictions.append(pred)
+                else:
+                    filtered_predictions.append(pred)
+            
+            result["predictions"] = filtered_predictions
+            result["filtered_by"] = risk_threshold
+        
+        prediction_count = len(result.get("predictions", []))
+        high_risk_count = result.get("summary", {}).get("high_risk_count", 0)
+        
+        logger.info(f"✅ Predição de churn calculada: {prediction_count} clientes, {high_risk_count} alto risco")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "data": result,
+                "message": f"Predição de churn concluída: {high_risk_count} clientes em alto risco"
+            }
+        )
+        
     except Exception as e:
-        logger.error(f"❌ Analytics health check failed: {e}")
-        return {
-            "status": "unhealthy", 
-            "service": "analytics-engine",
-            "error": str(e)
+        logger.error(f"❌ Erro na predição de churn: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno: {str(e)}"
+        )
+
+
+@router.get("/roi-metrics")
+async def get_roi_metrics(
+    db: AsyncSession = Depends(get_db),
+    start_date: Optional[str] = Query(None, description="Data início (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="Data fim (YYYY-MM-DD)"),
+    include_projections: bool = Query(True, description="Incluir projeções futuras"),
+    channel_filter: Optional[List[str]] = Query(None, description="Filtrar canais específicos"),
+    current_admin: dict = Depends(require_admin)
+):
+    """
+    � **MÉTRICAS AVANÇADAS DE ROI & PERFORMANCE**
+    
+    Dashboard completo de ROI com:
+    - ROI por canal de aquisição
+    - Customer Lifetime Value (CLV)
+    - Customer Acquisition Cost (CAC)
+    - Payback Period por canal
+    - Análise de tendências de crescimento
+    - Revenue metrics detalhadas
+    
+    **Métricas calculadas:**
+    - ROI = (Revenue - Investment) / Investment × 100
+    - CLV baseado em histórico transacional
+    - CAC estimado por canal de marketing
+    - Taxa de conversão por funil
+    - Growth rate período a período
+    
+    **Insights inclusos:**
+    - Canais mais lucrativos
+    - Tendências de performance
+    - Oportunidades de otimização
+    - Alertas de performance
+    """
+    try:
+        logger.info(f"💰 Admin {current_admin.get('username', 'unknown')} solicitou métricas ROI")
+        
+        analytics_engine = AdvancedAnalyticsEngine(db)
+        
+        # Parse dates se fornecidas
+        parsed_start = datetime.fromisoformat(start_date) if start_date else None
+        parsed_end = datetime.fromisoformat(end_date) if end_date else None
+        
+        result = await analytics_engine.calculate_roi_metrics(
+            start_date=parsed_start,
+            end_date=parsed_end
+        )
+        
+        # Filtrar canais se especificado
+        if channel_filter:
+            filtered_channels = [
+                channel for channel in result.get("channel_metrics", [])
+                if channel.canal in channel_filter
+            ]
+            result["channel_metrics"] = filtered_channels
+            result["filtered_channels"] = channel_filter
+        
+        # Adicionar projeções se solicitado
+        if include_projections and result.get("consolidated_metrics"):
+            consolidated = result["consolidated_metrics"]
+            growth_rate = consolidated.get("growth_rate", 0)
+            
+            # Projeção simples baseada no growth rate
+            current_revenue = consolidated.get("total_revenue", 0)
+            projected_30d = current_revenue * (1 + growth_rate / 100) * (30 / 30)  # Próximo mês
+            projected_90d = current_revenue * (1 + growth_rate / 100) * (90 / 30)  # Próximos 3 meses
+            
+            result["projections"] = {
+                "next_30_days_revenue": projected_30d,
+                "next_90_days_revenue": projected_90d,
+                "growth_rate_used": growth_rate,
+                "confidence": "medium" if abs(growth_rate) < 50 else "low"
+            }
+        
+        total_roi = result.get("consolidated_metrics", {}).get("consolidated_roi", 0)
+        
+        logger.info(f"✅ ROI metrics calculadas: ROI consolidado {total_roi:.1f}%")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "data": result,
+                "message": f"Análise de ROI concluída - ROI consolidado: {total_roi:.1f}%"
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Erro nas métricas de ROI: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno: {str(e)}"
+        )
+
+
+@router.get("/dashboard-summary")
+async def get_analytics_dashboard_summary(
+    db: AsyncSession = Depends(get_db),
+    period_days: int = Query(30, description="Período em dias para análise"),
+    current_admin: dict = Depends(require_admin)
+):
+    """
+    📊 **DASHBOARD EXECUTIVO - RESUMO ANALYTICS**
+    
+    Visão consolidada das principais métricas:
+    - KPIs principais
+    - Alertas críticos
+    - Tendências período
+    - Top insights
+    - Ações recomendadas
+    """
+    try:
+        logger.info(f"� Admin {current_admin.get('username', 'unknown')} solicitou dashboard summary")
+        
+        analytics_engine = AdvancedAnalyticsEngine(db)
+        end_date = datetime.utcnow()
+        start_date = end_date - timedelta(days=period_days)
+        
+        # Executar análises em paralelo (simplificado)
+        try:
+            # ROI metrics (principais)
+            roi_data = await analytics_engine.calculate_roi_metrics(start_date, end_date)
+            
+            # Churn prediction (apenas alto risco)
+            churn_data = await analytics_engine.calculate_churn_prediction(
+                analysis_date=end_date,
+                include_predictions=False  # Apenas summary
+            )
+            
+            # Segmentação (contagem básica)
+            segments_data = await analytics_engine.calculate_rfm_segmentation(
+                analysis_date=end_date,
+                include_recommendations=False
+            )
+            
+        except Exception as inner_e:
+            logger.warning(f"⚠️ Erro parcial nas análises: {inner_e}")
+            # Fallback com dados básicos
+            roi_data = {"consolidated_metrics": {"consolidated_roi": 0, "total_revenue": 0}}
+            churn_data = {"summary": {"high_risk_count": 0, "total_customers_analyzed": 0}}
+            segments_data = []
+        
+        # Compilar dashboard
+        consolidated_roi = roi_data.get("consolidated_metrics", {}).get("consolidated_roi", 0)
+        total_revenue = roi_data.get("consolidated_metrics", {}).get("total_revenue", 0)
+        high_risk_customers = churn_data.get("summary", {}).get("high_risk_count", 0)
+        total_customers = churn_data.get("summary", {}).get("total_customers_analyzed", 0)
+        total_segments = len(segments_data) if isinstance(segments_data, list) else 0
+        
+        # Alertas automáticos
+        alerts = []
+        if consolidated_roi < 0:
+            alerts.append("🚨 ROI NEGATIVO - Revisar estratégia de marketing urgente")
+        if high_risk_customers > 0:
+            alerts.append(f"⚠️ {high_risk_customers} clientes em alto risco de churn")
+        if total_revenue == 0:
+            alerts.append("📉 Sem receita no período analisado")
+        
+        # Top insights
+        insights = []
+        if consolidated_roi > 100:
+            insights.append(f"✅ ROI excelente de {consolidated_roi:.1f}% - Estratégia eficaz")
+        if high_risk_customers == 0:
+            insights.append("🎯 Nenhum cliente em alto risco de churn - Retenção saudável")
+        if total_segments > 20:
+            insights.append(f"📊 Base diversificada com {total_segments} segmentos ativos")
+        
+        dashboard_data = {
+            "period": {
+                "days": period_days,
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat()
+            },
+            "key_metrics": {
+                "consolidated_roi": consolidated_roi,
+                "total_revenue": total_revenue,
+                "high_risk_customers": high_risk_customers,
+                "total_customers": total_customers,
+                "active_segments": total_segments
+            },
+            "alerts": alerts,
+            "insights": insights,
+            "quick_actions": [
+                "Ver análise detalhada de churn" if high_risk_customers > 0 else None,
+                "Analisar funil de conversão" if total_revenue > 0 else None,
+                "Revisar segmentação RFM" if total_segments > 0 else None
+            ],
+            "last_updated": datetime.utcnow().isoformat()
         }
+        
+        # Remover ações None
+        dashboard_data["quick_actions"] = [
+            action for action in dashboard_data["quick_actions"] if action
+        ]
+        
+        logger.info(f"✅ Dashboard summary gerado: {len(alerts)} alertas, {len(insights)} insights")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "data": dashboard_data,
+                "message": "Dashboard executivo atualizado com sucesso"
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Erro no dashboard summary: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno: {str(e)}"
+        )
+        

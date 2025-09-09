@@ -30,12 +30,15 @@ import {
   Eye,
   Edit,
   Trash2,
-  Loader2
+  Loader2,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { api } from '@/lib/api-service';
 import type { Appointment as ApiAppointment, AppointmentStatus } from '@/types/api';
 import { toast } from 'sonner';
 import { ExportButtons } from '@/components/export-buttons';
+import { useAppointmentsWebSocket } from '@/hooks/useWebSocket';
 
 interface AppointmentStats {
   total: number;
@@ -89,32 +92,61 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
     thisMonth: 0
   });
 
-  // Load data from API
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        
-        const [appointmentsData, dashboardData] = await Promise.all([
-          api.getAppointments(),
-          api.getDashboardStats()
-        ]);
+  // WebSocket para atualizações em tempo real
+  const { 
+    recentActivity, 
+    appointmentCounts,
+    isConnected, 
+    connectionStats 
+  } = useAppointmentsWebSocket();
 
-        setAppointments(appointmentsData);
-        
-        // Calculate stats from actual appointments data
-        const today = new Date().toDateString();
-        const thisWeek = new Date();
-        thisWeek.setDate(thisWeek.getDate() - thisWeek.getDay()); // Start of week
-        const thisMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // Start of month
-        
-        const calculatedStats: AppointmentStats = {
-          total: appointmentsData.length || 0,
-          confirmed: appointmentsData.filter(a => a.status === 'confirmado').length || 0,
-          pending: appointmentsData.filter(a => a.status === 'agendado').length || 0,
-          cancelled: appointmentsData.filter(a => a.status === 'cancelado').length || 0,
-          completed: appointmentsData.filter(a => a.status === 'realizado').length || 0,
-          today: appointmentsData.filter(a => 
+  // Handle real-time appointment events
+  useEffect(() => {
+    if (recentActivity.length > 0) {
+      const latestActivity = recentActivity[recentActivity.length - 1];
+      
+      // Atualizar appointments baseado no evento
+      if (latestActivity.event_type === 'appointment_created') {
+        // Recarregar dados quando um novo agendamento for criado
+        loadData();
+        toast.success('Novo agendamento criado!', {
+          description: `Agendamento para ${latestActivity.data?.client_name || 'cliente'}`
+        });
+      } else if (latestActivity.event_type === 'appointment_updated') {
+        // Recarregar dados quando um agendamento for atualizado
+        loadData();
+        toast.info('Agendamento atualizado!', {
+          description: `Status: ${latestActivity.data?.status || 'atualizado'}`
+        });
+      }
+    }
+  }, [recentActivity]);
+
+  // Load data from API
+  async function loadData() {
+    try {
+      setLoading(true);
+      
+      const [appointmentsData, dashboardData] = await Promise.all([
+        api.getAppointments(),
+        api.getDashboardStats()
+      ]);
+
+      setAppointments(appointmentsData);
+      
+      // Calculate stats from actual appointments data
+      const today = new Date().toDateString();
+      const thisWeek = new Date();
+      thisWeek.setDate(thisWeek.getDate() - thisWeek.getDay()); // Start of week
+      const thisMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // Start of month
+      
+      const calculatedStats: AppointmentStats = {
+        total: appointmentsData.length || 0,
+        confirmed: appointmentsData.filter(a => a.status === 'confirmado').length || 0,
+        pending: appointmentsData.filter(a => a.status === 'agendado').length || 0,
+        cancelled: appointmentsData.filter(a => a.status === 'cancelado').length || 0,
+        completed: appointmentsData.filter(a => a.status === 'realizado').length || 0,
+        today: appointmentsData.filter(a => 
             new Date(a.data_agendamento).toDateString() === today
           ).length || 0,
           thisWeek: appointmentsData.filter(a => 
@@ -135,8 +167,10 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
       }
     }
 
-    loadData();
-  }, []);
+    // Load data initially
+    useEffect(() => {
+      loadData();
+    }, []);
 
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = appointment.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -201,9 +235,36 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Agendamentos</h1>
-          <p className="text-gray-600 mt-1">Gestão de agenda e compromissos</p>
+        <div className="flex items-center space-x-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Agendamentos</h1>
+            <p className="text-gray-600 mt-1">Gestão de agenda e compromissos</p>
+          </div>
+          {/* WebSocket Status */}
+          <Badge 
+            variant={isConnected ? "default" : "destructive"}
+            className={`flex items-center space-x-2 ${
+              isConnected ? "bg-green-600 hover:bg-green-700" : ""
+            }`}
+          >
+            {isConnected ? (
+              <>
+                <Wifi className="w-3 h-3" />
+                <span>Tempo Real</span>
+              </>
+            ) : (
+              <>
+                <WifiOff className="w-3 h-3" />
+                <span>Offline</span>
+              </>
+            )}
+          </Badge>
+          {/* Real-time Activity Counter */}
+          {recentActivity.length > 0 && (
+            <Badge variant="outline" className="text-xs">
+              {recentActivity.length} evento{recentActivity.length !== 1 ? 's' : ''} recente{recentActivity.length !== 1 ? 's' : ''}
+            </Badge>
+          )}
         </div>
         <div className="flex items-center space-x-3">
           <ExportButtons 

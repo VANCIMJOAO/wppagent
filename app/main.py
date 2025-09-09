@@ -320,11 +320,10 @@ from app.routes.debug_auth import router as debug_auth_router
 app.include_router(debug_auth_router, tags=["Debug"])
 logger.info("🔧 Debug Auth Router ativado - Para troubleshooting")
 
-# �🟡 ANALYTICS AVANÇADAS - Business Intelligence
-# TEMPORARIAMENTE DESABILITADO - CONFLITO COM analytics.py
-# from app.routes.analytics_advanced import router as advanced_analytics_router
-# app.include_router(advanced_analytics_router, tags=["Advanced Analytics"])
-# logger.info("✅ Analytics Avançadas ativadas - Business Intelligence")
+# � ANALYTICS AVANÇADAS - Business Intelligence - ATIVADO
+from app.routes.analytics_advanced import router as advanced_analytics_router
+app.include_router(advanced_analytics_router, tags=["Advanced Analytics"])
+logger.info("✅ Analytics Avançadas ativadas - Business Intelligence")
 
 # 🟡 SISTEMA DE EXPORTAÇÃO - Relatórios CSV/Excel/PDF
 from app.routes.export import router as export_router
@@ -349,9 +348,77 @@ app.include_router(conversations_router, tags=["Dashboard - Conversations"])
 from app.routes.dashboard import router as dashboard_router
 app.include_router(dashboard_router, tags=["Dashboard - Main"])
 
-# 🔥 WEBSOCKET - Comunicação em Tempo Real (Temporariamente desabilitado para fix de import)
-# from app.routes.websocket import router as websocket_router_realtime
-# app.include_router(websocket_router_realtime, tags=["WebSocket - Real Time"])
+# 🔥 WEBSOCKET - Sistema de Tempo Real Avançado (Novo)
+from app.routes.websocket_realtime import router as websocket_realtime_router
+app.include_router(websocket_realtime_router, prefix="/api/websocket", tags=["WebSocket - Real Time"])
+
+# 🧪 Endpoints de Teste para WebSocket
+from app.routes.websocket_test import router as websocket_test_router  
+app.include_router(websocket_test_router, prefix="/api/websocket-test", tags=["WebSocket - Testing"])
+logger.info("🧪 Endpoints de teste WebSocket ativados")
+
+# 🔥 WEBSOCKET - Comunicação em Tempo Real (Ativo com Cache Sync)
+from app.services.websocket_cache_sync import websocket_cache_sync
+from fastapi import WebSocket, WebSocketDisconnect
+
+@app.websocket("/ws/cache-sync")
+async def websocket_cache_sync_endpoint(websocket: WebSocket):
+    """
+    🔄 WebSocket endpoint para sincronização de cache em tempo real
+    
+    Permite que o frontend receba notificações automáticas sobre
+    invalidações de cache para atualizar dados em tempo real.
+    """
+    import uuid
+    connection_id = str(uuid.uuid4())
+    
+    try:
+        # Conectar WebSocket
+        success = await websocket_cache_sync.connect(
+            websocket=websocket,
+            connection_id=connection_id,
+            subscriptions=None  # Se inscrever em todos os eventos
+        )
+        
+        if not success:
+            logger.warning(f"❌ Falha ao conectar WebSocket {connection_id}")
+            return
+        
+        # Manter conexão viva
+        while True:
+            try:
+                # Aguardar mensagens do client (opcional)
+                message = await websocket.receive_json()
+                
+                # Processar mensagem do client se necessário
+                if message.get("type") == "subscribe":
+                    # Client pode se inscrever em eventos específicos
+                    events = message.get("events", [])
+                    logger.info(f"🔔 Client {connection_id} se inscreveu em: {events}")
+                
+                elif message.get("type") == "ping":
+                    # Responder pong para manter conexão
+                    await websocket.send_json({"type": "pong", "timestamp": datetime.utcnow().isoformat()})
+                    
+            except WebSocketDisconnect:
+                break
+            except Exception as e:
+                logger.error(f"❌ Erro na conexão WebSocket {connection_id}: {e}")
+                break
+                
+    except Exception as e:
+        logger.error(f"❌ Erro no WebSocket endpoint: {e}")
+    finally:
+        # Desconectar
+        await websocket_cache_sync.disconnect(connection_id)
+
+# Incluir router WebSocket existente se disponível
+try:
+    from app.routes.websocket import router as websocket_router_realtime
+    app.include_router(websocket_router_realtime, tags=["WebSocket - Real Time"])
+    logger.info("✅ WebSocket router existente incluído")
+except ImportError:
+    logger.info("ℹ️ WebSocket router legacy não encontrado, usando apenas cache sync")
 
 # 🔔 PUSH NOTIFICATIONS - Sistema de Notificações
 from app.routes.push_notifications import router as push_router

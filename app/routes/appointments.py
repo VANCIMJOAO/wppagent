@@ -32,12 +32,15 @@ from app.schemas.unified import (
 )
 from app.routes.admin_auth import get_current_admin_user, AdminUser
 from app.services.cache_optimized import cache_service, CacheKeys
-from app.services.cache_invalidation import (
-    cache_invalidation_service, 
-    CacheEvent,
-    invalidate_appointment_cache
+from app.services.cache_invalidation import CacheEvent
+from app.decorators.cache_invalidation import (
+    invalidate_appointment_cache_on_success,
+    invalidate_cache
 )
 from app.utils.logger import get_logger
+
+# WebSocket integration
+from app.services.websocket_manager import websocket_manager, WebSocketEventType
 
 logger = get_logger(__name__)
 
@@ -320,6 +323,7 @@ async def get_appointments_legacy(
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
 @router.post("/", response_model=AppointmentResponseUnified)
+@invalidate_appointment_cache_on_success(CacheEvent.APPOINTMENT_CREATED)
 async def create_appointment(
     appointment_data: AppointmentCreateRequest,
     current_admin: AdminUser = Depends(get_current_admin_user),
@@ -327,7 +331,7 @@ async def create_appointment(
 ):
     """
     📅 Criar novo agendamento
-    ✅ CACHE INVALIDATION - Limpa cache relacionado após criação
+    ✅ CACHE INVALIDATION AUTOMÁTICA - Via decorator
     """
     try:
         logger.info(f"➕ Criando agendamento - Admin: {current_admin.username}")
@@ -360,16 +364,9 @@ async def create_appointment(
         await session.commit()
         await session.refresh(new_appointment)
         
-        # ✅ INVALIDAR CACHE de forma centralizada após criação
-        await invalidate_appointment_cache(
-            event=CacheEvent.APPOINTMENT_CREATED,
-            appointment_id=new_appointment.id,
-            client_id=new_appointment.user_id,
-            business_id=new_appointment.business_id
-        )
-        
+        # ✅ Cache será invalidado automaticamente pelo decorator
         logger.info(f"✅ Agendamento criado com ID: {new_appointment.id}")
-        logger.info(f"✅ Cache invalidado automaticamente para appointment_created")
+        logger.info(f"✅ Cache invalidation automática via decorator")
         
         # Buscar dados completos para resposta
         complete_result = await session.execute(
@@ -389,6 +386,48 @@ async def create_appointment(
         row = complete_result.fetchone()
         if row:
             appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
+            
+            # 🔥 NEW: WebSocket real-time notification for appointment creation
+            try:
+                await websocket_manager.broadcast_to_topic(
+                    topic="appointments",
+                    event_type=WebSocketEventType.APPOINTMENT_CREATED,
+                    data={
+                        "appointment": {
+                            "id": new_appointment.id,
+                            "client_name": row.user_name,
+                            "service_name": row.service_name or "Serviço Geral",
+                            "business_name": row.business_name,
+                            "date_time": new_appointment.date_time.isoformat(),
+                            "status": new_appointment.status,
+                            "created_by": current_admin.username
+                        },
+                        "message": f"Novo agendamento: {row.user_name}",
+                        "notification": {
+                            "title": "Novo Agendamento",
+                            "body": f"{row.user_name} - {row.service_name or 'Serviço'}"
+                        }
+                    }
+                )
+                
+                # 🔥 NEW: Update dashboard stats in real-time
+                await websocket_manager.broadcast_to_topic(
+                    topic="dashboard",
+                    event_type=WebSocketEventType.DASHBOARD_STATS_UPDATE,
+                    data={
+                        "metric": "appointments_today",
+                        "increment": 1,
+                        "action": "created",
+                        "timestamp": datetime.utcnow().isoformat()
+                    }
+                )
+                
+                logger.info(f"📡 WebSocket notifications sent for appointment {new_appointment.id}")
+                
+            except Exception as ws_error:
+                # Don't fail the main operation if WebSocket fails
+                logger.warning(f"⚠️ WebSocket notification failed: {ws_error}")
+            
             return AppointmentResponseUnified(**appointment_dict)
         
         return new_appointment
@@ -455,6 +494,7 @@ async def get_appointment(
         return AppointmentResponseUnified(**appointment_dict)
 
 @router.put("/{appointment_id}", response_model=AppointmentResponseUnified)
+@invalidate_cache(CacheEvent.APPOINTMENT_UPDATED, entity_id_param="appointment_id")
 async def update_appointment(
     appointment_id: int,
     update_data: AppointmentUpdateRequest,
@@ -463,7 +503,7 @@ async def update_appointment(
 ):
     """
     📅 Atualizar agendamento
-    ✅ CACHE INVALIDATION - Limpa cache relacionado após atualização
+    ✅ CACHE INVALIDATION AUTOMÁTICA - Via decorator
     """
     try:
         # Buscar agendamento
@@ -490,16 +530,9 @@ async def update_appointment(
         await session.commit()
         await session.refresh(appointment)
         
-        # ✅ INVALIDAR CACHE de forma centralizada após atualização
-        await invalidate_appointment_cache(
-            event=CacheEvent.APPOINTMENT_UPDATED,
-            appointment_id=appointment_id,
-            client_id=appointment.user_id,
-            business_id=appointment.business_id
-        )
-        
+        # ✅ Cache será invalidado automaticamente pelo decorator
         logger.info(f"✅ Agendamento {appointment_id} atualizado")
-        logger.info(f"✅ Cache invalidado automaticamente para appointment_updated")
+        logger.info(f"✅ Cache invalidation automática via decorator")
         
         # Buscar dados completos para resposta
         complete_result = await session.execute(
@@ -518,6 +551,66 @@ async def update_appointment(
         
         row = complete_result.fetchone()
         appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
+        
+        # 🔥 NEW: WebSocket notification for appointment update
+        try:
+            # Determine what changed
+            changes = {}
+            if update_data.date_time is not None:
+                changes["date_time"] = update_data.date_time.isoformat()
+            if update_data.status is not None:
+                changes["status"] = update_data.status
+            if update_data.notes is not None:
+                changes["notes"] = update_data.notes
+            if update_data.service_id is not None:
+                changes["service_id"] = update_data.service_id
+                
+            await websocket_manager.broadcast_to_topic(
+                topic="appointments",
+                event_type=WebSocketEventType.APPOINTMENT_UPDATED,
+                data={
+                    "appointment_id": appointment_id,
+                    "changes": changes,
+                    "updated_appointment": {
+                        "id": appointment.id,
+                        "client_name": row.user_name,
+                        "service_name": row.service_name or "Serviço Geral",
+                        "date_time": appointment.date_time.isoformat(),
+                        "status": appointment.status,
+                        "updated_by": current_admin.username
+                    },
+                    "message": f"Agendamento atualizado: {row.user_name}",
+                    "notification": {
+                        "title": "Agendamento Atualizado",
+                        "body": f"{row.user_name} - Status: {appointment.status}"
+                    }
+                }
+            )
+            
+            # Special notification for status changes
+            if update_data.status and update_data.status in ['confirmado', 'cancelado', 'realizado']:
+                status_event = {
+                    'confirmado': WebSocketEventType.APPOINTMENT_CONFIRMED,
+                    'cancelado': WebSocketEventType.APPOINTMENT_CANCELLED,
+                    'realizado': WebSocketEventType.APPOINTMENT_UPDATED
+                }.get(update_data.status, WebSocketEventType.APPOINTMENT_UPDATED)
+                
+                await websocket_manager.broadcast_to_topic(
+                    topic="dashboard",
+                    event_type=status_event,
+                    data={
+                        "appointment_id": appointment_id,
+                        "new_status": update_data.status,
+                        "client_name": row.user_name,
+                        "timestamp": datetime.utcnow().isoformat()
+                    }
+                )
+            
+            logger.info(f"📡 WebSocket update notifications sent for appointment {appointment_id}")
+            
+        except Exception as ws_error:
+            logger.warning(f"⚠️ WebSocket update notification failed: {ws_error}")
+        
         return AppointmentResponseUnified(**appointment_dict)
         
     except Exception as e:
@@ -526,6 +619,7 @@ async def update_appointment(
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
 @router.delete("/{appointment_id}")
+@invalidate_cache(CacheEvent.APPOINTMENT_DELETED, entity_id_param="appointment_id")
 async def delete_appointment(
     appointment_id: int,
     current_admin: AdminUser = Depends(get_current_admin_user),
@@ -533,7 +627,7 @@ async def delete_appointment(
 ):
     """
     📅 Excluir agendamento
-    ✅ CACHE INVALIDATION - Limpa cache relacionado após exclusão
+    ✅ CACHE INVALIDATION AUTOMÁTICA - Via decorator
     """
     try:
         result = await session.execute(
@@ -547,16 +641,9 @@ async def delete_appointment(
         await session.delete(appointment)
         await session.commit()
         
-        # ✅ INVALIDAR CACHE de forma centralizada após exclusão
-        await invalidate_appointment_cache(
-            event=CacheEvent.APPOINTMENT_DELETED,
-            appointment_id=appointment_id,
-            client_id=appointment.user_id,
-            business_id=appointment.business_id
-        )
-        
+        # ✅ Cache será invalidado automaticamente pelo decorator
         logger.info(f"✅ Agendamento {appointment_id} excluído")
-        logger.info(f"✅ Cache invalidado automaticamente para appointment_deleted")
+        logger.info(f"✅ Cache invalidation automática via decorator")
         
         return {"message": "Agendamento excluído com sucesso", "id": appointment_id}
         
