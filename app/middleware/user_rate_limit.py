@@ -1,6 +1,17 @@
 """
 Middleware de Rate Limiting por Usuário
-Controle granular de taxa de requisições por usuário autenticado
+Contr        # Configurar Redis
+        if redis_client:
+            self.redis = redis_client
+        else:
+            try:
+                redis_url = get_redis_config_for_service("UserRateLimitMiddleware")
+                self.redis = redis.from_url(redis_url, decode_responses=True)
+                logger.info(f"✅ Redis connection initialized for rate limiting")
+            except Exception as e:
+                logger.error(f"❌ Redis connection failed: {e}")
+                logger.warning("⚠️ Rate limiting will be disabled due to Redis connection failure")
+                self.redis = Nonea de requisições por usuário autenticado
 """
 
 import time
@@ -16,6 +27,7 @@ from starlette.responses import Response
 import redis.asyncio as redis
 
 from app.config import get_settings
+from app.utils.redis_helper import get_redis_config_for_service
 from app.config.rate_limit_config import (
     ENDPOINT_RATE_LIMITS,
     USER_TYPE_MULTIPLIERS, 

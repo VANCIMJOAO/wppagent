@@ -16,6 +16,7 @@ import os
 import json
 import redis
 from app.config import get_settings
+from app.utils.redis_helper import get_redis_config_for_service
 
 class JWTManager:
     """Manager para JWT com rotação automática e segurança avançada"""
@@ -25,7 +26,8 @@ class JWTManager:
         
         # Tentar conectar ao Redis, mas não falhar se não conseguir
         try:
-            self.redis_client = redis.from_url(self.settings.redis_url)
+            redis_url = get_redis_config_for_service("JWTManager")
+            self.redis_client = redis.from_url(redis_url)
             # Testar conexão
             self.redis_client.ping()
             self.redis_available = True
