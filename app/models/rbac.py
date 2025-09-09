@@ -67,6 +67,24 @@ class PermissionType(str, Enum):
     USER_MANAGEMENT = "users:manage"
     ROLE_MANAGEMENT = "roles:manage"
     PERMISSIONS_MANAGEMENT = "permissions:manage"
+
+
+class PermissionCategory(str, Enum):
+    """Categorias de permissões"""
+    DASHBOARD = "DASHBOARD"
+    APPOINTMENTS = "APPOINTMENTS"
+    CONVERSATIONS = "CONVERSATIONS"
+    CLIENTS = "CLIENTS"
+    REPORTS = "REPORTS"
+    SYSTEM = "SYSTEM"
+
+
+class RiskLevel(str, Enum):
+    """Níveis de risco das permissões"""
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
     
     # Monitoramento
     MONITORING_VIEW = "monitoring:view"
@@ -102,8 +120,8 @@ class PermissionDefinition:
     
     permission: PermissionType
     description: str
-    category: str
-    risk_level: str  # LOW, MEDIUM, HIGH, CRITICAL
+    category: PermissionCategory
+    risk_level: RiskLevel
     requires_2fa: bool = False
 
 # Definições detalhadas das permissões
@@ -113,13 +131,13 @@ PERMISSION_DEFINITIONS = {
         PermissionType.DASHBOARD_VIEW,
         "Visualizar dashboard principal",
         PermissionCategory.DASHBOARD,
-        "LOW"
+        RiskLevel.LOW
     ),
     PermissionType.DASHBOARD_ADMIN: PermissionDefinition(
         PermissionType.DASHBOARD_ADMIN,
         "Administrar configurações do dashboard",
         PermissionCategory.DASHBOARD,
-        "MEDIUM"
+        RiskLevel.MEDIUM
     ),
     
     # Agendamentos
@@ -127,32 +145,32 @@ PERMISSION_DEFINITIONS = {
         PermissionType.APPOINTMENTS_VIEW,
         "Visualizar agendamentos",
         PermissionCategory.APPOINTMENTS,
-        "LOW"
+        RiskLevel.LOW
     ),
     PermissionType.APPOINTMENTS_CREATE: PermissionDefinition(
         PermissionType.APPOINTMENTS_CREATE,
         "Criar novos agendamentos",
         PermissionCategory.APPOINTMENTS,
-        "MEDIUM"
+        RiskLevel.MEDIUM
     ),
     PermissionType.APPOINTMENTS_UPDATE: PermissionDefinition(
         PermissionType.APPOINTMENTS_UPDATE,
         "Editar agendamentos existentes",
         PermissionCategory.APPOINTMENTS,
-        "MEDIUM"
+        RiskLevel.MEDIUM
     ),
     PermissionType.APPOINTMENTS_DELETE: PermissionDefinition(
         PermissionType.APPOINTMENTS_DELETE,
         "Excluir agendamentos",
         PermissionCategory.APPOINTMENTS,
-        "HIGH",
+        RiskLevel.HIGH,
         requires_2fa=True
     ),
     PermissionType.APPOINTMENTS_ADMIN: PermissionDefinition(
         PermissionType.APPOINTMENTS_ADMIN,
         "Administração completa de agendamentos",
         PermissionCategory.APPOINTMENTS,
-        "HIGH",
+        RiskLevel.HIGH,
         requires_2fa=True
     ),
     
@@ -161,26 +179,26 @@ PERMISSION_DEFINITIONS = {
         PermissionType.CONVERSATIONS_VIEW,
         "Visualizar conversas WhatsApp",
         PermissionCategory.CONVERSATIONS,
-        "LOW"
+        RiskLevel.LOW
     ),
     PermissionType.CONVERSATIONS_RESPOND: PermissionDefinition(
         PermissionType.CONVERSATIONS_RESPOND,
         "Responder conversas WhatsApp",
         PermissionCategory.CONVERSATIONS,
-        "MEDIUM"
+        RiskLevel.MEDIUM
     ),
     PermissionType.CONVERSATIONS_DELETE: PermissionDefinition(
         PermissionType.CONVERSATIONS_DELETE,
         "Excluir conversas",
         PermissionCategory.CONVERSATIONS,
-        "HIGH",
+        RiskLevel.HIGH,
         requires_2fa=True
     ),
     PermissionType.CONVERSATIONS_ADMIN: PermissionDefinition(
         PermissionType.CONVERSATIONS_ADMIN,
         "Administração completa de conversas",
         PermissionCategory.CONVERSATIONS,
-        "HIGH"
+        RiskLevel.HIGH
     ),
     
     # Clientes
@@ -188,32 +206,32 @@ PERMISSION_DEFINITIONS = {
         PermissionType.CLIENTS_VIEW,
         "Visualizar dados de clientes",
         PermissionCategory.CLIENTS,
-        "LOW"
+        RiskLevel.LOW
     ),
     PermissionType.CLIENTS_CREATE: PermissionDefinition(
         PermissionType.CLIENTS_CREATE,
         "Criar novos clientes",
         PermissionCategory.CLIENTS,
-        "MEDIUM"
+        RiskLevel.MEDIUM
     ),
     PermissionType.CLIENTS_UPDATE: PermissionDefinition(
         PermissionType.CLIENTS_UPDATE,
         "Editar dados de clientes",
         PermissionCategory.CLIENTS,
-        "MEDIUM"
+        RiskLevel.MEDIUM
     ),
     PermissionType.CLIENTS_DELETE: PermissionDefinition(
         PermissionType.CLIENTS_DELETE,
         "Excluir clientes",
         PermissionCategory.CLIENTS,
-        "HIGH",
+        RiskLevel.HIGH,
         requires_2fa=True
     ),
     PermissionType.CLIENTS_ADMIN: PermissionDefinition(
         PermissionType.CLIENTS_ADMIN,
         "Administração completa de clientes",
         PermissionCategory.CLIENTS,
-        "HIGH"
+        RiskLevel.HIGH
     ),
     
     # Relatórios
@@ -221,19 +239,19 @@ PERMISSION_DEFINITIONS = {
         PermissionType.REPORTS_VIEW,
         "Visualizar relatórios",
         PermissionCategory.REPORTS,
-        "LOW"
+        RiskLevel.LOW
     ),
     PermissionType.REPORTS_EXPORT: PermissionDefinition(
         PermissionType.REPORTS_EXPORT,
         "Exportar relatórios (CSV/Excel/PDF)",
         PermissionCategory.REPORTS,
-        "MEDIUM"
+        RiskLevel.MEDIUM
     ),
     PermissionType.REPORTS_ADMIN: PermissionDefinition(
         PermissionType.REPORTS_ADMIN,
         "Administração de relatórios",
         PermissionCategory.REPORTS,
-        "HIGH"
+        RiskLevel.HIGH
     ),
     
     # Sistema
@@ -241,28 +259,28 @@ PERMISSION_DEFINITIONS = {
         PermissionType.SYSTEM_ADMIN,
         "Administração completa do sistema",
         PermissionCategory.SYSTEM,
-        "CRITICAL",
+        RiskLevel.CRITICAL,
         requires_2fa=True
     ),
     PermissionType.USER_MANAGEMENT: PermissionDefinition(
         PermissionType.USER_MANAGEMENT,
         "Gerenciar usuários",
         PermissionCategory.SYSTEM,
-        "HIGH",
+        RiskLevel.HIGH,
         requires_2fa=True
     ),
     PermissionType.ROLE_MANAGEMENT: PermissionDefinition(
         PermissionType.ROLE_MANAGEMENT,
         "Gerenciar roles",
         PermissionCategory.SYSTEM,
-        "CRITICAL",
+        RiskLevel.CRITICAL,
         requires_2fa=True
     ),
     PermissionType.PERMISSIONS_MANAGEMENT: PermissionDefinition(
         PermissionType.PERMISSIONS_MANAGEMENT,
         "Gerenciar permissões",
         PermissionCategory.SYSTEM,
-        "CRITICAL",
+        RiskLevel.CRITICAL,
         requires_2fa=True
     ),
     
@@ -271,13 +289,13 @@ PERMISSION_DEFINITIONS = {
         PermissionType.MONITORING_VIEW,
         "Visualizar métricas de monitoramento",
         PermissionCategory.SYSTEM,
-        "LOW"
+        RiskLevel.LOW
     ),
     PermissionType.MONITORING_ADMIN: PermissionDefinition(
         PermissionType.MONITORING_ADMIN,
         "Administrar sistema de monitoramento",
         PermissionCategory.SYSTEM,
-        "HIGH"
+        RiskLevel.HIGH
     ),
     
     # Backup
@@ -285,20 +303,20 @@ PERMISSION_DEFINITIONS = {
         PermissionType.BACKUP_CREATE,
         "Criar backups",
         PermissionCategory.SYSTEM,
-        "MEDIUM"
+        RiskLevel.MEDIUM
     ),
     PermissionType.BACKUP_RESTORE: PermissionDefinition(
         PermissionType.BACKUP_RESTORE,
         "Restaurar backups",
         PermissionCategory.SYSTEM,
-        "CRITICAL",
+        RiskLevel.CRITICAL,
         requires_2fa=True
     ),
     PermissionType.BACKUP_ADMIN: PermissionDefinition(
         PermissionType.BACKUP_ADMIN,
         "Administração completa de backup",
         PermissionCategory.SYSTEM,
-        "HIGH",
+        RiskLevel.HIGH,
         requires_2fa=True
     ),
 }
@@ -517,7 +535,7 @@ class RBACPermission(Base):
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     category = Column(SQLEnum(PermissionCategory), nullable=False)
-    risk_level = Column(String, nullable=False)  # LOW, MEDIUM, HIGH, CRITICAL
+    risk_level = Column(SQLEnum(RiskLevel), nullable=False)
     requires_2fa = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
