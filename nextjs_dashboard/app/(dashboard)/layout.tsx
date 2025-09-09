@@ -1,5 +1,6 @@
 import Sidebar from '@/components/layout/sidebar'
-import { DashboardErrorBoundary } from '@/components/error-boundaries'
+import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary'
+import { ApiErrorBoundary } from '@/components/error-boundaries/ApiErrorBoundary'
 
 export default function DashboardLayout({
   children,
@@ -7,10 +8,22 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <DashboardErrorBoundary>
-      <Sidebar>
-        {children}
-      </Sidebar>
-    </DashboardErrorBoundary>
+    <AdvancedErrorBoundary
+      level="page"
+      context="Dashboard Layout"
+      retryAttempts={3}
+      showErrorDetails={true}
+    >
+      <ApiErrorBoundary
+        level="important"
+        enableRetry={true}
+        maxRetries={5}
+        showToast={true}
+      >
+        <Sidebar>
+          {children}
+        </Sidebar>
+      </ApiErrorBoundary>
+    </AdvancedErrorBoundary>
   )
 }

@@ -1,7 +1,9 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/auth-context'
-import ErrorBoundary from '@/components/error-boundary'
+import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary'
+import { ErrorProvider } from '@/components/error-boundaries/ErrorProvider'
+import { ToastProvider } from '@/components/error-boundaries/ToastProvider'
 import { PWAWrapper, PWAInstallDetector } from '@/components/pwa/PWAWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -70,19 +72,24 @@ export default function RootLayout({
         <link rel="preload" href="/sw-advanced.js" as="script" />
       </head>
       <body className={inter.className}>
-        <ErrorBoundary
-        level="global"
-        name="RootLayout"
-        >
-          <PWAWrapper>
-            <AuthProvider>
-              <div className="min-h-screen bg-gray-50">
-                {children}
-              </div>
-              <PWAInstallDetector />
-            </AuthProvider>
-          </PWAWrapper>
-        </ErrorBoundary>
+        <ErrorProvider>
+          <ToastProvider>
+            <AdvancedErrorBoundary
+              level="page"
+              context="Root Application"
+              showErrorDetails={false}
+            >
+              <PWAWrapper>
+                <AuthProvider>
+                  <div className="min-h-screen bg-gray-50">
+                    {children}
+                  </div>
+                  <PWAInstallDetector />
+                </AuthProvider>
+              </PWAWrapper>
+            </AdvancedErrorBoundary>
+          </ToastProvider>
+        </ErrorProvider>
       </body>
     </html>
   )
