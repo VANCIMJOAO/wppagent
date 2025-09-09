@@ -326,12 +326,14 @@ from app.routes.clients import router as clients_router
 
 # Analytics routes - Relatórios Executivos
 from app.routes.analytics import router as analytics_router
+from app.routes.analytics_dashboard import router as dashboard_analytics_router
 
 # Conversation & messaging routes
 app.include_router(clients_router, tags=["Dashboard - Clients"])
 
 # Dashboard Analytics (executivo)
 app.include_router(analytics_router, tags=["Dashboard - Analytics"])
+app.include_router(dashboard_analytics_router, tags=["Dashboard - Real Data"])
 
 # � DEBUG ROUTER - Para testar autenticação
 from app.routes.debug_auth import router as debug_auth_router

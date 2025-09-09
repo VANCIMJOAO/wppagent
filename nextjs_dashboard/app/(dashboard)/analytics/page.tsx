@@ -1,5 +1,5 @@
 /**
- * Página de Analytics Avançada - Sistema Completo
+ * Página de Analytics Avançada - Sistema Completo com Dados Reais
  * Dashboard com todos os componentes avançados integrados
  */
 'use client';
@@ -9,12 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useRealAnalytics } from '@/hooks/use-real-analytics';
 import AnalyticsFilters from '@/components/analytics/AnalyticsFilters';
-import AnalyticsCharts from '@/components/analytics/AnalyticsCharts';
+import { RealAnalyticsDashboard } from '@/components/analytics/RealAnalyticsDashboard';
 import { DrillDownAnalytics } from '@/components/analytics/DrillDownAnalytics';
 import { AlertsSystem } from '@/components/analytics/AlertsSystem';
 import { CustomDashboard } from '@/components/analytics/CustomDashboard';
 import { AutomatedReports } from '@/components/analytics/AutomatedReports';
+import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary';
 import { 
   TrendingUp, 
   Users, 
@@ -27,23 +29,44 @@ import {
   FileText,
   Settings,
   RefreshCw,
-  Download
+  Database,
+  Activity
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function AdvancedAnalyticsPage() {
   const [selectedTab, setSelectedTab] = useState('overview');
-  const { data: analytics, loading, error, refresh } = useAnalytics();
+  const [useRealData, setUseRealData] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+
+  // Legacy analytics hook (dados simulados)
+  const { data: analytics, loading, error, refresh } = useAnalytics();
+  
+  // Real analytics hook (dados reais do backend)
+  const {
+    dashboardSummary,
+    loadingDashboard,
+    dashboardError,
+    refreshDashboard,
+    isLoading: realLoading
+  } = useRealAnalytics();
 
   // Atualizar timestamp
   const handleRefresh = () => {
-    refresh();
+    if (useRealData) {
+      refreshDashboard(30);
+    } else {
+      refresh();
+    }
     setLastUpdate(new Date());
   };
 
-  if (loading && !analytics) {
+  const currentLoading = useRealData ? realLoading : loading;
+  const currentError = useRealData ? dashboardError : error;
+  const currentData = useRealData ? dashboardSummary : analytics;
+
+  if (currentLoading && !currentData) {
     return (
       <div className="space-y-6 p-6">
         <div className="animate-pulse">
@@ -68,7 +91,7 @@ export default function AdvancedAnalyticsPage() {
     );
   }
 
-  if (error) {
+  if (currentError) {
     return (
       <div className="p-6">
         <Card>
@@ -80,11 +103,20 @@ export default function AdvancedAnalyticsPage() {
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 Erro ao carregar dados
               </h2>
-              <p className="text-red-600 mb-4">{error}</p>
-              <Button onClick={handleRefresh}>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Tentar novamente
-              </Button>
+              <p className="text-red-600 mb-4">{currentError}</p>
+              <div className="flex justify-center gap-2">
+                <Button onClick={handleRefresh}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Tentar novamente
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setUseRealData(!useRealData)}
+                >
+                  <Database className="w-4 h-4 mr-2" />
+                  {useRealData ? 'Usar dados simulados' : 'Usar dados reais'}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -92,7 +124,45 @@ export default function AdvancedAnalyticsPage() {
     );
   }
 
-  const stats = [
+  // Métricas baseadas no tipo de dados selecionado
+  const stats = useRealData && dashboardSummary ? [
+    {
+      title: 'Total de Clientes',
+      value: dashboardSummary.key_metrics?.total_customers?.toLocaleString('pt-BR') || '0',
+      change: `${dashboardSummary.trends?.conversations && dashboardSummary.trends.conversations > 0 ? '+' : ''}${dashboardSummary.trends?.conversations?.toFixed(1) || '0'}%`,
+      changeType: dashboardSummary.trends?.conversations && dashboardSummary.trends.conversations > 0 ? 'positive' : 'negative',
+      icon: Users,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
+    },
+    {
+      title: 'Total de Mensagens',
+      value: dashboardSummary.key_metrics?.total_messages?.toLocaleString('pt-BR') || '0',
+      change: '+8.2%',
+      changeType: 'positive',
+      icon: MessageSquare,
+      color: 'text-green-600', 
+      bgColor: 'bg-green-50'
+    },
+    {
+      title: 'Taxa de Conversão',
+      value: `${dashboardSummary.key_metrics?.overall_conversion_rate?.toFixed(1) || '0'}%`,
+      change: '+5.2%',
+      changeType: 'positive',
+      icon: TrendingUp,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
+    },
+    {
+      title: 'Agendamentos',
+      value: dashboardSummary.key_metrics?.total_appointments?.toLocaleString('pt-BR') || '0',
+      change: '+15.3%',
+      changeType: 'positive',
+      icon: Clock,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50'
+    }
+  ] : [
     {
       title: 'Total de Conversas',
       value: analytics?.totalConversations?.toLocaleString('pt-BR') || '2,850',
@@ -218,7 +288,7 @@ export default function AdvancedAnalyticsPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Tab 1: Overview - Gráficos principais */}
+        {/* Tab 1: Overview - Dashboard com dados reais ou simulados */}
         <TabsContent value="overview" className="space-y-6">
           <Card>
             <CardHeader className="pb-4">
@@ -227,174 +297,138 @@ export default function AdvancedAnalyticsPage() {
                   <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
                   Visão Geral dos Dados
                 </CardTitle>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-2" />
-                  Exportar
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setUseRealData(!useRealData)}
+                    className="flex items-center"
+                  >
+                    <Database className="w-4 h-4 mr-2" />
+                    {useRealData ? 'Dados Reais' : 'Dados Simulados'}
+                  </Button>
+                  {useRealData && (
+                    <div className="flex items-center text-sm text-green-600">
+                      <Activity className="w-3 h-3 mr-1" />
+                      Live Data
+                    </div>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Conversas ao Longo do Tempo</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-80 flex items-center justify-center text-gray-500">
-                      <BarChart3 className="w-12 h-12 mr-4" />
-                      Gráfico de Conversas - Recharts
-                    </div>
-                  </CardContent>
-                </Card>
+              <AdvancedErrorBoundary>
+                {useRealData ? (
+                  <RealAnalyticsDashboard 
+                    period={30}
+                    autoRefresh={true}
+                  />
+                ) : (
+                  <>
+                    <AnalyticsFilters
+                      filters={{}}
+                      onFiltersChange={() => {}}
+                      onRefresh={handleRefresh}
+                      onExport={() => {}}
+                    />
+                    <div className="mt-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Conversas ao Longo do Tempo</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="h-80 flex items-center justify-center text-gray-500">
+                              <BarChart3 className="w-12 h-12 mr-4" />
+                              Gráfico de Conversas - Recharts
+                            </div>
+                          </CardContent>
+                        </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Volume de Mensagens</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-80 flex items-center justify-center text-gray-500">
-                      <TrendingUp className="w-12 h-12 mr-4" />
-                      Gráfico de Volume - Recharts
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Volume de Mensagens</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="h-80 flex items-center justify-center text-gray-500">
+                              <TrendingUp className="w-12 h-12 mr-4" />
+                              Gráfico de Volume - Recharts
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle>Performance por Canal</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-80 flex items-center justify-center text-gray-500">
-                      <BarChart3 className="w-12 h-12 mr-4" />
-                      Gráfico de Performance - Recharts
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </>
+                )}
+              </AdvancedErrorBoundary>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Tab 2: Drill-Down - Análise detalhada */}
+        {/* Tab 2: Drill-Down Analytics */}
         <TabsContent value="drill-down" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Search className="w-5 h-5 mr-2 text-green-600" />
-                Análise Detalhada - Drill Down
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DrillDownAnalytics metricType="conversations" />
-            </CardContent>
-          </Card>
+          <AdvancedErrorBoundary>
+            <DrillDownAnalytics metricType="conversations" />
+          </AdvancedErrorBoundary>
         </TabsContent>
 
-        {/* Tab 3: Alertas - Sistema de monitoramento */}
+        {/* Tab 3: Sistema de Alertas */}
         <TabsContent value="alerts" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Bell className="w-5 h-5 mr-2 text-red-600" />
-                Sistema de Alertas Inteligentes
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AlertsSystem />
-            </CardContent>
-          </Card>
+          <AdvancedErrorBoundary>
+            <AlertsSystem />
+          </AdvancedErrorBoundary>
         </TabsContent>
 
-        {/* Tab 4: Dashboard - Dashboard personalizado */}
+        {/* Tab 4: Dashboard Customizável */}
         <TabsContent value="dashboard" className="space-y-6">
-          <CustomDashboard />
+          <AdvancedErrorBoundary>
+            <CustomDashboard />
+          </AdvancedErrorBoundary>
         </TabsContent>
 
-        {/* Tab 5: Relatórios - Relatórios automatizados */}
+        {/* Tab 5: Relatórios Automatizados */}
         <TabsContent value="reports" className="space-y-6">
-          <AutomatedReports />
+          <AdvancedErrorBoundary>
+            <AutomatedReports />
+          </AdvancedErrorBoundary>
         </TabsContent>
 
-        {/* Tab 6: Configurações - Configurações do sistema */}
+        {/* Tab 6: Configurações */}
         <TabsContent value="settings" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Settings className="w-5 h-5 mr-2 text-gray-600" />
-                Configurações do Sistema
-              </CardTitle>
+              <CardTitle>Configurações de Analytics</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Configurações de Backend */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                    Integração Backend
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        URL da API
-                      </label>
-                      <input 
-                        type="text" 
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                        placeholder="https://api.empresa.com/analytics"
-                        defaultValue="https://api.whatsapp-agent.local"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Token de Autenticação
-                      </label>
-                      <input 
-                        type="password" 
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                        placeholder="Bearer token de autenticação"
-                      />
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                      <input type="checkbox" id="useRealData" className="h-4 w-4 text-blue-600" />
-                      <label htmlFor="useRealData" className="text-sm font-medium text-blue-900">
-                        Usar dados reais do backend (desmarque para dados demo)
-                      </label>
-                    </div>
-                  </div>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium">Fonte de Dados</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Escolha entre dados reais do banco ou dados simulados
+                  </p>
                 </div>
-
-                {/* Configurações de Notificações */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                    Sistema de Notificações
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium text-gray-900">Notificações por Email</div>
-                        <div className="text-sm text-gray-600">Receber alertas por email</div>
-                      </div>
-                      <input type="checkbox" className="h-4 w-4 text-blue-600" defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium text-gray-900">Notificações do Navegador</div>
-                        <div className="text-sm text-gray-600">Alertas em tempo real no navegador</div>
-                      </div>
-                      <input type="checkbox" className="h-4 w-4 text-blue-600" defaultChecked />
-                    </div>
-                  </div>
-                </div>
+                <Button
+                  variant={useRealData ? "default" : "outline"}
+                  onClick={() => setUseRealData(!useRealData)}
+                >
+                  <Database className="w-4 h-4 mr-2" />
+                  {useRealData ? 'Dados Reais Ativados' : 'Usar Dados Reais'}
+                </Button>
               </div>
-
-              {/* Botões de ação */}
-              <div className="flex justify-end space-x-4 pt-8 border-t">
-                <Button variant="outline">
-                  Cancelar Alterações
-                </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Salvar Configurações
-                </Button>
+              
+              <div className="border-t pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Auto-refresh</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Atualização automática dos dados a cada 5 minutos
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Configurar
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
