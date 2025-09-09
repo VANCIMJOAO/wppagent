@@ -124,22 +124,46 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             # Processar requisição
             response = await call_next(request)
             
-            logger.debug(f"Adding rate limit headers for user {user_id}")
-            # Adicionar headers de rate limit
-            await self._add_rate_limit_headers(response, user_id, endpoint_key, limit_config)
-            
-            logger.debug(f"Rate limiting completed successfully for user {user_id}")
-            return response
+            if response:
+                logger.debug(f"Adding rate limit headers for user {user_id}")
+                # Adicionar headers de rate limit
+                await self._add_rate_limit_headers(response, user_id, endpoint_key, limit_config)
+                
+                logger.debug(f"Rate limiting completed successfully for user {user_id}")
+                return response
+            else:
+                logger.error(f"No response received from call_next for user {user_id}")
+                from fastapi.responses import JSONResponse
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": "No response from downstream middleware"}
+                )
             
         except Exception as e:
             # Graceful degradation - se Redis falhar, permitir requisição
             logger.error(f"Rate limiting failed for user {user_id}: {e}")
             logger.warning("Rate limiting disabled due to Redis error - allowing request")
             
-            response = await call_next(request)
-            response.headers["X-RateLimit-Status"] = "disabled-error"
-            logger.debug(f"Rate limiting error handled, returning response")
-            return response
+            try:
+                response = await call_next(request)
+                if response:
+                    response.headers["X-RateLimit-Status"] = "disabled-error"
+                    logger.debug(f"Rate limiting error handled, returning response")
+                    return response
+                else:
+                    logger.error(f"No response received in error handler for user {user_id}")
+                    from fastapi.responses import JSONResponse
+                    return JSONResponse(
+                        status_code=500,
+                        content={"error": "No response in error handler"}
+                    )
+            except Exception as final_e:
+                logger.error(f"Final error handler failed for user {user_id}: {final_e}")
+                from fastapi.responses import JSONResponse
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": "Critical middleware error"}
+                )
     
     def _should_skip_rate_limiting(self, request: Request) -> bool:
         """Verificar se deve pular rate limiting"""
@@ -188,32 +212,53 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
     
     async def _handle_ip_rate_limiting(self, request: Request, call_next):
         """Rate limiting básico por IP para usuários não autenticados"""
-        client_ip = self._get_client_ip(request)
-        endpoint_key = self._get_endpoint_key(request)
-        
-        # Usar limites reduzidos para IPs não autenticados
-        limit_config = {
-            'requests': 100,  # 100/hour por IP
-            'window': 3600,
-            'burst': 10
-        }
-        
         try:
-            rate_limit_result = await self._check_rate_limit(f"ip:{client_ip}", endpoint_key, limit_config)
+            client_ip = self._get_client_ip(request)
+            endpoint_key = self._get_endpoint_key(request)
             
-            if rate_limit_result['exceeded']:
-                return await self._handle_rate_limit_exceeded(rate_limit_result, limit_config)
+            # Usar limites reduzidos para IPs não autenticados
+            limit_config = {
+                'requests': 100,  # 100/hour por IP
+                'window': 3600,
+                'burst': 10
+            }
             
-            await self._increment_counter(f"ip:{client_ip}", endpoint_key, limit_config)
-            
-            response = await call_next(request)
-            await self._add_rate_limit_headers(response, f"ip:{client_ip}", endpoint_key, limit_config)
-            
-            return response
-            
+            try:
+                rate_limit_result = await self._check_rate_limit(f"ip:{client_ip}", endpoint_key, limit_config)
+                
+                if rate_limit_result['exceeded']:
+                    return await self._handle_rate_limit_exceeded(rate_limit_result, limit_config)
+                
+                await self._increment_counter(f"ip:{client_ip}", endpoint_key, limit_config)
+                
+                response = await call_next(request)
+                await self._add_rate_limit_headers(response, f"ip:{client_ip}", endpoint_key, limit_config)
+                
+                return response
+                
+            except Exception as e:
+                logger.error(f"IP rate limiting failed: {e}")
+                response = await call_next(request)
+                if response:
+                    response.headers["X-RateLimit-Status"] = "ip-error"
+                return response
+                
         except Exception as e:
-            logger.error(f"IP rate limiting failed: {e}")
-            return await call_next(request)
+            logger.error(f"Critical error in IP rate limiting: {e}")
+            # Fallback final - sempre retornar uma resposta
+            try:
+                response = await call_next(request)
+                if response:
+                    response.headers["X-RateLimit-Status"] = "critical-error"
+                return response
+            except Exception as final_e:
+                logger.error(f"Final fallback failed: {final_e}")
+                # Se tudo falhar, retornar erro 500
+                from fastapi.responses import JSONResponse
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": "Internal rate limiting error"}
+                )
     
     def _get_client_ip(self, request: Request) -> str:
         """Obter IP real do cliente considerando proxies"""
