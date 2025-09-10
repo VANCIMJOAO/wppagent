@@ -1,10 +1,9 @@
 'use client';
 
-import React, { ReactNode, ErrorInfo, useCallback, useState, useEffect } from 'react';
+import React, { ReactNode, ErrorInfo } from 'react';
 import { AlertCircle, RefreshCw, Wifi, WifiOff, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '../../hooks/use-toast';
 
 interface ApiError extends Error {
   status?: number;
@@ -275,7 +274,7 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
     return error.message || 'Erro desconhecido na API.';
   };
 
-  private handleRetry = useCallback(() => {
+  private handleRetry = () => {
     const { maxRetries = 3 } = this.props;
     
     if (this.state.retryCount >= maxRetries) {
@@ -296,7 +295,7 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
         isRetrying: false 
       });
     }, 100);
-  }, [this.state.retryCount, this.props.maxRetries]);
+  };
 
   private handleForceRefresh = () => {
     window.location.reload();

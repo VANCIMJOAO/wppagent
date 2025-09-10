@@ -70,6 +70,9 @@ export default function RootLayout({
         
         {/* Preload Service Worker */}
         <link rel="preload" href="/sw-advanced.js" as="script" />
+        
+        {/* Desregistrar Service Workers (temporário) */}
+        <script src="/sw-unregister.js"></script>
       </head>
       <body className={inter.className}>
         <ErrorProvider>

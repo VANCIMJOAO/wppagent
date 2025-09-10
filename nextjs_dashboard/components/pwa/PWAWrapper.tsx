@@ -21,6 +21,24 @@ export function PWAWrapper({ children }: { children: React.ReactNode }) {
 
     // Registrar Service Worker
     const registerSW = async () => {
+      console.log('⚠️ PWA: Service Worker temporarily disabled for debugging')
+      // TODO: Re-enable after fixing service worker issues
+      
+      // Also unregister any existing service workers
+      if ('serviceWorker' in navigator) {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations()
+          for (const registration of registrations) {
+            console.log('🗑️ PWA: Unregistering service worker', registration.scope)
+            await registration.unregister()
+          }
+        } catch (error) {
+          console.error('❌ PWA: Failed to unregister service workers:', error)
+        }
+      }
+      
+      return;
+      
       if ('serviceWorker' in navigator) {
         try {
           // Aguardar um pouco para não bloquear o carregamento inicial

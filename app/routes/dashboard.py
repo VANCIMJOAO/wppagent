@@ -90,8 +90,8 @@ class DailyStatsResponse(BaseModel):
         from_attributes = True
 
 
-# Router
-router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
+# Router - CORREÇÃO: Remover prefixo duplicado para funcionar com include_router
+router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
 @router.get("/clients", response_model=List[ClientResponse])

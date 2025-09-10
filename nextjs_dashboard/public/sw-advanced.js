@@ -186,19 +186,18 @@ async function staleWhileRevalidateStrategy(request) {
   if (cachedResponse) {
     console.log('📋 SW: Serving stale content for', request.url)
     
-    // Atualizar cache em background
-    event.waitUntil(
-      fetch(request).then(response => {
-        if (response.status === 200) {
-          const cache = caches.open(STATIC_CACHE)
+    // Atualizar cache em background (sem waitUntil - execução assíncrona)
+    fetch(request).then(response => {
+      if (response.status === 200) {
+        return caches.open(STATIC_CACHE).then(cache => {
           cache.put(request, response)
           console.log('🔄 SW: Background update completed for', request.url)
-        }
-      }).catch(() => {
-        // Ignorar erros de rede em background
-        console.log('📴 SW: Background update failed for', request.url)
-      })
-    )
+        })
+      }
+    }).catch(() => {
+      // Ignorar erros de rede em background
+      console.log('📴 SW: Background update failed for', request.url)
+    })
     
     return cachedResponse
   }
