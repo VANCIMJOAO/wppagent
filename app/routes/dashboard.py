@@ -220,7 +220,8 @@ async def get_client_stats(
         week_ago = datetime.now() - timedelta(days=7)
         active_result = await db.execute(
             select(func.count(User.id.distinct()))
-            .select_from(User.join(Conversation, User.id == Conversation.user_id))
+            .select_from(Conversation)
+            .join(User, Conversation.user_id == User.id)
             .where(
                 and_(
                     User.nome.is_not(None),
