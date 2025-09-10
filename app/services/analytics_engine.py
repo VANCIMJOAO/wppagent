@@ -37,9 +37,7 @@ class AdvancedAnalyticsEngine:
         
         try:
             # Etapa 1: Usuários que enviaram primeira mensagem
-            first_contact_query = select(func.count(func.distinct(User.id))).select_from(
-                User.join(Message)
-            ).where(
+            first_contact_query = select(func.count(func.distinct(Message.user_id))).where(
                 and_(
                     Message.direction == 'in',
                     Message.created_at.between(start_date, end_date)
@@ -48,9 +46,7 @@ class AdvancedAnalyticsEngine:
             first_contacts = (await self.session.execute(first_contact_query)).scalar() or 0
             
             # Etapa 2: Usuários que receberam resposta do bot
-            bot_responses_query = select(func.count(func.distinct(User.id))).select_from(
-                User.join(Message)
-            ).where(
+            bot_responses_query = select(func.count(func.distinct(Message.user_id))).where(
                 and_(
                     Message.direction == 'out',
                     Message.created_at.between(start_date, end_date)
@@ -59,9 +55,7 @@ class AdvancedAnalyticsEngine:
             bot_responses = (await self.session.execute(bot_responses_query)).scalar() or 0
             
             # Etapa 3: Usuários que agendaram
-            scheduled_query = select(func.count(func.distinct(User.id))).select_from(
-                User.join(Appointment)
-            ).where(
+            scheduled_query = select(func.count(func.distinct(Appointment.user_id))).where(
                 Appointment.created_at.between(start_date, end_date)
             )
             scheduled = (await self.session.execute(scheduled_query)).scalar() or 0
@@ -296,8 +290,8 @@ class AdvancedAnalyticsEngine:
                 func.min(Appointment.created_at).label('first_appointment'),
                 func.count(func.distinct(func.date(Appointment.created_at))).label('visit_days')
             ).select_from(
-                User.join(Appointment)
-            ).where(
+                Appointment
+            ).join(User, Appointment.user_id == User.id).where(
                 Appointment.created_at >= start_date - timedelta(days=90)  # Expanded window for VIPs
             ).group_by(User.id, User.nome, User.telefone).having(
                 func.count(Appointment.id) >= 2  # At least 2 appointments
@@ -374,7 +368,9 @@ class AdvancedAnalyticsEngine:
                 func.max(Message.created_at).label('last_message'),
                 func.count(Appointment.id).label('appointments')
             ).select_from(
-                User.join(Message).outerjoin(Appointment)
+                Message
+            ).join(User, Message.user_id == User.id).outerjoin(
+                Appointment, User.id == Appointment.user_id
             ).where(
                 Message.created_at.between(start_date, end_date)
             ).group_by(User.id, User.nome, User.telefone).having(
@@ -489,8 +485,8 @@ class AdvancedAnalyticsEngine:
                     func.sum(Appointment.price)
                 ).label('avg_ltv')
             ).select_from(
-                Appointment.join(User)
-            ).where(
+                Appointment
+            ).join(User, Appointment.user_id == User.id).where(
                 and_(
                     Appointment.price.is_not(None),
                     Appointment.created_at >= start_date - timedelta(days=90)  # Expanded window
