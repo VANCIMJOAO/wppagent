@@ -33,6 +33,11 @@ security = HTTPBearer()
 # Configurações JWT - usando JWT Manager
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+# 🔧 CONSTANTES PARA COMPATIBILIDADE COM MIDDLEWARE
+# Estas são usadas pelo middleware.py como fallback
+SECRET_KEY = jwt_manager.secret_key
+ALGORITHM = jwt_manager.algorithm
+
 class TokenData(BaseModel):
     username: Optional[str] = None
 
