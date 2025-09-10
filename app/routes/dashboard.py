@@ -197,7 +197,7 @@ async def get_clients(
 @router.get("/clients/stats", response_model=ClientStatsResponse)
 async def get_client_stats(
     db: AsyncSession = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin_user)
+    current_user: dict = Depends(get_current_user)  # 🔧 Usar middleware unificado
 ):
     """
     Busca estatísticas gerais dos clientes.
