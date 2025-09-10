@@ -9,9 +9,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.auth.middleware import require_admin
-from app.models.database import AdminUser
-from app.routes.admin_auth import get_current_admin_user
+from app.auth.middleware import get_current_user  # 🔧 Usar middleware unificado
 from app.services.analytics_engine import AdvancedAnalyticsEngine
 from app.utils.logger import get_logger
 
@@ -29,7 +27,7 @@ async def get_conversion_funnel_analysis(
         description="Data fim (ISO format). Default: hoje"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin_user)
+    current_user: dict = Depends(get_current_user)  # 🔧 Usar middleware
 ):
     """
     📊 Análise completa do funil de conversão
@@ -40,7 +38,7 @@ async def get_conversion_funnel_analysis(
     - Análise de drop-off
     - Recomendações de otimização
     """
-    logger.info(f"🔍 Admin {current_admin.username} solicitou análise do funil")
+    logger.info(f"🔍 User {current_user['user_id']} solicitou análise do funil")
     
     try:
         # Define período padrão se não fornecido
@@ -84,7 +82,7 @@ async def get_time_based_analytics(
         description="Período em dias (1-365)"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin_user)
+    current_user: dict = Depends(get_current_user)  # 🔧 Usar middleware
 ):
     """
     🕐 Análise temporal detalhada de atividade
@@ -95,7 +93,7 @@ async def get_time_based_analytics(
     - Tendências diárias
     - Insights e recomendações
     """
-    logger.info(f"🕐 Admin {current_admin.username} solicitou análise temporal - {days} dias")
+    logger.info(f"🕐 User {current_user['user_id']} solicitou análise temporal - {days} dias")
     
     try:
         analytics = AdvancedAnalyticsEngine(session)
@@ -136,7 +134,7 @@ async def get_customer_insights_analysis(
         description="Incluir detalhes completos dos clientes"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin_user)
+    current_user: dict = Depends(get_current_user)  # 🔧 Usar middleware
 ):
     """
     👥 Insights detalhados sobre base de clientes
@@ -147,7 +145,7 @@ async def get_customer_insights_analysis(
     - Prospects de alto valor
     - Métricas de segmentação
     """
-    logger.info(f"👥 Admin {current_admin.username} solicitou insights de clientes - {days} dias")
+    logger.info(f"👥 User {current_user['user_id']} solicitou insights de clientes - {days} dias")
     
     try:
         analytics = AdvancedAnalyticsEngine(session)
@@ -196,7 +194,7 @@ async def get_business_metrics_analysis(
         description="Incluir métricas financeiras detalhadas"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin_user)
+    current_user: dict = Depends(get_current_user)  # 🔧 Usar middleware
 ):
     """
     💰 Métricas de negócio essenciais
@@ -207,7 +205,7 @@ async def get_business_metrics_analysis(
     - Growth metrics (crescimento, tendências)
     - Efficiency metrics (ROI, conversão)
     """
-    logger.info(f"💰 Admin {current_admin.username} solicitou métricas de negócio - {days} dias")
+    logger.info(f"💰 User {current_user['user_id']} solicitou métricas de negócio - {days} dias")
     
     try:
         analytics = AdvancedAnalyticsEngine(session)
@@ -253,14 +251,14 @@ async def get_dashboard_summary(
         description="Período em dias (máx 30 para performance)"
     ),
     session: AsyncSession = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin_user)
+    current_user: dict = Depends(get_current_user)  # 🔧 Usar middleware
 ):
     """
     🎯 Resumo executivo para dashboard principal
     
     Combina métricas essenciais de todas as análises em um endpoint otimizado
     """
-    logger.info(f"🎯 Admin {current_admin.username} solicitou resumo do dashboard - {days} dias")
+    logger.info(f"🎯 User {current_user['user_id']} solicitou resumo do dashboard - {days} dias")
     
     try:
         analytics = AdvancedAnalyticsEngine(session)
@@ -322,7 +320,7 @@ async def export_analytics_data(
     format: str = Query("json", regex="^(json|csv)$"),
     days: int = Query(30, le=365, ge=1),
     session: AsyncSession = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin_user)
+    current_user: dict = Depends(get_current_user)  # 🔧 Usar middleware
 ):
     """
     📥 Exportar dados de analytics em diferentes formatos
@@ -330,7 +328,7 @@ async def export_analytics_data(
     Tipos disponíveis: funnel, time-analysis, customer-insights, business-metrics
     Formatos: json, csv
     """
-    logger.info(f"📥 Admin {current_admin.username} exportando {analysis_type} - {format}")
+    logger.info(f"📥 User {current_user['user_id']} exportando {analysis_type} - {format}")
     
     try:
         analytics = AdvancedAnalyticsEngine(session)

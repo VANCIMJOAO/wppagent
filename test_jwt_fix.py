@@ -16,6 +16,12 @@ from datetime import datetime
 BASE_URL = "https://wppagent-production.up.railway.app"
 LOCAL_URL = "http://localhost:8000"
 
+# Credenciais corretas para o Railway
+LOGIN_DATA = {
+    "username": "admin",
+    "password": "senha_admin_segura"  # Usar senha correta
+}
+
 def test_jwt_consistency(base_url):
     """Testa consistência JWT completa"""
     print(f"🔍 Testando consistência JWT em: {base_url}")
@@ -23,15 +29,11 @@ def test_jwt_consistency(base_url):
     
     # 1. Testar login (criação de token)
     print("1️⃣ Testando LOGIN (criação de token)...")
-    login_data = {
-        "username": "admin",
-        "password": "senha_admin_segura"
-    }
     
     try:
         login_response = requests.post(
             f"{base_url}/admin/login",
-            json=login_data,
+            json=LOGIN_DATA,
             timeout=10
         )
         
