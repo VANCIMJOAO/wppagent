@@ -248,19 +248,21 @@ async def get_client_stats(
         )
         new_clients = new_result.scalar() or 0
         
-        # Média de mensagens por usuário
-        avg_result = await db.execute(
-            select(func.avg(func.count(Message.id)))
-            .select_from(Message)
-            .join(User, Message.user_id == User.id)
-            .where(
-                and_(
-                    User.nome.is_not(None),
-                    User.nome != "",
-                    ~User.nome.like("%[DELETED]%")
-                )
+        # Média de mensagens por usuário (usando subquery para evitar agregações aninhadas)
+        subquery = select(
+            func.count(Message.id).label('message_count')
+        ).select_from(Message) \
+        .join(User, Message.user_id == User.id) \
+        .where(
+            and_(
+                User.nome.is_not(None),
+                User.nome != "",
+                ~User.nome.like("%[DELETED]%")
             )
-            .group_by(Message.user_id)
+        ).group_by(Message.user_id).subquery()
+        
+        avg_result = await db.execute(
+            select(func.avg(subquery.c.message_count))
         )
         avg_messages = float(avg_result.scalar() or 0)
         
