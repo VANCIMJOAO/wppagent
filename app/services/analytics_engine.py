@@ -330,7 +330,9 @@ class AdvancedAnalyticsEngine:
                     )
                 ).label('lifetime_value')
             ).select_from(
-                User.outerjoin(Message).outerjoin(Appointment)
+                User
+            ).outerjoin(Message, User.id == Message.user_id).outerjoin(
+                Appointment, User.id == Appointment.user_id
             ).group_by(User.id, User.nome, User.telefone).having(
                 and_(
                     func.max(Message.created_at) < churn_threshold,
@@ -479,19 +481,22 @@ class AdvancedAnalyticsEngine:
             estimated_marketing_spend = total_messages * 0.10
             cac = estimated_marketing_spend / max(1, revenue_data.unique_customers) if revenue_data.unique_customers else 0
             
-            # Customer Lifetime Value (30-day window)
-            ltv_query = select(
-                func.avg(
-                    func.sum(Appointment.price)
-                ).label('avg_ltv')
+            # Customer Lifetime Value (30-day window) - Corrigir nested aggregates
+            # Primeiro calcular total por cliente, depois calcular média
+            customer_totals_subquery = select(
+                func.sum(Appointment.price).label('customer_total')
             ).select_from(
                 Appointment
-            ).join(User, Appointment.user_id == User.id).where(
+            ).where(
                 and_(
                     Appointment.price.is_not(None),
-                    Appointment.created_at >= start_date - timedelta(days=90)  # Expanded window
+                    Appointment.created_at >= start_date - timedelta(days=90)
                 )
-            ).group_by(User.id)
+            ).group_by(Appointment.user_id).subquery()
+            
+            ltv_query = select(
+                func.avg(customer_totals_subquery.c.customer_total)
+            )
             
             result = await self.session.execute(ltv_query)
             avg_ltv = result.scalar() or 0
