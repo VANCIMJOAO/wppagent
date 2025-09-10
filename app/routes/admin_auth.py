@@ -250,6 +250,19 @@ async def refresh_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+@auth_router.get("/debug-jwt")
+async def debug_jwt():
+    """🔧 Debug JWT secret (TEMPORÁRIO)"""
+    from app.auth.jwt_manager import jwt_manager
+    import os
+    
+    return {
+        "secret_preview": jwt_manager.secret_key[:10] + "..." if jwt_manager.secret_key else "None",
+        "jwt_secret_env": os.getenv('JWT_SECRET', 'not-set')[:10] + "..." if os.getenv('JWT_SECRET') else "not-set",
+        "secret_key_env": os.getenv('SECRET_KEY', 'not-set')[:10] + "..." if os.getenv('SECRET_KEY') else "not-set",
+        "algorithm": jwt_manager.algorithm
+    }
+
 @auth_router.post("/revoke")
 async def revoke_tokens(
     current_admin: AdminUser = Depends(get_current_admin_user),

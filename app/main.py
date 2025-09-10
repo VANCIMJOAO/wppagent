@@ -298,8 +298,7 @@ else:
     logger.warning("HTTPS Middleware not available")
 
 # 🔒 Adicionar middleware de autenticação e autorização
-# TEMPORARIAMENTE DESABILITADO PARA CORREÇÃO RAILWAY
-# app.add_middleware(AuthMiddleware)
+app.add_middleware(AuthMiddleware)
 
 # � Adicionar middleware de rate limiting por usuário
 try:
