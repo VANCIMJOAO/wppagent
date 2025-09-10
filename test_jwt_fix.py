@@ -53,10 +53,10 @@ def test_jwt_consistency(base_url):
             test_endpoints = [
                 "/analytics/funnel",
                 "/analytics/dashboard-summary", 
-                "/dashboard/stats",
-                "/appointments/summary",
+                "/dashboard/clients/stats",  # Corrigido: não é /dashboard/stats
+                "/appointments/stats/summary",  # Corrigido: não é /appointments/summary
                 "/clients/stats",
-                "/conversations/recent"
+                "/analytics/business-metrics"  # Substituir /conversations/recent
             ]
             
             success_count = 0

@@ -17,8 +17,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete, func
-from app.core.database import get_db
-from app.models.appointment import Appointment
+from app.database import get_db
+from app.models.database import Appointment
+from app.auth.middleware import get_current_user  # 🔧 Adicionar autenticação
 from app.websocket.event_broadcaster import (
     notify_appointment_created,
     notify_appointment_updated, 
@@ -331,7 +332,10 @@ async def delete_appointment(
         )
 
 @router.get("/stats/summary")
-async def get_appointments_summary(db: AsyncSession = Depends(get_db)):
+async def get_appointments_summary(
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user)  # 🔧 Adicionar autenticação
+):
     """
     📊 Estatísticas resumidas dos agendamentos
     """
