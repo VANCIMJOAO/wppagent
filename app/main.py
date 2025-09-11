@@ -86,6 +86,16 @@ except ImportError:
     HTTPSMiddleware = None
     logger.warning("⚠️ HTTPS Middleware não disponível - executando sem HTTPS obrigatório")
 
+# 🔒 S002 - Sistema de Log Sanitization
+try:
+    from app.security.secure_logger import configure_secure_logging
+    from app.security.request_logging import configure_request_logging_middleware
+    S002_LOG_SANITIZATION_AVAILABLE = True
+    logger.info("✅ S002: Sistema de Log Sanitization carregado")
+except ImportError:
+    S002_LOG_SANITIZATION_AVAILABLE = False
+    logger.warning("⚠️ S002: Sistema de Log Sanitization não disponível")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -271,6 +281,18 @@ app = FastAPI(
 # 🔍 Adicionar middleware APM (primeiro para capturar todas as requests)
 app.add_middleware(APMMiddleware)
 logger.info("APM Middleware activated - Request tracking enabled")
+
+# 🔒 S002 - Adicionar middlewares de logging seguro
+if S002_LOG_SANITIZATION_AVAILABLE:
+    configure_request_logging_middleware(
+        app,
+        enable_sanitization=True,
+        log_requests=True,
+        log_webhooks=True
+    )
+    logger.info("🔒 S002: Middlewares de logging seguro ativados")
+else:
+    logger.warning("⚠️ S002: Middlewares de logging seguro não disponíveis")
 
 if CSP_MIDDLEWARE_AVAILABLE:
     app.add_middleware(CSPMiddleware, report_only=False)

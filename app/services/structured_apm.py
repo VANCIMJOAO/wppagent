@@ -9,6 +9,7 @@ Sistema completo de monitoramento e logging estruturado com:
 - Context variables para rastreamento de sessões
 - Correlation IDs para tracing distribuído
 - Dashboard de monitoramento em tempo real
+- S002: Log Sanitization integrado para compliance LGPD
 """
 
 import json
@@ -30,6 +31,14 @@ from pathlib import Path
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
+
+# S002: Importar sistema de logging seguro
+try:
+    from ..security.secure_logger import get_secure_logger, configure_secure_logging
+    from ..security.log_sanitizer import sanitize_log_message, sanitize_log_data
+    SECURE_LOGGING_AVAILABLE = True
+except ImportError:
+    SECURE_LOGGING_AVAILABLE = False
 
 # Context Variables para APM
 request_id_context: ContextVar[str] = ContextVar('request_id', default='')
@@ -546,9 +555,31 @@ def log_api_call(service: str, endpoint: str, method: str, status_code: int,
 
 
 def setup_structured_logging():
-    """Configurar sistema de logging estruturado"""
+    """Configurar sistema de logging estruturado com S002 sanitização"""
     
-    # Configurar formatter estruturado para todos os loggers
+    # S002: Usar sistema de logging seguro se disponível
+    if SECURE_LOGGING_AVAILABLE:
+        try:
+            # Configurar logging seguro com sanitização
+            secure_loggers = configure_secure_logging(
+                app_name="whats_agent",
+                log_level="INFO",
+                enable_sanitization=True,
+                enable_audit=True,
+                log_directory="logs"
+            )
+            
+            # Configurar logger principal da aplicação
+            app_logger = secure_loggers['main']
+            app_logger.info("🔒 S002: Sistema de logging seguro ativado com sanitização LGPD")
+            
+            return secure_loggers
+            
+        except Exception as e:
+            # Fallback para sistema tradicional em caso de erro
+            logging.error(f"Erro ao configurar logging seguro: {e}")
+    
+    # Sistema tradicional (fallback)
     root_logger = logging.getLogger()
     
     # Remover handlers existentes
