@@ -120,3 +120,7 @@ def is_redis_available() -> bool:
 def execute_redis_safe(operation: callable, *args, **kwargs) -> Any:
     """Executa operação Redis com fallback seguro"""
     return redis_manager.execute_safe(operation, *args, **kwargs)
+
+async def execute_redis_safe_async(operation: callable, *args, **kwargs) -> Any:
+    """Executa operação Redis assíncrona com fallback seguro"""
+    return redis_manager.execute_safe(operation, *args, **kwargs)
