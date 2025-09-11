@@ -281,7 +281,7 @@ class CSPSecurityScanner:
     
     async def comprehensive_scan(self, endpoints: List[str] = None) -> CSPScanReport:
         """Executar scan completo de segurança CSP"""
-        endpoints = endpoints or ["/health", "/docs", "/api/v1/users/me"]
+        endpoints = endpoints or ["/health", "/docs", "/"]
         
         logger.info(f"🔍 Iniciando scan CSP completo em {len(endpoints)} endpoints")
         

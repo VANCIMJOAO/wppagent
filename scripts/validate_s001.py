@@ -34,7 +34,8 @@ class S001Validator:
         """Teste 1: CSP headers em todas responses"""
         print("🔍 Teste 1: Verificando presença de headers CSP...")
         
-        endpoints = ["/health", "/docs", "/api/v1/users/me", "/"]
+        # Testar apenas endpoints que realmente existem
+        endpoints = ["/health", "/docs", "/"]
         all_have_csp = True
         
         for endpoint in endpoints:

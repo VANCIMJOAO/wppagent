@@ -56,7 +56,7 @@ class CSPMiddleware(BaseHTTPMiddleware):
         }
         
         if self.environment == "production":
-            # Produção - Política rigorosa com nonce e strict-dynamic
+            # Produção - Política rigorosa sem unsafe-inline
             base_policy.update({
                 "script-src": "'self' 'strict-dynamic' https://cdnjs.cloudflare.com https://vercel.live",
                 "style-src": "'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
@@ -72,6 +72,7 @@ class CSPMiddleware(BaseHTTPMiddleware):
             # Desenvolvimento - Mais permissivo mas ainda seguro
             base_policy.update({
                 "script-src": "'self' 'unsafe-eval' http://localhost:* https://localhost:*",
+                "style-src": "'self' http://localhost:* https://localhost:*",
                 "connect-src": "'self' http://localhost:* https://localhost:* ws://localhost:* wss://localhost:*",
                 "report-uri": "/api/security/csp-report"
             })

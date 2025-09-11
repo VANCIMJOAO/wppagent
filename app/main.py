@@ -298,7 +298,8 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
         hsts_include_subdomains=True,
         hsts_preload=True,
         allow_localhost=settings.debug,  # Permitir localhost apenas em desenvolvimento
-        development_mode=settings.debug
+        development_mode=settings.debug,
+        enable_csp=False  # Desabilitar CSP pois temos CSPMiddleware dedicado
     )
     logger.info("HTTPS Middleware activated")
 else:
