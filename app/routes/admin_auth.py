@@ -138,21 +138,28 @@ async def get_current_admin_user(
         # Usar nosso JWT Manager em vez de jose.jwt
         payload = jwt_manager.verify_token(token)
         
-        username: str = payload.get("sub")
-        if username is None:
+        user_id: str = payload.get("sub")
+        if user_id is None:
             raise credentials_exception
             
         # Verificar se é token de acesso
         if payload.get("type") != "access":
             raise credentials_exception
-            
-        token_data = TokenData(username=username)
         
     except Exception as e:
         logger.error(f"❌ Erro ao verificar token: {e}")
         raise credentials_exception
     
-    admin_user = await get_admin_user(username=token_data.username, session=session)
+    # Buscar admin por ID em vez de username
+    try:
+        result = await session.execute(
+            select(AdminUser).where(AdminUser.id == int(user_id))
+        )
+        admin_user = result.scalar_one_or_none()
+    except Exception as e:
+        logger.error(f"❌ Erro ao buscar admin por ID {user_id}: {e}")
+        admin_user = None
+        
     if admin_user is None:
         raise credentials_exception
     
