@@ -1,9 +1,12 @@
 """
-Migração RBAC - Sistema de Controle de Acesso
+Migração RBAC - Sistema de Controle de Acesso Completo
 
 Revision ID: rbac_system_2025
 Revises: d08ef6b15ecb
-Create Date: 2025-09-08 14:00:00.000000
+Create Date: 2025-09-08 14:03:00.000000
+
+✅ MIGRAÇÃO REORGANIZADA: Padrão de nomenclatura corrigido
+Arquivo renomeado de 'rbac_system_2025.py' para seguir padrão YYYY_MM_DD_HHMM-revision_id-description.py
 """
 from alembic import op
 import sqlalchemy as sa

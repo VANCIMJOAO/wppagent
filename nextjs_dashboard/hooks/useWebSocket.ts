@@ -1,7 +1,7 @@
 // hooks/useWebSocket.ts
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { authService } from '@/lib/auth-service'
+import { secureAuth } from '@/lib/secure-auth-manager'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -40,9 +40,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const { isAuthenticated } = useAuth()
   const queryClient = useQueryClient()
   
-  // Get token from authService
+  // Token é automaticamente enviado via cookies seguros
   const getToken = useCallback(() => {
-    return authService.getAccessToken()
+    return null; // Não precisa de token - usa cookies HttpOnly
   }, [])
   
   const [isConnected, setIsConnected] = useState(false)

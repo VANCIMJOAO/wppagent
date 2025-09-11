@@ -80,7 +80,7 @@ const PushNotificationTest: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'X-Auth-Required': 'true'
         },
         body: JSON.stringify({
           endpoint: subscription.endpoint,
@@ -117,7 +117,7 @@ const PushNotificationTest: React.FC = () => {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            'X-Auth-Required': 'true'
           },
           body: JSON.stringify({
             endpoint: subscription.endpoint
@@ -144,7 +144,7 @@ const PushNotificationTest: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'X-Auth-Required': 'true'
         },
         body: JSON.stringify({
           title: 'Teste de Push Notification',

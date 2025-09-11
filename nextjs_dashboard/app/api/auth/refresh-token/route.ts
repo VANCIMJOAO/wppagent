@@ -4,11 +4,19 @@ export async function POST(req: NextRequest) {
   try {
     console.log('🔄 API: Solicitação de renovação de token recebida');
     
-    // Obter credenciais (usando as corretas para o ambiente)
+    // ✅ SEGURO: Credenciais via environment variables
     const credentials = {
       username: process.env.ADMIN_USERNAME || 'admin',
-      password: process.env.ADMIN_PASSWORD || 'admin123'
+      password: process.env.ADMIN_PASSWORD
     };
+    
+    // Validação de segurança
+    if (!credentials.password) {
+      return NextResponse.json(
+        { error: 'Configuração de autenticação inválida' },
+        { status: 500 }
+      );
+    }
     
     console.log('🔐 API: Fazendo login no backend...');
     

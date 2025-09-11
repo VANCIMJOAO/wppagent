@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import useAuth from '@/hooks/useAuth'
 import { 
   LayoutDashboard, 
   MessageCircle, 
@@ -45,7 +46,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ children }: SidebarProps) {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, isAuthenticated, logout } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const router = useRouter()
@@ -53,12 +54,15 @@ export default function Sidebar({ children }: SidebarProps) {
 
   useEffect(() => {
     // Verificar se está autenticado
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      setUser(JSON.parse(userData))
-    } else {
-      router.push('/login')
+    const checkAuth = async () => {
+      if (!isAuthenticated) {
+        router.push('/login')
+      } else {
+        setIsLoading(false)
+      }
     }
+    
+    checkAuth()
     setIsLoading(false)
   }, [router])
 
@@ -88,8 +92,8 @@ export default function Sidebar({ children }: SidebarProps) {
     }
   }, [isMobileMenuOpen])
 
-  const handleLogout = () => {
-    localStorage.removeItem('user')
+  const handleLogout = async () => {
+    await logout()
     router.push('/login')
   }
 
@@ -255,15 +259,15 @@ export default function Sidebar({ children }: SidebarProps) {
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <Avatar className="h-10 w-10 md:h-12 md:w-12">
-                  <AvatarImage src={user?.avatar_url} />
+                  <AvatarImage src="" />
                   <AvatarFallback className="bg-blue-500 text-white">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
+                    {user?.username?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 text-sm md:text-base truncate">{user?.name || 'Usuário'}</p>
+                <p className="font-semibold text-gray-900 text-sm md:text-base truncate">{user?.username || 'Usuário'}</p>
                 <div className="flex items-center space-x-2 mt-1">
                   {user?.role && getRoleBadge(user.role)}
                   <Badge variant="outline" className="text-green-600 border-green-200 text-xs">
@@ -389,14 +393,14 @@ export default function Sidebar({ children }: SidebarProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.avatar_url} />
-                      <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                      <AvatarImage src="" />
+                      <AvatarFallback>{user?.username?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>{user?.name || 'Usuário'}</DropdownMenuLabel>
+                  <DropdownMenuLabel>{user?.username || 'Usuário'}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <User className="mr-2 h-4 w-4" />

@@ -19,7 +19,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { tokenManager } from '../lib/token-manager';
+import { secureAuth } from '../lib/secure-auth-manager';
 import { httpClient } from '../lib/http-client';
 
 interface LoginResponse {

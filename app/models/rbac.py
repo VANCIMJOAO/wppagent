@@ -8,9 +8,10 @@ from typing import List, Dict, Set, Optional, Union
 from datetime import datetime, timedelta
 import json
 from dataclasses import dataclass, asdict
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, ForeignKey, Table, Enum as SQLEnum
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, ForeignKey, Table, Enum as SQLEnum, JSON
 from sqlalchemy.orm import relationship, Session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -586,3 +587,61 @@ class PermissionResponse:
     risk_level: str
     requires_2fa: bool
     is_active: bool
+
+
+# =============================================================================
+# MODELOS PARA TABELAS DE ASSOCIAÇÃO ÓRFÃS (RBAC)
+# =============================================================================
+# 
+# NOTA: As tabelas user_roles e role_permissions já estão sendo usadas 
+# no banco, mas agora precisam de modelos completos ao invés de apenas Table()
+
+class RolePermission(Base):
+    """
+    Modelo para tabela role_permissions órfã
+    Relacionamento roles-permissions com metadados completos
+    """
+    __tablename__ = "role_permissions"
+    __table_args__ = {'extend_existing': True}
+    
+    role_id = Column(Integer, ForeignKey("rbac_roles.id"), primary_key=True)
+    permission_id = Column(Integer, ForeignKey("rbac_permissions.id"), primary_key=True)
+    assigned_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    assigned_by = Column(Integer, ForeignKey("rbac_users.id"))
+
+
+class UserRole(Base):
+    """
+    Modelo para tabela user_roles órfã  
+    Relacionamento users-roles com metadados e expiração
+    """
+    __tablename__ = "user_roles"
+    __table_args__ = {'extend_existing': True}
+    
+    user_id = Column(Integer, ForeignKey("rbac_users.id"), primary_key=True)
+    role_id = Column(Integer, ForeignKey("rbac_roles.id"), primary_key=True)
+    assigned_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    assigned_by = Column(Integer, ForeignKey("rbac_users.id"))
+    expires_at = Column(DateTime(timezone=True))
+
+
+class RBACAuditLog(Base):
+    """
+    Modelo para tabela rbac_audit_logs órfã
+    Sistema de auditoria RBAC completo
+    """
+    __tablename__ = "rbac_audit_logs"
+    
+    id = Column(String(36), primary_key=True)  # UUID como string
+    user_id = Column(Integer, ForeignKey("rbac_users.id"))
+    action = Column(String(50), nullable=False)
+    resource_type = Column(String(50), nullable=False)
+    resource_id = Column(String(100))
+    details = Column(JSON)
+    ip_address = Column(String(45))
+    user_agent = Column(Text)
+    success = Column(Boolean, nullable=False, default=True)
+    error_message = Column(Text)
+    timestamp = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
+
+

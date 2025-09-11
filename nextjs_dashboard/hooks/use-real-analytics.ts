@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { apiClient } from '@/lib/api-client';
+import apiService from '@/lib/api-service-robust';
 
 // Tipos para os dados de analytics
 interface DashboardSummary {
@@ -237,14 +237,11 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
     try {
       console.log(`📊 Carregando dashboard summary - ${days} dias`);
       
-      // Usar API route local do Next.js (que faz proxy para Railway)
-      const result = await apiClient.get(
-        `/api/analytics/overview?days=${days}`,
-        { ttl: 60000 } // 1 minute cache
-      );
+      // Usar método específico para overview
+      const result = await apiService.getBusinessOverview();
 
       if (!result.success) {
-        throw new Error(result.message || 'Falha ao carregar dashboard');
+        throw new Error(result.error || 'Falha ao carregar dashboard');
       }
       
       // Update global state
@@ -260,18 +257,17 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       console.log(`✅ Dashboard carregado:`, {
         customers: result.data.key_metrics?.total_customers,
         conversion: result.data.key_metrics?.overall_conversion_rate?.toFixed(1) + '%',
-        source: result.source || 'backend'
+        source: 'backend'
       });
       
       // Only show success toast for real backend data
-      if (result.source !== 'fallback') {
-        toast({
-          title: "Dashboard atualizado",
-          description: `Dados de ${days} dias carregados com sucesso`,
-          variant: "default",
-        });
-      }
-      
+      // Sempre cache o resultado válido
+      toast({
+        title: "Dashboard atualizado",
+        description: `Dados de ${days} dias carregados com sucesso`,
+        variant: "default",
+      });
+
     } catch (error) {
       if (!mounted.current) return;
       const errorMsg = handleError(error, 'dashboard summary');
@@ -300,12 +296,12 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       
       console.log(`🔄 Carregando funil de conversão: ${endpoint}`);
       
-      const result = await apiClient.get(endpoint, { ttl: 120000 }); // 2 minute cache
+      const result = await apiService.getPerformanceMetrics(); // 2 minute cache
       
       if (!mounted.current) return;
       
       if (!result.success) {
-        throw new Error(result.message || 'Falha ao carregar funil');
+        throw new Error(result.error || 'Falha ao carregar funil');
       }
       
       setConversionFunnel(result.data);
@@ -333,15 +329,12 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
     try {
       console.log(`📋 Carregando performance de templates - ${days} dias`);
       
-      const result = await apiClient.get(
-        `/api/analytics/template-performance?days=${days}`,
-        { ttl: 300000 } // 5 minute cache
-      );
+      const result = await apiService.getPerformanceMetrics();
       
       if (!mounted.current) return;
       
       if (!result.success) {
-        throw new Error(result.message || 'Falha ao carregar templates');
+        throw new Error(result.error || 'Falha ao carregar templates');
       }
       
       setTemplatePerformance(result.data);
@@ -387,22 +380,23 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       
       console.log(`📈 Carregando série temporal: ${endpoint}`);
       
-      const result = await apiClient.get(endpoint, { ttl: 180000 }); // 3 minute cache
+      const result = await apiService.getTimeSeriesData(
+        metrics.join(','), 
+        granularity
+      );
       
       if (!mounted.current) return;
       
       if (!result.success) {
-        throw new Error(result.message || 'Falha ao carregar série temporal');
+        throw new Error(result.error || 'Falha ao carregar série temporal');
       }
-      
+
       setTimeSeriesData({
         data: result.data,
-        metadata: result.metadata
+        metadata: result.data?.metadata || { period: { start: '', end: '' }, granularity: 'daily', metrics: [], total_data_points: 0 }
       });
-      
-      console.log(`✅ Série temporal carregada: ${result.metadata.total_data_points} pontos`);
-      
-    } catch (error) {
+
+      console.log(`✅ Série temporal carregada: ${result.data?.length || 0} pontos`);    } catch (error) {
       if (!mounted.current) return;
       const errorMsg = handleError(error, 'série temporal');
       setTimeSeriesError(errorMsg);

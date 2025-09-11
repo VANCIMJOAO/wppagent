@@ -98,15 +98,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       debugLog.auth('Renovando token...');
       
-      const response = await fetch('/api/proxy/admin/login', {
+      // ✅ SEGURO: Usar API route segura sem credenciais hardcoded
+      const response = await fetch('/api/auth/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          username: 'admin',
-          password: 'admin123'
-        })
+        }
+        // ✅ Sem credenciais - API route gerencia internamente
       });
 
       if (!response.ok) {
@@ -115,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
-      const token = data.access_token;
+      const token = data.token; // ✅ Campo correto da nova API route
       
       // Atualizar token nos cookies e localStorage
       document.cookie = `auth-token=${token}; path=/; max-age=86400`;

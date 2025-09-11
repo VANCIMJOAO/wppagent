@@ -49,8 +49,13 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
 
   const handleDismiss = () => {
     setIsDismissed(true)
-    // Salvar no localStorage para não mostrar novamente por um tempo
-    localStorage.setItem('pwa-prompt-dismissed', Date.now().toString())
+    // ✅ SEGURO: localStorage para preferências de UI (não-sensível)
+    try {
+      localStorage.setItem('pwa-prompt-dismissed', Date.now().toString())
+    } catch (error) {
+      // Falha silenciosa se localStorage não disponível
+      console.warn('PWA: Não foi possível salvar preferência')
+    }
   }
 
   const handleUpdate = () => {

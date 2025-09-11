@@ -247,6 +247,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
       id,
       timestamp: new Date().toISOString(),
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'SSR',
+      // ✅ SEGURO: IDs para debugging (não-sensíveis)
       userId: typeof localStorage !== 'undefined' ? localStorage.getItem('userId') || undefined : undefined,
       sessionId: typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('sessionId') || undefined : undefined,
       retryCount: 0,

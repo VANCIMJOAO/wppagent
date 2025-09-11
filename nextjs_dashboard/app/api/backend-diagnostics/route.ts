@@ -5,8 +5,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'https://wppagent-production.up.railway.app';
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'senha_admin_segura';
+// ✅ SEGURO: Credenciais via environment variables
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+// Validação de segurança
+if (!ADMIN_PASSWORD) {
+  console.error('❌ ADMIN_PASSWORD não configurado!');
+}
 
 async function getAuthToken(): Promise<string> {
   const loginResponse = await fetch(`${BACKEND_URL}/admin/login`, {

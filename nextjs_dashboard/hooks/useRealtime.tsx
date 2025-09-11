@@ -141,7 +141,7 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
     
     // Set initial state
     setConnectionState(realtimeClient.state);
-    setCurrentRoom(realtimeClient.room);
+    setCurrentRoom(realtimeClient.room || 'general');
 
     return () => {
       // Cleanup - remove state handler (if there was a way)

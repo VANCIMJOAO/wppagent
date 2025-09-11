@@ -237,7 +237,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
     loadExecutions();
   }, []);
 
-  // Carregar templates do localStorage
+  // ✅ SEGURO: localStorage para templates de relatório (não-sensível)
   const loadTemplates = useCallback(() => {
     try {
       const saved = localStorage.getItem('automated_report_templates');

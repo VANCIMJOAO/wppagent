@@ -212,7 +212,8 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
         url: window.location.href,
         isOnline: this.state.isOnline,
         retryCount: this.state.retryCount,
-        sessionId: sessionStorage.getItem('sessionId')
+        // ✅ SEGURO: sessionId para debugging (não-sensível)
+        sessionId: typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('sessionId') : null
       };
 
       await fetch('/api/errors', {

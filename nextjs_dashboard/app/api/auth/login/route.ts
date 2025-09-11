@@ -1,46 +1,95 @@
-import { NextRequest, NextResponse } from 'next/server'
+/**
+ * API Route: Login Seguro
+ * Autenticação server-side com HttpOnly cookies seguros
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { config } from '@/lib/environment-config';
+
+interface LoginRequest {
+  username: string;
+  password: string;
+  totp?: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json()
+    const body: LoginRequest = await request.json();
     
-    // Proxy para o backend Railway
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/login`, {
+    // Validação básica
+    if (!body.username || !body.password) {
+      return NextResponse.json(
+        { success: false, error: 'Credenciais obrigatórias' },
+        { status: 400 }
+      );
+    }
+
+    // 🔐 Autenticar com backend
+    const backendResponse = await fetch(`${config.apiBaseUrl}/admin/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'User-Agent': 'NextJS-Dashboard/1.0',
       },
-      body: JSON.stringify({ username, password })
-    })
-    
+      body: JSON.stringify({
+        username: body.username,
+        password: body.password
+      })
+    });
+
+    const authData = await backendResponse.json();
+
     if (!backendResponse.ok) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      )
+        { 
+          success: false, 
+          error: authData.error || 'Credenciais inválidas'
+        },
+        { status: backendResponse.status }
+      );
     }
-    
-    const data = await backendResponse.json()
-    const response = NextResponse.json(data)
-    
-    // Set HTTP-only cookie with the token
-    if (data.access_token) {
-      response.cookies.set('auth-token', data.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24, // 24 hours
-        path: '/'
-      })
+
+    // 🛡️ Configurar resposta com cookies seguros
+    const isProduction = config.environment === 'production';
+    const tokenExpiry = Date.now() + (3600 * 1000); // 1 hora
+
+    const response = NextResponse.json({
+      success: true,
+      user: authData.user || { username: body.username, role: 'admin' },
+      tokenExpiry
+    });
+
+    // 🔐 Access Token (HttpOnly - NUNCA acessível via JavaScript)
+    if (authData.access_token) {
+      response.cookies.set('auth-token', authData.access_token, {
+        httpOnly: true,          // 🛡️ Proteção XSS
+        secure: isProduction,    // 🔒 HTTPS apenas em produção
+        sameSite: 'strict',      // 🚫 Proteção CSRF
+        maxAge: 3600,           // 1 hora
+        path: '/',
+      });
     }
-    
-    return response
-    
+
+    // 📊 Informações de sessão (acessível para UI)
+    response.cookies.set('session-info', JSON.stringify({
+      user: authData.user || { username: body.username, role: 'admin' },
+      isAuthenticated: true,
+      tokenExpiry
+    }), {
+      httpOnly: false,         // Acessível para React
+      secure: isProduction,
+      sameSite: 'strict',
+      maxAge: 3600,
+      path: '/',
+    });
+
+    return response;
+
   } catch (error) {
-    console.error('Login error:', error)
+    console.error('🚨 Erro no login:', error);
     return NextResponse.json(
-      { error: 'Authentication failed' },
+      { success: false, error: 'Erro interno do servidor' },
       { status: 500 }
-    )
+    );
   }
 }

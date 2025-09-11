@@ -2,8 +2,10 @@
 
 Revision ID: rbac_2025
 Revises: 2025_09_08_1600-add_refresh_tokens  
-Create Date: 2025-01-11 20:00:00.000000
+Create Date: 2025-09-08 14:01:00.000000
 
+✅ MIGRAÇÃO REORGANIZADA: Padrão de nomenclatura corrigido
+Arquivo renomeado de 'rbac_2025.py' para seguir padrão YYYY_MM_DD_HHMM-revision_id-description.py
 """
 from typing import Sequence, Union
 

@@ -54,10 +54,19 @@ class ResponseControlStats:
             logger.info("📊 Estatísticas resetadas")
 
 class UnifiedResponseControl:
-    """Sistema unificado de controle de resposta única"""
+    """
+    Sistema unificado de controle de resposta única
     
-    def __init__(self, window_seconds: int = 30):
+    Funcionalidades consolidadas:
+    - ✅ Controle de mensagens duplicadas (hash-based)
+    - ✅ Rate limiting por usuário (janela deslizante)
+    - ✅ Flood protection (burst detection)
+    - ✅ Redis com fallback para memória
+    """
+    
+    def __init__(self, window_seconds: int = 30, rate_limit_per_minute: int = 50):
         self.window_seconds = window_seconds
+        self.rate_limit_per_minute = rate_limit_per_minute  # Rate limiting por usuário
         self.redis_client: Optional[redis.Redis] = None
         self.memory_cache: Dict[str, float] = {}
         self.stats = ResponseControlStats()
@@ -121,7 +130,12 @@ class UnifiedResponseControl:
             self.stats.reset_if_needed()
             
             try:
-                # Gerar hash da mensagem
+                # 1. Verificar rate limiting por usuário primeiro
+                rate_check = await self._check_user_rate_limit(user_id)
+                if not rate_check[0]:
+                    return await self._block_message(user_id, f"Rate limit: {rate_check[1]}")
+                
+                # 2. Verificar mensagem duplicada
                 message_hash = self.generate_message_hash(content)
                 cache_key = self._get_cache_key(user_id, message_hash)
                 
@@ -292,6 +306,80 @@ class UnifiedResponseControl:
         except Exception as e:
             logger.error(f"❌ Erro no cleanup: {e}")
             return {"error": str(e)}
+    
+    async def _check_user_rate_limit(self, user_id: str) -> Tuple[bool, str]:
+        """
+        Verifica rate limiting por usuário usando janela deslizante
+        
+        Args:
+            user_id: ID único do usuário
+            
+        Returns:
+            Tuple[bool, str]: (pode_processar, motivo)
+        """
+        try:
+            rate_key = f"rate_limit:user:{user_id}"
+            current_time = int(time.time())
+            window_start = current_time - 60  # Janela de 1 minuto
+            
+            # Usar Redis se disponível
+            if self.redis_client:
+                try:
+                    # Usar sorted set para janela deslizante
+                    pipe = self.redis_client.pipeline()
+                    
+                    # Remover entradas antigas
+                    pipe.zremrangebyscore(rate_key, 0, window_start)
+                    
+                    # Contar requisições no último minuto
+                    pipe.zcard(rate_key)
+                    
+                    # Adicionar nova entrada
+                    pipe.zadd(rate_key, {str(current_time): current_time})
+                    
+                    # TTL da chave
+                    pipe.expire(rate_key, 120)  # 2 minutos
+                    
+                    results = await pipe.execute()
+                    current_count = results[1]
+                    
+                    if current_count >= self.rate_limit_per_minute:
+                        return False, f"Rate limit excedido: {current_count}/{self.rate_limit_per_minute} req/min"
+                    
+                    return True, f"Rate limit OK: {current_count}/{self.rate_limit_per_minute}"
+                    
+                except Exception as e:
+                    logger.warning(f"⚠️ Erro Redis rate limit: {e}")
+                    # Fallback para memória
+                    pass
+            
+            # Fallback: usar cache em memória com janela simples
+            user_requests = getattr(self, '_user_requests', {})
+            if not hasattr(self, '_user_requests'):
+                self._user_requests = user_requests
+            
+            # Limpar requisições antigas
+            user_requests[user_id] = [
+                req_time for req_time in user_requests.get(user_id, [])
+                if current_time - req_time < 60
+            ]
+            
+            # Verificar limite
+            current_count = len(user_requests.get(user_id, []))
+            if current_count >= self.rate_limit_per_minute:
+                return False, f"Rate limit excedido (memory): {current_count}/{self.rate_limit_per_minute} req/min"
+            
+            # Adicionar nova requisição
+            if user_id not in user_requests:
+                user_requests[user_id] = []
+            user_requests[user_id].append(current_time)
+            
+            return True, f"Rate limit OK (memory): {current_count + 1}/{self.rate_limit_per_minute}"
+            
+        except Exception as e:
+            logger.error(f"❌ Erro no rate limiting: {e}")
+            # Em caso de erro, permitir processamento
+            return True, f"Rate limit error - permitindo: {str(e)}"
 
 # Instância global unificada
 unified_response_control = UnifiedResponseControl()

@@ -162,28 +162,32 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
   const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
 
-  // Salvar layout no localStorage
+  // ✅ SEGURO: localStorage para layout de dashboard (não-sensível)
   const saveLayout = useCallback(() => {
-    const updatedLayout = {
-      ...layout,
-      updatedAt: new Date(),
-    };
-    
-    localStorage.setItem(`dashboard_${layout.id}`, JSON.stringify(updatedLayout));
-    setLayout(updatedLayout);
-    onLayoutChange?.(updatedLayout);
+    try {
+      const updatedLayout = {
+        ...layout,
+        updatedAt: new Date(),
+      };
+      
+      localStorage.setItem(`dashboard_${layout.id}`, JSON.stringify(updatedLayout));
+      setLayout(updatedLayout);
+      onLayoutChange?.(updatedLayout);
+    } catch (error) {
+      console.warn('Dashboard: Não foi possível salvar layout')
+    }
   }, [layout, onLayoutChange]);
 
-  // Carregar layout do localStorage
+  // ✅ SEGURO: Carregar layout do localStorage (preferências de UI)
   useEffect(() => {
-    const savedLayout = localStorage.getItem(`dashboard_${layout.id}`);
-    if (savedLayout) {
-      try {
+    try {
+      const savedLayout = localStorage.getItem(`dashboard_${layout.id}`);
+      if (savedLayout) {
         const parsedLayout = JSON.parse(savedLayout);
         setLayout(parsedLayout);
-      } catch (error) {
-        console.error('Erro ao carregar layout:', error);
       }
+    } catch (error) {
+      console.warn('Dashboard: Erro ao carregar layout salvo:', error);
     }
   }, [layout.id]);
 

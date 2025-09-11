@@ -288,17 +288,12 @@ class MetaLog(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class Admin(Base):
-    """Modelo para usuários admin do dashboard"""
-    __tablename__ = "admins"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, nullable=False)
-    email = Column(String(255), unique=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+# MODELO ADMIN DUPLICADO REMOVIDO
+# O modelo Admin (tabela "admins") foi removido pois:
+# 1. Estava duplicado com AdminUser (tabela "admin_users") 
+# 2. AdminUser é o modelo ativo usado em toda aplicação
+# 3. Tabela "admins" tem 0 registros no banco
+# 4. AdminUser tem funcionalidades completas (hash senha, sessions, etc.)
 
 
 class CompanyInfo(Base):
@@ -581,3 +576,128 @@ class PushNotification(Base):
     
     # Relacionamento
     subscription = relationship("PushSubscription")
+
+
+# =============================================================================
+# MODELOS PARA TABELAS ÓRFÃS - RESOLUÇÃO DE SCHEMA DRIFT
+# =============================================================================
+
+class LoginAttempt(Base):
+    """
+    Modelo para tabela login_attempts órfã
+    Sistema de rate limiting e auditoria de tentativas de login
+    """
+    __tablename__ = "login_attempts"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), nullable=False, index=True)
+    ip_address = Column(String(45))  # Suporte IPv4 e IPv6
+    success = Column(Boolean, nullable=False)
+    attempted_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    error_message = Column(Text)
+
+
+class UserSession(Base):
+    """
+    Modelo para tabela user_sessions órfã
+    Sistema de sessões de usuários (não admin)
+    """
+    __tablename__ = "user_sessions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(255), nullable=False, unique=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    ip_address = Column(String(45))
+    user_agent = Column(Text)
+    is_active = Column(Boolean, default=True)
+    
+    # Relacionamento
+    user = relationship("User")
+
+
+class BusinessHours(Base):
+    """
+    Modelo para tabela business_hours órfã
+    Sistema de horários estruturado (alternativa ao JSON em businesses)
+    """
+    __tablename__ = "business_hours"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False, default=1)
+    day_of_week = Column(Integer, nullable=False)  # 0=domingo, 1=segunda, ..., 6=sábado
+    is_open = Column(Boolean, nullable=False, default=True)
+    open_time = Column(String(5))  # Usando String para compatibilidade (formato HH:MM)
+    close_time = Column(String(5))
+    break_start_time = Column(String(5))
+    break_end_time = Column(String(5))
+    notes = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Relacionamento
+    business = relationship("Business")
+
+
+class BusinessPolicy(Base):
+    """
+    Modelo para tabela business_policies órfã
+    Sistema de políticas de negócio
+    """
+    __tablename__ = "business_policies"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False, default=1)
+    policy_type = Column(String(100), nullable=False)
+    title = Column(String(255), nullable=False)
+    description = Column(Text, nullable=False)
+    rules = Column(JSON)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Relacionamento
+    business = relationship("Business")
+
+
+class PaymentMethod(Base):
+    """
+    Modelo para tabela payment_methods órfã
+    Sistema de métodos de pagamento
+    """
+    __tablename__ = "payment_methods"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False, default=1)
+    name = Column(String(255), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True)
+    description = Column(Text)
+    additional_info = Column(Text)
+    display_order = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Relacionamento
+    business = relationship("Business")
+
+
+class AuthUser(Base):
+    """
+    Modelo para tabela auth_users órfã
+    Sistema de autenticação alternativo (verificar se conflita com AdminUser)
+    """
+    __tablename__ = "auth_users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), nullable=False, unique=True, index=True)
+    password_hash = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)
+    role = Column(String(50), nullable=False, default="viewer")
+    company_id = Column(Integer)
+    phone = Column(String(20))
+    avatar_url = Column(Text)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    last_login = Column(DateTime(timezone=True))

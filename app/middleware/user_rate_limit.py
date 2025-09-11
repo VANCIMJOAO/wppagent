@@ -182,7 +182,8 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             '/openapi.json',
             '/favicon.ico',
             '/static/',
-            '/metrics'  # Prometheus metrics
+            '/metrics',  # Prometheus metrics
+            '/webhook',  # ✅ WhatsApp webhook - usa unified_response_control próprio
         ]
         
         path = request.url.path

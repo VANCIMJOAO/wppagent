@@ -7,7 +7,7 @@
 import { useApiGet } from '@/hooks/useApi'
 import { DashboardStatsComplete } from '@/types/api'
 import { useAuth } from '@/hooks/useAuth'
-import { authService } from '@/lib/auth-service'
+import { secureAuth } from '@/lib/secure-auth-manager'
 
 import { useState, useEffect } from 'react'
 
@@ -57,9 +57,11 @@ export function useDashboardStats() {
 
       try {
         // Buscar estatísticas diárias principais
-        const token = await authService.getValidToken()
+        // Token é enviado automaticamente via cookies seguros
+        const isAuth = await secureAuth.isAuthenticated()
         const dailyResponse = await fetch('/api/proxy/api/dashboard/stats/daily', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
+          credentials: 'include',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
 
         if (!dailyResponse.ok) {
@@ -72,7 +74,8 @@ export function useDashboardStats() {
         let clientStats = {}
         try {
           const clientStatsResponse = await fetch('/api/proxy/api/dashboard/clients/stats', {
-            headers: token ? { Authorization: `Bearer ${token}` } : {}
+            credentials: 'include',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
           })
           if (clientStatsResponse.ok) {
             clientStats = await clientStatsResponse.json()

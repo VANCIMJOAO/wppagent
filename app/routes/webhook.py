@@ -8,6 +8,7 @@ eliminando sobreposições e redundâncias.
 
 import asyncio
 import json
+import time  # ✅ Para métricas de performance
 from datetime import datetime
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, Request, Depends, HTTPException, Query
@@ -24,8 +25,8 @@ from app.services.response_control import unified_response_control
 from app.utils.whatsapp_sanitizer import sanitize_whatsapp_data, sanitize_message, sanitize_phone
 from app.models.database import MetaLog
 
-# 🔥 Advanced Webhook Rate Limiting
-from app.auth.webhook_rate_limiter import webhook_rate_limit, webhook_rate_limiter
+# ✅ Unified Response Control (substitui webhook_rate_limiter)
+# from app.auth.webhook_rate_limiter import webhook_rate_limit, webhook_rate_limiter
 
 # 🔥 WebSocket Integration
 from app.services.websocket_integration import notify_new_whatsapp_message, notify_message_sent
@@ -67,7 +68,7 @@ Digite "mais serviços" para ver outras opções! 😊""",
 response_generator = SimplifiedResponseGenerator()
 
 @router.post("", summary="Receber webhooks do WhatsApp Business API")
-@webhook_rate_limit(webhook_type="whatsapp_business")
+# ✅ Rate limiting removido - usando unified_response_control para controle otimizado
 @log_performance("webhook.process")
 async def receive_webhook(
     request: Request,
@@ -137,7 +138,10 @@ async def receive_webhook(
         total_processed = 0
         total_blocked = 0
         
-        # Processar cada entrada
+        # ⚡ OTIMIZAÇÃO: Processamento concurrent de mensagens
+        all_messages = []  # Coletar todas as mensagens primeiro
+        
+        # Coletar mensagens de todas as entries
         for entry in raw_data.get("entry", []):
             changes = entry.get("changes", [])
             
@@ -146,14 +150,46 @@ async def receive_webhook(
                     continue
                 
                 messages = change.get("value", {}).get("messages", [])
-                
-                for message_data in messages:
-                    result = await process_single_message(message_data, db)
-                    
-                    if result["processed"]:
-                        total_processed += 1
-                    else:
-                        total_blocked += 1
+                all_messages.extend(messages)
+        
+        # ✅ HIGH-PERFORMANCE CONCURRENT PROCESSING
+        if all_messages:
+            from app.utils.webhook_optimizer import batch_processor
+            from app.utils.performance_monitor import performance_monitor
+            
+            batch_size = len(all_messages)
+            start_time = time.time()
+            
+            total_processed, total_blocked, metrics = await batch_processor.process_messages_optimized(
+                messages=all_messages,
+                db=db
+            )
+            
+            processing_time = time.time() - start_time
+            had_timeout = "timeout" in metrics.get("error", "")
+            
+            # 📊 Registrar métricas de performance
+            await performance_monitor.record_batch(
+                batch_size=batch_size,
+                processing_time=processing_time,
+                processed=total_processed,
+                blocked=total_blocked,
+                had_timeout=had_timeout
+            )
+            
+            # Log performance summary
+            logger.info(
+                "🚀 High-performance batch processing completed",
+                metadata={
+                    "batch_size": batch_size,
+                    "total_processed": total_processed,
+                    "total_blocked": total_blocked,
+                    "performance_metrics": metrics,
+                    "optimization_enabled": True,
+                    "monitoring_enabled": True
+                },
+                category=LogCategory.PERFORMANCE
+            )
         
         # Log estruturado de conclusão
         logger.info(
@@ -608,3 +644,37 @@ async def webhook_health():
             "error": str(e),
             "timestamp": datetime.utcnow().isoformat()
         }
+
+
+@router.get("/performance-stats", summary="Estatísticas de Performance do Webhook")
+async def get_webhook_performance_stats():
+    """
+    📊 Endpoint para monitoramento de performance do webhook
+    
+    Retorna métricas detalhadas de:
+    - Throughput (mensagens por segundo)
+    - Latência média de processamento
+    - Taxa de sucesso
+    - Alertas de performance
+    """
+    try:
+        from app.utils.performance_monitor import performance_monitor
+        
+        stats = await performance_monitor.get_performance_stats()
+        
+        logger.info(
+            "📊 Performance stats requested",
+            metadata={"stats_overview": stats.get("overall_metrics", {})},
+            category=LogCategory.PERFORMANCE
+        )
+        
+        return {
+            "status": "success",
+            "webhook_performance": stats,
+            "timestamp": datetime.utcnow().isoformat(),
+            "monitoring_active": True
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error retrieving performance stats: {e}")
+        return {"status": "error", "message": str(e)}
