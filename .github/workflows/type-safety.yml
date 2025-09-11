@@ -1,0 +1,104 @@
+name: 🔍 Type Safety Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  # Executa diariamente para detectar divergências do backend
+  schedule:
+    - cron: '0 9 * * *'
+
+jobs:
+  type-safety-check:
+    name: TypeScript Type Safety
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'nextjs_dashboard/package-lock.json'
+        
+    - name: 📦 Install dependencies
+      working-directory: ./nextjs_dashboard
+      run: npm ci
+      
+    - name: 🔗 Wait for backend deployment
+      run: |
+        echo "⏳ Aguardando backend estar disponível..."
+        for i in {1..30}; do
+          if curl -sf https://wppagent-production.up.railway.app/health > /dev/null; then
+            echo "✅ Backend está disponível"
+            break
+          fi
+          echo "⏳ Tentativa $i/30 - aguardando backend..."
+          sleep 10
+        done
+        
+    - name: 🤖 Generate TypeScript types
+      working-directory: ./nextjs_dashboard
+      run: npm run generate:types
+      env:
+        NEXT_PUBLIC_API_URL: https://wppagent-production.up.railway.app
+        
+    - name: 🔍 Check for type changes
+      working-directory: ./nextjs_dashboard
+      run: |
+        if git diff --exit-code types/api-generated.ts; then
+          echo "✅ Tipos estão sincronizados com o backend"
+        else
+          echo "❌ ERRO: Tipos divergiram do backend!"
+          echo "📋 Diferenças encontradas:"
+          git diff types/api-generated.ts
+          echo ""
+          echo "🔧 Para corrigir:"
+          echo "1. Execute: npm run generate:types"
+          echo "2. Commit as mudanças de tipos"
+          exit 1
+        fi
+        
+    - name: ✅ TypeScript type check
+      working-directory: ./nextjs_dashboard
+      run: npm run type-check
+      
+    - name: 🧪 Run tests with type safety
+      working-directory: ./nextjs_dashboard
+      run: npm test -- --passWithNoTests
+      
+    - name: 📊 Type coverage report
+      working-directory: ./nextjs_dashboard
+      run: |
+        echo "📊 Relatório de Cobertura de Tipos:"
+        echo "=================================="
+        
+        # Conta arquivos .ts/.tsx
+        TS_FILES=$(find . -name "*.ts" -o -name "*.tsx" | grep -v node_modules | grep -v .next | wc -l)
+        echo "📁 Arquivos TypeScript: $TS_FILES"
+        
+        # Verifica uso de any
+        ANY_COUNT=$(grep -r ": any" --include="*.ts" --include="*.tsx" . | grep -v node_modules | grep -v .next | wc -l)
+        echo "⚠️  Usos de 'any': $ANY_COUNT"
+        
+        if [ $ANY_COUNT -gt 0 ]; then
+          echo "❌ FALHA: Encontrados $ANY_COUNT usos de 'any'"
+          echo "📋 Localizações:"
+          grep -rn ": any" --include="*.ts" --include="*.tsx" . | grep -v node_modules | grep -v .next
+          exit 1
+        else
+          echo "✅ Zero 'any' types - Perfeito!"
+        fi
+        
+    - name: 💾 Upload type artifacts
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: type-check-artifacts
+        path: |
+          nextjs_dashboard/types/api-generated.ts
+          nextjs_dashboard/types/index.ts
