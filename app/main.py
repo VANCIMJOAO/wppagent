@@ -302,7 +302,7 @@ app.add_middleware(AuthMiddleware)
 
 # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
 try:
-    from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware, webhook_rate_limit_middleware
+    from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
     app.add_middleware(WebhookRateLimitMiddleware)
     logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
 except ImportError as e:

@@ -402,4 +402,8 @@ webhook_rate_limit_middleware = None
 
 def get_webhook_rate_limit_middleware() -> Optional[WebhookRateLimitMiddleware]:
     """Obter instância do middleware para uso em rotas admin"""
+    global webhook_rate_limit_middleware
+    if webhook_rate_limit_middleware is None:
+        # Criar uma instância temporária para uso nas rotas admin
+        webhook_rate_limit_middleware = WebhookRateLimitMiddleware(None)
     return webhook_rate_limit_middleware
