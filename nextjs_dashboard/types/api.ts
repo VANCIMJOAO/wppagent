@@ -39,8 +39,8 @@ export interface PaginatedResponse<T> {
 // ✅ TIPOS UNIFICADOS - Correspondem aos schemas do backend
 
 /**
- * 📅 Agendamento unificado
- * Campos padronizados que correspondem ao AppointmentResponseUnified
+ * 📅 Agendamento unificado - Suporte a ambos os formatos
+ * ✅ Compatibilidade total entre backend e frontend
  */
 export interface Appointment {
   id: number;
@@ -48,13 +48,20 @@ export interface Appointment {
   business_id: number;
   service_id?: number;
   
-  // ✅ Campos padronizados (matching backend aliases)
+  // ✅ Formato brasileiro (principal - usado no frontend)
   data_agendamento: string; // ISO 8601 datetime
   horario: string; // HH:MM format
   duracao_minutos: number;
   valor: number;
   status: AppointmentStatus;
   observacoes?: string;
+  
+  // ✅ Formato inglês (aliases - compatibilidade com backend)
+  date_time?: string; // Alias para data_agendamento
+  time_slot?: string; // Alias para horario
+  duration_minutes?: number; // Alias para duracao_minutos
+  price?: number; // Alias para valor
+  notes?: string; // Alias para observacoes
   
   // ✅ Dados relacionados padronizados
   cliente_nome: string;
@@ -91,7 +98,7 @@ export interface Conversation {
 
 /**
  * 💬 Mensagem unificada
- * Campos padronizados que correspondem ao MessageResponseUnified
+ * ✅ Padronizada para usar direction ('in' | 'out')
  */
 export interface Message {
   id: number;
@@ -103,7 +110,6 @@ export interface Message {
   whatsapp_id?: string;
   
   // ✅ Campos adicionais
-  sender_type?: string;
   is_read: boolean;
 }
 
@@ -146,27 +152,29 @@ export interface ConversationsListResponse {
 /**
  * 📅 Request para criação de agendamento
  * Corresponde ao AppointmentCreateRequest
+ * ✅ Usando nomenclatura padronizada brasileira
  */
 export interface AppointmentCreateRequest {
   user_id: number;
   business_id: number;
   service_id?: number;
-  date_time: string; // ISO 8601
-  duration_minutes?: number;
-  price?: number;
-  notes?: string;
+  data_agendamento: string; // ISO 8601 datetime
+  duracao_minutos?: number;
+  valor?: number;
+  observacoes?: string;
 }
 
 /**
  * 📅 Request para atualização de agendamento
  * Corresponde ao AppointmentUpdateRequest
+ * ✅ Usando nomenclatura padronizada brasileira
  */
 export interface AppointmentUpdateRequest {
-  date_time?: string; // ISO 8601
-  duration_minutes?: number;
-  price?: number;
+  data_agendamento?: string; // ISO 8601 datetime
+  duracao_minutos?: number;
+  valor?: number;
   status?: AppointmentStatus;
-  notes?: string;
+  observacoes?: string;
 }
 
 /**

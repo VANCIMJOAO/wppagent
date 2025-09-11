@@ -28,7 +28,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { api } from '@/lib/api-service';
+import api from '@/lib/api-service';
 
 interface UserProfile {
   id: string;

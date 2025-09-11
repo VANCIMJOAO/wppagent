@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/auth-context';
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('123456');
+  const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();

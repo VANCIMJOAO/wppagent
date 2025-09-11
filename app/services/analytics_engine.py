@@ -37,7 +37,9 @@ class AdvancedAnalyticsEngine:
         
         try:
             # Etapa 1: Usuários que enviaram primeira mensagem
-            first_contact_query = select(func.count(func.distinct(Message.user_id))).where(
+            first_contact_query = select(func.count(func.distinct(User.id))).select_from(
+                User.join(Message)
+            ).where(
                 and_(
                     Message.direction == 'in',
                     Message.created_at.between(start_date, end_date)
@@ -46,7 +48,9 @@ class AdvancedAnalyticsEngine:
             first_contacts = (await self.session.execute(first_contact_query)).scalar() or 0
             
             # Etapa 2: Usuários que receberam resposta do bot
-            bot_responses_query = select(func.count(func.distinct(Message.user_id))).where(
+            bot_responses_query = select(func.count(func.distinct(User.id))).select_from(
+                User.join(Message)
+            ).where(
                 and_(
                     Message.direction == 'out',
                     Message.created_at.between(start_date, end_date)
@@ -55,7 +59,9 @@ class AdvancedAnalyticsEngine:
             bot_responses = (await self.session.execute(bot_responses_query)).scalar() or 0
             
             # Etapa 3: Usuários que agendaram
-            scheduled_query = select(func.count(func.distinct(Appointment.user_id))).where(
+            scheduled_query = select(func.count(func.distinct(User.id))).select_from(
+                User.join(Appointment)
+            ).where(
                 Appointment.created_at.between(start_date, end_date)
             )
             scheduled = (await self.session.execute(scheduled_query)).scalar() or 0
@@ -290,8 +296,8 @@ class AdvancedAnalyticsEngine:
                 func.min(Appointment.created_at).label('first_appointment'),
                 func.count(func.distinct(func.date(Appointment.created_at))).label('visit_days')
             ).select_from(
-                Appointment
-            ).join(User, Appointment.user_id == User.id).where(
+                User.join(Appointment)
+            ).where(
                 Appointment.created_at >= start_date - timedelta(days=90)  # Expanded window for VIPs
             ).group_by(User.id, User.nome, User.telefone).having(
                 func.count(Appointment.id) >= 2  # At least 2 appointments
@@ -330,9 +336,7 @@ class AdvancedAnalyticsEngine:
                     )
                 ).label('lifetime_value')
             ).select_from(
-                User
-            ).outerjoin(Message, User.id == Message.user_id).outerjoin(
-                Appointment, User.id == Appointment.user_id
+                User.outerjoin(Message).outerjoin(Appointment)
             ).group_by(User.id, User.nome, User.telefone).having(
                 and_(
                     func.max(Message.created_at) < churn_threshold,
@@ -370,9 +374,7 @@ class AdvancedAnalyticsEngine:
                 func.max(Message.created_at).label('last_message'),
                 func.count(Appointment.id).label('appointments')
             ).select_from(
-                Message
-            ).join(User, Message.user_id == User.id).outerjoin(
-                Appointment, User.id == Appointment.user_id
+                User.join(Message).outerjoin(Appointment)
             ).where(
                 Message.created_at.between(start_date, end_date)
             ).group_by(User.id, User.nome, User.telefone).having(
@@ -481,22 +483,19 @@ class AdvancedAnalyticsEngine:
             estimated_marketing_spend = total_messages * 0.10
             cac = estimated_marketing_spend / max(1, revenue_data.unique_customers) if revenue_data.unique_customers else 0
             
-            # Customer Lifetime Value (30-day window) - Corrigir nested aggregates
-            # Primeiro calcular total por cliente, depois calcular média
-            customer_totals_subquery = select(
-                func.sum(Appointment.price).label('customer_total')
+            # Customer Lifetime Value (30-day window)
+            ltv_query = select(
+                func.avg(
+                    func.sum(Appointment.price)
+                ).label('avg_ltv')
             ).select_from(
-                Appointment
+                Appointment.join(User)
             ).where(
                 and_(
                     Appointment.price.is_not(None),
-                    Appointment.created_at >= start_date - timedelta(days=90)
+                    Appointment.created_at >= start_date - timedelta(days=90)  # Expanded window
                 )
-            ).group_by(Appointment.user_id).subquery()
-            
-            ltv_query = select(
-                func.avg(customer_totals_subquery.c.customer_total)
-            )
+            ).group_by(User.id)
             
             result = await self.session.execute(ltv_query)
             avg_ltv = result.scalar() or 0

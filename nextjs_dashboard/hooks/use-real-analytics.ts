@@ -169,6 +169,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
     const updateState = () => {
       if (mounted.current) {
         setDashboardSummary(globalState.dashboardSummary);
+        setLoadingDashboard(false); // Ensure loading is set to false when data is available
       }
     };
     
@@ -179,7 +180,15 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       globalState.subscribers.delete(updateState);
     };
   }, []);
-  
+
+  // Sync with global state on mount
+  useEffect(() => {
+    if (globalState.dashboardSummary && !dashboardSummary) {
+      setDashboardSummary(globalState.dashboardSummary);
+      setLoadingDashboard(false);
+    }
+  }, [dashboardSummary]);
+
   // Error handler
   const handleError = useCallback((error: any, context: string) => {
     if (!mounted.current) return '';
@@ -233,9 +242,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
         `/api/analytics/overview?days=${days}`,
         { ttl: 60000 } // 1 minute cache
       );
-      
-      if (!mounted.current) return;
-      
+
       if (!result.success) {
         throw new Error(result.message || 'Falha ao carregar dashboard');
       }
@@ -247,11 +254,12 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       // Notify all subscribers
       globalState.subscribers.forEach(callback => callback());
       
+      // Always update local state - force update
       setDashboardSummary(result.data);
       
       console.log(`✅ Dashboard carregado:`, {
-        customers: result.data.key_metrics.total_customers,
-        conversion: result.data.key_metrics.overall_conversion_rate.toFixed(1) + '%',
+        customers: result.data.key_metrics?.total_customers,
+        conversion: result.data.key_metrics?.overall_conversion_rate?.toFixed(1) + '%',
         source: result.source || 'backend'
       });
       

@@ -17,9 +17,8 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete, func
-from app.database import get_db
-from app.models.database import Appointment
-from app.auth.middleware import get_current_user  # 🔧 Adicionar autenticação
+from app.core.database import get_db
+from app.models.appointment import Appointment
 from app.websocket.event_broadcaster import (
     notify_appointment_created,
     notify_appointment_updated, 
@@ -38,13 +37,13 @@ from pydantic import BaseModel
 class AppointmentCreate(BaseModel):
     nome: str
     telefone: str
-    date_time: datetime
+    date_time: datetime  # Mantém compatibilidade com modelo do banco
     status: Optional[str] = "agendado"
 
 class AppointmentUpdate(BaseModel):
     nome: Optional[str] = None
     telefone: Optional[str] = None
-    date_time: Optional[datetime] = None
+    date_time: Optional[datetime] = None  # Mantém compatibilidade com modelo do banco
     status: Optional[str] = None
 
 class AppointmentResponse(BaseModel):
@@ -332,10 +331,7 @@ async def delete_appointment(
         )
 
 @router.get("/stats/summary")
-async def get_appointments_summary(
-    db: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user)  # 🔧 Adicionar autenticação
-):
+async def get_appointments_summary(db: AsyncSession = Depends(get_db)):
     """
     📊 Estatísticas resumidas dos agendamentos
     """

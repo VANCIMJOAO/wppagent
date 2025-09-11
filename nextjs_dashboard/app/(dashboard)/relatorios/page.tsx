@@ -106,15 +106,16 @@ export default function RelatoriosPage() {
       const startDate = dateRange?.from ? formatDate(dateRange.from) : undefined
       const endDate = dateRange?.to ? formatDate(dateRange.to) : undefined
 
-      const [overview, funnel, performance] = await Promise.all([
+      const [overviewResponse, funnelResponse, performanceResponse] = await Promise.all([
         getBusinessOverview(startDate, endDate),
         getConversationFunnel(startDate, endDate),
         getPerformanceMetrics(startDate, endDate)
       ])
 
-      setBusinessOverview(overview)
-      setConversationFunnel(funnel)
-      setPerformanceMetrics(performance)
+      // Acessa os dados das respostas da API
+      setBusinessOverview(overviewResponse.data)
+      setConversationFunnel(funnelResponse.data)
+      setPerformanceMetrics(performanceResponse.data)
     } catch (error) {
       console.error('Erro ao carregar dados de relatórios:', error)
     } finally {
@@ -127,8 +128,8 @@ export default function RelatoriosPage() {
       const startDate = dateRange?.from ? formatDate(dateRange.from) : undefined
       const endDate = dateRange?.to ? formatDate(dateRange.to) : undefined
 
-      const timeSeries = await getTimeSeriesData(timeSeriesMetric, granularity, startDate, endDate)
-      setTimeSeriesData(timeSeries)
+      const timeSeriesResponse = await getTimeSeriesData(timeSeriesMetric, granularity, startDate, endDate)
+      setTimeSeriesData(timeSeriesResponse.data)
     } catch (error) {
       console.error('Erro ao carregar dados temporais:', error)
     }
@@ -139,7 +140,8 @@ export default function RelatoriosPage() {
       const startDate = dateRange?.from ? formatDate(dateRange.from) : undefined
       const endDate = dateRange?.to ? formatDate(dateRange.to) : undefined
 
-      const blob = await exportAnalytics('full', format, startDate, endDate)
+      const exportResponse = await exportAnalytics('full', format, startDate, endDate)
+      const blob = exportResponse.data
       
       // Create download link
       const url = window.URL.createObjectURL(blob)

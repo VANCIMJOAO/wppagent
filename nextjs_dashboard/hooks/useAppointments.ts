@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/react-query'
 import { toast } from 'sonner'
+import { normalizeAppointment, normalizeAppointments, toAppointmentCreateData, toAppointmentUpdateData } from '@/lib/appointment-normalizer'
 import type { 
   Appointment, 
   AppointmentCreateRequest, 
@@ -39,7 +40,13 @@ const api = {
       throw new Error(`Erro ao buscar agendamentos: ${response.statusText}`)
     }
     
-    return response.json()
+    const data = await response.json()
+    // ✅ Normalizar dados para garantir compatibilidade
+    if (data.items) {
+      data.items = normalizeAppointments(data.items)
+    }
+    
+    return data
   },
 
   async getAppointment(id: number): Promise<Appointment> {
@@ -55,17 +62,22 @@ const api = {
       throw new Error(`Erro ao buscar agendamento: ${response.statusText}`)
     }
     
-    return response.json()
+    const data = await response.json()
+    // ✅ Normalizar dados para garantir compatibilidade
+    return normalizeAppointment(data)
   },
 
   async createAppointment(data: AppointmentCreateRequest): Promise<Appointment> {
+    // ✅ Converter para formato brasileiro antes de enviar
+    const normalizedData = toAppointmentCreateData(data)
+    
     const response = await fetch('/api/appointments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(normalizedData)
     })
     
     if (!response.ok) {
@@ -73,17 +85,22 @@ const api = {
       throw new Error(errorData.detail || `Erro ao criar agendamento: ${response.statusText}`)
     }
     
-    return response.json()
+    const result = await response.json()
+    // ✅ Normalizar resposta
+    return normalizeAppointment(result)
   },
 
   async updateAppointment(id: number, data: AppointmentUpdateRequest): Promise<Appointment> {
+    // ✅ Converter para formato brasileiro antes de enviar
+    const normalizedData = toAppointmentUpdateData(data)
+    
     const response = await fetch(`/api/appointments/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(normalizedData)
     })
     
     if (!response.ok) {
@@ -91,7 +108,9 @@ const api = {
       throw new Error(errorData.detail || `Erro ao atualizar agendamento: ${response.statusText}`)
     }
     
-    return response.json()
+    const result = await response.json()
+    // ✅ Normalizar resposta
+    return normalizeAppointment(result)
   },
 
   async deleteAppointment(id: number): Promise<{ message: string; id: number }> {

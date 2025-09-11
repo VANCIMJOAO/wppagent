@@ -34,7 +34,7 @@ import {
   Wifi,
   WifiOff
 } from 'lucide-react';
-import { api } from '@/lib/api-service';
+import api from '@/lib/api-service';
 import type { Appointment as ApiAppointment, AppointmentStatus } from '@/types/api';
 import { toast } from 'sonner';
 import { ExportButtons } from '@/components/export-buttons';
@@ -127,10 +127,14 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
     try {
       setLoading(true);
       
-      const [appointmentsData, dashboardData] = await Promise.all([
+      const [appointmentsResponse, dashboardResponse] = await Promise.all([
         api.getAppointments(),
         api.getDashboardStats()
       ]);
+
+      // Acessa os dados da resposta da API
+      const appointmentsData = appointmentsResponse.data || [];
+      const dashboardData = dashboardResponse.data || {};
 
       setAppointments(appointmentsData);
       
@@ -142,17 +146,17 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
       
       const calculatedStats: AppointmentStats = {
         total: appointmentsData.length || 0,
-        confirmed: appointmentsData.filter(a => a.status === 'confirmado').length || 0,
-        pending: appointmentsData.filter(a => a.status === 'agendado').length || 0,
-        cancelled: appointmentsData.filter(a => a.status === 'cancelado').length || 0,
-        completed: appointmentsData.filter(a => a.status === 'realizado').length || 0,
-        today: appointmentsData.filter(a => 
+        confirmed: appointmentsData.filter((a: any) => a.status === 'confirmado').length || 0,
+        pending: appointmentsData.filter((a: any) => a.status === 'agendado').length || 0,
+        cancelled: appointmentsData.filter((a: any) => a.status === 'cancelado').length || 0,
+        completed: appointmentsData.filter((a: any) => a.status === 'realizado').length || 0,
+        today: appointmentsData.filter((a: any) => 
             new Date(a.data_agendamento).toDateString() === today
           ).length || 0,
-          thisWeek: appointmentsData.filter(a => 
+          thisWeek: appointmentsData.filter((a: any) => 
             new Date(a.data_agendamento) >= thisWeek
           ).length || 0,
-          thisMonth: appointmentsData.filter(a => 
+          thisMonth: appointmentsData.filter((a: any) => 
             new Date(a.data_agendamento) >= thisMonth
           ).length || 0
         };

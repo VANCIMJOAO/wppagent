@@ -37,15 +37,15 @@ export interface AppointmentCreateData {
   user_id: number
   business_id: number
   service_id?: number
-  date_time: string
+  data_agendamento: string // ✅ Nomenclatura brasileira padronizada
   status?: string
-  notes?: string
+  observacoes?: string // ✅ notes → observacoes
 }
 
 export interface AppointmentUpdateData {
-  date_time?: string
+  data_agendamento?: string // ✅ Nomenclatura brasileira padronizada
   status?: string
-  notes?: string
+  observacoes?: string // ✅ notes → observacoes
   service_id?: number
 }
 
@@ -54,9 +54,9 @@ export interface AppointmentResponse {
   user_id: number
   business_id: number
   service_id?: number
-  date_time: string
+  data_agendamento: string // ✅ Nomenclatura brasileira padronizada
   status: string
-  notes?: string
+  observacoes?: string // ✅ notes → observacoes
   user_name?: string
   user_phone?: string
   business_name?: string

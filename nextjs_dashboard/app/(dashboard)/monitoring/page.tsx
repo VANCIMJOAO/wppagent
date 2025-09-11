@@ -15,7 +15,7 @@ import {
   TrendingUp,
   RefreshCw
 } from 'lucide-react'
-import { api } from '@/lib/api-service'
+import api from '@/lib/api-service'
 
 interface Alert {
   id: string
@@ -52,13 +52,14 @@ export default function MonitoringPage() {
 
   const loadData = async () => {
     try {
-      const [alertsData, healthData] = await Promise.all([
+      const [alertsResponse, healthResponse] = await Promise.all([
         api.getActiveAlerts(),
         api.getSystemHealth()
       ])
       
-      setAlerts(alertsData)
-      setSystemHealth(healthData)
+      // Acessa os dados das respostas da API
+      setAlerts(alertsResponse.data || [])
+      setSystemHealth(healthResponse.data || null)
       setLastUpdate(new Date())
     } catch (error) {
       console.error('Erro ao carregar dados de monitoramento:', error)

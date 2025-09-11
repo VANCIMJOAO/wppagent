@@ -197,7 +197,7 @@ async def get_clients(
 @router.get("/clients/stats", response_model=ClientStatsResponse)
 async def get_client_stats(
     db: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user)  # 🔧 Usar middleware unificado
+    current_admin: AdminUser = Depends(get_current_admin_user)
 ):
     """
     Busca estatísticas gerais dos clientes.
@@ -220,8 +220,7 @@ async def get_client_stats(
         week_ago = datetime.now() - timedelta(days=7)
         active_result = await db.execute(
             select(func.count(User.id.distinct()))
-            .select_from(Conversation)
-            .join(User, Conversation.user_id == User.id)
+            .select_from(User.join(Conversation, User.id == Conversation.user_id))
             .where(
                 and_(
                     User.nome.is_not(None),
@@ -248,21 +247,19 @@ async def get_client_stats(
         )
         new_clients = new_result.scalar() or 0
         
-        # Média de mensagens por usuário (usando subquery para evitar agregações aninhadas)
-        subquery = select(
-            func.count(Message.id).label('message_count')
-        ).select_from(Message) \
-        .join(User, Message.user_id == User.id) \
-        .where(
-            and_(
-                User.nome.is_not(None),
-                User.nome != "",
-                ~User.nome.like("%[DELETED]%")
-            )
-        ).group_by(Message.user_id).subquery()
-        
+        # Média de mensagens por usuário
         avg_result = await db.execute(
-            select(func.avg(subquery.c.message_count))
+            select(func.avg(func.count(Message.id)))
+            .select_from(Message)
+            .join(User, Message.user_id == User.id)
+            .where(
+                and_(
+                    User.nome.is_not(None),
+                    User.nome != "",
+                    ~User.nome.like("%[DELETED]%")
+                )
+            )
+            .group_by(Message.user_id)
         )
         avg_messages = float(avg_result.scalar() or 0)
         

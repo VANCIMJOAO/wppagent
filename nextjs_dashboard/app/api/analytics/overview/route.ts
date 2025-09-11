@@ -11,7 +11,7 @@ const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'senha_admin_segura'; // Force hardcoded password that works
 
 // Authentication cache
-let authToken: string | null = null;
+let authToken: string = '';
 let tokenExpiry: number | null = null;
 
 // Simple data cache implementation
@@ -154,7 +154,19 @@ export async function GET(request: NextRequest) {
       }
       
       // Use fallback data
-      const fallbackResponse = createFallbackResponse(startDate, endDate);
+      const fallbackData = createIntelligentFallbackResponse(startDate, endDate, days);
+      const fallbackResponse = {
+        success: true,
+        data: fallbackData,
+        message: `Analytics overview usando fallback inteligente (backend indisponível)`,
+        source: 'fallback',
+        backend_status: {
+          authentication: 'FAILED',
+          data_endpoints: 'UNAVAILABLE',
+          backend_url: BACKEND_URL,
+          issue: 'Railway backend endpoints not reachable'
+        }
+      };
       setCache(cacheKey, fallbackResponse, 60000); // Cache fallback for 1 minute
       return NextResponse.json(fallbackResponse);
     }
@@ -182,94 +194,61 @@ function createIntelligentFallbackResponse(startDate: string, endDate: string, d
   
   // Dados mais realísticos baseados em negócios WhatsApp reais
   const analyticsData = {
-    conversationsOverTime: generateTimeSeriesData(startDate, endDate),
-    funnelData: [
-      { stage: 'Visitantes', count: Math.floor(850 * baseMultiplier), conversionRate: 100, previousStage: Math.floor(850 * baseMultiplier) },
-      { stage: 'Iniciaram Conversa', count: Math.floor(320 * baseMultiplier), conversionRate: 37.6, previousStage: Math.floor(850 * baseMultiplier) },
-      { stage: 'Responderam', count: Math.floor(245 * baseMultiplier), conversionRate: 76.6, previousStage: Math.floor(320 * baseMultiplier) },
-      { stage: 'Qualificados', count: Math.floor(156 * baseMultiplier), conversionRate: 63.7, previousStage: Math.floor(245 * baseMultiplier) },
-      { stage: 'Convertidos', count: Math.floor(89 * baseMultiplier), conversionRate: 57.1, previousStage: Math.floor(156 * baseMultiplier) },
-    ],
-    channelPerformance: [
+    key_metrics: {
+      total_customers: Math.floor(950 * baseMultiplier),
+      total_messages: Math.floor(3910 * baseMultiplier),
+      total_conversations: Math.floor(950 * baseMultiplier),
+      total_appointments: Math.floor(89 * baseMultiplier),
+      overall_conversion_rate: 9.4,
+      avg_response_time_minutes: 36,
+      satisfaction_score: 4.7
+    },
+    funnel: {
+      stages: [
+        { stage: 'Visitantes', count: Math.floor(850 * baseMultiplier), conversionRate: 100, previousStage: Math.floor(850 * baseMultiplier) },
+        { stage: 'Iniciaram Conversa', count: Math.floor(320 * baseMultiplier), conversionRate: 37.6, previousStage: Math.floor(850 * baseMultiplier) },
+        { stage: 'Responderam', count: Math.floor(245 * baseMultiplier), conversionRate: 76.6, previousStage: Math.floor(320 * baseMultiplier) },
+        { stage: 'Qualificados', count: Math.floor(156 * baseMultiplier), conversionRate: 63.7, previousStage: Math.floor(245 * baseMultiplier) },
+        { stage: 'Convertidos', count: Math.floor(89 * baseMultiplier), conversionRate: 57.1, previousStage: Math.floor(156 * baseMultiplier) },
+      ],
+      overall_conversion: 9.4
+    },
+    channel_performance: [
       { 
         channel: 'WhatsApp Business API', 
         conversations: Math.floor(520 * baseMultiplier), 
         messages: Math.floor(2340 * baseMultiplier), 
         avgResponseTime: 42, 
-        satisfaction: 4.7,
-        growth: '+18.5%'
+        satisfaction: 4.7
       },
       { 
         channel: 'WhatsApp Web', 
         conversations: Math.floor(280 * baseMultiplier), 
         messages: Math.floor(1120 * baseMultiplier), 
         avgResponseTime: 35, 
-        satisfaction: 4.5,
-        growth: '+12.3%'
+        satisfaction: 4.5
       },
       { 
         channel: 'Integração CRM', 
         conversations: Math.floor(150 * baseMultiplier), 
         messages: Math.floor(450 * baseMultiplier), 
         avgResponseTime: 28, 
-        satisfaction: 4.8,
-        growth: '+25.1%'
+        satisfaction: 4.8
       },
     ],
-    agentPerformance: [
-      {
-        agentId: 'agent_001',
-        agentName: 'Ana Clara Silva',
-        conversations: Math.floor(95 * baseMultiplier),
-        avgResponseTime: 31,
-        satisfaction: 4.9,
-        resolutionRate: 0.94,
-        efficiency: 'Excellent'
-      },
-      {
-        agentId: 'agent_002', 
-        agentName: 'Carlos Eduardo',
-        conversations: Math.floor(78 * baseMultiplier),
-        avgResponseTime: 38,
-        satisfaction: 4.6,
-        resolutionRate: 0.87,
-        efficiency: 'Good'
-      },
-      {
-        agentId: 'agent_003', 
-        agentName: 'Fernanda Costa',
-        conversations: Math.floor(67 * baseMultiplier),
-        avgResponseTime: 29,
-        satisfaction: 4.8,
-        resolutionRate: 0.91,
-        efficiency: 'Very Good'
-      },
-    ],
-    satisfactionBreakdown: [
+    satisfaction_breakdown: [
       { rating: 5, count: Math.floor(425 * baseMultiplier), percentage: 56.8, trend: 8.2 },
       { rating: 4, count: Math.floor(201 * baseMultiplier), percentage: 26.9, trend: 3.1 },
       { rating: 3, count: Math.floor(89 * baseMultiplier), percentage: 11.9, trend: -2.3 },
       { rating: 2, count: Math.floor(23 * baseMultiplier), percentage: 3.1, trend: -4.1 },
       { rating: 1, count: Math.floor(10 * baseMultiplier), percentage: 1.3, trend: -5.2 },
     ],
-    totalConversations: Math.floor(950 * baseMultiplier),
-    totalMessages: Math.floor(3910 * baseMultiplier),
-    avgResponseTime: 36,
-    overallSatisfaction: 4.7,
     trends: {
       conversations: 16.8,
       responseTime: -11.2, // Melhoria no tempo
-      satisfaction: 14.5,
-      conversion: 8.9
+      satisfaction: 14.5
     },
-    // Métricas específicas do período
-    periodInsights: {
-      period_days: days,
-      daily_average_conversations: Math.floor((950 * baseMultiplier) / days),
-      peak_day: format(subDays(new Date(), Math.floor(days * 0.3)), 'yyyy-MM-dd'),
-      conversion_rate: '9.4%',
-      top_performing_hour: '14:00-15:00'
-    }
+    time_series: generateTimeSeriesData(startDate, endDate)
   };
 
   return analyticsData;

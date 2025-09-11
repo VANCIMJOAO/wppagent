@@ -98,28 +98,30 @@ export async function GET() {
         };
 
         // Try to get response body (limited to avoid huge responses)
+        let body: any = null;
         try {
           const text = await response.text();
           if (text.length < 2000) {
             try {
-              result.body = JSON.parse(text);
+              body = JSON.parse(text);
             } catch {
-              result.body = text;
+              body = text;
             }
           } else {
-            result.body = `[Large response: ${text.length} chars] ${text.substring(0, 200)}...`;
+            body = `[Large response: ${text.length} chars] ${text.substring(0, 200)}...`;
           }
         } catch {
-          result.body = '[Unable to read response body]';
+          body = '[Unable to read response body]';
         }
 
-        results.push(result);
+        const resultWithBody = { ...result, body };
+        results.push(resultWithBody);
         
         if (response.ok) {
-          successful.push(result);
+          successful.push(resultWithBody);
           console.log(`✅ SUCCESS: ${endpoint.method} ${endpoint.path} -> ${response.status}`);
         } else {
-          errors.push(result);
+          errors.push(resultWithBody);
           console.log(`❌ FAILED: ${endpoint.method} ${endpoint.path} -> ${response.status} ${response.statusText}`);
         }
         

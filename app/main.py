@@ -375,10 +375,6 @@ logger.info("APM and Structured Logging Dashboard activated - Real-time monitori
 from app.routes.appointments import router as appointments_router
 app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 
-# 📊 APPOINTMENTS REALTIME - Endpoints com WebSocket integration
-from app.routes.appointments_realtime import router as appointments_realtime_router
-app.include_router(appointments_realtime_router, tags=["Appointments - Realtime"])
-
 from app.routes.clients import router as clients_router
 
 # 🚨 Sistema de Alertas

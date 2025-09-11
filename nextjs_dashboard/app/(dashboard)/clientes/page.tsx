@@ -32,7 +32,7 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
-import { api } from '@/lib/api-service';
+import api from '@/lib/api-service';
 import type { Client as ApiClient } from '@/types/api';
 import { toast } from 'sonner';
 
@@ -80,14 +80,18 @@ export default function ClientesPage() {
         setLoading(true);
         console.log('🔄 Loading clients data...');
         
-        const [clientsData, dashboardData] = await Promise.all([
+        const [clientsResponse, dashboardResponse] = await Promise.all([
           api.getClients(),
           api.getDashboardStats()
         ]);
 
+        // Acessa os dados das respostas da API
+        const clientsData = clientsResponse.data || [];
+        const dashboardData = dashboardResponse.data || {};
+
         console.log('📊 Clients data loaded:', clientsData?.length || 0, 'clients');
         console.log('📈 Dashboard data loaded:', dashboardData);
-        console.log('📋 All clients data:', clientsData?.map(c => ({
+        console.log('📋 All clients data:', clientsData?.map((c: any) => ({
           id: c.id,
           nome: c.nome,
           telefone: c.telefone,
@@ -98,20 +102,23 @@ export default function ClientesPage() {
         setClients(clientsData); // Inicialmente mostrar todos
         
         // Calculate client stats from dashboard data
-        setClientStats({
-          total: dashboardData.total_clients,
-          active: Math.floor(dashboardData.total_clients * 0.8),
-          vip: Math.floor(dashboardData.total_clients * 0.15),
-          new: Math.floor(dashboardData.total_clients * 0.1)
-        });
-        
-        // Calculate stats from actual data if API doesn't provide them
-        const calculatedStats = {
-          total: clientsData.length,
-          active: Math.floor(clientsData.length * 0.8),
-          new: Math.floor(clientsData.length * 0.1),
-          vip: Math.floor(clientsData.length * 0.15)
-        };
+        if (dashboardData.total_clients) {
+          setClientStats({
+            total: dashboardData.total_clients,
+            active: Math.floor(dashboardData.total_clients * 0.8),
+            vip: Math.floor(dashboardData.total_clients * 0.15),
+            new: Math.floor(dashboardData.total_clients * 0.1)
+          });
+        } else {
+          // Calculate stats from actual data if API doesn't provide them
+          const calculatedStats = {
+            total: clientsData.length,
+            active: Math.floor(clientsData.length * 0.8),
+            new: Math.floor(clientsData.length * 0.1),
+            vip: Math.floor(clientsData.length * 0.15)
+          };
+          setClientStats(calculatedStats);
+        }
         
       } catch (error) {
         console.error('Erro ao carregar dados dos clientes:', error);

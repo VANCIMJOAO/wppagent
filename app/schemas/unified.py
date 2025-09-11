@@ -111,7 +111,7 @@ class MessageResponseUnified(BaseModel):
     """
     💬 Schema unificado para mensagens
     
-    Padroniza direção e campos de mensagens.
+    ✅ Padronizado para usar apenas 'direction' ('in' | 'out')
     """
     id: int
     conversation_id: int
@@ -121,8 +121,7 @@ class MessageResponseUnified(BaseModel):
     created_at: datetime = Field(description="Data de criação")
     whatsapp_id: Optional[str] = Field(alias="message_id", default=None, description="ID do WhatsApp")
     
-    # ✅ Campos adicionais para compatibilidade
-    sender_type: Optional[str] = Field(default=None, description="Tipo do remetente")
+    # ✅ Campos adicionais 
     is_read: bool = Field(default=False, description="Mensagem foi lida")
     
     class Config:
@@ -160,22 +159,30 @@ class ConversationsListResponseUnified(BaseModel):
 
 # ✅ Schemas para criação/atualização
 class AppointmentCreateRequest(BaseModel):
-    """📅 Schema para criação de agendamentos"""
+    """📅 Schema para criação de agendamentos - Nomenclatura brasileira padronizada"""
     user_id: int
     business_id: int
     service_id: Optional[int] = None
-    date_time: datetime
-    duration_minutes: int = 60
-    price: float = 0.0
-    notes: Optional[str] = None
+    data_agendamento: datetime = Field(alias="date_time", description="Data e hora do agendamento")
+    duracao_minutos: int = Field(alias="duration_minutes", default=60, description="Duração em minutos")
+    valor: float = Field(alias="price", default=0.0, description="Valor do serviço") 
+    observacoes: Optional[str] = Field(alias="notes", default=None, description="Observações do agendamento")
+    
+    class Config:
+        populate_by_name = True  # ✅ Aceita tanto data_agendamento quanto date_time
+        from_attributes = True
     
 class AppointmentUpdateRequest(BaseModel):
-    """📅 Schema para atualização de agendamentos"""
-    date_time: Optional[datetime] = None
-    duration_minutes: Optional[int] = None
-    price: Optional[float] = None
+    """📅 Schema para atualização de agendamentos - Nomenclatura brasileira padronizada"""
+    data_agendamento: Optional[datetime] = Field(alias="date_time", default=None, description="Data e hora do agendamento")
+    duracao_minutos: Optional[int] = Field(alias="duration_minutes", default=None, description="Duração em minutos")
+    valor: Optional[float] = Field(alias="price", default=None, description="Valor do serviço")
     status: Optional[AppointmentStatus] = None
-    notes: Optional[str] = None
+    observacoes: Optional[str] = Field(alias="notes", default=None, description="Observações do agendamento")
+    
+    class Config:
+        populate_by_name = True  # ✅ Aceita tanto data_agendamento quanto date_time
+        from_attributes = True
 
 class MessageCreateRequest(BaseModel):
     """💬 Schema para criação de mensagens"""

@@ -8,7 +8,32 @@ export function middleware(request: NextRequest) {
   
   if (isDev) console.log('Middleware: Verificando rota:', pathname)
   
-  // Pular verificações para arquivos estáticos e API
+  // ✅ Intercepção especial para rotas de proxy - adicionar token automaticamente
+  if (pathname.startsWith('/api/proxy/')) {
+    if (isDev) console.log('Middleware: Interceptando rota de proxy')
+    
+    // Obter o token de autenticação
+    const authToken = request.cookies.get('auth-token')?.value;
+    
+    if (authToken) {
+      if (isDev) console.log('Middleware: Adicionando token ao header de autorização')
+      
+      // Criar nova request com header de autorização
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set('Authorization', `Bearer ${authToken}`);
+      
+      // Retornar com os headers modificados
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
+    } else {
+      if (isDev) console.log('Middleware: Token não encontrado para proxy')
+    }
+  }
+  
+  // Pular verificações para arquivos estáticos e outras APIs
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -24,7 +49,7 @@ export function middleware(request: NextRequest) {
   if (isDev) console.log('Middleware: Token existe:', !!isAuthenticated)
   
   // Rotas que requerem autenticação
-  const protectedRoutes = ['/dashboard'];
+  const protectedRoutes = ['/dashboard', '/conversas', '/agendamentos', '/monitoring'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   
   if (isDev) console.log('Middleware: É rota protegida?', isProtectedRoute)

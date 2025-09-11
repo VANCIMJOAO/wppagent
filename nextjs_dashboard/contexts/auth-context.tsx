@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  refreshToken: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,24 +49,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      // Simular autenticação
-      if (email && password) {
-        document.cookie = 'auth-token=authenticated; path=/; max-age=86400';
-        // Salvar também no localStorage
-        localStorage.setItem('user', JSON.stringify({
-          id: 1,
-          email: email,
-          name: 'Administrador',
-          role: 'admin',
-          avatar_url: null
-        }));
-        setIsAuthenticated(true);
-        router.push('/dashboard');
-      } else {
+      debugLog.auth(`Tentando fazer login com: ${email}`);
+      
+      // Fazer login real com o backend
+      const response = await fetch('/api/proxy/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          username: email === 'admin@example.com' ? 'admin' : email,
+          password 
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        debugLog.error('Login falhou:', errorData);
         throw new Error('Credenciais inválidas');
       }
+
+      const data = await response.json();
+      debugLog.success('Login realizado com sucesso!');
+      
+      // Salvar token real do backend
+      const token = data.access_token;
+      document.cookie = `auth-token=${token}; path=/; max-age=86400`;
+      
+      // Salvar também no localStorage
+      localStorage.setItem('user', JSON.stringify({
+        id: 1,
+        email: email,
+        name: 'Administrador',
+        role: 'admin',
+        avatar_url: null
+      }));
+      localStorage.setItem('auth-token', token);
+      
+      setIsAuthenticated(true);
+      router.push('/dashboard');
     } catch (error) {
+      debugLog.error('Erro no login', error);
       throw error;
+    }
+  };
+
+  const refreshToken = async (): Promise<boolean> => {
+    try {
+      debugLog.auth('Renovando token...');
+      
+      const response = await fetch('/api/proxy/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          username: 'admin',
+          password: 'admin123'
+        })
+      });
+
+      if (!response.ok) {
+        debugLog.error('Falha ao renovar token');
+        return false;
+      }
+
+      const data = await response.json();
+      const token = data.access_token;
+      
+      // Atualizar token nos cookies e localStorage
+      document.cookie = `auth-token=${token}; path=/; max-age=86400`;
+      localStorage.setItem('auth-token', token);
+      
+      debugLog.success('Token renovado com sucesso!');
+      return true;
+    } catch (error) {
+      debugLog.error('Erro ao renovar token', error);
+      return false;
     }
   };
 
@@ -77,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading, refreshToken }}>
       {children}
     </AuthContext.Provider>
   );

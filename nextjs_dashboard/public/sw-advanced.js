@@ -64,9 +64,14 @@ self.addEventListener('activate', event => {
       )
     }).then(() => {
       console.log('✅ SW: Activation complete')
+      // Só fazer claim se este service worker for o ativo
+      if (self.registration && self.registration.active === self) {
+        return self.clients.claim()
+      }
+    }).catch(error => {
+      console.log('❌ SW: Activation failed', error)
     })
   )
-  self.clients.claim()
 })
 
 // Fetch event com estratégias diferentes
@@ -102,11 +107,13 @@ async function networkFirstStrategy(request) {
     console.log('🌐 SW: Network first for', request.url)
     const response = await fetch(request)
     
-    // Se sucesso, atualizar cache
-    if (response.status === 200) {
+    // Se sucesso E método GET, atualizar cache (não cachear POST/PUT/DELETE)
+    if (response.status === 200 && request.method === 'GET') {
       const cache = await caches.open(API_CACHE)
       cache.put(request, response.clone())
       console.log('💾 SW: API cached', request.url)
+    } else if (request.method !== 'GET') {
+      console.log('🚫 SW: Skipping cache for', request.method, request.url)
     }
     
     return response

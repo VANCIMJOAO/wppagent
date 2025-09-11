@@ -56,8 +56,8 @@ export function ReactQueryExample() {
       user_id: 1,
       business_id: 1,
       service_id: 1,
-      date_time: new Date().toISOString(),
-      notes: 'Agendamento criado via React Query'
+      data_agendamento: new Date().toISOString(), // ✅ Nomenclatura brasileira padronizada
+      observacoes: 'Agendamento criado via React Query' // ✅ notes → observacoes
     })
   }
 
@@ -66,7 +66,7 @@ export function ReactQueryExample() {
       id: appointment.id,
       data: {
         status: 'realizado' as AppointmentStatus,
-        notes: 'Atualizado via React Query'
+        observacoes: 'Atualizado via React Query' // ✅ notes → observacoes
       }
     })
   }
