@@ -7,7 +7,7 @@
  * 
  * Para regenerar: npm run generate:types
  * Fonte: https://wppagent-production.up.railway.app/openapi.json
- * Gerado em: 2025-09-11T16:57:39.328Z
+ * Gerado em: 2025-09-11T17:57:47.351Z
  * 
  * 📋 Compatibilidade de Tipos:
  * - ✅ Zero any types
@@ -3249,6 +3249,277 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dashboard/clients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Clients
+         * @description Lista clientes/usuários com suas estatísticas.
+         */
+        get: operations["get_clients_dashboard_clients_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/clients/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Client Stats
+         * @description Busca estatísticas gerais dos clientes.
+         */
+        get: operations["get_client_stats_dashboard_clients_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/stats/monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Monthly Stats
+         * @description Estatísticas mensais para relatórios.
+         */
+        get: operations["get_monthly_stats_dashboard_stats_monthly_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/stats/daily": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Daily Stats
+         * @description Estatísticas diárias para o dashboard principal.
+         */
+        get: operations["get_daily_stats_dashboard_stats_daily_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/reports/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Report
+         * @description Exporta relatórios em diferentes formatos.
+         */
+        get: operations["export_report_dashboard_reports_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/recent-activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Recent Activity
+         * @description Buscar atividades recentes do sistema para o dashboard.
+         */
+        get: operations["get_recent_activity_dashboard_recent_activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/appointments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Dashboard Appointments
+         * @description 📅 Buscar agendamentos para o dashboard
+         *
+         *     Retorna lista paginada de agendamentos com dados dos clientes.
+         *     Usa autenticação regular de usuário, não requer admin.
+         */
+        get: operations["get_dashboard_appointments_dashboard_appointments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/migrated/clients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Clients Migrated
+         * @description ✅ MIGRADO C002: Lista clientes com estrutura {success, data, error, meta}
+         *
+         *     Retorna:
+         *     {
+         *       "success": true,
+         *       "data": [array de clientes],
+         *       "error": null,
+         *       "meta": {
+         *         "timestamp": "2025-09-11T16:45:00.123Z",
+         *         "request_id": "uuid",
+         *         "execution_time_ms": 150,
+         *         "pagination": {
+         *           "total": 100,
+         *           "limit": 10,
+         *           "offset": 0,
+         *           "page": 1,
+         *           "pages": 10,
+         *           "has_next": true,
+         *           "has_prev": false
+         *         }
+         *       }
+         *     }
+         */
+        get: operations["get_clients_migrated_dashboard_migrated_clients_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/migrated/clients/{client_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Client By Id Migrated
+         * @description ✅ MIGRADO C002: Busca cliente por ID com estrutura padronizada
+         *
+         *     Retorna:
+         *     {
+         *       "success": true,
+         *       "data": {dados do cliente},
+         *       "error": null,
+         *       "meta": {
+         *         "timestamp": "2025-09-11T16:45:00.123Z",
+         *         "request_id": "uuid",
+         *         "execution_time_ms": 89
+         *       }
+         *     }
+         */
+        get: operations["get_client_by_id_migrated_dashboard_migrated_clients__client_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/migrated/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Client Stats Migrated
+         * @description ✅ MIGRADO C002: Estatísticas de clientes com timing
+         *
+         *     Retorna:
+         *     {
+         *       "success": true,
+         *       "data": {estatísticas},
+         *       "error": null,
+         *       "meta": {
+         *         "timestamp": "2025-09-11T16:45:00.123Z",
+         *         "request_id": "uuid",
+         *         "execution_time_ms": 245
+         *       }
+         *     }
+         */
+        get: operations["get_client_stats_migrated_dashboard_migrated_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/migrated/clients/manual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Clients Manual Migrated
+         * @description ✅ MIGRADO C002: Exemplo manual sem decoradores
+         *
+         *     Demonstra como criar ApiResponse manualmente quando necessário.
+         *     Útil para casos onde você precisa de controle total sobre a response.
+         */
+        get: operations["get_clients_manual_migrated_dashboard_migrated_clients_manual_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/analytics/funnel": {
         parameters: {
             query?: never;
@@ -4928,149 +5199,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/dashboard/clients": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Clients
-         * @description Lista clientes/usuários com suas estatísticas.
-         */
-        get: operations["get_clients_dashboard_clients_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/clients/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Client Stats
-         * @description Busca estatísticas gerais dos clientes.
-         */
-        get: operations["get_client_stats_dashboard_clients_stats_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/stats/monthly": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Monthly Stats
-         * @description Estatísticas mensais para relatórios.
-         */
-        get: operations["get_monthly_stats_dashboard_stats_monthly_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/stats/daily": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Daily Stats
-         * @description Estatísticas diárias para o dashboard principal.
-         */
-        get: operations["get_daily_stats_dashboard_stats_daily_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/reports/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Export Report
-         * @description Exporta relatórios em diferentes formatos.
-         */
-        get: operations["export_report_dashboard_reports_export_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/recent-activity": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Recent Activity
-         * @description Buscar atividades recentes do sistema para o dashboard.
-         */
-        get: operations["get_recent_activity_dashboard_recent_activity_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/appointments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Dashboard Appointments
-         * @description 📅 Buscar agendamentos para o dashboard
-         *
-         *     Retorna lista paginada de agendamentos com dados dos clientes.
-         *     Usa autenticação regular de usuário, não requer admin.
-         */
-        get: operations["get_dashboard_appointments_dashboard_appointments_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/websocket/ws/stats": {
         parameters: {
             query?: never;
@@ -5462,6 +5590,29 @@ export interface paths {
          * @description Endpoint HEAD para health check (usado pelo Railway)
          */
         head: operations["health_check_head_health_head"];
+        patch?: never;
+        trace?: never;
+    };
+    "/health/v2": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Health Check V2
+         * @description ✅ Health check usando novo padrão C002 - ApiResponse<T>
+         *
+         *     Demonstra estrutura padronizada: {success, data, error, meta}
+         *     O middleware aplica wrapper automaticamente.
+         */
+        get: operations["health_check_v2_health_v2_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
         trace?: never;
     };
@@ -6247,6 +6398,80 @@ export interface components {
             };
         };
         /**
+         * ApiMeta
+         * @description Metadados opcionais da resposta
+         */
+        ApiMeta: {
+            /**
+             * Timestamp
+             * @description Timestamp da resposta
+             */
+            timestamp?: string;
+            /**
+             * Request Id
+             * @description ID único da requisição
+             */
+            request_id?: string;
+            /**
+             * Execution Time Ms
+             * @description Tempo de execução em ms
+             */
+            execution_time_ms?: number | null;
+            /** @description Metadados de paginação */
+            pagination?: components["schemas"]["PaginationMeta"] | null;
+            /**
+             * Version
+             * @description Versão da API
+             * @default 1.0
+             */
+            version: string;
+        };
+        /** ApiResponse[ClientData] */
+        ApiResponse_ClientData_: {
+            /**
+             * Success
+             * @description Indica se a operação foi bem-sucedida
+             */
+            success: boolean;
+            /** @description Dados da resposta (quando success=true) */
+            data?: components["schemas"]["ClientData"] | null;
+            /** @description Detalhes do erro (quando success=false) */
+            error?: components["schemas"]["ErrorDetail"] | null;
+            /** @description Metadados da resposta */
+            meta?: components["schemas"]["ApiMeta"] | null;
+        };
+        /** ApiResponse[ClientStatsData] */
+        ApiResponse_ClientStatsData_: {
+            /**
+             * Success
+             * @description Indica se a operação foi bem-sucedida
+             */
+            success: boolean;
+            /** @description Dados da resposta (quando success=true) */
+            data?: components["schemas"]["ClientStatsData"] | null;
+            /** @description Detalhes do erro (quando success=false) */
+            error?: components["schemas"]["ErrorDetail"] | null;
+            /** @description Metadados da resposta */
+            meta?: components["schemas"]["ApiMeta"] | null;
+        };
+        /** ApiResponse[List[ClientData]] */
+        ApiResponse_List_ClientData__: {
+            /**
+             * Success
+             * @description Indica se a operação foi bem-sucedida
+             */
+            success: boolean;
+            /**
+             * Data
+             * @description Dados da resposta (quando success=true)
+             */
+            data?: components["schemas"]["ClientData"][] | null;
+            /** @description Detalhes do erro (quando success=false) */
+            error?: components["schemas"]["ErrorDetail"] | null;
+            /** @description Metadados da resposta */
+            meta?: components["schemas"]["ApiMeta"] | null;
+        };
+        /**
          * AppInfo
          * @description Informações básicas da aplicação
          */
@@ -6574,6 +6799,59 @@ export interface components {
             /** Wa Id */
             wa_id: string;
         };
+        /**
+         * ClientData
+         * @description Dados do cliente (conteúdo para ApiResponse.data)
+         */
+        ClientData: {
+            /** Id */
+            id: number;
+            /** Nome */
+            nome: string | null;
+            /** Telefone */
+            telefone: string | null;
+            /** Email */
+            email: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated At */
+            updated_at: string | null;
+            /**
+             * Total Conversations
+             * @default 0
+             */
+            total_conversations: number;
+            /**
+             * Total Messages
+             * @default 0
+             */
+            total_messages: number;
+            /**
+             * Total Appointments
+             * @default 0
+             */
+            total_appointments: number;
+            /**
+             * Confirmed Appointments
+             * @default 0
+             */
+            confirmed_appointments: number;
+            /**
+             * Cancelled Appointments
+             * @default 0
+             */
+            cancelled_appointments: number;
+            /**
+             * Total Spent
+             * @default 0
+             */
+            total_spent: number;
+            /** Last Contact */
+            last_contact?: string | null;
+        };
         /** ClientDetailResponse */
         ClientDetailResponse: {
             /** Nome */
@@ -6641,6 +6919,30 @@ export interface components {
              * @default 0
              */
             avg_response_time_seconds: number;
+        };
+        /**
+         * ClientStatsData
+         * @description Estatísticas de clientes (conteúdo para ApiResponse.data)
+         */
+        ClientStatsData: {
+            /** Total Clients */
+            total_clients: number;
+            /** Active Clients */
+            active_clients: number;
+            /** New Clients */
+            new_clients: number;
+            /** Avg Messages */
+            avg_messages: number;
+            /**
+             * Retention Rate
+             * @default 0
+             */
+            retention_rate: number;
+            /**
+             * Growth Rate
+             * @default 0
+             */
+            growth_rate: number;
         };
         /** ClientStatsResponse */
         ClientStatsResponse: {
@@ -6834,6 +7136,37 @@ export interface components {
                 [key: string]: boolean;
             };
         };
+        /**
+         * ErrorCode
+         * @description Códigos de erro padronizados
+         * @enum {string}
+         */
+        ErrorCode: "VALIDATION_ERROR" | "AUTHENTICATION_REQUIRED" | "PERMISSION_DENIED" | "RESOURCE_NOT_FOUND" | "RESOURCE_CONFLICT" | "RATE_LIMIT_EXCEEDED" | "BUSINESS_RULE_VIOLATION" | "INSUFFICIENT_BALANCE" | "OPERATION_NOT_ALLOWED" | "INTERNAL_SERVER_ERROR" | "DATABASE_ERROR" | "EXTERNAL_SERVICE_ERROR" | "TIMEOUT_ERROR";
+        /**
+         * ErrorDetail
+         * @description Detalhes padronizados de erro
+         */
+        ErrorDetail: {
+            /** @description Código do erro */
+            code: components["schemas"]["ErrorCode"];
+            /**
+             * Message
+             * @description Mensagem do erro
+             */
+            message: string;
+            /**
+             * Field
+             * @description Campo relacionado ao erro
+             */
+            field?: string | null;
+            /**
+             * Details
+             * @description Detalhes adicionais
+             */
+            details?: {
+                [key: string]: unknown;
+            } | null;
+        };
         /** ExportRequest */
         ExportRequest: {
             /**
@@ -7022,6 +7355,47 @@ export interface components {
             limit: number;
             /** Offset */
             offset: number;
+        };
+        /**
+         * PaginationMeta
+         * @description Metadados de paginação padronizados
+         */
+        PaginationMeta: {
+            /**
+             * Total
+             * @description Total de itens
+             */
+            total: number;
+            /**
+             * Limit
+             * @description Limite por página
+             */
+            limit: number;
+            /**
+             * Offset
+             * @description Offset atual
+             */
+            offset: number;
+            /**
+             * Page
+             * @description Página atual (1-indexed)
+             */
+            page: number;
+            /**
+             * Pages
+             * @description Total de páginas
+             */
+            pages: number;
+            /**
+             * Has Next
+             * @description Tem próxima página
+             */
+            has_next: boolean;
+            /**
+             * Has Prev
+             * @description Tem página anterior
+             */
+            has_prev: boolean;
         };
         /** PermissionCheckRequest */
         PermissionCheckRequest: {
@@ -11791,6 +12165,339 @@ export interface operations {
             };
         };
     };
+    get_clients_dashboard_clients_get: {
+        parameters: {
+            query?: {
+                /** @description Limite de resultados */
+                limit?: number;
+                /** @description Offset para paginação */
+                offset?: number;
+                /** @description Busca por nome, telefone ou email */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__routes__dashboard__ClientResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_client_stats_dashboard_clients_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientStatsResponse"];
+                };
+            };
+        };
+    };
+    get_monthly_stats_dashboard_stats_monthly_get: {
+        parameters: {
+            query?: {
+                /** @description Número de meses para retornar */
+                months?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthlyStatsResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_daily_stats_dashboard_stats_daily_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyStatsResponse"];
+                };
+            };
+        };
+    };
+    export_report_dashboard_reports_export_get: {
+        parameters: {
+            query: {
+                /** @description Tipo de relatório: clients, conversations, appointments */
+                type: string;
+                /** @description Formato: json, csv */
+                format?: string;
+                /** @description Data inicial */
+                start_date?: string | null;
+                /** @description Data final */
+                end_date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_recent_activity_dashboard_recent_activity_get: {
+        parameters: {
+            query?: {
+                /** @description Número de atividades para retornar */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecentActivityResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dashboard_appointments_dashboard_appointments_get: {
+        parameters: {
+            query?: {
+                /** @description Limite de resultados */
+                limit?: number;
+                /** @description Offset para paginação */
+                offset?: number;
+                /** @description Filtrar por status */
+                status_filter?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppointmentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_clients_migrated_dashboard_migrated_clients_get: {
+        parameters: {
+            query?: {
+                /** @description Limite de resultados */
+                limit?: number;
+                /** @description Offset para paginação */
+                offset?: number;
+                /** @description Busca por nome, telefone ou email */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_List_ClientData__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_client_by_id_migrated_dashboard_migrated_clients__client_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_ClientData_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_client_stats_migrated_dashboard_migrated_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_ClientStatsData_"];
+                };
+            };
+        };
+    };
+    get_clients_manual_migrated_dashboard_migrated_clients_manual_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_List_ClientData__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_conversion_funnel_analysis_analytics_funnel_get: {
         parameters: {
             query?: {
@@ -14034,220 +14741,6 @@ export interface operations {
             };
         };
     };
-    get_clients_dashboard_clients_get: {
-        parameters: {
-            query?: {
-                /** @description Limite de resultados */
-                limit?: number;
-                /** @description Offset para paginação */
-                offset?: number;
-                /** @description Busca por nome, telefone ou email */
-                search?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["app__routes__dashboard__ClientResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_client_stats_dashboard_clients_stats_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ClientStatsResponse"];
-                };
-            };
-        };
-    };
-    get_monthly_stats_dashboard_stats_monthly_get: {
-        parameters: {
-            query?: {
-                /** @description Número de meses para retornar */
-                months?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MonthlyStatsResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_daily_stats_dashboard_stats_daily_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyStatsResponse"];
-                };
-            };
-        };
-    };
-    export_report_dashboard_reports_export_get: {
-        parameters: {
-            query: {
-                /** @description Tipo de relatório: clients, conversations, appointments */
-                type: string;
-                /** @description Formato: json, csv */
-                format?: string;
-                /** @description Data inicial */
-                start_date?: string | null;
-                /** @description Data final */
-                end_date?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_recent_activity_dashboard_recent_activity_get: {
-        parameters: {
-            query?: {
-                /** @description Número de atividades para retornar */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RecentActivityResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_dashboard_appointments_dashboard_appointments_get: {
-        parameters: {
-            query?: {
-                /** @description Limite de resultados */
-                limit?: number;
-                /** @description Offset para paginação */
-                offset?: number;
-                /** @description Filtrar por status */
-                status_filter?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppointmentResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     get_websocket_stats_api_websocket_ws_stats_get: {
         parameters: {
             query?: never;
@@ -14647,6 +15140,26 @@ export interface operations {
         };
     };
     health_check_head_health_head: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    health_check_v2_health_v2_get: {
         parameters: {
             query?: never;
             header?: never;
