@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import httpx
 
-from app.auth.admin_auth import get_current_admin_user, AdminUser
+from app.routes.admin_auth import get_current_admin_user, AdminUser
 from app.middleware.webhook_rate_limit import get_webhook_rate_limit_middleware
 from app.config.redis_config import redis_manager, execute_redis_safe
 
@@ -28,6 +28,9 @@ from app.config.redis_config import redis_manager, execute_redis_safe
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin/webhook-rate-limit", tags=["H003 Admin"])
+
+# Get the middleware instance
+webhook_rate_limiter = get_webhook_rate_limit_middleware()
 
 
 class RateLimitStats(BaseModel):
@@ -416,24 +419,7 @@ async def get_rate_limiting_overview(
             status_code=500,
             detail=f"Error getting overview: {str(e)}"
         )
-            user_agent="admin_check",
-            payload_size=0
-        )
-        
-        # Reverter o registro da requisição de teste (se possível)
-        # Nota: Em produção, seria melhor ter um método específico para verificação
-        
-        return {
-            "status": "success",
-            "source_ip": source_ip,
-            "webhook_type": webhook_type,
-            "allowed": allowed,
-            "info": info,
-            "admin": current_admin.username
-        }
-    except Exception as e:
-        logger.error(f"Erro ao verificar fonte {source_ip}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/clear-blocks")
 async def clear_webhook_blocks(
