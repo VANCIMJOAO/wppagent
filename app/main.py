@@ -59,7 +59,7 @@ from app.middleware.metrics import MetricsMiddleware
 
 # 🚀 Sistemas de Performance e Escalabilidade
 from app.services.database_optimizer import DatabaseOptimizer
-from app.services.cache_service_optimized import OptimizedCacheService
+from app.services.cache_service_optimized import get_optimized_cache
 from app.services.cdn_manager import CDNManager
 
 # Inicializar sistema de logging estruturado APM
@@ -160,7 +160,7 @@ async def lifespan(app: FastAPI):
             logger.warning(f"⚠️ Database Optimizer não pôde ser inicializado: {e}")
         
         try:
-            optimized_cache = OptimizedCacheService()
+            optimized_cache = get_optimized_cache()
             await optimized_cache.initialize()
             logger.info("🚀 Cache Optimized ativado")
         except Exception as e:

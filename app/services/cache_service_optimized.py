@@ -591,5 +591,21 @@ class OptimizedCacheService:
         except Exception as e:
             logger.warning(f"Erro ao fechar conexões Redis: {e}")
 
-# Instância global otimizada
-optimized_cache = OptimizedCacheService()
+# Variável para instância singleton
+_optimized_cache_instance = None
+
+def get_optimized_cache() -> OptimizedCacheService:
+    """
+    🔧 Singleton pattern para garantir apenas uma instância do cache
+    
+    Returns:
+        OptimizedCacheService: Instância única do serviço de cache
+    """
+    global _optimized_cache_instance
+    if _optimized_cache_instance is None:
+        logger.info("🔧 Criando instância singleton do OptimizedCacheService")
+        _optimized_cache_instance = OptimizedCacheService()
+    return _optimized_cache_instance
+
+# Para compatibilidade com código existente
+optimized_cache = None
