@@ -19,7 +19,7 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_, desc, func, text
+from sqlalchemy import select, and_, or_, desc, func, text, case
 from pydantic import BaseModel, Field
 
 from app.database import get_db
@@ -35,7 +35,7 @@ class MessageResponse(BaseModel):
     conversation_id: int
     content: str
     message_type: str
-    sender_type: str
+    direction: str  # ✅ Usar 'direction' padronizado ('in' | 'out')
     created_at: datetime
     whatsapp_id: Optional[str] = None
     
@@ -251,7 +251,7 @@ async def get_conversation(
                     conversation_id=msg.conversation_id,
                     content=msg.content,
                     message_type=msg.message_type,
-                    sender_type=msg.direction,  # Usar 'direction' em vez de 'sender_type'
+                    direction=msg.direction,  # ✅ Usar 'direction' padronizado
                     created_at=msg.created_at,
                     whatsapp_id=msg.message_id  # Usar 'message_id' em vez de 'whatsapp_id'
                 ) for msg in messages
@@ -323,7 +323,7 @@ async def get_conversation_messages(
                     "conversation_id": msg.conversation_id,
                     "content": msg.content,
                     "message_type": msg.message_type,
-                    "sender_type": msg.direction,  # Usar 'direction' em vez de 'sender_type'
+                    "direction": msg.direction,  # ✅ Usar 'direction' padronizado
                     "created_at": msg.created_at,
                     "whatsapp_id": msg.message_id,  # Usar 'message_id' em vez de 'whatsapp_id'
                     "is_read": True  # Placeholder - campo is_read não existe
@@ -402,12 +402,16 @@ async def get_conversations_stats(
     💬 Estatísticas gerais das conversas
     """
     try:
-        # Stats básicas - Query corrigida para evitar ambiguidade
+        # Stats básicas - Query compatível com PostgreSQL Railway
         stats_result = await session.execute(
             select(
                 func.count(func.distinct(Conversation.id)).label("total_conversations"),
-                func.count(func.distinct(Conversation.id).filter(Conversation.status == "active")).label("active_conversations"),
-                func.count(func.distinct(Conversation.id).filter(Conversation.status == "pending")).label("pending_conversations"),
+                func.sum(
+                    case((Conversation.status == "active", 1), else_=0)
+                ).label("active_conversations"),
+                func.sum(
+                    case((Conversation.status == "pending", 1), else_=0)
+                ).label("pending_conversations"),
                 func.count(func.distinct(Message.id)).label("total_messages"),
             ).select_from(
                 Conversation
