@@ -183,10 +183,6 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             '/favicon.ico',
             '/static/',
             '/metrics',  # Prometheus metrics
-            '/health',   # ✅ Health check - sempre isento
-            '/healthz',  # ✅ Health check alternativo
-            '/ready',    # ✅ Readiness check
-            '/ping',     # ✅ Ping check
             '/webhook',  # ✅ WhatsApp webhook - usa unified_response_control próprio
         ]
         

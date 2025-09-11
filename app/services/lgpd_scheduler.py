@@ -65,8 +65,8 @@ class LGPDRetentionScheduler:
         # Execução semanal aos domingos às 03:00 - Limpeza profunda
         schedule.every().sunday.at("03:00").do(self._run_weekly_deep_cleanup)
         
-        # Execução mensal - simulada via verificação diária no dia 1
-        schedule.every().day.at("04:00").do(self._check_monthly_audit)
+        # Execução mensal no dia 1 às 04:00 - Relatório de auditoria
+        schedule.every().month.do(self._run_monthly_audit)
         
         # Execução a cada 6 horas - Verificação de dados expirados críticos
         schedule.every(6).hours.do(self._run_critical_cleanup)
@@ -179,17 +179,6 @@ class LGPDRetentionScheduler:
             
         except Exception as e:
             logger.error(f"❌ Erro na verificação crítica: {e}")
-    
-    def _check_monthly_audit(self):
-        """Verifica se deve executar auditoria mensal (somente no dia 1)"""
-        today = datetime.utcnow()
-        if today.day == 1:
-            logger.info("📊 Primeiro dia do mês - executando auditoria mensal")
-            self._run_monthly_audit()
-        else:
-            # Log apenas para debug ocasional
-            if today.hour == 4 and today.minute < 5:
-                logger.debug(f"📅 Verificação mensal: hoje é dia {today.day}, aguardando dia 1")
     
     def _cleanup_old_exports(self):
         """Limpa arquivos de exportação antigos"""

@@ -3,8 +3,6 @@ Configuração inteligente do Redis com detecção automática
 """
 
 import redis
-import redis.asyncio as aioredis
-import asyncio
 import logging
 from typing import Optional, Dict, Any
 from dataclasses import dataclass
@@ -16,7 +14,6 @@ class RedisConfig:
     """Configuração do Redis"""
     available: bool = False
     client: Optional[redis.Redis] = None
-    async_client: Optional[aioredis.Redis] = None
     url: Optional[str] = None
     fallback_mode: bool = True
 
@@ -38,7 +35,6 @@ class RedisManager:
     def _detect_redis(self) -> RedisConfig:
         """Detecta se Redis está disponível"""
         redis_urls = [
-            "redis://default:SvSHiMNuuQEtmIUgGIEGqPpXsdZeInDG@yamanote.proxy.rlwy.net:14106",  # URL fornecida
             "redis://localhost:6379/0",
             "redis://redis:6379/0",  # Docker
             "redis://127.0.0.1:6379/0"
@@ -46,18 +42,12 @@ class RedisManager:
         
         for url in redis_urls:
             try:
-                # Testar cliente síncrono
                 client = redis.from_url(url, socket_timeout=2, socket_connect_timeout=2)
                 client.ping()
-                
-                # Criar cliente assíncrono
-                async_client = aioredis.from_url(url, socket_timeout=2, socket_connect_timeout=2)
-                
                 logger.info(f"✅ Redis conectado com sucesso: {url}")
                 return RedisConfig(
                     available=True,
                     client=client,
-                    async_client=async_client,
                     url=url,
                     fallback_mode=False
                 )
@@ -69,7 +59,6 @@ class RedisManager:
         return RedisConfig(
             available=False,
             client=None,
-            async_client=None,
             url=None,
             fallback_mode=True
         )
@@ -79,11 +68,6 @@ class RedisManager:
         """Verifica se Redis está disponível"""
         return self._config.available
     
-    @property
-    def async_client(self) -> Optional[aioredis.Redis]:
-        """Retorna cliente Redis assíncrono se disponível"""
-        return self._config.async_client
-
     @property
     def client(self) -> Optional[redis.Redis]:
         """Retorna cliente Redis se disponível"""
@@ -136,21 +120,3 @@ def is_redis_available() -> bool:
 def execute_redis_safe(operation: callable, *args, **kwargs) -> Any:
     """Executa operação Redis com fallback seguro"""
     return redis_manager.execute_safe(operation, *args, **kwargs)
-
-async def execute_redis_safe_async(operation: callable, default=None) -> Any:
-    """Executa operação Redis assíncrona com fallback seguro"""
-    if not redis_manager.is_available:
-        return default
-    
-    try:
-        client = redis_manager.async_client
-        if client:
-            return await operation()
-    except Exception as e:
-        logger.debug(f"Operação Redis assíncrona falhou: {e}")
-    
-    return default
-
-def get_async_redis_client() -> Optional[aioredis.Redis]:
-    """Retorna cliente Redis assíncrono se disponível"""
-    return redis_manager.async_client

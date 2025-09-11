@@ -4,23 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:with-types": "concurrently \"npm run type-monitor\" \"npm run dev\"",
-    "build": "npm run generate:types && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "type-check:strict": "tsc --noEmit --strict",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:coverage": "jest --coverage",
-    "generate:types": "tsx scripts/generate-types.ts",
-    "generate:types:watch": "tsx scripts/generate-types.ts && npm run type-check",
-    "type-monitor": "tsx scripts/type-monitor.ts",
-    "prebuild": "npm run generate:types",
-    "ci:type-check": "npm run generate:types && npm run type-check",
-    "ci:strict": "npm run generate:types && npm run type-check:strict"
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.4",
@@ -66,15 +58,12 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.5.1",
     "@types/jest": "^30.0.0",
-    "@types/node-fetch": "^2.6.13",
     "@types/react-textarea-autosize": "^4.3.6",
-    "concurrently": "^9.2.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "node-fetch": "^3.3.2",
-    "openapi-typescript": "^7.9.1",
-    "tsx": "^4.20.5"
+    "openapi-typescript": "^7.9.1"
   }
 }

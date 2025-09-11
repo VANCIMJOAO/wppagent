@@ -42,14 +42,14 @@ import {
   LineChart as LineChartIcon
 } from 'lucide-react'
 
-// Import API service methods - TEMPORÁRIO: usando stubs
+// Import API service methods
 import { 
   getBusinessOverview, 
   getConversationFunnel, 
   getPerformanceMetrics, 
   getTimeSeriesData, 
   exportAnalytics 
-} from '@/lib/api-service-stub'
+} from '@/lib/api-service'
 
 // Import types
 import type { 

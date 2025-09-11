@@ -28,8 +28,7 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
         hsts_include_subdomains: bool = True,
         hsts_preload: bool = True,
         allow_localhost: bool = True,
-        development_mode: bool = False,
-        enable_csp: bool = False  # Desabilitado por padrão quando CSPMiddleware está disponível
+        development_mode: bool = False
     ):
         """
         Inicializa middleware HTTPS
@@ -42,7 +41,6 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
             hsts_preload: Habilitar preload do HSTS
             allow_localhost: Permitir HTTP em localhost (desenvolvimento)
             development_mode: Modo de desenvolvimento (menos restritivo)
-            enable_csp: Habilitar CSP neste middleware (desabilitar se CSPMiddleware estiver em uso)
         """
         super().__init__(app)
         self.force_https = force_https
@@ -50,8 +48,6 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
         self.hsts_include_subdomains = hsts_include_subdomains
         self.hsts_preload = hsts_preload
         self.allow_localhost = allow_localhost
-        self.development_mode = development_mode
-        self.enable_csp = enable_csp
         self.development_mode = development_mode
         
         logger.info(f"✅ HTTPS Middleware configurado (força HTTPS: {force_https})")
@@ -142,15 +138,14 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
                 
                 response.headers["Strict-Transport-Security"] = hsts_value
             
-            # Content Security Policy - Apenas se habilitado
-            if self.enable_csp:
-                csp = self._build_csp_header()
-                response.headers["Content-Security-Policy"] = csp
-                
-                # CSP Report-Only para monitoramento (apenas produção)
-                if not self.development_mode:
-                    csp_report_only = self._build_csp_report_only()
-                    response.headers["Content-Security-Policy-Report-Only"] = csp_report_only
+            # Content Security Policy - Rigoroso e Completo
+            csp = self._build_csp_header()
+            response.headers["Content-Security-Policy"] = csp
+            
+            # CSP Report-Only para monitoramento (apenas produção)
+            if not self.development_mode:
+                csp_report_only = self._build_csp_report_only()
+                response.headers["Content-Security-Policy-Report-Only"] = csp_report_only
             
             # X-Frame-Options - Proteção contra clickjacking
             response.headers["X-Frame-Options"] = "DENY"

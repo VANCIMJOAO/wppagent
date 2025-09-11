@@ -30,22 +30,7 @@ class CSPMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, report_only: bool = False):
         super().__init__(app)
         self.report_only = report_only
-        
-        # Detectar ambiente corretamente (Railway usa várias variáveis)
-        railway_env = os.getenv("RAILWAY_ENVIRONMENT_NAME")  # Railway específico
-        general_env = os.getenv("ENVIRONMENT", "development")
-        node_env = os.getenv("NODE_ENV", "development")
-        
-        # Determinar se estamos em produção
-        is_production = (
-            railway_env == "production" or 
-            general_env == "production" or 
-            node_env == "production" or
-            "railway.app" in os.getenv("RAILWAY_PUBLIC_DOMAIN", "") or
-            "production" in os.getenv("RAILWAY_SERVICE_NAME", "").lower()
-        )
-        
-        self.environment = "production" if is_production else "development"
+        self.environment = os.getenv("ENVIRONMENT", "development")
         
         # CSP Policies baseados no ambiente
         self.csp_policies = self._get_csp_policies()
@@ -57,9 +42,9 @@ class CSPMiddleware(BaseHTTPMiddleware):
         
         base_policy = {
             "default-src": "'self'",
-            "script-src": "'self'",
-            "style-src": "'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
-            "font-src": "'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
+            "script-src": "'self' 'unsafe-inline'",
+            "style-src": "'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src": "'self' https://fonts.gstatic.com",
             "img-src": "'self' data: https: blob:",
             "connect-src": "'self'",
             "media-src": "'none'",
@@ -71,26 +56,17 @@ class CSPMiddleware(BaseHTTPMiddleware):
         }
         
         if self.environment == "production":
-            # Produção - Política rigorosa sem unsafe-inline/unsafe-eval
+            # Produção - Política mais rigorosa
             base_policy.update({
-                "script-src": "'self' 'strict-dynamic' https://cdnjs.cloudflare.com https://vercel.live",
-                "style-src": "'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
-                "connect-src": "'self' https://wppagent-production.up.railway.app wss://wppagent-production.up.railway.app https://api.whatsapp.com https://graph.facebook.com",
-                "manifest-src": "'self'",
-                "worker-src": "'self'",
-                "child-src": "'none'",
-                "frame-ancestors": "'none'",  # Proteção contra clickjacking
-                "block-all-mixed-content": "",
-                "report-uri": "/api/security/csp-report"
+                "script-src": "'self' https://cdnjs.cloudflare.com https://vercel.live",
+                "connect-src": "'self' https://wppagent-production.up.railway.app wss://wppagent-production.up.railway.app",
+                "report-uri": "/api/csp-report"
             })
         elif self.environment == "development":
-            # Desenvolvimento - Mais permissivo mas ainda seguro
+            # Desenvolvimento - Mais permissivo para debugging
             base_policy.update({
-                "script-src": "'self' http://localhost:* https://localhost:*",  # Removido 'unsafe-eval'
-                "style-src": "'self' http://localhost:* https://localhost:*",
-                "connect-src": "'self' http://localhost:* https://localhost:* ws://localhost:* wss://localhost:*",
-                "frame-ancestors": "'none'",  # Proteção contra clickjacking
-                "report-uri": "/api/security/csp-report"
+                "script-src": "'self' 'unsafe-inline' 'unsafe-eval' http://localhost:*",
+                "connect-src": "'self' http://localhost:* ws://localhost:* wss://localhost:*"
             })
         
         return base_policy

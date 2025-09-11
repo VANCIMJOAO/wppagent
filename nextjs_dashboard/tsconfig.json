@@ -3,7 +3,7 @@
     "lib": ["dom", "dom.iterable", "es6"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -22,24 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "types/**/*.ts",
-    "lib/utils.ts",
-    "lib/api-client.ts",
-    "lib/stubs.ts",
-    "examples/typed-api-usage.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.tsx",
-    "app/**",
-    "components/**",
-    "hooks/**",
-    "contexts/**",
-    "lib/**",
-    "!lib/utils.ts",
-    "!lib/api-client.ts",
-    "!lib/stubs.ts"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

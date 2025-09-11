@@ -24,6 +24,7 @@ from app.services.data import UserService, ConversationService, MessageService
 from app.services.response_control import unified_response_control
 from app.utils.whatsapp_sanitizer import sanitize_whatsapp_data, sanitize_message, sanitize_phone
 from app.models.database import MetaLog
+from app.services.whatsapp_security import WhatsAppSecurityService
 
 # ✅ Unified Response Control (substitui webhook_rate_limiter)
 # from app.auth.webhook_rate_limiter import webhook_rate_limit, webhook_rate_limiter
@@ -33,6 +34,9 @@ from app.services.websocket_integration import notify_new_whatsapp_message, noti
 
 logger = get_structured_logger(__name__)
 router = APIRouter(prefix="/webhook", tags=["WhatsApp Webhook"])
+
+# 🔒 H001 FIX - Inicializar serviço de segurança do WhatsApp
+security_service = WhatsAppSecurityService()
 
 # Sistema de resposta simplificado
 class SimplifiedResponseGenerator:
@@ -75,16 +79,63 @@ async def receive_webhook(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    � WEBHOOK PRINCIPAL COM RATE LIMITING AVANÇADO E LOGGING ESTRUTURADO
+    WEBHOOK PRINCIPAL COM VALIDACAO DE ASSINATURA E RATE LIMITING AVANCADO
     
-    Sistema de proteção implementado:
+    Sistema de protecao implementado:
+    - H001 FIX: VALIDACAO DE ASSINATURA X-Hub-Signature-256
     - Burst protection: 50 req/10s  
     - Sustained limit: 100 req/min
-    - Escalation system com bloqueio automático
-    - Detecção de padrões suspeitos
+    - Escalation system com bloqueio automatico
+    - Deteccao de padroes suspeitos
     - Logging estruturado com APM
     """
     try:
+        # 🔒 H001 FIX - VALIDACAO OBRIGATORIA DE ASSINATURA DO WEBHOOK
+        # Validar assinatura ANTES de processar qualquer dado
+        if not await security_service.validate_webhook_request(request):
+            log_security_event(
+                event_type="webhook_signature_invalid",
+                source_ip=request.client.host if request.client else "unknown",
+                user_agent=request.headers.get("user-agent", ""),
+                severity="HIGH",
+                description="Webhook com assinatura invalida rejeitado - H001 protection",
+                metadata={
+                    "fix_applied": "H001",
+                    "endpoint": "/webhook",
+                    "signature_header": request.headers.get('X-Hub-Signature-256', 'missing'),
+                    "content_type": request.headers.get('Content-Type', ''),
+                    "user_agent": request.headers.get("user-agent", "")
+                }
+            )
+            
+            logger.error(
+                "H001 - Webhook signature validation failed - request rejected",
+                metadata={
+                    "security_fix": "H001",
+                    "client_ip": request.client.host if request.client else None,
+                    "user_agent": request.headers.get("user-agent", ""),
+                    "signature_present": bool(request.headers.get('X-Hub-Signature-256')),
+                    "content_type": request.headers.get('Content-Type', '')
+                },
+                category=LogCategory.SECURITY
+            )
+            
+            raise HTTPException(
+                status_code=403,
+                detail="Webhook signature validation failed"
+            )
+        
+        # ✅ Assinatura validada com sucesso - continuar processamento
+        logger.info(
+            "H001 - Webhook signature validation successful",
+            metadata={
+                "security_fix": "H001",
+                "client_ip": request.client.host if request.client else None,
+                "signature_validated": True
+            },
+            category=LogCategory.SECURITY
+        )
+        
         # Log informações de rate limiting se disponíveis
         rate_info = getattr(request.state, 'webhook_rate_info', {})
         if rate_info:

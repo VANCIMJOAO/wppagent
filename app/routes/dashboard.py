@@ -95,7 +95,7 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
 @router.get("/clients", response_model=List[ClientResponse])
-async def get_dashboard_clients(
+async def get_clients(
     limit: int = Query(100, ge=1, le=1000, description="Limite de resultados"),
     offset: int = Query(0, ge=0, description="Offset para paginação"),
     search: Optional[str] = Query(None, description="Busca por nome, telefone ou email"),
@@ -195,7 +195,7 @@ async def get_dashboard_clients(
 
 
 @router.get("/clients/stats", response_model=ClientStatsResponse)
-async def get_dashboard_client_stats(
+async def get_client_stats(
     db: AsyncSession = Depends(get_db),
     current_admin: AdminUser = Depends(get_current_admin_user)
 ):
