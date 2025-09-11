@@ -50,12 +50,15 @@ jobs:
     - name: 🔍 Check for type changes
       working-directory: ./nextjs_dashboard
       run: |
-        if git diff --exit-code types/api-generated.ts; then
-          echo "✅ Tipos estão sincronizados com o backend"
+        # Verificar se há mudanças além do timestamp
+        DIFF_OUTPUT=$(git diff types/api-generated.ts | grep -v "Gerado em:" | grep -v "Generated at:" | grep -v "timestamp" | grep "^[+-]" | grep -v "^[+-]\+\+\+" | wc -l)
+        
+        if [ "$DIFF_OUTPUT" -eq 0 ]; then
+          echo "✅ Tipos estão sincronizados com o backend (apenas timestamp mudou)"
         else
           echo "❌ ERRO: Tipos divergiram do backend!"
-          echo "📋 Diferenças encontradas:"
-          git diff types/api-generated.ts
+          echo "📋 Diferenças encontradas (excluindo timestamp):"
+          git diff types/api-generated.ts | grep -v "Gerado em:" | grep -v "Generated at:" | grep -v "timestamp"
           echo ""
           echo "🔧 Para corrigir:"
           echo "1. Execute: npm run generate:types"
