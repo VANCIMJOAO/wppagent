@@ -5,6 +5,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { format, subDays, parseISO } from 'date-fns';
 
+// Force dynamic rendering for this route since it uses searchParams
+export const dynamic = 'force-dynamic';
+
 // Backend URL configuration
 const BACKEND_URL = process.env.BACKEND_URL || 'https://wppagent-production.up.railway.app';
 // ✅ SEGURO: Credenciais via environment variables  
@@ -101,7 +104,8 @@ async function getAuthToken(): Promise<string> {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
+    const searchParams = request.nextUrl.searchParams;
     
     // Parâmetros de filtro
     const startDate = searchParams.get('start_date') || format(subDays(new Date(), 30), 'yyyy-MM-dd');

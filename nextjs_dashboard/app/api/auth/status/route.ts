@@ -6,6 +6,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/lib/environment-config';
 
+// Force dynamic rendering for this route since we use cookies
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // 🔍 Verificar cookies de autenticação

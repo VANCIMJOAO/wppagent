@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const RAILWAY_API_URL = 'https://wppagent-production.up.railway.app';
+// Force dynamic rendering for this route since it uses cookies
+export const dynamic = 'force-dynamic';
+
+const RAILWAY_API_URL = process.env.RAILWAY_API_URL || 'https://wppagent-production.up.railway.app';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +22,8 @@ export async function GET(request: NextRequest) {
     }
 
     // ✅ Extrair query params (limit, offset, etc.)
-    const { searchParams } = new URL(request.url);
+    // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
+    const searchParams = request.nextUrl.searchParams;
     const queryString = searchParams.toString();
     const railwayUrl = `${RAILWAY_API_URL}/conversations/${queryString ? '?' + queryString : ''}`;
     

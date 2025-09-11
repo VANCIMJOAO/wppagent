@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+// Force dynamic rendering for this route since it handles proxy requests
+export const dynamic = 'force-dynamic';
+
 // Handle any HTTP method at /api/proxy/*
 export async function GET(request: Request) {
   return handleProxyRequest(request, 'GET');

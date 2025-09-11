@@ -573,7 +573,12 @@ class BaseConfig(BaseSettings):
     # CORS
     # ==============================
     cors_origins: List[str] = Field(
-        default=["*"],
+        default=[
+            "https://wppagent-production.up.railway.app",
+            "https://wppagent-production-app-production.up.railway.app",
+            "http://localhost:3000",
+            "https://localhost:3000"
+        ],
         env="CORS_ORIGINS"
     )
     
@@ -583,12 +588,22 @@ class BaseConfig(BaseSettings):
     )
     
     cors_methods: List[str] = Field(
-        default=["*"],
+        default=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
         env="CORS_METHODS"
     )
     
     cors_headers: List[str] = Field(
-        default=["*"],
+        default=[
+            "Accept",
+            "Accept-Language",
+            "Content-Type", 
+            "Authorization",
+            "X-Requested-With",
+            "Origin",
+            "Cache-Control",
+            "Pragma",
+            "X-CSRF-Token"
+        ],
         env="CORS_HEADERS"
     )
     
@@ -816,8 +831,16 @@ class DevelopmentConfig(BaseConfig):
     rate_limit_enabled: bool = False
     rate_limit_requests: int = 1000
     
-    # CORS aberto para desenvolvimento
-    cors_origins: List[str] = ["*"]
+    # CORS específico para desenvolvimento - sem wildcards
+    cors_origins: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:3001", 
+        "http://127.0.0.1:3000",
+        "https://localhost:3000",
+        "http://localhost:8501",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
+    ]
 
 
 class TestConfig(BaseConfig):

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering for this route since it uses searchParams
+export const dynamic = 'force-dynamic';
+
 interface ErrorReport {
   id: string;
   message: string;
@@ -141,7 +144,8 @@ async function notifyTeam(errorReport: ErrorReport) {
 // GET endpoint para consultar erros (útil para debugging)
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
+    const searchParams = request.nextUrl.searchParams;
     const errorId = searchParams.get('id');
     const level = searchParams.get('level');
     const limit = parseInt(searchParams.get('limit') || '50');

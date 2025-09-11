@@ -5,9 +5,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { format, subDays, parseISO } from 'date-fns';
 
+// Force dynamic rendering for this route since it uses searchParams
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
+    const searchParams = request.nextUrl.searchParams;
     
     // Parâmetros de filtro
     const startDate = searchParams.get('start_date') || format(subDays(new Date(), 30), 'yyyy-MM-dd');
