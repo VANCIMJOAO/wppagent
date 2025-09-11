@@ -301,20 +301,35 @@ else:
 app.add_middleware(AuthMiddleware)
 
 # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
-logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
+logger.info("🔍 H003 Debug: Tentando carregar H003SimpleMiddleware (teste)...")
 try:
-    from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
-    logger.info("🔍 H003 Debug: Import realizado com sucesso")
-    app.add_middleware(WebhookRateLimitMiddleware)
-    logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
+    from app.middleware.h003_simple import H003SimpleMiddleware
+    logger.info("🔍 H003 Debug: Import H003Simple realizado com sucesso")
+    app.add_middleware(H003SimpleMiddleware)
+    logger.info("🛡️ H003 Simple Test middleware ativado - teste de funcionamento")
 except ImportError as e:
-    logger.warning(f"⚠️ H003 Webhook Rate Limiting middleware não disponível: {e}")
+    logger.warning(f"⚠️ H003 Simple middleware não disponível: {e}")
     import traceback
-    logger.error(f"❌ H003 ImportError traceback: {traceback.format_exc()}")
+    logger.error(f"❌ H003 Simple ImportError traceback: {traceback.format_exc()}")
 except Exception as e:
-    logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
+    logger.error(f"❌ Erro ao inicializar H003 Simple middleware: {e}")
     import traceback
-    logger.error(f"❌ H003 Exception traceback: {traceback.format_exc()}")
+    logger.error(f"❌ H003 Simple Exception traceback: {traceback.format_exc()}")
+
+# H003 Original middleware (comentado para teste)
+# try:
+#     from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
+#     logger.info("🔍 H003 Debug: Import realizado com sucesso")
+#     app.add_middleware(WebhookRateLimitMiddleware)
+#     logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
+# except ImportError as e:
+#     logger.warning(f"⚠️ H003 Webhook Rate Limiting middleware não disponível: {e}")
+#     import traceback
+#     logger.error(f"❌ H003 ImportError traceback: {traceback.format_exc()}")
+# except Exception as e:
+#     logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
+#     import traceback
+#     logger.error(f"❌ H003 Exception traceback: {traceback.format_exc()}")
 
 # � Adicionar middleware de rate limiting por usuário
 try:
