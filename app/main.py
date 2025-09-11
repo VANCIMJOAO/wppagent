@@ -10,6 +10,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from app.config import settings
+from app.schemas.health import (
+    HealthCheckResponse, 
+    DetailedHealthResponse, 
+    SystemMetrics, 
+    AppInfo,
+    SystemHealth
+)
 
 # 🔍 SISTEMA APM E LOGGING ESTRUTURADO
 from app.services.structured_apm import (
@@ -594,14 +601,15 @@ from app.routes.push_notifications import router as push_router
 app.include_router(push_router, tags=["Push Notifications"])
 
 
-@app.get("/health")
+@app.get("/health", response_model=HealthCheckResponse)
 async def health_check():
     """Endpoint básico de health check"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "service": "WhatsApp Agent API"
-    }
+    return HealthCheckResponse(
+        status="healthy",
+        timestamp=datetime.now().isoformat(),
+        service="WhatsApp Agent API",
+        version="1.0.0"
+    )
 
 
 @app.head("/health")
@@ -675,51 +683,66 @@ async def get_metrics():
         )
 
 
-@app.get("/metrics/system")
+@app.get("/metrics/system", response_model=SystemMetrics)
 async def get_system_metrics():
-    """Endpoint para métricas do sistema (legacy)"""
+    """Endpoint para métricas do sistema"""
     try:
         # Executar health checks para obter métricas atuais
         checks = await health_checker.run_all_checks()
         
-        # Coletar métricas adicionais
-        from app.services.retry_handler import retry_handler
-        circuit_breaker_stats = retry_handler.get_circuit_breaker_status("whatsapp_api")
+        # Extrair métricas específicas dos checks
+        database_health = None
+        redis_health = None
+        cache_health = None
         
-        metrics = {
-            "system": {
-                "uptime": datetime.now().isoformat(),
-                "service": "WhatsApp Agent API",
-                "version": "1.0.0"
-            },
-            "health_checks": {
-                name: {
-                    "status": check.status.value,
-                    "response_time": check.response_time,
-                    "last_check": check.timestamp.isoformat()
-                }
-                for name, check in checks.items()
-            },
-            "circuit_breakers": {
-                "whatsapp_api": circuit_breaker_stats
-            }
-        }
+        if "database" in checks:
+            check = checks["database"]
+            database_health = SystemHealth(
+                healthy=check.status == HealthStatus.HEALTHY,
+                status=check.status.value,
+                response_time_ms=check.response_time * 1000 if check.response_time else None,
+                details=check.details
+            )
         
-        return metrics
+        if "redis" in checks:
+            check = checks["redis"]
+            redis_health = SystemHealth(
+                healthy=check.status == HealthStatus.HEALTHY,
+                status=check.status.value,
+                response_time_ms=check.response_time * 1000 if check.response_time else None,
+                details=check.details
+            )
+        
+        if "cache_service" in checks:
+            check = checks["cache_service"]
+            cache_health = SystemHealth(
+                healthy=check.status == HealthStatus.HEALTHY,
+                status=check.status.value,
+                response_time_ms=check.response_time * 1000 if check.response_time else None,
+                details=check.details
+            )
+        
+        return SystemMetrics(
+            database=database_health,
+            redis=redis_health,
+            cache_service=cache_health
+        )
         
     except Exception as e:
         logger.error(f"Erro ao coletar métricas: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/")
+@app.get("/", response_model=AppInfo)
 async def root():
     """Endpoint raiz da API"""
-    return {
-        "message": "WhatsApp Agent API",
-        "version": "1.0.0",
-        "status": "running"
-    }
+    return AppInfo(
+        message="WhatsApp Agent API",
+        version="1.0.0",
+        status="running",
+        environment=getattr(settings, 'environment', 'production'),
+        docs_url="/docs"
+    )
 
 @app.get("/cors/debug")
 async def cors_debug_info():
