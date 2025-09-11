@@ -26,12 +26,17 @@ class RedisManager:
     
     def __new__(cls):
         if cls._instance is None:
+            logger.info("🆕 Criando nova instância do RedisManager (Singleton)")
             cls._instance = super().__new__(cls)
+        else:
+            logger.info("♻️  Reutilizando instância existente do RedisManager")
         return cls._instance
     
     def __init__(self):
         if self._config is None:
+            logger.info("🔧 Inicializando RedisManager...")
             self._config = self._detect_redis()
+            logger.info(f"🔧 RedisManager inicializado - Available: {self._config.available}, Fallback: {self._config.fallback_mode}")
     
     def _detect_redis(self) -> RedisConfig:
         """Detecta se Redis está disponível - Railway priority"""
@@ -52,6 +57,7 @@ class RedisManager:
                 logger.info("🔄 Enviando ping para Railway Redis...")
                 result = client.ping()
                 logger.info(f"✅ Redis Railway conectado com sucesso! Ping: {result}")
+                logger.info(f"🔧 Final RedisConfig: available={True}, fallback_mode={False}, url={railway_redis[:50]}...")
                 return RedisConfig(
                     available=True,
                     client=client,
@@ -88,6 +94,7 @@ class RedisManager:
                 continue
         
         logger.warning("⚠️ Redis não disponível - usando cache em memória")
+        logger.info(f"🔧 Final RedisConfig: available={False}, fallback_mode={True}")
         return RedisConfig(
             available=False,
             client=None,
