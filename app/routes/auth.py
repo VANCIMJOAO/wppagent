@@ -346,7 +346,7 @@ async def _verify_credentials(username: str, password: str) -> tuple[Optional[st
             "role": "admin"
         },
         "user": {
-            "password_hash": hashlib.sha256("user123".encode()).hexdigest(),
+            "password_hash": hashlib.sha256("SECURE_USER_PASSWORD_FROM_ENV".encode()).hexdigest(),
             "role": "user"
         }
     }

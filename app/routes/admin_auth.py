@@ -441,11 +441,20 @@ async def create_initial_admin(
         if existing_admin:
             return {"message": "Admin já existe", "status": "exists"}
         
-        # Criar novo admin
-        hashed_password = pwd_context.hash("admin123")
+        # Criar novo admin usando credenciais das variáveis de ambiente
+        admin_username = settings.admin_username or "admin"
+        admin_password = settings.admin_password.get_secret_value() if settings.admin_password else None
+        
+        if not admin_password:
+            raise HTTPException(
+                status_code=500, 
+                detail="ADMIN_PASSWORD não configurada nas variáveis de ambiente"
+            )
+        
+        hashed_password = pwd_context.hash(admin_password)
         
         new_admin = AdminUser(
-            username="admin",
+            username=admin_username,
             password_hash=hashed_password,
             is_active=True
         )

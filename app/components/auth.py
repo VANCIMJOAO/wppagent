@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html, callback, Input, Output, State, no_update
 from datetime import datetime
 import plotly.graph_objects as go
+from app.config import settings
 
 
 def create_login_page():
@@ -55,7 +56,6 @@ def create_login_page():
                                         type="password",
                                         id="login-password",
                                         placeholder="Digite sua senha",
-                                        value="admin123",  # Valor padrão para facilitar teste
                                         className="mb-3"
                                     )
                                 ], width=12)
@@ -196,18 +196,22 @@ def create_auth_callbacks(app):
             )
             return alert, no_update, no_update, no_update
 
-        # SISTEMA DE AUTENTICAÇÃO FLEXÍVEL PARA TESTE
-        valid_credentials = [
-            ("admin", "admin123"),
-            ("admin_env", "lubNAN7MHC1vL77CFhrV27Zb")
-        ]
+        # SISTEMA DE AUTENTICAÇÃO USANDO VARIÁVEIS DE AMBIENTE
+        admin_username = settings.admin_username or "admin"
+        admin_password = settings.admin_password.get_secret_value() if settings.admin_password else None
         
         # Verificar credenciais
         login_successful = False
-        for valid_user, valid_pass in valid_credentials:
-            if username == valid_user and password == valid_pass:
-                login_successful = True
-                break
+        if admin_password and username == admin_username and password == admin_password:
+            login_successful = True
+        elif not admin_password:
+            # Log de erro se credenciais não estão configuradas
+            logger.error("ADMIN_PASSWORD não configurada - configure as variáveis de ambiente ADMIN_USERNAME e ADMIN_PASSWORD")
+            return (
+                dbc.Alert("Credenciais de administrador não configuradas. Configure ADMIN_PASSWORD nas variáveis de ambiente.", 
+                         color="danger", className="mt-3"), 
+                no_update, no_update, no_update
+            )
         
         if login_successful:
             print(f"✅ LOGIN PROCESSADO COM SUCESSO para: {username}")
