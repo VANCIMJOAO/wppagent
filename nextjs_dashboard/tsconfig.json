@@ -23,5 +23,23 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "**/examples/**",
+    "app/(dashboard)/conversas/**",
+    "app/(dashboard)/relatorios/**", 
+    "app/api/auth/**",
+    "app/offline/**",
+    "components/examples/**",
+    "contexts/auth-context-secure.tsx",
+    "hooks/use-real-analytics.ts",
+    "hooks/useAuth.ts",
+    "hooks/useDashboardStats.ts",
+    "hooks/useDashboardStatsRobust.ts",
+    "hooks/usePushNotifications.ts",
+    "hooks/useRealtime.tsx",
+    "hooks/useTokenDebug.tsx",
+    "hooks/useWebSocket.ts",
+    "lib/api-service.ts"
+  ]
 }

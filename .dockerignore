@@ -93,3 +93,6 @@ Thumbs.db
 cleanup_*.sh
 deploy_*.sh
 setup_*.sh
+
+# NextJS Dashboard (projeto separado)
+nextjs_dashboard/

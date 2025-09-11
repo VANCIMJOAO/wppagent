@@ -7,7 +7,7 @@
  * 
  * Para regenerar: npm run generate:types
  * Fonte: https://wppagent-production.up.railway.app/openapi.json
- * Gerado em: 2025-09-11T17:59:40.085Z
+ * Gerado em: 2025-09-11T18:02:05.234Z
  * 
  * 📋 Compatibilidade de Tipos:
  * - ✅ Zero any types
