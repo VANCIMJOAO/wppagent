@@ -42,9 +42,9 @@ class CSPMiddleware(BaseHTTPMiddleware):
         
         base_policy = {
             "default-src": "'self'",
-            "script-src": "'self' 'unsafe-inline'",
-            "style-src": "'self' 'unsafe-inline' https://fonts.googleapis.com",
-            "font-src": "'self' https://fonts.gstatic.com",
+            "script-src": "'self'",
+            "style-src": "'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+            "font-src": "'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
             "img-src": "'self' data: https: blob:",
             "connect-src": "'self'",
             "media-src": "'none'",
@@ -56,17 +56,24 @@ class CSPMiddleware(BaseHTTPMiddleware):
         }
         
         if self.environment == "production":
-            # Produção - Política mais rigorosa
+            # Produção - Política rigorosa com nonce e strict-dynamic
             base_policy.update({
-                "script-src": "'self' https://cdnjs.cloudflare.com https://vercel.live",
-                "connect-src": "'self' https://wppagent-production.up.railway.app wss://wppagent-production.up.railway.app",
-                "report-uri": "/api/csp-report"
+                "script-src": "'self' 'strict-dynamic' https://cdnjs.cloudflare.com https://vercel.live",
+                "style-src": "'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+                "connect-src": "'self' https://wppagent-production.up.railway.app wss://wppagent-production.up.railway.app https://api.whatsapp.com https://graph.facebook.com",
+                "manifest-src": "'self'",
+                "worker-src": "'self'",
+                "child-src": "'none'",
+                "frame-ancestors": "'none'",
+                "block-all-mixed-content": "",
+                "report-uri": "/api/security/csp-report"
             })
         elif self.environment == "development":
-            # Desenvolvimento - Mais permissivo para debugging
+            # Desenvolvimento - Mais permissivo mas ainda seguro
             base_policy.update({
-                "script-src": "'self' 'unsafe-inline' 'unsafe-eval' http://localhost:*",
-                "connect-src": "'self' http://localhost:* ws://localhost:* wss://localhost:*"
+                "script-src": "'self' 'unsafe-eval' http://localhost:* https://localhost:*",
+                "connect-src": "'self' http://localhost:* https://localhost:* ws://localhost:* wss://localhost:*",
+                "report-uri": "/api/security/csp-report"
             })
         
         return base_policy

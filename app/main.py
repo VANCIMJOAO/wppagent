@@ -390,6 +390,10 @@ app.include_router(security_router, prefix="/security", tags=["Security & Encryp
 from app.security.csp_reporter import security_router as csp_security_router
 app.include_router(csp_security_router, tags=["CSP Security"])
 
+# 🔍 Incluir CSP Testing Routes
+from app.routes.csp_testing import csp_testing_router
+app.include_router(csp_testing_router, tags=["CSP Testing"])
+
 # Incluir rotas de administração de estratégias
 from app.routes.strategy_admin import router as strategy_admin_router
 app.include_router(strategy_admin_router, tags=["Strategy Management"])
