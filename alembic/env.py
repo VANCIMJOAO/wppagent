@@ -25,10 +25,23 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-# Override URL with environment variable  
-# Escape % characters for configparser
-escaped_url = settings.database_url.replace('%', '%%')
-config.set_main_option("sqlalchemy.url", escaped_url)
+# H003 FIX - Override URL with DATABASE_URL environment variable
+# This ensures production environments use PostgreSQL instead of SQLite
+import os
+database_url = os.environ.get("DATABASE_URL")
+if database_url:
+    # Escape % characters for configparser
+    escaped_url = database_url.replace('%', '%%')
+    config.set_main_option("sqlalchemy.url", escaped_url)
+    print(f"H003 - Using DATABASE_URL from environment: {database_url[:20]}...")
+else:
+    # Fallback to settings.database_url if available
+    if hasattr(settings, 'database_url') and settings.database_url:
+        escaped_url = settings.database_url.replace('%', '%%')
+        config.set_main_option("sqlalchemy.url", escaped_url)
+        print(f"H003 - Using settings.database_url: {settings.database_url[:20]}...")
+    else:
+        print("H003 - Using fallback SQLite from alembic.ini (development mode)")
 
 
 def run_migrations_offline() -> None:
@@ -72,16 +85,23 @@ async def run_migrations_online() -> None:
     from sqlalchemy.ext.asyncio import create_async_engine
     import os
     
-    # Primeiro tenta pegar do alembic.ini, depois das variáveis de ambiente
-    database_url = config.get_main_option("sqlalchemy.url")
-    if not database_url:
-        database_url = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///./whatsapp_agent.db")
+    # H003 FIX - Improved database URL resolution
+    # Priority: 1. DATABASE_URL env var, 2. alembic.ini, 3. fallback
+    database_url = os.environ.get("DATABASE_URL") or config.get_main_option("sqlalchemy.url")
     
-    # Converter para driver assíncrono se necessário
+    if not database_url:
+        database_url = "sqlite+aiosqlite:///./whatsapp_agent.db"
+        print("H003 - WARNING: No DATABASE_URL found, using SQLite fallback")
+    
+    # Convert to async driver if necessary
     if database_url.startswith("postgresql://"):
         database_url = database_url.replace("postgresql://", "postgresql+asyncpg://")
+        print("H003 - Converted PostgreSQL URL to async driver")
     elif database_url.startswith("sqlite:///"):
         database_url = database_url.replace("sqlite:///", "sqlite+aiosqlite:///")
+        print("H003 - Converted SQLite URL to async driver")
+    
+    print(f"H003 - Connecting to: {database_url.split('@')[-1] if '@' in database_url else database_url[:30]}...")
     
     connectable = create_async_engine(database_url)
 
