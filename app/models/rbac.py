@@ -15,21 +15,44 @@ from sqlalchemy.sql import func
 
 Base = declarative_base()
 
-# Tabela de associação many-to-many para usuários e roles
-user_roles = Table(
-    'user_roles',
-    Base.metadata,
-    Column('user_id', Integer, ForeignKey('rbac_users.id')),
-    Column('role_id', Integer, ForeignKey('rbac_roles.id'))
-)
+# =============================================================================
+# CLASSES DE ASSOCIAÇÃO (MANY-TO-MANY) - DEFINIDAS PRIMEIRO
+# =============================================================================
 
-# Tabela de associação many-to-many para roles e permissões
-role_permissions = Table(
-    'role_permissions',
-    Base.metadata,
-    Column('role_id', Integer, ForeignKey('rbac_roles.id')),
-    Column('permission_id', Integer, ForeignKey('rbac_permissions.id'))
-)
+class UserRole(Base):
+    """
+    Modelo para tabela user_roles  
+    Relacionamento users-roles com metadados e expiração
+    """
+    __tablename__ = "user_roles"
+    
+    user_id = Column(Integer, ForeignKey("rbac_users.id"), primary_key=True)
+    role_id = Column(Integer, ForeignKey("rbac_roles.id"), primary_key=True)
+    assigned_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    assigned_by = Column(Integer, ForeignKey("rbac_users.id"))
+    expires_at = Column(DateTime(timezone=True))
+
+
+class RolePermission(Base):
+    """
+    Modelo para tabela role_permissions
+    Relacionamento roles-permissions com metadados completos
+    """
+    __tablename__ = "role_permissions"
+    
+    role_id = Column(Integer, ForeignKey("rbac_roles.id"), primary_key=True)
+    permission_id = Column(Integer, ForeignKey("rbac_permissions.id"), primary_key=True)
+    assigned_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    assigned_by = Column(Integer, ForeignKey("rbac_users.id"))
+
+
+# Criar tabelas de referência para os relacionamentos SQLAlchemy
+user_roles_table = UserRole.__table__
+role_permissions_table = RolePermission.__table__
+
+
+# Remover definições Table() - usando classes modelo completas no final do arquivo
+# user_roles e role_permissions são definidas como classes UserRole e RolePermission
 
 class PermissionType(str, Enum):
     """Tipos de permissões disponíveis no sistema"""
@@ -472,8 +495,13 @@ class RBACUser(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relacionamentos
-    roles = relationship("RBACRole", secondary=user_roles, back_populates="users")
+    # Relacionamentos - CORRIGIDO: usando foreign_keys explícitas
+    roles = relationship(
+        "RBACRole", 
+        secondary=user_roles_table, 
+        back_populates="users",
+        foreign_keys=[user_roles_table.c.user_id, user_roles_table.c.role_id]
+    )
     
     def has_permission(self, permission: PermissionType) -> bool:
         """Verificar se o usuário tem uma permissão específica"""
@@ -515,9 +543,19 @@ class RBACRole(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relacionamentos
-    users = relationship("RBACUser", secondary=user_roles, back_populates="roles")
-    permissions = relationship("RBACPermission", secondary=role_permissions, back_populates="roles")
+    # Relacionamentos - CORRIGIDO: usando foreign_keys explícitas
+    users = relationship(
+        "RBACUser", 
+        secondary=user_roles_table, 
+        back_populates="roles",
+        foreign_keys=[user_roles_table.c.user_id, user_roles_table.c.role_id]
+    )
+    permissions = relationship(
+        "RBACPermission", 
+        secondary=role_permissions_table, 
+        back_populates="roles",
+        foreign_keys=[role_permissions_table.c.role_id, role_permissions_table.c.permission_id]
+    )
     
     def has_permission(self, permission: PermissionType) -> bool:
         """Verificar se o role tem uma permissão específica"""
@@ -542,8 +580,13 @@ class RBACPermission(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relacionamentos
-    roles = relationship("RBACRole", secondary=role_permissions, back_populates="permissions")
+    # Relacionamentos - CORRIGIDO: usando foreign_keys explícitas
+    roles = relationship(
+        "RBACRole", 
+        secondary=role_permissions_table, 
+        back_populates="permissions",
+        foreign_keys=[role_permissions_table.c.role_id, role_permissions_table.c.permission_id]
+    )
 
 # Modelos de resposta para API
 @dataclass
@@ -589,45 +632,14 @@ class PermissionResponse:
     is_active: bool
 
 
+
 # =============================================================================
-# MODELOS PARA TABELAS DE ASSOCIAÇÃO ÓRFÃS (RBAC)
+# MODELO DE AUDITORIA RBAC
 # =============================================================================
-# 
-# NOTA: As tabelas user_roles e role_permissions já estão sendo usadas 
-# no banco, mas agora precisam de modelos completos ao invés de apenas Table()
-
-class RolePermission(Base):
-    """
-    Modelo para tabela role_permissions órfã
-    Relacionamento roles-permissions com metadados completos
-    """
-    __tablename__ = "role_permissions"
-    __table_args__ = {'extend_existing': True}
-    
-    role_id = Column(Integer, ForeignKey("rbac_roles.id"), primary_key=True)
-    permission_id = Column(Integer, ForeignKey("rbac_permissions.id"), primary_key=True)
-    assigned_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    assigned_by = Column(Integer, ForeignKey("rbac_users.id"))
-
-
-class UserRole(Base):
-    """
-    Modelo para tabela user_roles órfã  
-    Relacionamento users-roles com metadados e expiração
-    """
-    __tablename__ = "user_roles"
-    __table_args__ = {'extend_existing': True}
-    
-    user_id = Column(Integer, ForeignKey("rbac_users.id"), primary_key=True)
-    role_id = Column(Integer, ForeignKey("rbac_roles.id"), primary_key=True)
-    assigned_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    assigned_by = Column(Integer, ForeignKey("rbac_users.id"))
-    expires_at = Column(DateTime(timezone=True))
-
 
 class RBACAuditLog(Base):
     """
-    Modelo para tabela rbac_audit_logs órfã
+    Modelo para tabela rbac_audit_logs
     Sistema de auditoria RBAC completo
     """
     __tablename__ = "rbac_audit_logs"
