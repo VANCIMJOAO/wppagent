@@ -17,7 +17,7 @@ from app.database import get_db
 from app.utils.logger import get_logger
 from app.services.whatsapp import whatsapp_service
 from app.services.data import UserService, ConversationService, MessageService
-from app.services.response_control import unified_response_control
+from app.services.response_control import get_unified_response_control
 from app.utils.whatsapp_sanitizer import sanitize_whatsapp_data, sanitize_message, sanitize_phone
 from app.models.database import MetaLog
 
@@ -131,7 +131,7 @@ async def process_single_message(message_data: Dict[str, Any], db: AsyncSession)
             return {"processed": False, "reason": "invalid_data"}
         
         # 🔧 CONTROLE UNIFICADO - Verificação única
-        can_process, reason = await unified_response_control.can_process_message(wa_id, clean_content)
+        can_process, reason = await get_unified_response_control().can_process_message(wa_id, clean_content)
         
         if not can_process:
             logger.warning(f"🚫 BLOQUEADO: {wa_id} - {reason}")
@@ -221,17 +221,17 @@ async def verify_webhook(
 @router.get("/stats")
 async def get_webhook_stats():
     """Estatísticas do sistema de controle unificado"""
-    return await unified_response_control.get_stats()
+    return await get_unified_response_control().get_stats()
 
 @router.post("/clear-cache")
 async def clear_webhook_cache():
     """Limpar cache do sistema de controle (para debug/testes)"""
-    return await unified_response_control.clear_cache()
+    return await get_unified_response_control().clear_cache()
 
 @router.get("/health")
 async def webhook_health():
     """Verificação de saúde do webhook"""
-    stats = await unified_response_control.get_stats()
+    stats = await get_unified_response_control().get_stats()
     
     return {
         "status": "healthy",

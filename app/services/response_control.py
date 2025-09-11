@@ -381,5 +381,21 @@ class UnifiedResponseControl:
             # Em caso de erro, permitir processamento
             return True, f"Rate limit error - permitindo: {str(e)}"
 
-# Instância global unificada
-unified_response_control = UnifiedResponseControl()
+# Variável para instância singleton
+_unified_response_control_instance = None
+
+def get_unified_response_control() -> UnifiedResponseControl:
+    """
+    🔧 Singleton pattern para garantir apenas uma instância do response control
+    
+    Returns:
+        UnifiedResponseControl: Instância única do controle de resposta
+    """
+    global _unified_response_control_instance
+    if _unified_response_control_instance is None:
+        logger.info("🔧 Criando instância singleton do UnifiedResponseControl")
+        _unified_response_control_instance = UnifiedResponseControl()
+    return _unified_response_control_instance
+
+# Para compatibilidade com código existente
+unified_response_control = None

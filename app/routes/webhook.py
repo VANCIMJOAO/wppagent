@@ -21,7 +21,7 @@ from app.services.structured_apm import (
 )
 from app.services.whatsapp import whatsapp_service
 from app.services.data import UserService, ConversationService, MessageService
-from app.services.response_control import unified_response_control
+from app.services.response_control import get_unified_response_control
 from app.utils.whatsapp_sanitizer import sanitize_whatsapp_data, sanitize_message, sanitize_phone
 from app.models.database import MetaLog
 from app.services.whatsapp_security import WhatsAppSecurityService
@@ -322,7 +322,7 @@ async def process_single_message(message_data: Dict[str, Any], db: AsyncSession)
             return {"processed": False, "reason": "invalid_data"}
         
         # 🔧 CONTROLE UNIFICADO - Verificação única
-        can_process, reason = await unified_response_control.can_process_message(wa_id, clean_content)
+        can_process, reason = await get_unified_response_control().can_process_message(wa_id, clean_content)
         
         if not can_process:
             # Log estruturado de bloqueio
@@ -590,7 +590,7 @@ async def get_webhook_stats():
     """Estatísticas do sistema de controle unificado com logging"""
     
     try:
-        stats = await unified_response_control.get_stats()
+        stats = await get_unified_response_control().get_stats()
         
         logger.info(
             "Webhook stats requested",
@@ -620,7 +620,7 @@ async def clear_webhook_cache():
     """Limpar cache do sistema de controle com logging de segurança"""
     
     try:
-        result = await unified_response_control.clear_cache()
+        result = await get_unified_response_control().clear_cache()
         
         logger.warning(
             "Webhook cache cleared",
@@ -660,7 +660,7 @@ async def webhook_health():
     """Verificação de saúde do webhook com métricas estruturadas"""
     
     try:
-        stats = await unified_response_control.get_stats()
+        stats = await get_unified_response_control().get_stats()
         
         health_status = {
             "status": "healthy" if stats.get("redis_available", False) else "degraded",
