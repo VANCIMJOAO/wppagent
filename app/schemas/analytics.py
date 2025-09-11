@@ -56,7 +56,7 @@ class ConversionFunnelStageSchema(BaseModel):
     avg_time_to_next: Optional[float] = Field(None, description="Tempo médio para próximo estágio (horas)")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "stage_name": "first_contact",
                 "stage_order": 1,
@@ -75,7 +75,7 @@ class ConversionFunnelResponse(BaseModel):
     message: str = Field(..., description="Mensagem descritiva")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {
@@ -118,7 +118,7 @@ class CustomerSegmentSchema(BaseModel):
     recommended_actions: List[str] = Field(..., description="Ações recomendadas")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "user_id": 123,
                 "nome": "João Silva",
@@ -146,7 +146,7 @@ class CustomerSegmentationResponse(BaseModel):
     message: str = Field(..., description="Mensagem descritiva")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {
@@ -183,7 +183,7 @@ class ChurnPredictionSchema(BaseModel):
     monetary_value: float = Field(..., description="Valor monetário do cliente")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "user_id": 123,
                 "nome": "Maria Santos",
@@ -207,7 +207,7 @@ class ChurnPredictionResponse(BaseModel):
     message: str = Field(..., description="Mensagem descritiva")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {
@@ -247,7 +247,7 @@ class ROIMetricsSchema(BaseModel):
     lifetime_dias: int = Field(..., description="Lifetime médio do cliente em dias")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "canal": "google_ads",
                 "receita_total": 15000.0,
@@ -272,7 +272,7 @@ class ROIMetricsResponse(BaseModel):
     message: str = Field(..., description="Mensagem descritiva")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {
@@ -341,7 +341,7 @@ class DashboardSummaryResponse(BaseModel):
     message: str = Field(..., description="Mensagem descritiva")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {
@@ -421,7 +421,7 @@ class AnalyticsBaseResponse(BaseModel):
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="Timestamp da resposta")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {"key": "value"},

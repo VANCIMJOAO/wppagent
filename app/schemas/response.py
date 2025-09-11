@@ -87,7 +87,7 @@ class ErrorDetail(BaseModel):
     details: Optional[Dict[str, Any]] = Field(None, description="Detalhes adicionais")
     
     class Config:
-        schema_extra = {
+        json_json_schema_extra = {
             "example": {
                 "code": "VALIDATION_ERROR",
                 "message": "Campo obrigatório não informado",
@@ -112,7 +112,7 @@ class ApiMeta(BaseModel):
     version: str = Field(default="1.0", description="Versão da API")
     
     class Config:
-        schema_extra = {
+        json_json_schema_extra = {
             "example": {
                 "timestamp": "2025-09-11T16:45:00.123Z",
                 "request_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -142,7 +142,7 @@ class ApiResponse(BaseModel, Generic[T]):
     meta: Optional[ApiMeta] = Field(default_factory=ApiMeta, description="Metadados da resposta")
     
     class Config:
-        schema_extra = {
+        json_json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {"id": 1, "name": "Example"},

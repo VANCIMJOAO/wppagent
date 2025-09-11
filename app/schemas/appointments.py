@@ -47,7 +47,7 @@ class AppointmentCreate(AppointmentBase):
     customer_notes: Optional[str] = None
     
     class Config:
-        json_schema_extra = {
+        json_json_schema_extra = {
             "example": {
                 "user_id": 1,
                 "business_id": 1, 
