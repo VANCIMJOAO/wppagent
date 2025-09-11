@@ -4,6 +4,7 @@ Configuração inteligente do Redis com detecção automática
 
 import redis
 import logging
+import os
 from typing import Optional, Dict, Any
 from dataclasses import dataclass
 
@@ -33,7 +34,25 @@ class RedisManager:
             self._config = self._detect_redis()
     
     def _detect_redis(self) -> RedisConfig:
-        """Detecta se Redis está disponível"""
+        """Detecta se Redis está disponível - Railway priority"""
+        # 1. Primeiro tentar Railway Redis se disponível
+        railway_redis = os.getenv("REDIS_URL")
+        if railway_redis:
+            try:
+                logger.info(f"🚀 Tentando conectar ao Redis do Railway: {railway_redis[:30]}...")
+                client = redis.from_url(railway_redis, socket_timeout=5, socket_connect_timeout=5)
+                client.ping()
+                logger.info("✅ Redis Railway conectado com sucesso!")
+                return RedisConfig(
+                    available=True,
+                    client=client,
+                    url=railway_redis,
+                    fallback_mode=False
+                )
+            except Exception as e:
+                logger.warning(f"❌ Falha ao conectar Redis Railway: {e}")
+        
+        # 2. Tentar URLs locais como fallback
         redis_urls = [
             "redis://localhost:6379/0",
             "redis://redis:6379/0",  # Docker
@@ -44,7 +63,7 @@ class RedisManager:
             try:
                 client = redis.from_url(url, socket_timeout=2, socket_connect_timeout=2)
                 client.ping()
-                logger.info(f"✅ Redis conectado com sucesso: {url}")
+                logger.info(f"✅ Redis local conectado: {url}")
                 return RedisConfig(
                     available=True,
                     client=client,
@@ -55,7 +74,7 @@ class RedisManager:
                 logger.debug(f"Redis não disponível em {url}: {e}")
                 continue
         
-        logger.info("🔶 Redis não detectado automaticamente - Sistema funcionando com cache em memória")
+        logger.warning("⚠️ Redis não disponível - usando cache em memória")
         return RedisConfig(
             available=False,
             client=None,
