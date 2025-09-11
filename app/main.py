@@ -354,6 +354,20 @@ logger.info("🔧 Sistema de rate limiting por usuário ativo")
 # Adicionar middleware de métricas (último para capturar todas as requests)
 app.add_middleware(MetricsMiddleware)
 
+# 🔄 C002 - Middleware de Padronização de Response Schemas  
+try:
+    from app.middleware.response_standardizer import ApiResponseMiddleware
+    app.add_middleware(
+        ApiResponseMiddleware,
+        enable_auto_wrap=True,  # Aplicar wrapper automático
+        measure_time=True       # Medir tempo de execução
+    )
+    logger.info("✅ C002 - ApiResponseMiddleware ativado: responses padronizados {success, data, error}")
+except ImportError as e:
+    logger.warning(f"⚠️ C002 - ApiResponseMiddleware não disponível: {e}")
+except Exception as e:
+    logger.error(f"❌ C002 - Erro ao inicializar ApiResponseMiddleware: {e}")
+
 # Incluir rotas
 app.include_router(webhook_router, tags=["webhook"])
 
@@ -434,6 +448,21 @@ app.include_router(public_router, tags=["Public Health"])
 
 # Dashboard Routes
 from app.routes.clients import router as clients_router
+app.include_router(clients_router, tags=["Dashboard - Clients"])
+
+# 📊 Dashboard migrado com padrão C002
+from app.routes.dashboard import router as dashboard_router
+app.include_router(dashboard_router, tags=["Dashboard"])
+
+# 🔄 C002 - Dashboard migrado para demonstrar novo padrão  
+try:
+    from app.routes.dashboard_migrated import router as dashboard_migrated_router
+    app.include_router(dashboard_migrated_router, tags=["Dashboard C002 - Migrated"])
+    logger.info("✅ C002 - Dashboard migrado incluído: demonstra padrão {success, data, error}")
+except ImportError as e:
+    logger.warning(f"⚠️ C002 - Dashboard migrado não disponível: {e}")
+except Exception as e:
+    logger.error(f"❌ C002 - Erro ao incluir dashboard migrado: {e}")
 
 # Analytics routes - Relatórios Executivos
 from app.routes.analytics import router as analytics_router
@@ -610,6 +639,41 @@ async def health_check():
         service="WhatsApp Agent API",
         version="1.0.0"
     )
+
+
+# 🔄 C002 - Endpoint com novo padrão ApiResponse<T>
+@app.get("/health/v2")
+async def health_check_v2():
+    """
+    ✅ Health check usando novo padrão C002 - ApiResponse<T>
+    
+    Demonstra estrutura padronizada: {success, data, error, meta}
+    O middleware aplica wrapper automaticamente.
+    """
+    try:
+        # O middleware automaticamente converte isso para ApiResponse.success_response()
+        health_data = {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "service": "WhatsApp Agent API",
+            "version": "1.0.0",
+            "components": {
+                "database": "healthy",
+                "redis": "healthy", 
+                "webhook": "healthy"
+            }
+        }
+        
+        # ✅ Retorna dados normalmente - middleware aplica wrapper
+        return health_data
+        
+    except Exception as e:
+        logger.error(f"Erro no health check v2: {e}")
+        # ✅ HTTPException é automaticamente convertida para ApiResponse.error_response()
+        raise HTTPException(
+            status_code=500,
+            detail="Erro interno no health check"
+        )
 
 
 @app.head("/health")
