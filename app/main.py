@@ -300,6 +300,16 @@ else:
 # 🔒 Adicionar middleware de autenticação e autorização
 app.add_middleware(AuthMiddleware)
 
+# 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
+try:
+    from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware, webhook_rate_limit_middleware
+    app.add_middleware(WebhookRateLimitMiddleware)
+    logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
+except ImportError as e:
+    logger.warning(f"⚠️ H003 Webhook Rate Limiting middleware não disponível: {e}")
+except Exception as e:
+    logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
+
 # � Adicionar middleware de rate limiting por usuário
 try:
     from app.middleware.user_rate_limit import UserRateLimitMiddleware
@@ -348,6 +358,14 @@ app.include_router(strategy_admin_router, tags=["Strategy Management"])
 # Incluir rotas de autenticação admin
 from app.routes.admin_auth import auth_router
 app.include_router(auth_router, tags=["Admin Authentication"])
+
+# 🔒 H003 - Incluir rotas administrativas de rate limiting webhook
+try:
+    from app.routes.h003_admin import router as h003_admin_router
+    app.include_router(h003_admin_router, tags=["H003 Rate Limiting"])
+    logger.info("✅ H003 Admin routes carregadas")
+except ImportError as e:
+    logger.warning(f"⚠️ H003 Admin routes não disponíveis: {e}")
 
 # Incluir rotas de otimização do banco de dados
 from app.routes.database_optimization import router as db_optimization_router
