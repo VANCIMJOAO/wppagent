@@ -29,9 +29,10 @@ from starlette.responses import StreamingResponse
 
 from app.schemas.response import ApiResponse, ErrorCode, ApiMeta
 from app.utils.http_status import HTTPStatus, is_success, is_client_error, is_server_error
-from app.utils.logger import get_logger
 
-logger = get_logger(__name__)
+# Usar logging padrão para evitar problemas de importação circular
+import logging
+logger = logging.getLogger(__name__)
 
 
 class ApiResponseMiddleware(BaseHTTPMiddleware):
@@ -72,14 +73,11 @@ class ApiResponseMiddleware(BaseHTTPMiddleware):
         # Medir tempo de execução
         start_time = time.time() if self.measure_time else None
         
-        # Log da requisição
-        logger.info(f"🔄 {request.method} {request.url.path}", extra={
-            "method": request.method,
-            "path": request.url.path,
-            "request_id": request_id,
-            "user_agent": request.headers.get("user-agent"),
-            "client_ip": request.client.host if request.client else None
-        })
+        # Log da requisição (seguro)
+        try:
+            logger.info(f"🔄 {request.method} {request.url.path}")
+        except Exception:
+            pass  # Ignorar erros de logging
         
         try:
             # Executar próximo middleware/endpoint
@@ -90,54 +88,58 @@ class ApiResponseMiddleware(BaseHTTPMiddleware):
             if self.measure_time and start_time:
                 execution_time_ms = int((time.time() - start_time) * 1000)
             
-            # Processar response
-            wrapped_response = await self._process_response(
-                request, response, execution_time_ms, request_id
-            )
-            
-            # Log de sucesso
-            logger.info(f"✅ {request.method} {request.url.path} -> {wrapped_response.status_code}", extra={
-                "method": request.method,
-                "path": request.url.path,
-                "status_code": wrapped_response.status_code,
-                "execution_time_ms": execution_time_ms,
-                "request_id": request_id
-            })
-            
-            return wrapped_response
+            # Processar response de forma segura
+            try:
+                wrapped_response = await self._process_response(
+                    request, response, execution_time_ms, request_id
+                )
+                
+                # Log de sucesso (seguro)
+                try:
+                    logger.info(f"✅ {request.method} {request.url.path} -> {wrapped_response.status_code}")
+                except Exception:
+                    pass
+                
+                return wrapped_response
+            except Exception as e:
+                # Se falhar ao processar response, retornar response original
+                logger.error(f"❌ Erro ao processar response: {e}")
+                response.headers["X-Request-ID"] = request_id
+                return response
             
         except Exception as e:
-            # Erro não tratado - criar response de erro
-            execution_time_ms = None
-            if self.measure_time and start_time:
-                execution_time_ms = int((time.time() - start_time) * 1000)
-            
-            logger.error(f"❌ Erro não tratado em {request.method} {request.url.path}: {str(e)}", extra={
-                "method": request.method,
-                "path": request.url.path,
-                "exception_type": type(e).__name__,
-                "execution_time_ms": execution_time_ms,
-                "request_id": request_id
-            }, exc_info=True)
-            
-            # Criar response de erro padronizado
-            error_response = ApiResponse.error_response(
-                error_code=ErrorCode.INTERNAL_SERVER_ERROR,
-                message="Erro interno do servidor",
-                details={
-                    "exception_type": type(e).__name__,
-                    "request_id": request_id
-                }
-            )
-            
-            if execution_time_ms and error_response.meta:
-                error_response.meta.execution_time_ms = execution_time_ms
-                error_response.meta.request_id = request_id
-            
-            return JSONResponse(
-                content=error_response.dict(),
-                status_code=HTTPStatus.INTERNAL_SERVER_ERROR
-            )
+            # Erro não tratado - tentar criar response de erro seguro
+            try:
+                execution_time_ms = None
+                if self.measure_time and start_time:
+                    execution_time_ms = int((time.time() - start_time) * 1000)
+                
+                logger.error(f"❌ Erro não tratado em {request.method} {request.url.path}: {str(e)}")
+                
+                # Criar response de erro padronizado
+                error_response = ApiResponse.error_response(
+                    error_code=ErrorCode.INTERNAL_SERVER_ERROR,
+                    message="Erro interno do servidor",
+                    details={
+                        "exception_type": type(e).__name__,
+                        "request_id": request_id
+                    }
+                )
+                
+                if execution_time_ms and error_response.meta:
+                    error_response.meta.execution_time_ms = execution_time_ms
+                    error_response.meta.request_id = request_id
+                
+                return JSONResponse(
+                    content=error_response.model_dump(),
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+                )
+            except Exception:
+                # Se tudo falhar, retornar response básico
+                return JSONResponse(
+                    content={"error": "Internal server error"},
+                    status_code=500
+                )
     
     async def _process_response(
         self, 
@@ -174,7 +176,7 @@ class ApiResponseMiddleware(BaseHTTPMiddleware):
                 api_response.meta.request_id = request_id
                 
                 return JSONResponse(
-                    content=api_response.dict(),
+                    content=api_response.model_dump(),
                     status_code=response.status_code,
                     headers=response.headers
                 )
@@ -241,7 +243,7 @@ class ApiResponseMiddleware(BaseHTTPMiddleware):
                 api_response.meta.request_id = request_id
             
             return JSONResponse(
-                content=api_response.dict(),
+                content=api_response.model_dump(),
                 status_code=response.status_code,
                 headers={**response.headers, "X-Request-ID": request_id}
             )
