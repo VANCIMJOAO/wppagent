@@ -256,10 +256,7 @@ class ApiResponseMiddleware(BaseHTTPMiddleware):
             return response
         
         except Exception as e:
-            logger.error(f"Erro ao processar response: {e}", extra={
-                "request_id": request_id,
-                "status_code": response.status_code
-            })
+            logger.error(f"Erro ao processar response: {e}")
             
             # Em caso de erro, retornar response original
             response.headers["X-Request-ID"] = request_id
@@ -325,9 +322,6 @@ def setup_response_middleware(app, enable_auto_wrap: bool = True, measure_time: 
                       enable_auto_wrap=enable_auto_wrap,
                       measure_time=measure_time)
     
-    logger.info(f"✅ ApiResponseMiddleware configurado", extra={
-        "enable_auto_wrap": enable_auto_wrap,
-        "measure_time": measure_time
-    })
+    logger.info(f"✅ ApiResponseMiddleware configurado - enable_auto_wrap={enable_auto_wrap}, measure_time={measure_time}")
     
     return middleware
