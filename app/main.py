@@ -100,7 +100,7 @@ async def lifespan(app: FastAPI):
             try:
                 from app.services.cache_invalidation_manual import get_cache_invalidation_manager
                 cache_invalidation_manager = get_cache_invalidation_manager()
-                await cache_invalidation_manager.initialize()
+                # CacheInvalidationManager não precisa de initialize() - é configurado no __init__
                 logger.info("✅ Cache Invalidation Manager inicializado")
             except Exception as e:
                 logger.error(f"⚠️ Erro ao inicializar Cache Invalidation Manager: {e}")
