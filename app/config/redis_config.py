@@ -39,18 +39,31 @@ class RedisManager:
         railway_redis = os.getenv("REDIS_URL")
         if railway_redis:
             try:
-                logger.info(f"🚀 Tentando conectar ao Redis do Railway: {railway_redis[:30]}...")
-                client = redis.from_url(railway_redis, socket_timeout=5, socket_connect_timeout=5)
-                client.ping()
-                logger.info("✅ Redis Railway conectado com sucesso!")
+                logger.info(f"🚀 Tentando conectar ao Redis do Railway: {railway_redis[:50]}...")
+                # Aumentar timeout para Railway (pode ser mais lento que local)
+                client = redis.from_url(
+                    railway_redis, 
+                    socket_timeout=15,  # 15s timeout
+                    socket_connect_timeout=15,  # 15s para conectar
+                    retry_on_timeout=True,
+                    retry_on_error=[redis.ConnectionError, redis.TimeoutError],
+                    health_check_interval=30
+                )
+                logger.info("🔄 Enviando ping para Railway Redis...")
+                result = client.ping()
+                logger.info(f"✅ Redis Railway conectado com sucesso! Ping: {result}")
                 return RedisConfig(
                     available=True,
                     client=client,
                     url=railway_redis,
                     fallback_mode=False
                 )
+            except redis.ConnectionError as e:
+                logger.error(f"❌ Erro de conexão Redis Railway: {e}")
+            except redis.TimeoutError as e:
+                logger.error(f"❌ Timeout Redis Railway: {e}")
             except Exception as e:
-                logger.warning(f"❌ Falha ao conectar Redis Railway: {e}")
+                logger.error(f"❌ Falha geral Redis Railway: {type(e).__name__}: {e}")
         
         # 2. Tentar URLs locais como fallback
         redis_urls = [
