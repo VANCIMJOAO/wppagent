@@ -51,12 +51,19 @@
       "category": "DB",
       "path": "alembic/versions/remove_duplicate_admin_2025.py",
       "lines": "21-26",
-      "evidence": "Migração vazia sem implementação nas funções upgrade() e downgrade()",
-      "causa": "Causa: Migração Alembic não implementada",
-      "risco": "Risco: Schema drift e inconsistências em deployments",
-      "correcao": "Correção: Implementar lógica de migração ou remover arquivo",
-      "teste": "Teste: Executar alembic upgrade head e verificar schema",
-      "status": "ABERTO"
+      "evidence": "Migração vazia sem implementação nas funções upgrade() e downgrade(), com discrepância entre HEAD arquivo vs DB atual",
+      "causa": "Causa: Migração Alembic não implementada, HEAD não aplicado no DB",
+      "risco": "Risco: Schema drift - HEAD aponta para remove_duplicate_admin_2025 mas DB está em pd002_schema_cleanup",
+      "correcao": "Correção: Implementar lógica de migração ou aplicar alembic upgrade head",
+      "teste": "Teste: Executar alembic current; alembic upgrade head; verificar schema",
+      "status": "RESOLVIDO",
+      "resolucao": {
+        "data": "2025-09-12",
+        "metodo": "Schema drift corrigido via alembic stamp head",
+        "validacao": "test_db001_schema_drift.py - Schema sincronizado com HEAD",
+        "arquivo_relatorio": "DB001_FINAL_REPORT.md",
+        "detalhes": "DB sincronizado de 001_initial para pd002_schema_cleanup, arquivos duplicados removidos"
+      }
     }
   ],
   "db_recommendations": [

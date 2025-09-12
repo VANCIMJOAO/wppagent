@@ -1,0 +1,220 @@
+{
+  "test_id": "DB-001",
+  "description": "Schema Drift - HEAD vs DB atual",
+  "timestamp": "2025-09-12T15:02:14.545528",
+  "tests": [
+    {
+      "test_name": "alembic_current_status",
+      "description": "Verifica qual migração está aplicada no DB",
+      "success": true,
+      "details": {
+        "command": "alembic current",
+        "stdout": "H003 - Using settings.database_url: sqlite:///./whatsapp...\nH003 - Converted SQLite URL to async driver\nH003 - Connecting to: sqlite+aiosqlite:///./whatsapp...\n001_initial (branchpoint)\n",
+        "stderr": "INFO  [alembic.runtime.migration] Context impl SQLiteImpl.\nINFO  [alembic.runtime.migration] Will assume non-transactional DDL.\n",
+        "current_migration": "unknown"
+      }
+    },
+    {
+      "test_name": "alembic_heads",
+      "description": "Lista todos os HEADs disponíveis",
+      "success": true,
+      "details": {
+        "command": "alembic heads",
+        "stdout": "pd002_schema_cleanup (head)\n",
+        "stderr": "",
+        "heads": [
+          "pd002_schema_cleanup (head)"
+        ]
+      }
+    },
+    {
+      "test_name": "migration_files_consistency",
+      "description": "Verifica arquivos de migração duplicados ou vazios",
+      "success": false,
+      "details": {
+        "total_files": 26,
+        "files": [
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_08_08_1526-115422716842_add_admin_authentication_system.py",
+            "size": 7650,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/002_dynamic_system.py",
+            "size": 10014,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_08_06_2134-d08ef6b15ecb_add_performance_indexes.py",
+            "size": 1831,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_09_1217-721a97f0b961_merge_heads_for_composite_indexes.py",
+            "size": 433,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_12_1200_pd001_performance_indexes.py",
+            "size": 3488,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_01_12_1400-remove_duplicate_indexes.py",
+            "size": 2056,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_11_1530-add_orphan_indexes.py",
+            "size": 7930,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_11_1012-4fd34d192041_h002_clean_orphan_tables_schema_drift_.py",
+            "size": 6527,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_12_1000-hf003_consolidate_auth_tables.py",
+            "size": 5577,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_11_1020-43cc0484d3a9_merge_schema_drift_fixes.py",
+            "size": 416,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_11_1600-remove_duplicate_admin_2025-cleanup_admin_duplicates.py",
+            "size": 4772,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_09_1217-4a7df567d53d_add_composite_performance_indexes.py",
+            "size": 973,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_08_1600-add_refresh_tokens.py",
+            "size": 1421,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_07_29_2353-2566fe4639c3_update_bot_configuration_fields.py",
+            "size": 4119,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_08_1403-rbac_system_2025-rbac_complete_system.py",
+            "size": 5407,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_07_25_1411-4af292c63277_add_missing_tables_and_columns_for_.py",
+            "size": 7605,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/001_initial.py",
+            "size": 5929,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_11_1016-7ed1cc4d4764_h002_complete_schema_drift_fix_all_.py",
+            "size": 9711,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_12_1300_pd002_schema_cleanup.py",
+            "size": 9829,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_11_1019-c20ea17a14b9_h002_schema_drift_fix_robust_v2.py",
+            "size": 10438,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_08_1401-rbac_2025-add_rbac_system_tables.py",
+            "size": 6752,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_08_1402-d300a27c12cf_merge_rbac_and_push_notifications.py",
+            "size": 439,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_07_29_2352-bb3644832d05_merge_heads.py",
+            "size": 415,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_09_11_1010-55c25ddbd2b1_merge_all_heads_schema_fix.py",
+            "size": 482,
+            "has_implementation": false
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_07_30_0002-6897816d7333_update_slot_and_blocked_time_fields.py",
+            "size": 2417,
+            "has_implementation": true
+          },
+          {
+            "path": "/home/vancim/whats_agent/alembic/versions/2025_01_11_1900-push_notifications_001_add_push_notifications_tables.py",
+            "size": 2002,
+            "has_implementation": true
+          }
+        ],
+        "duplicates": [],
+        "empty_migrations": [
+          "/home/vancim/whats_agent/alembic/versions/2025_08_08_1526-115422716842_add_admin_authentication_system.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_09_1217-721a97f0b961_merge_heads_for_composite_indexes.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1530-add_orphan_indexes.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1020-43cc0484d3a9_merge_schema_drift_fixes.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1600-remove_duplicate_admin_2025-cleanup_admin_duplicates.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1016-7ed1cc4d4764_h002_complete_schema_drift_fix_all_.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_08_1402-d300a27c12cf_merge_rbac_and_push_notifications.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_07_29_2352-bb3644832d05_merge_heads.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1010-55c25ddbd2b1_merge_all_heads_schema_fix.py"
+        ]
+      }
+    },
+    {
+      "test_name": "schema_drift_resolution",
+      "description": "Aplica migrações pendentes para resolver schema drift",
+      "success": false,
+      "details": {
+        "command": "alembic upgrade head",
+        "stdout": "H003 - Using settings.database_url: sqlite:///./whatsapp...\nH003 - Converted SQLite URL to async driver\nH003 - Connecting to: sqlite+aiosqlite:///./whatsapp...\n",
+        "stderr": "INFO  [alembic.runtime.migration] Context impl SQLiteImpl.\nINFO  [alembic.runtime.migration] Will assume non-transactional DDL.\nINFO  [alembic.runtime.migration] Running upgrade 001_initial -> 4af292c63277, Add missing tables and columns for complete system\nTraceback (most recent call last):\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/base.py\", line 1961, in _exec_single_context\n    self.dialect.do_execute(\n    ~~~~~~~~~~~~~~~~~~~~~~~^\n        cursor, str_statement, effective_parameters, context\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/default.py\", line 944, in do_execute\n    cursor.execute(statement, parameters)\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py\", line 177, in execute\n    self._adapt_connection._handle_exception(error)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py\", line 337, in _handle_exception\n    raise error\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py\", line 159, in execute\n    self.await_(_cursor.execute(operation, parameters))\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/util/_concurrency_py3k.py\", line 132, in await_only\n    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/util/_concurrency_py3k.py\", line 196, in greenlet_spawn\n    value = await result\n            ^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/aiosqlite/cursor.py\", line 40, in execute\n    await self._execute(self._cursor.execute, sql, parameters)\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/aiosqlite/cursor.py\", line 32, in _execute\n    return await self._conn._execute(fn, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/aiosqlite/core.py\", line 122, in _execute\n    return await future\n           ^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/aiosqlite/core.py\", line 105, in run\n    result = function()\nsqlite3.OperationalError: table businesses already exists\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/vancim/anaconda3/bin/alembic\", line 7, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/config.py\", line 630, in main\n    CommandLine(prog=prog).main(argv=argv)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/config.py\", line 624, in main\n    self.run_cmd(cfg, options)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/config.py\", line 601, in run_cmd\n    fn(\n    ~~^\n        config,\n        ^^^^^^^\n        *[getattr(options, k, None) for k in positional],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        **{k: getattr(options, k, None) for k in kwarg},\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/command.py\", line 398, in upgrade\n    script.run_env()\n    ~~~~~~~~~~~~~~^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/script/base.py\", line 579, in run_env\n    util.load_python_file(self.dir, \"env.py\")\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/util/pyfiles.py\", line 93, in load_python_file\n    module = load_module_py(module_id, path)\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/util/pyfiles.py\", line 109, in load_module_py\n    spec.loader.exec_module(module)  # type: ignore\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"<frozen importlib._bootstrap_external>\", line 1026, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/home/vancim/whats_agent/alembic/env.py\", line 117, in <module>\n    asyncio.run(run_migrations_online())\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ~~~~~~~~~~^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/asyncio/base_events.py\", line 725, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/home/vancim/whats_agent/alembic/env.py\", line 109, in run_migrations_online\n    await connection.run_sync(do_run_migrations)\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/engine.py\", line 887, in run_sync\n    return await greenlet_spawn(\n           ^^^^^^^^^^^^^^^^^^^^^\n        fn, self._proxied, *arg, _require_await=False, **kw\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/util/_concurrency_py3k.py\", line 203, in greenlet_spawn\n    result = context.switch(value)\n  File \"/home/vancim/whats_agent/alembic/env.py\", line 75, in do_run_migrations\n    context.run_migrations()\n    ~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"<string>\", line 8, in run_migrations\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/runtime/environment.py\", line 938, in run_migrations\n    self.get_context().run_migrations(**kw)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/runtime/migration.py\", line 624, in run_migrations\n    step.migration_fn(**kw)\n    ~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/home/vancim/whats_agent/alembic/versions/2025_07_25_1411-4af292c63277_add_missing_tables_and_columns_for_.py\", line 21, in upgrade\n    op.create_table('businesses',\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n    sa.Column('id', sa.Integer(), nullable=False),\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<8 lines>...\n    sa.PrimaryKeyConstraint('id')\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"<string>\", line 8, in create_table\n  File \"<string>\", line 3, in create_table\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/operations/ops.py\", line 1303, in create_table\n    return operations.invoke(op)\n           ~~~~~~~~~~~~~~~~~^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/operations/base.py\", line 393, in invoke\n    return fn(self, operation)\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/operations/toimpl.py\", line 128, in create_table\n    operations.impl.create_table(table)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/ddl/impl.py\", line 359, in create_table\n    self._exec(schema.CreateTable(table))\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/alembic/ddl/impl.py\", line 200, in _exec\n    return conn.execute(construct, multiparams)\n           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/base.py\", line 1413, in execute\n    return meth(\n        self,\n        distilled_parameters,\n        execution_options or NO_OPTIONS,\n    )\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/sql/ddl.py\", line 187, in _execute_on_connection\n    return connection._execute_ddl(\n           ~~~~~~~~~~~~~~~~~~~~~~~^\n        self, distilled_params, execution_options\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/base.py\", line 1524, in _execute_ddl\n    ret = self._execute_context(\n        dialect,\n    ...<4 lines>...\n        compiled,\n    )\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/base.py\", line 1840, in _execute_context\n    return self._exec_single_context(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~^\n        dialect, context, statement, parameters\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/base.py\", line 1980, in _exec_single_context\n    self._handle_dbapi_exception(\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        e, str_statement, effective_parameters, cursor, context\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/base.py\", line 2349, in _handle_dbapi_exception\n    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/base.py\", line 1961, in _exec_single_context\n    self.dialect.do_execute(\n    ~~~~~~~~~~~~~~~~~~~~~~~^\n        cursor, str_statement, effective_parameters, context\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/engine/default.py\", line 944, in do_execute\n    cursor.execute(statement, parameters)\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py\", line 177, in execute\n    self._adapt_connection._handle_exception(error)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py\", line 337, in _handle_exception\n    raise error\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py\", line 159, in execute\n    self.await_(_cursor.execute(operation, parameters))\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/util/_concurrency_py3k.py\", line 132, in await_only\n    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/sqlalchemy/util/_concurrency_py3k.py\", line 196, in greenlet_spawn\n    value = await result\n            ^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/aiosqlite/cursor.py\", line 40, in execute\n    await self._execute(self._cursor.execute, sql, parameters)\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/aiosqlite/cursor.py\", line 32, in _execute\n    return await self._conn._execute(fn, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/aiosqlite/core.py\", line 122, in _execute\n    return await future\n           ^^^^^^^^^^^^\n  File \"/home/vancim/anaconda3/lib/python3.13/site-packages/aiosqlite/core.py\", line 105, in run\n    result = function()\nsqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table businesses already exists\n[SQL: \nCREATE TABLE businesses (\n\tid INTEGER NOT NULL, \n\tname VARCHAR(255) NOT NULL, \n\tphone VARCHAR(20), \n\temail VARCHAR(255), \n\taddress TEXT, \n\tdescription TEXT, \n\tbusiness_hours JSON, \n\tcreated_at DATETIME DEFAULT (now()), \n\tupdated_at DATETIME, \n\tPRIMARY KEY (id)\n)\n\n]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)\n",
+        "resolution_attempt": "upgrade_head"
+      }
+    }
+  ],
+  "fix_proposal": {
+    "test_summary": {
+      "total_tests": 4,
+      "passed": 2,
+      "failed": 2,
+      "success_rate": "50.0%"
+    },
+    "db001_status": "REQUIRES_ATTENTION",
+    "actions_required": [
+      {
+        "action": "implement_or_remove_empty_migrations",
+        "description": "Implementar ou remover migrações vazias",
+        "empty_files": [
+          "/home/vancim/whats_agent/alembic/versions/2025_08_08_1526-115422716842_add_admin_authentication_system.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_09_1217-721a97f0b961_merge_heads_for_composite_indexes.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1530-add_orphan_indexes.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1020-43cc0484d3a9_merge_schema_drift_fixes.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1600-remove_duplicate_admin_2025-cleanup_admin_duplicates.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1016-7ed1cc4d4764_h002_complete_schema_drift_fix_all_.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_08_1402-d300a27c12cf_merge_rbac_and_push_notifications.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_07_29_2352-bb3644832d05_merge_heads.py",
+          "/home/vancim/whats_agent/alembic/versions/2025_09_11_1010-55c25ddbd2b1_merge_all_heads_schema_fix.py"
+        ]
+      }
+    ]
+  }
+}
