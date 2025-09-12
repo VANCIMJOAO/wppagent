@@ -77,14 +77,14 @@ class UnifiedResponseControl:
         """Inicializa conexão Redis de forma assíncrona"""
         try:
             redis_config = redis_manager._config
-            if redis_config and redis_config.available:
+            if redis_config and redis_config.available and redis_config.url:
                 # Criar cliente Redis assíncrono
                 self.redis_client = redis.from_url(
-                    redis_config.url or "redis://localhost:6379/0",
+                    redis_config.url,
                     encoding="utf-8",
                     decode_responses=True,
-                    socket_timeout=2,
-                    socket_connect_timeout=2
+                    socket_timeout=15,
+                    socket_connect_timeout=15
                 )
                 logger.info("🔧 Redis cliente assíncrono inicializado")
             else:

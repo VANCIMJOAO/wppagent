@@ -852,7 +852,8 @@ async def cors_debug_info():
 async def get_response_control_statistics():
     """Endpoint para obter estatísticas do sistema unificado de controle"""
     try:
-        from app.services.response_control import unified_response_control
+        from app.services.response_control import get_unified_response_control
+        unified_response_control = get_unified_response_control()
         stats = await unified_response_control.get_stats()
         return stats
     except Exception as e:
@@ -864,7 +865,8 @@ async def get_response_control_statistics():
 async def get_client_response_control_info(client_id: str):
     """Endpoint para obter informações de controle de resposta de um cliente específico"""
     try:
-        from app.services.response_control import unified_response_control
+        from app.services.response_control import get_unified_response_control
+        unified_response_control = get_unified_response_control()
         stats = await unified_response_control.get_client_stats(client_id)
         
         if not stats:
@@ -1467,7 +1469,8 @@ async def periodic_cleanup():
     while True:
         try:
             await asyncio.sleep(300)  # A cada 5 minutos
-            from app.services.response_control import unified_response_control
+            from app.services.response_control import get_unified_response_control
+            unified_response_control = get_unified_response_control()
             await unified_response_control.cleanup_expired()
             logger.info("🧹 Limpeza periódica executada")
         except asyncio.CancelledError:
