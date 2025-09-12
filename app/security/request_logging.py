@@ -1,27 +1,56 @@
 """
-S002 - Request Logging Middleware
-Middleware seguro para logging de requisições com sanitização
-Implementação para conformidade LGPD e auditoria de segurança
+🔒 HF002 - Secure Request Logging Middleware
+=========        
+        # Capturar informações da requisição de forma segura HF002
+        request_info = {
+            "request_id": request_id,
+            "method": request.method,
+            "url": str(request.url),
+            "path": request.url.path,
+            "client_ip": request.client.host if request.client else None,
+            "user_agent": request.headers.get("user-agent", ""),
+            "headers": self._sanitize_headers(dict(request.headers)) if self.enable_hf002 else dict(request.headers),
+            "query_params": sanitize_log_data(dict(request.query_params)) if self.enable_hf002 else dict(request.query_params),========================
+
+Middleware para logging seguro de requisições HTTP com sanitização automática
+de dados sensíveis em headers, parâmetros e payloads.
+
+Funcionalidades HF002:
+- Sanitização automática de headers Authorization
+- Redação de dados PII em URLs e query parameters
+- Logging estruturado para auditoria
+- Performance tracking sem exposição de dados sensíveis
 """
 
 import logging
 import time
 import uuid
+import json
 from typing import Callable, Optional, Dict, Any
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-from .secure_logger import sanitize_data, log_security_event
+from .secure_logger import get_log_sanitizer, sanitize_log_data
 
 logger = logging.getLogger(__name__)
 
 class SecureRequestLoggingMiddleware(BaseHTTPMiddleware):
-    """Middleware para logging seguro de requisições"""
+    """
+    HF002 FIX: Middleware para logging seguro de requisições com sanitização automática
+    """
     
-    def __init__(self, app, exclude_paths: Optional[list] = None):
+    def __init__(self, app, exclude_paths: Optional[list] = None, enable_hf002: bool = True):
         super().__init__(app)
         self.exclude_paths = exclude_paths or [
             "/health", "/metrics", "/favicon.ico", "/static"
         ]
+        self.enable_hf002 = enable_hf002
+        self.sanitizer = get_log_sanitizer() if enable_hf002 else None
+        
+        # Headers sempre sensíveis HF002
+        self.sensitive_headers = {
+            'authorization', 'x-api-key', 'x-auth-token', 'cookie',
+            'x-hub-signature-256', 'x-webhook-secret'
+        }
     
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         # Gerar ID único para a requisição
@@ -42,7 +71,7 @@ class SecureRequestLoggingMiddleware(BaseHTTPMiddleware):
             "request_id": request_id,
             "method": request.method,
             "path": request.url.path,
-            "query_params": sanitize_data(dict(request.query_params)),
+            "query_params": sanitize_log_data(dict(request.query_params)) if self.enable_hf002 else dict(request.query_params),
             "headers": safe_headers,
             "client_ip": self._get_client_ip(request),
             "user_agent": request.headers.get("user-agent", "unknown")
@@ -81,7 +110,7 @@ class SecureRequestLoggingMiddleware(BaseHTTPMiddleware):
             
             # Log de eventos de segurança para endpoints sensíveis
             if self._is_sensitive_endpoint(request.url.path):
-                log_security_event(
+                self._log_security_event(
                     "sensitive_endpoint_access",
                     {
                         "endpoint": request.url.path,
@@ -109,7 +138,7 @@ class SecureRequestLoggingMiddleware(BaseHTTPMiddleware):
                         extra={"error_data": error_data})
             
             # Log de evento de segurança para erros
-            log_security_event(
+            self._log_security_event(
                 "request_exception",
                 {
                     "endpoint": request.url.path,
@@ -198,10 +227,42 @@ def configure_request_logging_middleware(app, enable_sanitization=True, log_requ
     except Exception as e:
         logger.error(f"❌ S002 Request Logging Middleware: Erro na configuração: {e}")
         raise
+    
+    def _sanitize_headers(self, headers: Dict[str, str]) -> Dict[str, str]:
+        """
+        HF002 FIX: Sanitizar headers sensíveis
+        """
+        sanitized = {}
+        
+        for key, value in headers.items():
+            key_lower = key.lower()
+            
+            if key_lower in self.sensitive_headers:
+                sanitized[key] = '[SENSITIVE_HEADER_REDACTED_HF002]'
+            elif self.sanitizer:
+                sanitized[key] = self.sanitizer.sanitize_message(value)
+            else:
+                sanitized[key] = value
+        
+        return sanitized
+    
+    def _log_security_event(self, event_type: str, details: Dict[str, Any], severity: str = "INFO"):
+        """
+        HF002 FIX: Log de eventos de segurança sanitizado
+        """
+        if self.enable_hf002 and self.sanitizer:
+            details = self.sanitizer.sanitize_metadata(details)
+        
+        logger.log(
+            getattr(logging, severity, logging.INFO),
+            f"🔒 HF002 SECURITY EVENT: {event_type}",
+            extra={"security_event": event_type, "details": details}
+        )
+
 
 def get_request_context_middleware():
     """Retorna middleware de contexto de requisição"""
     return RequestContextMiddleware
 
-# Log de inicialização
-logger.info("🔒 S002 Request Logging: Módulo carregado com sucesso")
+# Log de inicialização HF002
+logger.info("🔒 HF002 Request Logging: Módulo carregado com sanitização automática")

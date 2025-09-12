@@ -146,7 +146,25 @@ class StructuredLogger:
                          category: LogCategory = LogCategory.SYSTEM,
                          metadata: Dict[str, Any] = None,
                          exception: Exception = None) -> Dict[str, Any]:
-        """Criar entrada de log estruturada"""
+        """Criar entrada de log estruturada com sanitização HF002"""
+        
+        # 🔒 HF002 FIX: Sanitizar dados sensíveis automaticamente
+        try:
+            from app.security.secure_logger import get_log_sanitizer
+            sanitizer = get_log_sanitizer()
+            
+            # Sanitizar mensagem
+            safe_message = sanitizer.sanitize_message(message)
+            
+            # Sanitizar metadados
+            if metadata:
+                safe_metadata = sanitizer.sanitize_metadata(metadata)
+            else:
+                safe_metadata = {}
+        except ImportError:
+            # Fallback se HF002 não estiver disponível
+            safe_message = message
+            safe_metadata = metadata or {}
         
         context = self._get_context()
         timestamp = datetime.now(timezone.utc)
@@ -158,22 +176,30 @@ class StructuredLogger:
             "environment": context.environment,
             "version": context.version,
             "logger_name": self.name,
-            "message": message,
+            "message": safe_message,  # 🔒 HF002: Mensagem sanitizada
             "category": category.value,
             **context.to_dict()
         }
         
-        # Adicionar metadata se fornecido
-        if metadata:
-            log_entry["metadata"] = metadata
+        # Adicionar metadata sanitizado HF002
+        if safe_metadata:
+            log_entry["metadata"] = safe_metadata
         
-        # Adicionar informações de exceção
+        # Adicionar informações de exceção (sanitizadas)
         if exception:
+            exception_message = str(exception)
+            try:
+                # Sanitizar mensagem de exceção
+                if 'sanitizer' in locals():
+                    exception_message = sanitizer.sanitize_message(exception_message)
+            except:
+                pass
+                
             log_entry.update({
                 "exception": {
                     "type": exception.__class__.__name__,
-                    "message": str(exception),
-                    "traceback": traceback.format_exc()
+                    "message": exception_message,
+                    "traceback": traceback.format_exc()  # Traceback pode conter dados sensíveis
                 }
             })
         

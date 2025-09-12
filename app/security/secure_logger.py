@@ -1,151 +1,201 @@
 """
-S002 - Secure Logger Implementation
-Sistema de logging seguro com sanitização de dados sensíveis
-Implementação para conformidade LGPD e segurança
+🔒 HF002 - Secure Logger Implementation
+=======================================
+
+Sistema de logging seguro com sanitização automática de dados sensíveis.
+Implementação para conformidade LGPD/GDPR e segurança de dados.
+
+Funcionalidades:
+- Sanitização automática de PII (telefones, emails, CPF, etc.)
+- Redação de tokens, senhas e chaves API
+- Sanitização recursiva de metadados estruturados
+- Formatter global para todos os logs do sistema
 """
 
 import logging
 import re
 import json
-from typing import Any, Dict, Optional, Union
-from functools import wraps
+from typing import Any, Dict, Optional, Union, List
 
-class SecureFormatter(logging.Formatter):
-    """Formatter seguro que sanitiza dados sensíveis"""
+class LogSanitizer:
+    """
+    HF002 FIX: Sanitizador avançado de logs para remover dados sensíveis
+    """
     
-    # Padrões de dados sensíveis para sanitizar
-    SENSITIVE_PATTERNS = [
-        (re.compile(r'"password"\s*:\s*"[^"]*"', re.IGNORECASE), '"password": "***REDACTED***"'),
-        (re.compile(r'"token"\s*:\s*"[^"]*"', re.IGNORECASE), '"token": "***REDACTED***"'),
-        (re.compile(r'"key"\s*:\s*"[^"]*"', re.IGNORECASE), '"key": "***REDACTED***"'),
-        (re.compile(r'"secret"\s*:\s*"[^"]*"', re.IGNORECASE), '"secret": "***REDACTED***"'),
-        (re.compile(r'"cpf"\s*:\s*"[^"]*"', re.IGNORECASE), '"cpf": "***REDACTED***"'),
-        (re.compile(r'"rg"\s*:\s*"[^"]*"', re.IGNORECASE), '"rg": "***REDACTED***"'),
-        (re.compile(r'"email"\s*:\s*"[^"]*"', re.IGNORECASE), '"email": "***REDACTED***"'),
-        (re.compile(r'"phone"\s*:\s*"[^"]*"', re.IGNORECASE), '"phone": "***REDACTED***"'),
-        (re.compile(r'\b\d{3}\.\d{3}\.\d{3}-\d{2}\b'), '***CPF-REDACTED***'),
-        (re.compile(r'\b\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}\b'), '***CNPJ-REDACTED***'),
-        (re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'), '***EMAIL-REDACTED***'),
-        (re.compile(r'\b\(\d{2}\)\s*\d{4,5}-\d{4}\b'), '***PHONE-REDACTED***'),
-        (re.compile(r'\b\d{11}\b'), '***PHONE-REDACTED***'),
-    ]
+    # Padrões regex para detectar dados sensíveis
+    SENSITIVE_PATTERNS = {
+        # WhatsApp IDs primeiro (mais específico)
+        'whatsapp_id': [
+            r'(55\d{10,11}@[sc]\.whatsapp\.net)',
+            r'(55\d{10,11}@c\.us)',
+        ],
+        'phone': [
+            r'(\+55\s?\d{2}\s?\d{4,5}[-\s]?\d{4})',  # +55 11 99999-9999
+            r'(\d{2}\s?\d{4,5}[-\s]?\d{4})',         # 11 99999-9999
+            r'(\b\d{11}\b)',                         # 11999887766 (standalone)
+        ],
+        'email': [
+            r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
+        ],
+        'token': [
+            r'(Bearer\s+[A-Za-z0-9\-_\.]+)',
+            r'([A-Za-z0-9]{32,128})',
+        ],
+        'password': [
+            r'("password[^"]*":\s*"[^"]*")',
+            r'(password["\s]*[:=]["\s]*[^"\s]+)',
+        ],
+        'document': [
+            r'(\d{3}[\.\-]?\d{3}[\.\-]?\d{3}[\.\-]?\d{2})',  # CPF
+            r'(\d{2}[\.\-]?\d{3}[\.\-]?\d{3}[\.\-]?\d{4}[\.\-]?\d{2})', # CNPJ
+        ],
+    }
+    
+    SENSITIVE_FIELDS = {
+        'password', 'token', 'api_key', 'secret', 'authorization', 
+        'phone', 'email', 'cpf', 'cnpj', 'documento'
+    }
+    
+    def __init__(self):
+        """Inicializar sanitizador HF002"""
+        self.compiled_patterns = {}
+        # Processar na ordem específica para evitar sobreposição
+        for category in ['whatsapp_id', 'phone', 'email', 'token', 'password', 'document']:
+            if category in self.SENSITIVE_PATTERNS:
+                patterns = self.SENSITIVE_PATTERNS[category]
+                self.compiled_patterns[category] = [
+                    re.compile(pattern, re.IGNORECASE) for pattern in patterns
+                ]
+    
+    def sanitize_message(self, message: str) -> str:
+        """Remove padrões sensíveis da mensagem de log"""
+        if not isinstance(message, str):
+            message = str(message)
+        
+        sanitized = message
+        for category, compiled_patterns in self.compiled_patterns.items():
+            for pattern in compiled_patterns:
+                placeholder = f'[{category.upper()}_REDACTED_HF002]'
+                sanitized = pattern.sub(placeholder, sanitized)
+        
+        return sanitized
+    
+    def sanitize_metadata(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """Sanitiza metadados recursivamente"""
+        if not isinstance(metadata, dict):
+            return metadata
+        
+        sanitized = {}
+        for key, value in metadata.items():
+            if self._is_sensitive_field(key):
+                sanitized[key] = '[SENSITIVE_FIELD_REDACTED_HF002]'
+            elif isinstance(value, str):
+                sanitized[key] = self.sanitize_message(value)
+            elif isinstance(value, dict):
+                sanitized[key] = self.sanitize_metadata(value)
+            elif isinstance(value, list):
+                sanitized[key] = self._sanitize_list(value)
+            else:
+                sanitized[key] = value
+        
+        return sanitized
+    
+    def _is_sensitive_field(self, field_name: str) -> bool:
+        """Verifica se nome do campo indica dados sensíveis"""
+        field_lower = field_name.lower()
+        return any(sensitive in field_lower for sensitive in self.SENSITIVE_FIELDS)
+    
+    def _sanitize_list(self, data_list: List[Any]) -> List[Any]:
+        """Sanitiza lista recursivamente"""
+        sanitized = []
+        for item in data_list:
+            if isinstance(item, str):
+                sanitized.append(self.sanitize_message(item))
+            elif isinstance(item, dict):
+                sanitized.append(self.sanitize_metadata(item))
+            elif isinstance(item, list):
+                sanitized.append(self._sanitize_list(item))
+            else:
+                sanitized.append(item)
+        return sanitized
+
+
+# Instância global do sanitizador HF002
+_global_sanitizer: Optional[LogSanitizer] = None
+
+def get_log_sanitizer() -> LogSanitizer:
+    """Obter instância global do sanitizador de logs HF002"""
+    global _global_sanitizer
+    if _global_sanitizer is None:
+        _global_sanitizer = LogSanitizer()
+    return _global_sanitizer
+
+
+class SanitizedFormatter(logging.Formatter):
+    """HF002 FIX: Formatter de logging que sanitiza automaticamente dados sensíveis"""
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sanitizer = get_log_sanitizer()
     
     def format(self, record):
-        """Formatar log com sanitização de dados sensíveis"""
-        # Aplicar formatação padrão
+        """Formatar log com sanitização HF002"""
         formatted = super().format(record)
-        
-        # Sanitizar dados sensíveis
-        for pattern, replacement in self.SENSITIVE_PATTERNS:
-            formatted = pattern.sub(replacement, formatted)
-        
-        return formatted
+        sanitized = self.sanitizer.sanitize_message(formatted)
+        return sanitized
 
-def sanitize_data(data: Any) -> Any:
-    """Sanitiza dados sensíveis recursivamente"""
-    if isinstance(data, dict):
-        sanitized = {}
-        for key, value in data.items():
-            if key.lower() in ['password', 'token', 'key', 'secret', 'cpf', 'rg', 'email', 'phone']:
-                sanitized[key] = "***REDACTED***"
-            else:
-                sanitized[key] = sanitize_data(value)
-        return sanitized
-    elif isinstance(data, list):
-        return [sanitize_data(item) for item in data]
-    elif isinstance(data, str):
-        # Sanitizar strings com padrões sensíveis
-        sanitized = data
-        for pattern, replacement in SecureFormatter.SENSITIVE_PATTERNS:
-            sanitized = pattern.sub(replacement, sanitized)
-        return sanitized
+
+def sanitize_log_data(data: Union[str, Dict[str, Any]]) -> Union[str, Dict[str, Any]]:
+    """HF002 FIX: Função utilitária para sanitizar dados de log"""
+    sanitizer = get_log_sanitizer()
+    
+    if isinstance(data, str):
+        return sanitizer.sanitize_message(data)
+    elif isinstance(data, dict):
+        return sanitizer.sanitize_metadata(data)
     else:
         return data
 
-def secure_log(logger: logging.Logger, level: int, message: str, data: Optional[Dict] = None):
-    """Log seguro com sanitização automática"""
-    if data:
-        sanitized_data = sanitize_data(data)
-        message = f"{message} | Data: {json.dumps(sanitized_data, default=str)}"
-    
-    logger.log(level, message)
 
 def configure_secure_logging():
-    """Configura logging seguro para toda a aplicação"""
-    
-    # Configurar formatter seguro
-    secure_formatter = SecureFormatter(
-        fmt='{"timestamp": "%(asctime)s", "level": "%(levelname)s", "service": "whatsapp-agent", '
-            '"logger_name": "%(name)s", "message": "%(message)s", "category": "security"}',
-        datefmt='%Y-%m-%dT%H:%M:%S.%fZ'
-    )
-    
-    # Aplicar a todos os handlers do root logger
+    """HF002 FIX: Configurar logging seguro global com sanitização automática"""
     root_logger = logging.getLogger()
+    
     for handler in root_logger.handlers:
-        handler.setFormatter(secure_formatter)
+        if not isinstance(handler.formatter, SanitizedFormatter):
+            current_format = getattr(handler.formatter, '_fmt', '%(levelname)s:%(name)s:%(message)s')
+            sanitized_formatter = SanitizedFormatter(current_format)
+            handler.setFormatter(sanitized_formatter)
     
-    # Logger específico para segurança
-    security_logger = logging.getLogger('security')
-    security_logger.setLevel(logging.INFO)
-    
-    return secure_formatter
+    sanitizer_logger = logging.getLogger('hf002.sanitizer')
+    sanitizer_logger.info("🔒 HF002 PROTECTION: Secure logging configured with data sanitization")
 
-def log_security_event(event_type: str, details: Dict[str, Any], user_id: Optional[str] = None):
-    """Log de eventos de segurança com sanitização"""
-    security_logger = logging.getLogger('security')
-    
-    event_data = {
-        "event_type": event_type,
-        "user_id": user_id or "anonymous",
-        "details": sanitize_data(details),
-        "timestamp": "auto"
-    }
-    
-    secure_log(security_logger, logging.INFO, f"Security Event: {event_type}", event_data)
 
-def secure_logging_decorator(func):
-    """Decorator para adicionar logging seguro a funções"""
-    @wraps(func)
-    async def async_wrapper(*args, **kwargs):
-        func_logger = logging.getLogger(f"secure_call.{func.__module__}.{func.__name__}")
+def secure_log(
+    logger: logging.Logger, 
+    level: int, 
+    message: str, 
+    metadata: Optional[Dict[str, Any]] = None,
+    sanitize: bool = True
+):
+    """HF002 FIX: Log seguro com sanitização automática de dados sensíveis"""
+    if sanitize:
+        sanitizer = get_log_sanitizer()
+        safe_message = sanitizer.sanitize_message(message)
         
-        try:
-            # Log de entrada (sem dados sensíveis)
-            func_logger.info(f"🔒 S002: Calling {func.__name__}")
-            
-            result = await func(*args, **kwargs)
-            
-            # Log de sucesso
-            func_logger.info(f"✅ S002: {func.__name__} completed successfully")
-            return result
-            
-        except Exception as e:
-            # Log de erro (sem exposição de dados sensíveis)
-            func_logger.error(f"❌ S002: {func.__name__} failed: {type(e).__name__}")
-            raise
-    
-    @wraps(func)
-    def sync_wrapper(*args, **kwargs):
-        func_logger = logging.getLogger(f"secure_call.{func.__module__}.{func.__name__}")
-        
-        try:
-            func_logger.info(f"🔒 S002: Calling {func.__name__}")
-            result = func(*args, **kwargs)
-            func_logger.info(f"✅ S002: {func.__name__} completed successfully")
-            return result
-            
-        except Exception as e:
-            func_logger.error(f"❌ S002: {func.__name__} failed: {type(e).__name__}")
-            raise
-    
-    # Retornar wrapper apropriado baseado na função
-    import asyncio
-    if asyncio.iscoroutinefunction(func):
-        return async_wrapper
+        if metadata:
+            safe_metadata = sanitizer.sanitize_metadata(metadata)
+            final_message = f"{safe_message} | Metadata: {json.dumps(safe_metadata, default=str)}"
+        else:
+            final_message = safe_message
     else:
-        return sync_wrapper
+        final_message = message
+        if metadata:
+            final_message = f"{message} | Metadata: {json.dumps(metadata, default=str)}"
+    
+    logger.log(level, final_message)
 
-# Configurar logging seguro na importação
-logger = logging.getLogger(__name__)
-logger.info("🔒 S002 Secure Logger: Módulo carregado com sucesso")
+
+# Backward compatibility
+SecureFormatter = SanitizedFormatter
+sanitize_data = sanitize_log_data

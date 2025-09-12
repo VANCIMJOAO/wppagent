@@ -64,7 +64,16 @@ from app.services.cdn_manager import CDNManager
 
 # Inicializar sistema de logging estruturado APM
 setup_structured_logging()
-logger = get_structured_logger(__name__)
+
+# 🔒 HF002 FIX: Configurar sanitização de logs automática
+try:
+    from app.security.secure_logger import configure_secure_logging
+    configure_secure_logging()
+    logger = get_structured_logger(__name__)
+    logger.info("🔒 HF002 PROTECTION: Secure logging configured - sensitive data sanitization active")
+except ImportError:
+    logger = get_structured_logger(__name__)
+    logger.warning("🔒 HF002 WARNING: Secure logging not available - logs may contain sensitive data")
 
 # 🔒 Sistema de Segurança HTTPS - Verificar disponibilidade
 try:
