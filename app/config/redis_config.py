@@ -39,37 +39,49 @@ class RedisManager:
             logger.info(f"🔧 RedisManager inicializado - Available: {self._config.available}, Fallback: {self._config.fallback_mode}")
     
     def _detect_redis(self) -> RedisConfig:
-        """Detecta se Redis está disponível - Railway priority"""
-        # 1. Primeiro tentar Railway Redis se disponível
+        """Detecta se Redis está disponível - Railway priority com retry"""
+        import time
+        
+        # 1. Primeiro tentar Railway Redis se disponível - com retry
         railway_redis = os.getenv("REDIS_URL")
         if railway_redis:
-            try:
-                logger.info(f"🚀 Tentando conectar ao Redis do Railway: {railway_redis[:50]}...")
-                # Aumentar timeout para Railway (pode ser mais lento que local)
-                client = redis.from_url(
-                    railway_redis, 
-                    socket_timeout=15,  # 15s timeout
-                    socket_connect_timeout=15,  # 15s para conectar
-                    retry_on_timeout=True,
-                    retry_on_error=[redis.ConnectionError, redis.TimeoutError],
-                    health_check_interval=30
-                )
-                logger.info("🔄 Enviando ping para Railway Redis...")
-                result = client.ping()
-                logger.info(f"✅ Redis Railway conectado com sucesso! Ping: {result}")
-                logger.info(f"🔧 Final RedisConfig: available={True}, fallback_mode={False}, url={railway_redis[:50]}...")
-                return RedisConfig(
-                    available=True,
-                    client=client,
-                    url=railway_redis,
-                    fallback_mode=False
-                )
-            except redis.ConnectionError as e:
-                logger.error(f"❌ Erro de conexão Redis Railway: {e}")
-            except redis.TimeoutError as e:
-                logger.error(f"❌ Timeout Redis Railway: {e}")
-            except Exception as e:
-                logger.error(f"❌ Falha geral Redis Railway: {type(e).__name__}: {e}")
+            # Retry mechanism para Railway - pode demorar para ficar disponível
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    logger.info(f"🚀 Tentativa {attempt + 1}/{max_retries} - Conectando ao Redis Railway: {railway_redis[:50]}...")
+                    # Aumentar timeout para Railway (pode ser mais lento que local)
+                    client = redis.from_url(
+                        railway_redis, 
+                        socket_timeout=15,  # 15s timeout
+                        socket_connect_timeout=15,  # 15s para conectar
+                        retry_on_timeout=True,
+                        retry_on_error=[redis.ConnectionError, redis.TimeoutError],
+                        health_check_interval=30
+                    )
+                    logger.info("🔄 Enviando ping para Railway Redis...")
+                    result = client.ping()
+                    logger.info(f"✅ Redis Railway conectado com sucesso! Ping: {result}")
+                    logger.info(f"🔧 Final RedisConfig: available={True}, fallback_mode={False}, url={railway_redis[:50]}...")
+                    return RedisConfig(
+                        available=True,
+                        client=client,
+                        url=railway_redis,
+                        fallback_mode=False
+                    )
+                except (redis.ConnectionError, redis.TimeoutError) as e:
+                    logger.warning(f"⏳ Tentativa {attempt + 1} falhou: {e}")
+                    if attempt < max_retries - 1:
+                        wait_time = (attempt + 1) * 2  # 2s, 4s, 6s
+                        logger.info(f"🔄 Aguardando {wait_time}s antes da próxima tentativa...")
+                        time.sleep(wait_time)
+                    else:
+                        logger.error(f"❌ Todas as tentativas de conexão falharam")
+                except Exception as e:
+                    logger.error(f"❌ Falha geral Redis Railway: {type(e).__name__}: {e}")
+                    break
+        else:
+            logger.warning("🔍 REDIS_URL não encontrada nas variáveis de ambiente")
         
         # 2. Tentar URLs locais como fallback
         redis_urls = [
