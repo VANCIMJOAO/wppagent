@@ -476,7 +476,18 @@ except ImportError as e:
 except Exception as e:
     logger.error(f"❌ CF002 - Erro ao carregar rotas demo: {e}")
 
-# 🔄 Sistema de Backup Automatizado
+# � PD001 - Incluir rotas demo de Performance Optimization
+try:
+    from app.routes.pd001_performance_demo import router as pd001_demo_router
+    app.include_router(pd001_demo_router, tags=["PD001 Performance Demo"])
+    
+    logger.info("✅ PD001 - Rotas de performance demo carregadas: /performance-demo/*")
+except ImportError as e:
+    logger.warning(f"⚠️ PD001 - Rotas de performance demo não disponíveis: {e}")
+except Exception as e:
+    logger.error(f"❌ PD001 - Erro ao carregar rotas de performance: {e}")
+
+# �🔄 Sistema de Backup Automatizado
 from app.routes.backup import router as backup_router
 app.include_router(backup_router, tags=["Backup System"])
 

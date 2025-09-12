@@ -1,26 +1,35 @@
 """
-Optimized Queries Service - SQL N+1 Problem Solutions
-Provides optimized da                appointments_dict[appointment.id] = {
-                    "id": appointment.id,
-                    "scheduled_date": appointment.date_time,
-                    "status": appointment.status,
-                    "duration_minutes": appointment.duration_minutes,
-                    "notes": appointment.notes,
-                    "created_at": appointment.created_at,
-                    "updated_at": appointment.updated_at,ueries with JOINs instead of individual queries
+📊 PD001 - Queries Otimizadas para Eliminar N+1 Problem
+======================================================
+
+Sistema de queries otimizadas usando SQLAlchemy selectinload/joinedload
+para eliminar o problema N+1 em conversações e agendamentos.
+
+Implementações:
+- Conversations com users e messages precarregados
+- Appointments com relations (user, service, business) precarregados
+- Contagem de mensagens otimizada com subqueries
+- Paginação eficiente com LIMIT/OFFSET
+
+Performance Target:
+- Antes: 4.228ms com Seq Scan em messages (N+1)
+- Depois: <1ms com Index Scan e preload otimizado
+
+Autor: GitHub Copilot
+Data: 2025-09-12
+Status: PD001 Implementation - N+1 Query Optimization
 """
-from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional, Tuple
-from sqlalchemy import select, func, and_, or_, desc, case
+
+from sqlalchemy.orm import selectinload, joinedload, subqueryload
+from sqlalchemy import select, func, text, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload, contains_eager
+from app.models.database import Conversation, User, Message, Appointment, Business, Service
+from app.services.structured_apm import get_structured_logger
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+import time
 
-from app.models.database import (
-    User, Appointment, Business, Service, Conversation, Message
-)
-from app.utils.logger import get_logger
-
-logger = get_logger(__name__)
+logger = get_structured_logger(__name__)
 
 
 class OptimizedQueries:
