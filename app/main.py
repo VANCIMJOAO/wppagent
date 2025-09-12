@@ -448,6 +448,20 @@ except ImportError as e:
 from app.routes.database_optimization import router as db_optimization_router
 app.include_router(db_optimization_router, tags=["Database Optimization"])
 
+# 🔍 OM001/OM003 - Incluir rotas de observabilidade completa
+try:
+    from app.routes.health_detailed import router as health_detailed_router
+    app.include_router(health_detailed_router, tags=["OM001 Health Monitoring"])
+    
+    from app.services.alerting import router as alerting_router
+    app.include_router(alerting_router, tags=["OM003 Alert System"])
+    
+    logger.info("✅ OM001/OM003 - Sistema de observabilidade ativado: health detalhado + alertas")
+except ImportError as e:
+    logger.warning(f"⚠️ OM001/OM003 - Sistema de observabilidade não disponível: {e}")
+except Exception as e:
+    logger.error(f"❌ OM001/OM003 - Erro ao carregar observabilidade: {e}")
+
 # 🔧 CF002 - Incluir rotas demo para Response Wrapper Padronizado
 try:
     from app.routes.appointments_cf002_demo import router as appointments_demo_router
