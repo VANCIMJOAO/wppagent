@@ -195,8 +195,9 @@ class Appointment(Base):
     duration_minutes = Column(Integer, default=60, nullable=False)  # ✅ Padronizado 
     end_time = Column(DateTime(timezone=True))  # Calculado automaticamente via trigger
     
-    # Status do agendamento
-    status = Column(String(20), default="pendente", index=True)  # pendente, confirmado, cancelado, concluido, bloqueado
+    # Status do agendamento 
+    # ✅ C001: Enum unificado - agendado, confirmado, realizado, cancelado, pendente
+    status = Column(String(20), default="agendado", index=True)
     
     # Informações adicionais
     notes = Column(Text)

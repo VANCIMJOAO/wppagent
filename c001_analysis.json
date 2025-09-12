@@ -1,0 +1,14 @@
+{
+  "total_inconsistencies": 2,
+  "recommended_enum": [
+    "agendado",
+    "confirmado",
+    "realizado",
+    "cancelado",
+    "pendente"
+  ],
+  "files_to_fix": [
+    "app/models/database.py",
+    "app/schemas/appointments.py"
+  ]
+}

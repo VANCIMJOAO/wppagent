@@ -24,12 +24,13 @@ class AppointmentBase(BaseModel):
     date_time: datetime
     duration_minutes: int = Field(default=60, ge=15, le=480)  # 15min a 8h
     price: Decimal = Field(default=0.00, ge=0, decimal_places=2)
-    status: str = Field(default="pendente")
+    status: str = Field(default="agendado")  # ✅ C001: Padrão unificado
     notes: Optional[str] = None
     
     @validator('status')
     def validate_status(cls, v):
-        allowed_statuses = ['pendente', 'confirmado', 'cancelado', 'concluido', 'bloqueado']
+        # ✅ C001: Usando enum unificado do schemas/unified.py
+        allowed_statuses = ['agendado', 'confirmado', 'realizado', 'cancelado', 'pendente']
         if v not in allowed_statuses:
             raise ValueError(f'Status deve ser um de: {allowed_statuses}')
         return v
