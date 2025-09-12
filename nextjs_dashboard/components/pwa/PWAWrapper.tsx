@@ -34,12 +34,13 @@ export function PWAWrapper({ children }: { children: React.ReactNode }) {
 
           // Aguardar um pouco para não bloquear o carregamento inicial
           setTimeout(async () => {
-            const registration = await navigator.serviceWorker.register('/sw-advanced.js', {
+            // H005: Registrar service worker com bypass para autenticação
+            const registration = await navigator.serviceWorker.register('/sw-h005.js', {
               scope: '/',
               updateViaCache: 'none' // Sempre verificar atualizações
             })
 
-            console.log('✅ PWA: Service Worker registered:', registration.scope)
+            console.log('✅ H005 PWA: Service Worker registered with auth bypass:', registration.scope)
 
             // Verificar atualizações periodicamente
             setInterval(() => {

@@ -68,11 +68,15 @@ export default function RootLayout({
         {/* Manifest */}
         <link rel="manifest" href="/manifest.json" />
         
-        {/* Preload Service Worker */}
-        <link rel="preload" href="/sw-advanced.js" as="script" />
+        {/* H005: Preload Service Worker with Auth Bypass */}
+        <link rel="preload" href="/sw-h005.js" as="script" />
         
-        {/* Desregistrar Service Workers (temporário) */}
-        <script src="/sw-unregister.js"></script>
+        {/* H005: PWA Service Worker habilitado com bypass para auth */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            console.log('H005: PWA Service Worker será registrado via PWAWrapper');
+          `
+        }} />
       </head>
       <body className={inter.className}>
         <ErrorProvider>

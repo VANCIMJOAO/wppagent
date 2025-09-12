@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useOfflineData } from '@/lib/offline-storage'
 import { Button } from '@/components/ui/button'
@@ -15,11 +15,27 @@ import {
   MessageCircle,
   BarChart3,
   Home,
-  Smartphone
+  Smartphone,
+  LogIn
 } from 'lucide-react'
 
 export default function OfflinePage() {
   const { isOnline, hasOfflineData, pendingActions, storageStats } = useOfflineData()
+  
+  // H005: Detectar se está offline por questões de autenticação
+  const [isAuthRequired, setIsAuthRequired] = useState(false)
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      setIsAuthRequired(urlParams.get('auth') === 'required')
+      
+      // H005: Log para debug do auth bypass
+      if (urlParams.get('auth') === 'required') {
+        console.log('H005: Offline page - auth=required bypass detected')
+      }
+    }
+  }, [])
 
   const handleRefresh = () => {
     window.location.reload()
@@ -43,6 +59,59 @@ export default function OfflinePage() {
       }, 1000)
     }
   }, [isOnline])
+  
+  // H005: Função para ir para login
+  const handleGoToLogin = () => {
+    window.location.href = '/login'
+  }
+
+  // H005: Se é uma requisição de auth, mostrar interface específica
+  if (isAuthRequired) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-100 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
+          <div className="mb-6">
+            <LogIn className="mx-auto h-16 w-16 text-yellow-500" />
+          </div>
+          
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Login Necessário
+          </h1>
+          
+          <p className="text-gray-600 mb-6">
+            Para acessar esta funcionalidade, você precisa estar logado e conectado à internet.
+            O PWA funciona offline, mas o login requer conexão.
+          </p>
+          
+          <div className="space-y-3">
+            <Button
+              onClick={handleRetry}
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Tentar Novamente
+            </Button>
+            
+            <Button
+              onClick={handleGoToLogin}
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <LogIn className="h-4 w-4" />
+              Ir para Login
+            </Button>
+          </div>
+          
+          <div className="mt-6 text-sm text-gray-500">
+            <p>H005: PWA com bypass de autenticação</p>
+            <p className="mt-1">
+              Status: {navigator?.onLine ? '🟢 Online' : '🔴 Offline'}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">

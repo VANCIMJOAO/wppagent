@@ -253,8 +253,6 @@ async def lifespan(app: FastAPI):
             await heartbeat_task
         except asyncio.CancelledError:
             pass
-        except asyncio.CancelledError:
-            pass
     
     # 🔄 Parar sistema de backup
     try:

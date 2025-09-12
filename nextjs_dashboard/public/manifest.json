@@ -1,12 +1,15 @@
 {
   "name": "WhatsApp Agent Dashboard",
   "short_name": "WA Agent",
-  "description": "Dashboard de gestão do WhatsApp Agent",
+  "description": "Dashboard de gestão do WhatsApp Agent - H005 PWA com bypass auth",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#366092",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "id": "whatsapp-agent-h005",
+  "categories": ["business", "productivity"],
   "icons": [
     {
       "src": "/icon-72x72.png",
@@ -79,6 +82,5 @@
       "url": "/monitoring",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
-  ],
-  "categories": ["business", "productivity", "utilities"]
+  ]
 }
