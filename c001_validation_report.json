@@ -1,7 +1,0 @@
-{
-  "database_status": true,
-  "schema_consistency": true,
-  "frontend_consistency": true,
-  "api_response": true,
-  "overall_success": true
-}

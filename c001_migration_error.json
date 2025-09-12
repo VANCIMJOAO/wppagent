@@ -1,5 +1,0 @@
-{
-  "migration_date": "2025-09-11T22:09:46.193949",
-  "error": "(psycopg2.OperationalError) connection to server at \"localhost\" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user \"postgres\"\nconnection to server at \"localhost\" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user \"postgres\"\n\n(Background on this error at: https://sqlalche.me/e/20/e3q8)",
-  "success": false
-}
