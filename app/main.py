@@ -448,6 +448,20 @@ except ImportError as e:
 from app.routes.database_optimization import router as db_optimization_router
 app.include_router(db_optimization_router, tags=["Database Optimization"])
 
+# 🔧 CF002 - Incluir rotas demo para Response Wrapper Padronizado
+try:
+    from app.routes.appointments_cf002_demo import router as appointments_demo_router
+    app.include_router(appointments_demo_router, tags=["CF002 Demo"])
+    
+    from app.routes.health_cf002_demo import router as health_demo_router  
+    app.include_router(health_demo_router, tags=["CF002 Demo"])
+    
+    logger.info("✅ CF002 - Rotas demo carregadas: /appointments-demo/* e /health-demo/*")
+except ImportError as e:
+    logger.warning(f"⚠️ CF002 - Rotas demo não disponíveis: {e}")
+except Exception as e:
+    logger.error(f"❌ CF002 - Erro ao carregar rotas demo: {e}")
+
 # 🔄 Sistema de Backup Automatizado
 from app.routes.backup import router as backup_router
 app.include_router(backup_router, tags=["Backup System"])

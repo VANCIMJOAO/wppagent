@@ -24,7 +24,7 @@ from app.models.database import Appointment, User, Business, Service, AdminUser
 from app.schemas.appointments import (
     AppointmentCreateRequest, 
     AppointmentUpdateRequest,
-    AppointmentResponseUnified,
+    UnifiedAppointmentResponse,
     AppointmentsListResponseUnified
 )
 from app.schemas.unified import SchemaTransformer
@@ -126,7 +126,7 @@ async def get_appointments_optimized(
             }
             # Transformar para formato unificado
             unified_dict = SchemaTransformer.appointment_dict_to_unified(appointment_dict)
-            appointments.append(AppointmentResponseUnified(**unified_dict))
+            appointments.append(UnifiedAppointmentResponse(**unified_dict))
         
         has_more = (page * limit) < total
         
@@ -146,7 +146,7 @@ async def get_appointments_optimized(
         logger.error(f"❌ Erro ao buscar agendamentos otimizados: {e}")
         raise HTTPException(500, f"Erro interno do servidor: {str(e)}")
 
-@router.get("/{appointment_id}", response_model=AppointmentResponseUnified)
+@router.get("/{appointment_id}", response_model=UnifiedAppointmentResponse)
 async def get_appointment_optimized(
     appointment_id: int,
     current_admin: AdminUser = Depends(get_current_admin_user),
@@ -193,7 +193,7 @@ async def get_appointment_optimized(
         
         logger.info(f"✅ P001: Agendamento {appointment_id} buscado com joinedload")
         
-        return AppointmentResponseUnified(**unified_dict)
+        return UnifiedAppointmentResponse(**unified_dict)
         
     except HTTPException:
         raise

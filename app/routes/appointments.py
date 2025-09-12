@@ -25,7 +25,7 @@ from pydantic import BaseModel, Field
 from app.database import get_db
 from app.models.database import Appointment, User, Business, Service
 from app.schemas.unified import (
-    AppointmentResponseUnified,
+    UnifiedAppointmentResponse,
     AppointmentCreateRequest,
     AppointmentUpdateRequest,
     AppointmentsListResponseUnified,
@@ -152,7 +152,7 @@ async def get_appointments(
                 }
                 # Usar o transformer para formato unificado
                 unified_dict = SchemaTransformer.appointment_dict_to_unified(appointment_dict)
-                appointments.append(AppointmentResponseUnified(**unified_dict))
+                appointments.append(UnifiedAppointmentResponse(**unified_dict))
             
             has_more = (page * limit) < total
             
@@ -180,7 +180,7 @@ async def get_appointments(
         )
         
         # Converter de volta para Pydantic models
-        appointments = [AppointmentResponseUnified(**appt) for appt in cached_data["appointments"]]
+        appointments = [UnifiedAppointmentResponse(**appt) for appt in cached_data["appointments"]]
         
         return AppointmentsListResponseUnified(
             appointments=appointments,
@@ -194,7 +194,7 @@ async def get_appointments(
         logger.error(f"❌ Erro no cache de agendamentos: {e}")
         # Fallback sem cache
         result = await fetch_appointments()
-        appointments = [AppointmentResponseUnified(**appt) for appt in result["appointments"]]
+        appointments = [UnifiedAppointmentResponse(**appt) for appt in result["appointments"]]
         
         return AppointmentsListResponseUnified(
             appointments=appointments,
@@ -318,7 +318,7 @@ async def get_appointments_legacy(
         logger.error(f"❌ Erro ao buscar agendamentos: {e}")
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
-@router.post("/", response_model=AppointmentResponseUnified)
+@router.post("/", response_model=UnifiedAppointmentResponse)
 @invalidate_appointment_cache_on_success(CacheEvent.APPOINTMENT_CREATED)
 async def create_appointment(
     appointment_data: AppointmentCreateRequest,
@@ -424,7 +424,7 @@ async def create_appointment(
                 # Don't fail the main operation if WebSocket fails
                 logger.warning(f"⚠️ WebSocket notification failed: {ws_error}")
             
-            return AppointmentResponseUnified(**appointment_dict)
+            return UnifiedAppointmentResponse(**appointment_dict)
         
         return new_appointment
         
@@ -433,7 +433,7 @@ async def create_appointment(
         await session.rollback()
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
-@router.get("/{appointment_id}", response_model=AppointmentResponseUnified)
+@router.get("/{appointment_id}", response_model=UnifiedAppointmentResponse)
 async def get_appointment(
     appointment_id: int,
     current_admin: AdminUser = Depends(get_current_admin_user),
@@ -479,7 +479,7 @@ async def get_appointment(
             cache_type='appointment_detail'
         )
         
-        return AppointmentResponseUnified(**cached_data)
+        return UnifiedAppointmentResponse(**cached_data)
         
     except HTTPException:
         raise
@@ -487,9 +487,9 @@ async def get_appointment(
         logger.error(f"❌ Erro no cache do agendamento {appointment_id}: {e}")
         # Fallback sem cache
         appointment_dict = await fetch_appointment()
-        return AppointmentResponseUnified(**appointment_dict)
+        return UnifiedAppointmentResponse(**appointment_dict)
 
-@router.put("/{appointment_id}", response_model=AppointmentResponseUnified)
+@router.put("/{appointment_id}", response_model=UnifiedAppointmentResponse)
 @invalidate_cache(CacheEvent.APPOINTMENT_UPDATED, entity_id_param="appointment_id")
 async def update_appointment(
     appointment_id: int,
@@ -607,7 +607,7 @@ async def update_appointment(
         except Exception as ws_error:
             logger.warning(f"⚠️ WebSocket update notification failed: {ws_error}")
         
-        return AppointmentResponseUnified(**appointment_dict)
+        return UnifiedAppointmentResponse(**appointment_dict)
         
     except Exception as e:
         logger.error(f"❌ Erro ao atualizar agendamento {appointment_id}: {e}")
@@ -690,7 +690,7 @@ async def test_schema_validation(
             # Testar conversão para schema unificado
             try:
                 appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
-                unified_appointment = AppointmentResponseUnified(**appointment_dict)
+                unified_appointment = UnifiedAppointmentResponse(**appointment_dict)
                 
                 validation_results.append({
                     "id": row.id,
