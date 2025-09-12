@@ -303,6 +303,33 @@ class SchemaTransformer:
             }
     
     @staticmethod
+    def appointment_dict_to_unified(appointment_dict: dict) -> dict:
+        """
+        ✅ P001: Transforma dict de appointment para formato unificado
+        
+        Args:
+            appointment_dict: Dict com dados do appointment (de ORM com relacionamentos)
+        
+        Returns:
+            Dict compatível com AppointmentResponseUnified
+        """
+        return {
+            "id": appointment_dict.get("id"),
+            "user_id": appointment_dict.get("user_id"),
+            "business_id": appointment_dict.get("business_id"),
+            "service_id": appointment_dict.get("service_id"),
+            "dateTime": appointment_dict.get("date_time").isoformat() if appointment_dict.get("date_time") else None,
+            "status": appointment_dict.get("status", "agendado"),
+            "notes": appointment_dict.get("notes", ""),
+            "clientName": appointment_dict.get("user_name", ""),
+            "clientPhone": appointment_dict.get("user_phone", ""),
+            "businessName": appointment_dict.get("business_name", ""),
+            "serviceName": appointment_dict.get("service_name", ""),
+            "createdAt": appointment_dict.get("created_at").isoformat() if appointment_dict.get("created_at") else None,
+            "updatedAt": appointment_dict.get("updated_at").isoformat() if appointment_dict.get("updated_at") else None
+        }
+    
+    @staticmethod
     def conversation_row_to_unified(row) -> dict:
         """
         Transforma row de SQLAlchemy para dict compatível com ConversationResponseUnified

@@ -19,6 +19,7 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, desc, func
+from sqlalchemy.orm import joinedload
 from pydantic import BaseModel, Field
 
 from app.database import get_db
@@ -80,35 +81,11 @@ async def get_appointments(
             # Calcular offset
             offset = (page - 1) * limit
             
-            # Query base com JOINs padronizados e aliases explícitos
-            query = select(
-                Appointment.id.label("appointment_id"),
-                Appointment.user_id,
-                Appointment.business_id, 
-                Appointment.service_id,
-                Appointment.date_time,
-                Appointment.duration_minutes,  # ✅ Campo padronizado
-                Appointment.end_time,
-                Appointment.price,  # ✅ Campo unificado
-                Appointment.status,
-                Appointment.notes,
-                Appointment.created_at,
-                Appointment.updated_at,
-                # ✅ Usar aliases explícitos para evitar ambiguidade
-                User.nome.label("user_name"),
-                User.telefone.label("user_phone"), 
-                User.email.label("user_email"),
-                Service.name.label("service_name"),
-                Service.description.label("service_description"),
-                Business.name.label("business_name")
-            ).select_from(
-                Appointment
-            ).join(
-                User, Appointment.user_id == User.id
-            ).join(
-                Business, Appointment.business_id == Business.id
-            ).outerjoin(
-                Service, Appointment.service_id == Service.id
+            # ✅ P001: Query OTIMIZADA com joinedload para eliminar N+1 queries
+            query = select(Appointment).options(
+                joinedload(Appointment.user),
+                joinedload(Appointment.business),
+                joinedload(Appointment.service)
             )
             
             # ✅ Aplicar filtros padronizados
@@ -150,13 +127,32 @@ async def get_appointments(
             # Query principal com ordenação e paginação
             query = query.order_by(desc(Appointment.date_time)).limit(limit).offset(offset)
             result = await session.execute(query)
-            rows = result.fetchall()
             
-            # ✅ Converter para schema padronizado
+            # ✅ P001: Usar scalars().unique() para joinedload
+            appointments_orm = result.scalars().unique().all()
+            
+            # ✅ P001: Converter usando relacionamentos já carregados (sem lazy loading)
             appointments = []
-            for row in rows:
-                appointment_dict = SchemaTransformer.appointment_row_to_unified(row)
-                appointments.append(AppointmentResponseUnified(**appointment_dict))
+            for appointment in appointments_orm:
+                appointment_dict = {
+                    "id": appointment.id,
+                    "user_id": appointment.user_id,
+                    "business_id": appointment.business_id,
+                    "service_id": appointment.service_id,
+                    "date_time": appointment.date_time,
+                    "status": appointment.status,
+                    "notes": appointment.notes,
+                    "created_at": appointment.created_at,
+                    "updated_at": appointment.updated_at,
+                    # ✅ P001: Acessar relacionamentos sem lazy loading
+                    "user_name": appointment.user.nome if appointment.user else None,
+                    "user_phone": appointment.user.telefone if appointment.user else None,
+                    "business_name": appointment.business.name if appointment.business else None,
+                    "service_name": appointment.service.name if appointment.service else None,
+                }
+                # Usar o transformer para formato unificado
+                unified_dict = SchemaTransformer.appointment_dict_to_unified(appointment_dict)
+                appointments.append(AppointmentResponseUnified(**unified_dict))
             
             has_more = (page * limit) < total
             
