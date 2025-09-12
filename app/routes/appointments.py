@@ -34,6 +34,7 @@ from app.schemas.unified import (
 from app.routes.admin_auth import get_current_admin_user, AdminUser
 from app.services.cache_optimized import cache_service, CacheKeys
 from app.services.cache_invalidation import CacheEvent
+from app.services.cache_dashboard import dashboard_cache
 from app.decorators.cache_invalidation import (
     invalidate_appointment_cache_on_success,
     invalidate_cache
@@ -60,149 +61,167 @@ async def get_appointments(
     current_admin: AdminUser = Depends(get_current_admin_user)
 ):
     """
-    📅 Lista agendamentos com filtros e paginação
+    📅 Lista agendamentos com filtros e paginação (PD003 Cache Otimizado)
     ✅ SCHEMA PADRONIZADO - Elimina inconsistências frontend/backend
-    ✅ CACHE OTIMIZADO - TTL de 2 minutos para listas frequentes
+    ✅ CACHE PD003 - TTL de 10 minutos para appointments
     """
     
-    # ✅ Gerar chave de cache baseada nos parâmetros
-    cache_key = CacheKeys.appointments_list(
-        limit=limit,
-        page=page,
-        status=status,
-        business_id=None,  # Pode ser adicionado quando necessário
-        date_from=date_from,
-        date_to=date_to
-    )
-    
-    async def fetch_appointments():
-        """Função para buscar dados frescos quando cache miss"""
-        try:
-            # Calcular offset
-            offset = (page - 1) * limit
-            
-            # ✅ P001: Query OTIMIZADA com joinedload para eliminar N+1 queries
-            query = select(Appointment).options(
-                joinedload(Appointment.user),
-                joinedload(Appointment.business),
-                joinedload(Appointment.service)
-            )
-            
-            # ✅ Aplicar filtros padronizados
-            conditions = []
-            
-            if status:
-                conditions.append(Appointment.status == status)
-            
-            if user_id:
-                conditions.append(Appointment.user_id == user_id)
-            
-            if date_from:
-                try:
-                    date_from_obj = datetime.strptime(date_from, "%Y-%m-%d").date()
-                    conditions.append(func.date(Appointment.date_time) >= date_from_obj)
-                except ValueError:
-                    raise HTTPException(400, "date_from deve estar no formato YYYY-MM-DD")
-            
-            if date_to:
-                try:
-                    date_to_obj = datetime.strptime(date_to, "%Y-%m-%d").date()
-                    conditions.append(func.date(Appointment.date_time) <= date_to_obj)
-                except ValueError:
-                    raise HTTPException(400, "date_to deve estar no formato YYYY-MM-DD")
-            
-            # Aplicar condições
-            if conditions:
-                query = query.where(and_(*conditions))
-            
-            # Query de contagem
-            count_query = select(func.count(Appointment.id))
-            if conditions:
-                count_query = count_query.where(and_(*conditions))
-            
-            # Executar queries
-            total_result = await session.execute(count_query)
-            total = total_result.scalar()
-            
-            # Query principal com ordenação e paginação
-            query = query.order_by(desc(Appointment.date_time)).limit(limit).offset(offset)
-            result = await session.execute(query)
-            
-            # ✅ P001: Usar scalars().unique() para joinedload
-            appointments_orm = result.scalars().unique().all()
-            
-            # ✅ P001: Converter usando relacionamentos já carregados (sem lazy loading)
-            appointments = []
-            for appointment in appointments_orm:
-                appointment_dict = {
-                    "id": appointment.id,
-                    "user_id": appointment.user_id,
-                    "business_id": appointment.business_id,
-                    "service_id": appointment.service_id,
-                    "date_time": appointment.date_time,
-                    "status": appointment.status,
-                    "notes": appointment.notes,
-                    "created_at": appointment.created_at,
-                    "updated_at": appointment.updated_at,
-                    # ✅ P001: Acessar relacionamentos sem lazy loading
-                    "user_name": appointment.user.nome if appointment.user else None,
-                    "user_phone": appointment.user.telefone if appointment.user else None,
-                    "business_name": appointment.business.name if appointment.business else None,
-                    "service_name": appointment.service.name if appointment.service else None,
-                }
-                # Usar o transformer para formato unificado
-                unified_dict = SchemaTransformer.appointment_dict_to_unified(appointment_dict)
-                appointments.append(UnifiedAppointmentResponse(**unified_dict))
-            
-            has_more = (page * limit) < total
-            
-            return {
-                "appointments": [appt.dict() for appt in appointments],
-                "total": total,
-                "page": page,
-                "per_page": limit,
-                "has_more": has_more
-            }
-            
-        except HTTPException:
-            raise
-        except Exception as e:
-            logger.error(f"❌ Erro ao buscar agendamentos: {e}")
-            raise HTTPException(500, f"Erro interno do servidor: {str(e)}")
-    
-    # ✅ Usar cache com TTL de 2 minutos para listas
     try:
-        cached_data = await cache_service.get_or_set(
-            key=cache_key,
-            fetch_function=fetch_appointments,
-            ttl=120,  # 2 minutos
-            cache_type='appointments_list'
+        logger.info(f"📅 Buscando appointments - Admin: {current_admin.username}")
+        logger.info(f"📊 Parâmetros: page={page}, limit={limit}, status={status}")
+        
+        # 🚀 PD003: Tentar buscar no cache primeiro
+        filters = {
+            'status': status,
+            'date_from': date_from,
+            'date_to': date_to,
+            'user_id': user_id
+        }
+        
+        cached_result = await dashboard_cache.get_appointment_list(
+            filters=filters,
+            page=page,
+            limit=limit
         )
         
+        if cached_result:
+            logger.info("⚡ Cache HIT: Retornando appointments do cache")
+            return cached_result
+        
+        logger.info("💾 Cache MISS: Buscando dados do banco")
+        
+        # ✅ Gerar chave de cache baseada nos parâmetros (fallback para cache legado)
+        cache_key = CacheKeys.appointments_list(
+            limit=limit,
+            page=page,
+            status=status,
+            business_id=None,  # Pode ser adicionado quando necessário
+            date_from=date_from,
+            date_to=date_to
+        )
+    
+        async def fetch_appointments():
+            """Função para buscar dados frescos quando cache miss"""
+            try:
+                # Calcular offset
+                offset = (page - 1) * limit
+                
+                # ✅ P001: Query OTIMIZADA com joinedload para eliminar N+1 queries
+                query = select(Appointment).options(
+                    joinedload(Appointment.user),
+                    joinedload(Appointment.business),
+                    joinedload(Appointment.service)
+                )
+                
+                # ✅ Aplicar filtros padronizados
+                conditions = []
+                
+                if status:
+                    conditions.append(Appointment.status == status)
+                
+                if user_id:
+                    conditions.append(Appointment.user_id == user_id)
+                
+                if date_from:
+                    try:
+                        date_from_obj = datetime.strptime(date_from, "%Y-%m-%d").date()
+                        conditions.append(func.date(Appointment.date_time) >= date_from_obj)
+                    except ValueError:
+                        raise HTTPException(400, "date_from deve estar no formato YYYY-MM-DD")
+                
+                if date_to:
+                    try:
+                        date_to_obj = datetime.strptime(date_to, "%Y-%m-%d").date()
+                        conditions.append(func.date(Appointment.date_time) <= date_to_obj)
+                    except ValueError:
+                        raise HTTPException(400, "date_to deve estar no formato YYYY-MM-DD")
+                
+                # Aplicar condições
+                if conditions:
+                    query = query.where(and_(*conditions))
+                
+                # Query de contagem
+                count_query = select(func.count(Appointment.id))
+                if conditions:
+                    count_query = count_query.where(and_(*conditions))
+                
+                # Executar queries
+                total_result = await session.execute(count_query)
+                total = total_result.scalar()
+                
+                # Query principal com ordenação e paginação
+                query = query.order_by(desc(Appointment.date_time)).limit(limit).offset(offset)
+                result = await session.execute(query)
+                
+                # ✅ P001: Usar scalars().unique() para joinedload
+                appointments_orm = result.scalars().unique().all()
+                
+                # ✅ P001: Converter usando relacionamentos já carregados (sem lazy loading)
+                appointments = []
+                for appointment in appointments_orm:
+                    appointment_dict = {
+                        "id": appointment.id,
+                        "user_id": appointment.user_id,
+                        "business_id": appointment.business_id,
+                        "service_id": appointment.service_id,
+                        "date_time": appointment.date_time,
+                        "status": appointment.status,
+                        "notes": appointment.notes,
+                        "created_at": appointment.created_at,
+                        "updated_at": appointment.updated_at,
+                        # ✅ P001: Acessar relacionamentos sem lazy loading
+                        "user_name": appointment.user.nome if appointment.user else None,
+                        "user_phone": appointment.user.telefone if appointment.user else None,
+                        "business_name": appointment.business.name if appointment.business else None,
+                        "service_name": appointment.service.name if appointment.service else None,
+                    }
+                    # Usar o transformer para formato unificado
+                    unified_dict = SchemaTransformer.appointment_dict_to_unified(appointment_dict)
+                    appointments.append(UnifiedAppointmentResponse(**unified_dict))
+                
+                has_more = (page * limit) < total
+                
+                return {
+                    "appointments": [appt.dict() for appt in appointments],
+                    "total": total,
+                    "page": page,
+                    "per_page": limit,
+                    "has_more": has_more
+                }
+                
+            except HTTPException:
+                raise
+            except Exception as e:
+                logger.error(f"❌ Erro ao buscar agendamentos: {e}")
+                raise HTTPException(500, f"Erro interno do servidor: {str(e)}")
+        
+        # Buscar dados do banco
+        result_data = await fetch_appointments()
+        
+        # 🚀 PD003: Cachear resultado para próximas consultas (TTL 10 minutos)
+        await dashboard_cache.set_appointment_list(
+            filters=filters,
+            page=page,
+            limit=limit,
+            data=result_data
+        )
+        
+        logger.info("💾 Cache MISS: Dados cacheados para próximas consultas")
+        
         # Converter de volta para Pydantic models
-        appointments = [UnifiedAppointmentResponse(**appt) for appt in cached_data["appointments"]]
+        appointments = [UnifiedAppointmentResponse(**appt) for appt in result_data["appointments"]]
         
         return AppointmentsListResponseUnified(
             appointments=appointments,
-            total=cached_data["total"],
-            page=cached_data["page"],
-            per_page=cached_data["per_page"],
-            has_more=cached_data["has_more"]
+            total=result_data["total"],
+            page=result_data["page"],
+            per_page=result_data["per_page"],
+            has_more=result_data["has_more"]
         )
         
     except Exception as e:
-        logger.error(f"❌ Erro no cache de agendamentos: {e}")
-        # Fallback sem cache
-        result = await fetch_appointments()
-        appointments = [UnifiedAppointmentResponse(**appt) for appt in result["appointments"]]
-        
-        return AppointmentsListResponseUnified(
-            appointments=appointments,
-            total=result["total"],
-            page=result["page"],
-            per_page=result["per_page"],
-            has_more=result["has_more"]
-        )
+        logger.error(f"❌ Erro inesperado ao buscar appointments: {e}")
+        raise HTTPException(500, f"Erro interno do servidor: {str(e)}")
 
 
 @router.get("/legacy", response_model=Dict[str, Any])

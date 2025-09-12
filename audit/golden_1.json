@@ -1,0 +1,64 @@
+{
+  "audit_id": "4e0aef6d38aac2e471b7510b0c3cb2ff25944da1-470aae2619c0194f1d4b3f81a8e7bc7f0122dcba-alembic/versions/remove_duplicate_admin_2025.py",
+  "snapshot": {
+    "backend_commit": "4e0aef6d38aac2e471b7510b0c3cb2ff25944da1",
+    "frontend_commit": "470aae2619c0194f1d4b3f81a8e7bc7f0122dcba",
+    "alembic_head": "alembic/versions/remove_duplicate_admin_2025.py",
+    "reqs_hash": "a3ba3d7484dff23be2a1e6b1345d0e5f92d6d615069ad1d42c448e59e6565a79",
+    "lock_hash": "02c05a5e58040593f45b02f107a4f69cfb23858b982e173f0f0ac268597f2ca3"
+  },
+  "summary": {
+    "conclusive": true,
+    "stop_reason": "scope_complete",
+    "counts": {"CRÍTICO": 1, "MÉDIO": 2, "BAIXO": 0}
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "severity": "CRÍTICO",
+      "category": "Segurança",
+      "path": "app/cors_config.py",
+      "lines": "7-15",
+      "evidence": "Lista hardcodada de origens contém URLs específicos não validados, incluindo origens de desenvolvimento misturadas com produção",
+      "causa": "Causa: Configuração CORS com origens hardcodadas sem validação de ambiente",
+      "risco": "Risco: Bypass de segurança CORS permitindo acesso de domínios maliciosos",
+      "correcao": "Correção: Implementar validação dinâmica baseada em variáveis de ambiente",
+      "teste": "Teste: Verificar rejeição de origens não autorizadas via curl -H 'Origin: evil.com'",
+      "status": "ABERTO"
+    },
+    {
+      "id": "COH-001",
+      "severity": "MÉDIO", 
+      "category": "Coerência BE↔FE",
+      "path": "app/config.py",
+      "lines": "27-50",
+      "evidence": "Sistema de compatibilidade complexo com mapeamentos manuais entre configurações antigas e novas",
+      "causa": "Causa: Refatoração incompleta de sistema de configuração",
+      "risco": "Risco: Inconsistências entre configurações podem causar falhas de autenticação",
+      "correcao": "Correção: Concluir migração para sistema unificado de configuração",
+      "teste": "Teste: Validar que todas as configurações secrets são acessíveis",
+      "status": "ABERTO"
+    },
+    {
+      "id": "DB-001",
+      "severity": "MÉDIO",
+      "category": "DB",
+      "path": "alembic/versions/remove_duplicate_admin_2025.py",
+      "lines": "21-26",
+      "evidence": "Migração vazia sem implementação nas funções upgrade() e downgrade()",
+      "causa": "Causa: Migração Alembic não implementada",
+      "risco": "Risco: Schema drift e inconsistências em deployments",
+      "correcao": "Correção: Implementar lógica de migração ou remover arquivo",
+      "teste": "Teste: Executar alembic upgrade head e verificar schema",
+      "status": "ABERTO"
+    }
+  ],
+  "db_recommendations": [
+    "Implementar migração vazia ou remover arquivo remove_duplicate_admin_2025.py",
+    "Validar integridade referencial de FKs órfãs nas tabelas de backup"
+  ],
+  "api_contract_map": [
+    "Webhook validation: HF001 signature validation implemented",
+    "CORS origin validation: SEC-001 requires environment-based validation"
+  ]
+}

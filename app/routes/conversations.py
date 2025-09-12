@@ -26,6 +26,7 @@ from app.database import get_db
 from app.models.database import Conversation, Message, User
 from app.routes.admin_auth import get_current_admin_user, AdminUser
 from app.utils.logger import get_logger
+from app.services.cache_dashboard import dashboard_cache
 
 logger = get_logger(__name__)
 
@@ -76,13 +77,30 @@ async def get_conversations(
     session: AsyncSession = Depends(get_db)
 ):
     """
-    💬 Buscar conversas com filtros
+    💬 Buscar conversas com filtros (com cache PD003)
     
     Retorna lista paginada de conversas com estatísticas.
+    Performance otimizada com cache TTL de 3 minutos.
     """
     try:
         logger.info(f"🔍 Buscando conversas - Admin: {current_admin.username}")
         logger.info(f"📊 Parâmetros: limit={limit}, offset={offset}, status={status}, search={search}")
+        
+        # 🚀 PD003: Tentar buscar no cache primeiro
+        filters = {
+            'status': status,
+            'search': search
+        }
+        
+        cached_result = await dashboard_cache.get_conversation_list(
+            filters=filters,
+            page=offset // limit + 1,
+            limit=limit
+        )
+        
+        if cached_result:
+            logger.info("⚡ Cache HIT: Retornando conversas do cache")
+            return cached_result
         
         # Query principal com correção para evitar ambiguidade e contagem duplicada
         query = select(
@@ -176,13 +194,24 @@ async def get_conversations(
         
         logger.info(f"✅ Encontradas {len(conversations)} conversas de {total} totais")
         
-        return {
+        # 🚀 PD003: Cachear resultado para próximas consultas (TTL 3 minutos)
+        result_data = {
             "conversations": conversations,
             "total": total,
             "limit": limit,
             "offset": offset,
             "has_more": (offset + len(conversations)) < total
         }
+        
+        await dashboard_cache.set_conversation_list(
+            filters=filters,
+            page=offset // limit + 1,
+            limit=limit,
+            data=result_data
+        )
+        
+        logger.info("💾 Cache MISS: Dados cacheados para próximas consultas")
+        return result_data
         
     except Exception as e:
         logger.error(f"❌ Erro inesperado ao buscar conversas: {e}")
