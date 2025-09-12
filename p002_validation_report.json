@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-09-11T22:40:33.562932",
+  "problem": "P002: Índice composto ausente na tabela messages",
+  "solution": "CREATE INDEX messages_conv_dir_created ON messages (conversation_id, direction, created_at)",
+  "target": "Dashboard conversations query < 100ms",
+  "tests": [
+    {
+      "test": "Index existence check",
+      "status": "pass",
+      "found": true,
+      "index_definition": "CREATE INDEX messages_conv_dir_created ON public.messages USING btree (conversation_id, direction, created_at)"
+    },
+    {
+      "test": "Table statistics",
+      "status": "pass",
+      "stats": {
+        "total_messages": 2074,
+        "unique_conversations": 38,
+        "unique_directions": 4,
+        "oldest_message": "2025-08-12T23:12:08.407790+00:00",
+        "newest_message": "2025-08-29T16:13:49.344512+00:00"
+      }
+    },
+    {
+      "test": "Dashboard: Lista mensagens conversa (padrão)",
+      "status": "error",
+      "error": "string indices must be integers, not 'str'",
+      "query": "\n        SELECT id, direction, content, message_type, created_at, user_id \n        FROM messages \n        WHERE conversation_id = 10 \n        ORDER BY created_at ASC \n        LIMIT 50\n        "
+    },
+    {
+      "test": "Dashboard: Mensagens de entrada",
+      "status": "error",
+      "error": "string indices must be integers, not 'str'",
+      "query": "\n        SELECT id, direction, content, message_type, created_at, user_id \n        FROM messages \n        WHERE conversation_id = 10 AND direction = 'in' \n        ORDER BY created_at DESC \n        LIMIT 20\n        "
+    },
+    {
+      "test": "Dashboard: Última mensagem",
+      "status": "error",
+      "error": "string indices must be integers, not 'str'",
+      "query": "\n        SELECT id, direction, content, message_type, created_at, user_id \n        FROM messages \n        WHERE conversation_id = 10 \n        ORDER BY created_at DESC \n        LIMIT 1\n        "
+    },
+    {
+      "test": "Dashboard: Últimas mensagens múltiplas conversas",
+      "status": "error",
+      "error": "string indices must be integers, not 'str'",
+      "query": "\n        SELECT DISTINCT ON (conversation_id) \n            conversation_id, id, direction, content, created_at \n        FROM messages \n        WHERE conversation_id IN (10, 3, 15, 28) \n        ORDER BY conversation_id, created_at DESC\n        "
+    }
+  ],
+  "status": "error",
+  "performance_summary": {
+    "average_execution_time_ms": 0.0,
+    "target_met": true,
+    "fastest_query_ms": 999,
+    "slowest_query_ms": 0
+  }
+}

@@ -65,7 +65,7 @@ class WhatsAppSecurityService:
         
     def validate_webhook_signature(self, payload: bytes, signature: str) -> bool:
         """
-        Validar assinatura do webhook WhatsApp
+        HF001 FIX: Validação obrigatória de assinatura HMAC SHA256
         
         Args:
             payload: Payload bruto do webhook
@@ -74,20 +74,13 @@ class WhatsAppSecurityService:
         Returns:
             bool: True se assinatura for válida
         """
-        # Verificar se temos o webhook secret configurado
+        # HF001 FIX: Webhook secret é OBRIGATÓRIO - sem bypass
         if not self.webhook_secret:
-            logger.warning("🔶 WHATSAPP_WEBHOOK_SECRET não configurado - validação de assinatura desabilitada")
-            return True
-            
-        # Bypass temporário para resolver mismatch de webhook secret
-        import os
-        if os.getenv('BYPASS_WEBHOOK_VALIDATION', '').lower() == 'true':
-            logger.warning("🚨 BYPASS_WEBHOOK_VALIDATION ativo - validação temporariamente desabilitada")
-            logger.info(f"🔍 Signature info - Received: {signature}, Secret length: {len(self.webhook_secret)}")
-            return True
+            logger.error("� HF001 PROTECTION: WHATSAPP_WEBHOOK_SECRET não configurado - webhook rejeitado")
+            return False
             
         if not signature:
-            logger.error("❌ Assinatura do webhook não fornecida")
+            logger.error("🔒 HF001 PROTECTION: Assinatura do webhook não fornecida - webhook rejeitado")
             return False
             
         try:
@@ -96,11 +89,10 @@ class WhatsAppSecurityService:
             if signature.startswith('sha256='):
                 signature = signature[7:]
             
-            logger.info(f"🔍 Debug signature validation:")
+            logger.info(f"� HF001 VALIDATION - Signature validation:")
             logger.info(f"  - Original signature: {original_signature[:20]}...")
             logger.info(f"  - Cleaned signature: {signature[:20]}...")
             logger.info(f"  - Payload length: {len(payload)}")
-            logger.info(f"  - Webhook secret configured: {bool(self.webhook_secret)}")
             
             # Calcula HMAC SHA256
             expected_signature = hmac.new(
@@ -109,27 +101,25 @@ class WhatsAppSecurityService:
                 hashlib.sha256
             ).hexdigest()
             
-            logger.info(f"  - Expected signature: {expected_signature[:20]}...")
-            
-            # Comparação segura
+            # Comparação segura contra timing attacks
             is_valid = hmac.compare_digest(signature, expected_signature)
             
             if is_valid:
-                logger.info("✅ Assinatura do webhook validada com sucesso")
+                logger.info("✅ HF001 PROTECTION: Webhook signature validation successful")
             else:
-                logger.error("❌ Assinatura do webhook inválida")
+                logger.error("🔒 HF001 PROTECTION: Webhook signature validation FAILED")
                 logger.error(f"   Received: {signature}")
                 logger.error(f"   Expected: {expected_signature}")
                 
             return is_valid
             
         except Exception as e:
-            logger.error(f"❌ Erro na validação da assinatura: {e}")
+            logger.error(f"🔒 HF001 PROTECTION: Error in signature validation: {e}")
             return False
     
     async def validate_webhook_request(self, request: Request) -> bool:
         """
-        Valida uma requisição de webhook completa
+        HF001 FIX: Validação completa de requisição webhook com logs de segurança
         
         Args:
             request: Requisição FastAPI
@@ -142,12 +132,31 @@ class WhatsAppSecurityService:
             payload = await request.body()
             signature = request.headers.get('X-Hub-Signature-256', '')
             
-            # Validar assinatura
+            # HF001 PROTECTION: Logs de segurança
+            source_ip = request.client.host if request.client else "unknown"
+            user_agent = request.headers.get("user-agent", "")
+            content_type = request.headers.get('Content-Type', '')
+            
+            # Validar assinatura HMAC
             if not self.validate_webhook_signature(payload, signature):
+                # Log de tentativa de acesso não autorizada
+                logger.error(f"🔒 HF001 SECURITY ALERT: Webhook with invalid signature rejected")
+                logger.error(f"  - Source IP: {source_ip}")
+                logger.error(f"  - User-Agent: {user_agent}")
+                logger.error(f"  - Content-Type: {content_type}")
+                logger.error(f"  - Signature provided: {bool(signature)}")
                 return False
             
-            # Validações adicionais
-            content_type = request.headers.get('Content-Type', '')
+            # Validações adicionais de segurança
+            if content_type != 'application/json':
+                logger.warning(f"🔒 HF001 WARNING: Unexpected content-type: {content_type}")
+            
+            logger.info(f"✅ HF001 PROTECTION: Webhook request validated successfully from {source_ip}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"🔒 HF001 PROTECTION: Error in webhook request validation: {e}")
+            return False
             if 'application/json' not in content_type:
                 logger.error(f"❌ Content-Type inválido: {content_type}")
                 return False

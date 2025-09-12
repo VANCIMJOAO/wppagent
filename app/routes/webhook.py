@@ -90,7 +90,7 @@ async def receive_webhook(
     - Logging estruturado com APM
     """
     try:
-        # 🔒 H001 FIX - VALIDACAO OBRIGATORIA DE ASSINATURA DO WEBHOOK
+        # 🔒 HF001 FIX - VALIDACAO OBRIGATORIA DE ASSINATURA DO WEBHOOK
         # Validar assinatura ANTES de processar qualquer dado
         if not await security_service.validate_webhook_request(request):
             log_security_event(
@@ -98,9 +98,9 @@ async def receive_webhook(
                 source_ip=request.client.host if request.client else "unknown",
                 user_agent=request.headers.get("user-agent", ""),
                 severity="HIGH",
-                description="Webhook com assinatura invalida rejeitado - H001 protection",
+                description="HF001 PROTECTION: Webhook com assinatura invalida rejeitado",
                 metadata={
-                    "fix_applied": "H001",
+                    "fix_applied": "HF001",
                     "endpoint": "/webhook",
                     "signature_header": request.headers.get('X-Hub-Signature-256', 'missing'),
                     "content_type": request.headers.get('Content-Type', ''),
@@ -109,9 +109,9 @@ async def receive_webhook(
             )
             
             logger.error(
-                "H001 - Webhook signature validation failed - request rejected",
+                "🔒 HF001 PROTECTION: Webhook signature validation failed - request rejected",
                 metadata={
-                    "security_fix": "H001",
+                    "security_fix": "HF001",
                     "client_ip": request.client.host if request.client else None,
                     "user_agent": request.headers.get("user-agent", ""),
                     "signature_present": bool(request.headers.get('X-Hub-Signature-256')),
@@ -120,16 +120,17 @@ async def receive_webhook(
                 category=LogCategory.SECURITY
             )
             
+            # HF001 FIX: Retornar erro HTTP 403 para webhooks com assinatura inválida
             raise HTTPException(
                 status_code=403,
-                detail="Webhook signature validation failed"
+                detail="HF001 PROTECTION: Webhook signature validation failed"
             )
         
-        # ✅ Assinatura validada com sucesso - continuar processamento
+        # ✅ HF001 PROTECTION: Assinatura validada com sucesso - continuar processamento
         logger.info(
-            "H001 - Webhook signature validation successful",
+            "✅ HF001 PROTECTION: Webhook signature validation successful",
             metadata={
-                "security_fix": "H001",
+                "security_fix": "HF001",
                 "client_ip": request.client.host if request.client else None,
                 "signature_validated": True
             },
