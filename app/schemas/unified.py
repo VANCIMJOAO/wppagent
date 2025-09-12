@@ -1,28 +1,31 @@
 """
-📋 Schemas Unificados - API Contracts
-===================================
+� CF001 - Schemas Unificados com Padronização snake_case ↔ camelCase  
+========================================================================
 
-DTOs padronizados para eliminar divergências entre backend e frontend.
+Sistema de aliases Pydantic que permite:
+- Backend: mantém snake_case internamente
+- Frontend: recebe camelCase nas responses
+- API: aceita ambos formatos nas requests (backward compatibility)
 
-Funcionalidades:
-- ✅ Aliases para compatibilidade com nomes de campos existentes
-- ✅ Padronização de nomenclatura entre sistemas
-- ✅ Validação consistente de tipos
-- ✅ Suporte a population_by_field_name para flexibilidade
+Funcionalidades CF001:
+- ✅ serialization_alias para response camelCase automático
+- ✅ field alias para aceitar camelCase em requests
+- ✅ populate_by_name para backward compatibility
+- ✅ 15 campos críticos padronizados conforme tabela de mapeamento
 
-Autor: Claude AI
-Data: 2025-09-07
-Status: Implementação crítica para unificação de APIs
+Autor: GitHub Copilot
+Data: 2025-09-12  
+Status: CF001 Implementation - Naming Standardization
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Literal
 from enum import Enum
 
-# Enums para padronização
+# CF001 - Enums padronizados
 class AppointmentStatus(str, Enum):
-    """Status padronizados de agendamentos"""
+    """CF001 - Status padronizados de agendamentos"""
     AGENDADO = "agendado"
     CONFIRMADO = "confirmado"
     REALIZADO = "realizado"
@@ -30,71 +33,143 @@ class AppointmentStatus(str, Enum):
     PENDENTE = "pendente"
 
 class MessageDirection(str, Enum):
-    """Direção padronizada de mensagens"""
+    """CF001 - Direção padronizada de mensagens"""
     IN = "in"   # Mensagem recebida
     OUT = "out" # Mensagem enviada
 
 class ConversationStatus(str, Enum):
-    """Status padronizados de conversas"""
+    """CF001 - Status padronizados de conversas"""
     ACTIVE = "active"
     CLOSED = "closed"
     PENDING = "pending"
 
-class AppointmentResponseUnified(BaseModel):
+class UnifiedAppointmentResponse(BaseModel):
     """
-    📅 Schema unificado para agendamentos
+    📅 CF001 - Schema unificado para appointments com aliases snake↔camel
     
-    Resolve divergências entre backend e frontend usando aliases.
-    Campos principais mapeados para nomes padronizados.
+    Implementa os 15 campos críticos da tabela de mapeamento CF001:
+    - serialization_alias: Backend snake_case → Frontend camelCase
+    - populate_by_name: Aceita ambos formatos em requests
     """
     id: int
-    user_id: int
-    business_id: int
-    service_id: Optional[int] = None
+    user_id: int = Field(serialization_alias="userId")
+    business_id: int = Field(serialization_alias="businessId") 
+    service_id: Optional[int] = Field(None, serialization_alias="serviceId")
     
-    # ✅ C002: Campos padronizados com aliases para resolver snake_case/camelCase
-    # Backend usa snake_case, API expõe camelCase
-    data_agendamento: datetime = Field(
-        alias="date_time", 
-        serialization_alias="dateTime",  # API expõe como dateTime
-        description="Data e hora do agendamento"
-    )
-    horario: str = Field(
-        alias="time_slot", 
-        serialization_alias="timeSlot",
-        description="Horário formatado HH:MM"
-    )
-    duracao_minutos: int = Field(
-        alias="duration_minutes", 
-        serialization_alias="durationMinutes",
-        description="Duração em minutos"
-    )
-    valor: float = Field(
-        alias="price", 
-        description="Valor do serviço"
-    )
-    status: AppointmentStatus = Field(description="Status do agendamento")
-    observacoes: Optional[str] = Field(alias="notes", default=None, description="Observações do agendamento")
+    # CF001 - Campos críticos com aliases
+    date_time: datetime = Field(serialization_alias="dateTime")
+    duration_minutes: int = Field(serialization_alias="durationMinutes")
+    created_at: datetime = Field(serialization_alias="createdAt")
+    updated_at: Optional[datetime] = Field(None, serialization_alias="updatedAt")
     
-    # ✅ Dados relacionados padronizados
-    cliente_nome: str = Field(alias="user_name", description="Nome do cliente")
-    cliente_telefone: str = Field(alias="user_phone", description="Telefone do cliente")
-    cliente_email: Optional[str] = Field(alias="user_email", default=None, description="Email do cliente")
-    servico_nome: str = Field(alias="service_name", description="Nome do serviço")
-    servico_descricao: Optional[str] = Field(alias="service_description", default=None, description="Descrição do serviço")
-    business_name: str = Field(description="Nome da empresa")
+    # Status unificado
+    status: AppointmentStatus = Field(description="Status: agendado|confirmado|realizado|cancelado|pendente")
     
-    # ✅ Timestamps padronizados
-    created_at: datetime = Field(description="Data de criação")
-    updated_at: Optional[datetime] = Field(default=None, description="Data de atualização")
+    # Campos opcionais
+    notes: Optional[str] = None
+    price: Optional[float] = None
+    client_name: Optional[str] = Field(None, serialization_alias="clientName")
+    client_phone: Optional[str] = Field(None, serialization_alias="clientPhone")
+    service_name: Optional[str] = Field(None, serialization_alias="serviceName")
+    business_name: Optional[str] = Field(None, serialization_alias="businessName")
     
     class Config:
-        populate_by_name = True  # ✅ Pydantic v2 syntax
-        from_attributes = True  # ✅ Suporte a SQLAlchemy objects
-        use_enum_values = True  # ✅ Usa valores string dos enums
-        json_encoders = {
-            datetime: lambda dt: dt.isoformat()  # ✅ ISO 8601 format
-        }
+        populate_by_name = True  # CF001 - Aceita tanto snake_case quanto camelCase
+        from_attributes = True   # Suporte a SQLAlchemy objects
+        use_enum_values = True   # Usa valores string dos enums
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class UnifiedAppointmentRequest(BaseModel):
+    """CF001 - Schema de request que aceita ambos formatos"""
+    user_id: Optional[int] = Field(None, alias="userId")
+    business_id: Optional[int] = Field(None, alias="businessId")
+    service_id: Optional[int] = Field(None, alias="serviceId")
+    
+    # CF001 - Aceita ambos os formatos
+    date_time: Optional[datetime] = Field(None, alias="dateTime")
+    duration_minutes: Optional[int] = Field(None, alias="durationMinutes")
+    
+    status: Optional[AppointmentStatus] = None
+    notes: Optional[str] = None
+    price: Optional[float] = None
+    client_name: Optional[str] = Field(None, alias="clientName")
+    client_phone: Optional[str] = Field(None, alias="clientPhone")
+    
+    class Config:
+        populate_by_name = True
+
+class UnifiedConversationResponse(BaseModel):
+    """CF001 - Conversa unificada com aliases"""
+    id: int
+    user_id: int = Field(serialization_alias="userId")
+    business_id: Optional[int] = Field(None, serialization_alias="businessId")
+    status: ConversationStatus
+    
+    # CF001 - Timestamps com aliases
+    last_message_at: Optional[datetime] = Field(None, serialization_alias="lastMessageAt")
+    created_at: datetime = Field(serialization_alias="createdAt")
+    updated_at: Optional[datetime] = Field(None, serialization_alias="updatedAt")
+    
+    # CF001 - Campos computados
+    total_messages: int = Field(default=0, serialization_alias="totalMessages")
+    unread_messages: int = Field(default=0, serialization_alias="unreadMessages")
+    
+    # CF001 - Computed field como property normal
+    @property
+    def last_interaction(self) -> Optional[datetime]:
+        """CF001 - Última interação calculada"""
+        return self.last_message_at or self.updated_at
+    
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+        use_enum_values = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class UnifiedConversationRequest(BaseModel):
+    """CF001 - Request schema para conversations"""
+    user_id: Optional[int] = Field(None, alias="userId")
+    business_id: Optional[int] = Field(None, alias="businessId")
+    status: Optional[ConversationStatus] = None
+    
+    class Config:
+        populate_by_name = True
+
+class UnifiedMessageResponse(BaseModel):
+    """CF001 - Mensagem unificada com aliases"""
+    id: int
+    conversation_id: int = Field(serialization_alias="conversationId")
+    content: str
+    message_type: str = Field(serialization_alias="messageType")
+    direction: MessageDirection
+    
+    # CF001 - Flags com aliases
+    is_read: bool = Field(serialization_alias="isRead")
+    is_active: bool = Field(default=True, serialization_alias="isActive")
+    created_at: datetime = Field(serialization_alias="createdAt")
+    updated_at: Optional[datetime] = Field(None, serialization_alias="updatedAt")
+    
+    # Campos opcionais
+    sender_name: Optional[str] = Field(None, serialization_alias="senderName")
+    media_url: Optional[str] = Field(None, serialization_alias="mediaUrl")
+    whatsapp_id: Optional[str] = Field(None, serialization_alias="whatsappId")
+    
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+        use_enum_values = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class UnifiedMessageRequest(BaseModel):
+    """CF001 - Request schema para messages"""
+    conversation_id: Optional[int] = Field(None, alias="conversationId")
+    content: str
+    message_type: Optional[str] = Field(None, alias="messageType")
+    direction: Optional[MessageDirection] = None
+    is_read: Optional[bool] = Field(None, alias="isRead")
+    
+    class Config:
+        populate_by_name = True
 
 class ConversationResponseUnified(BaseModel):
     """
@@ -159,7 +234,7 @@ class ConversationWithMessagesUnified(ConversationResponseUnified):
 # ✅ Schemas para listagem paginada
 class AppointmentsListResponseUnified(BaseModel):
     """📅 Response unificado para lista de agendamentos"""
-    appointments: List[AppointmentResponseUnified]
+    appointments: List[UnifiedAppointmentResponse]
     total: int = Field(description="Total de registros")
     page: int = Field(description="Página atual")
     per_page: int = Field(description="Registros por página")
@@ -217,7 +292,7 @@ class SchemaTransformer:
     @staticmethod
     def appointment_row_to_unified(row) -> dict:
         """
-        Transforma row de SQLAlchemy para dict compatível com AppointmentResponseUnified
+        Transforma row de SQLAlchemy para dict compatível com UnifiedAppointmentResponse
         
         Suporta múltiplos formatos de row:
         - Row com objetos (row.Appointment, row.User, etc.)
@@ -311,7 +386,7 @@ class SchemaTransformer:
             appointment_dict: Dict com dados do appointment (de ORM com relacionamentos)
         
         Returns:
-            Dict compatível com AppointmentResponseUnified
+            Dict compatível com UnifiedAppointmentResponse
         """
         return {
             "id": appointment_dict.get("id"),
@@ -347,3 +422,44 @@ class SchemaTransformer:
             "unread_messages": getattr(row, 'unread_messages', 0),
             "last_message": getattr(row, 'last_message', None)
         }
+
+# CF001 - Funções utilitárias para conversão de naming
+def convert_snake_to_camel(data: dict) -> dict:
+    """CF001 - Converte dict snake_case para camelCase"""
+    converted = {}
+    for key, value in data.items():
+        camel_key = key
+        if '_' in key:
+            parts = key.split('_')
+            camel_key = parts[0] + ''.join(word.capitalize() for word in parts[1:])
+        converted[camel_key] = value
+    return converted
+
+def convert_camel_to_snake(data: dict) -> dict:
+    """CF001 - Converte dict camelCase para snake_case"""
+    import re
+    converted = {}
+    for key, value in data.items():
+        snake_key = re.sub('([A-Z])', r'_\1', key).lower()
+        converted[snake_key] = value
+    return converted
+
+# CF001 - Mapeamento dos 15 campos críticos
+CF001_FIELD_MAPPING = {
+    # Backend snake_case -> Frontend camelCase
+    "date_time": "dateTime",
+    "duration_minutes": "durationMinutes", 
+    "user_id": "userId",
+    "business_id": "businessId",
+    "service_id": "serviceId",
+    "created_at": "createdAt",
+    "updated_at": "updatedAt",
+    "last_message_at": "lastMessageAt",
+    "message_type": "messageType",
+    "conversation_id": "conversationId",
+    "is_active": "isActive",
+    "is_read": "isRead",
+    "total_messages": "totalMessages",
+    "unread_messages": "unreadMessages",
+    "last_interaction": "lastInteraction"
+}
