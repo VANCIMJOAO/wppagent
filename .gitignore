@@ -138,3 +138,12 @@ logs/*.log
 # OS
 .DS_Store
 Thumbs.db
+
+# Prevent automatic recreation of deleted directories
+scripts/
+*.tmp
+*.cache
+.vscode/settings.json
+__pycache__/
+*.pyc
+.pytest_cache/
