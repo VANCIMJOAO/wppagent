@@ -39,8 +39,8 @@ export interface PaginatedResponse<T> {
 // ✅ TIPOS UNIFICADOS - Correspondem aos schemas do backend
 
 /**
- * 📅 Agendamento unificado - Suporte a ambos os formatos
- * ✅ Compatibilidade total entre backend e frontend
+ * 📅 Agendamento unificado - C002: Usando camelCase padrão
+ * ✅ API expõe camelCase, aceita snake_case para backward compatibility
  */
 export interface Appointment {
   id: number;
@@ -48,20 +48,22 @@ export interface Appointment {
   business_id: number;
   service_id?: number;
   
-  // ✅ Formato brasileiro (principal - usado no frontend)
-  data_agendamento: string; // ISO 8601 datetime
-  horario: string; // HH:MM format
-  duracao_minutos: number;
-  valor: number;
+  // ✅ C002: Campos principais em camelCase (API padrão)
+  dateTime: string; // ISO 8601 datetime (API principal)
+  timeSlot?: string; // HH:MM format
+  durationMinutes: number; // Duração em minutos
+  price: number; // Valor do serviço
   status: AppointmentStatus;
-  observacoes?: string;
+  notes?: string; // Observações
   
-  // ✅ Formato inglês (aliases - compatibilidade com backend)
-  date_time?: string; // Alias para data_agendamento
-  time_slot?: string; // Alias para horario
-  duration_minutes?: number; // Alias para duracao_minutos
-  price?: number; // Alias para valor
-  notes?: string; // Alias para observacoes
+  // ✅ Backward compatibility - campos em português/snake_case
+  data_agendamento?: string; // Alias para dateTime
+  horario?: string; // Alias para timeSlot
+  duracao_minutos?: number; // Alias para durationMinutes
+  valor?: number; // Alias para price
+  observacoes?: string; // Alias para notes
+  date_time?: string; // Alias antigo para dateTime
+  duration_minutes?: number; // Alias antigo para durationMinutes
   
   // ✅ Dados relacionados padronizados
   cliente_nome: string;

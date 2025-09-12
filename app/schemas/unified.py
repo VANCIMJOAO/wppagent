@@ -52,11 +52,27 @@ class AppointmentResponseUnified(BaseModel):
     business_id: int
     service_id: Optional[int] = None
     
-    # ✅ Campos padronizados (backend → frontend)
-    data_agendamento: datetime = Field(alias="date_time", description="Data e hora do agendamento")
-    horario: str = Field(alias="time_slot", description="Horário formatado HH:MM")
-    duracao_minutos: int = Field(alias="duration_minutes", description="Duração em minutos")
-    valor: float = Field(alias="price", description="Valor do serviço")
+    # ✅ C002: Campos padronizados com aliases para resolver snake_case/camelCase
+    # Backend usa snake_case, API expõe camelCase
+    data_agendamento: datetime = Field(
+        alias="date_time", 
+        serialization_alias="dateTime",  # API expõe como dateTime
+        description="Data e hora do agendamento"
+    )
+    horario: str = Field(
+        alias="time_slot", 
+        serialization_alias="timeSlot",
+        description="Horário formatado HH:MM"
+    )
+    duracao_minutos: int = Field(
+        alias="duration_minutes", 
+        serialization_alias="durationMinutes",
+        description="Duração em minutos"
+    )
+    valor: float = Field(
+        alias="price", 
+        description="Valor do serviço"
+    )
     status: AppointmentStatus = Field(description="Status do agendamento")
     observacoes: Optional[str] = Field(alias="notes", default=None, description="Observações do agendamento")
     

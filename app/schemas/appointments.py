@@ -21,8 +21,9 @@ class AppointmentBase(BaseModel):
     user_id: int
     business_id: int
     service_id: Optional[int] = None
-    date_time: datetime
-    duration_minutes: int = Field(default=60, ge=15, le=480)  # 15min a 8h
+    # ✅ C002: Campo com alias para API camelCase
+    date_time: datetime = Field(serialization_alias="dateTime", description="Data e hora do agendamento")
+    duration_minutes: int = Field(default=60, ge=15, le=480, serialization_alias="durationMinutes")  # 15min a 8h
     price: Decimal = Field(default=0.00, ge=0, decimal_places=2)
     status: str = Field(default="agendado")  # ✅ C001: Padrão unificado
     notes: Optional[str] = None
@@ -40,6 +41,14 @@ class AppointmentBase(BaseModel):
         if isinstance(v, str):
             v = v.replace('R$', '').replace(' ', '').replace(',', '.')
         return float(v)
+    
+    class Config:
+        # ✅ C002: Habilita aliases para conversão snake_case/camelCase
+        populate_by_name = True  # Aceita tanto snake_case quanto camelCase
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda dt: dt.isoformat()
+        }
 
 
 class AppointmentCreate(AppointmentBase):
@@ -64,8 +73,9 @@ class AppointmentCreate(AppointmentBase):
 
 class AppointmentUpdate(BaseModel):
     """Schema para atualizar appointments (campos opcionais)"""
-    date_time: Optional[datetime] = None
-    duration_minutes: Optional[int] = Field(None, ge=15, le=480)
+    # ✅ C002: Campos com aliases para API camelCase
+    date_time: Optional[datetime] = Field(None, serialization_alias="dateTime")
+    duration_minutes: Optional[int] = Field(None, ge=15, le=480, serialization_alias="durationMinutes")
     price: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
     status: Optional[str] = None
     notes: Optional[str] = None

@@ -1,0 +1,12 @@
+{
+  "test_results": {
+    "appointment_base": true,
+    "appointment_create": true,
+    "appointment_update": true,
+    "json_compatibility": true
+  },
+  "total_passed": 4,
+  "total_tests": 4,
+  "success": true,
+  "test_date": "2025-09-11T22:18:56.036563"
+}
