@@ -327,8 +327,7 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
         hsts_include_subdomains=True,
         hsts_preload=True,
         allow_localhost=settings.debug,  # Permitir localhost apenas em desenvolvimento
-        development_mode=settings.debug,
-        enable_csp=False  # Desabilitar CSP pois temos CSPMiddleware dedicado
+        development_mode=settings.debug
     )
     logger.info("HTTPS Middleware activated")
 else:
@@ -387,11 +386,7 @@ app.add_middleware(MetricsMiddleware)
 # 🔄 C002 - Middleware de Padronização de Response Schemas  
 try:
     from app.middleware.response_standardizer import ApiResponseMiddleware
-    app.add_middleware(
-        ApiResponseMiddleware,
-        enable_auto_wrap=True,  # Aplicar wrapper automático
-        measure_time=True       # Medir tempo de execução
-    )
+    app.add_middleware(ApiResponseMiddleware)
     logger.info("✅ C002 - ApiResponseMiddleware ativado: responses padronizados {success, data, error}")
 except ImportError as e:
     logger.warning(f"⚠️ C002 - ApiResponseMiddleware não disponível: {e}")
