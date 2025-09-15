@@ -952,6 +952,13 @@ from app.routes.push_notifications import router as push_router
 app.include_router(push_router, tags=["Push Notifications"])
 
 
+# 🚀 Railway Health Check - Simplified for reliable deployment
+@app.get("/health/simple")
+async def simple_health_check():
+    """Ultra-simple health check for Railway deployment"""
+    return {"status": "ok", "service": "whatsapp-agent"}
+
+
 @app.get("/health", response_model=HealthCheckResponse)
 async def health_check():
     """Endpoint básico de health check"""
