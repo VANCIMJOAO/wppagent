@@ -28,7 +28,161 @@ from app.utils.structured_logger import get_structured_logger
 logger = get_structured_logger(__name__)
 router = APIRouter(prefix="/health", tags=["Health Monitoring"])
 
-@router.get("/detailed")
+@router.get(
+    "/detailed",
+    summary="🔍 Detailed System Health Check",
+    description="""
+    **Comprehensive health monitoring** for all system components with detailed metrics.
+    
+    ### 🎯 What's Checked
+    
+    - **🗄️ Database**: PostgreSQL connection, query performance, data integrity
+    - **🚀 Cache**: Redis connectivity, memory usage, hit rates  
+    - **📱 Meta API**: WhatsApp Business API connectivity and rate limits
+    - **🔗 Webhook**: Endpoint availability and response times
+    - **⚡ Performance**: CPU, memory, disk usage
+    
+    ### 🔐 Security
+    
+    - **Admin Role Required**: Only administrators can access detailed health information
+    - **Rate Limited**: Maximum 10 requests per minute per user
+    
+    ### 📊 Response Format
+    
+    Returns comprehensive health status with component-specific metrics, 
+    performance data, and troubleshooting information.
+    """,
+    responses={
+        200: {
+            "description": "✅ System health retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "overall_status": "healthy",
+                        "timestamp": "2024-01-15T10:30:00Z",
+                        "components": {
+                            "database": {
+                                "status": "healthy",
+                                "response_time_ms": 15.23,
+                                "connection": "active",
+                                "appointments_count": 1247,
+                                "active_connections": 12,
+                                "max_connections": 100,
+                                "last_check": "2024-01-15T10:30:00Z"
+                            },
+                            "redis": {
+                                "status": "healthy", 
+                                "response_time_ms": 2.15,
+                                "memory_usage_mb": 45.2,
+                                "hit_rate_percent": 94.5,
+                                "keys_count": 1523,
+                                "last_check": "2024-01-15T10:30:00Z"
+                            },
+                            "meta_api": {
+                                "status": "healthy",
+                                "response_time_ms": 145.67,
+                                "rate_limit_remaining": 95,
+                                "webhook_verified": True,
+                                "last_message_sent": "2024-01-15T10:25:00Z"
+                            },
+                            "webhook": {
+                                "status": "healthy",
+                                "response_time_ms": 89.12, 
+                                "last_received": "2024-01-15T10:29:45Z",
+                                "success_rate_percent": 99.8,
+                                "total_received_24h": 156
+                            }
+                        },
+                        "performance": {
+                            "cpu_usage_percent": 23.5,
+                            "memory_usage_percent": 67.2,
+                            "disk_usage_percent": 45.1,
+                            "uptime_seconds": 86400,
+                            "load_average": [0.8, 0.6, 0.4]
+                        },
+                        "version": "1.0.0",
+                        "environment": "production"
+                    }
+                }
+            }
+        },
+        401: {
+            "description": "❌ Authentication required",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": {
+                            "code": "AUTH_TOKEN_MISSING",
+                            "message": "Authentication token is required for detailed health check",
+                            "request_id": "req_abc123"
+                        }
+                    }
+                }
+            }
+        },
+        403: {
+            "description": "🚫 Insufficient permissions",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": {
+                            "code": "AUTH_INSUFFICIENT_PERMISSIONS",
+                            "message": "Admin role required for detailed health information",
+                            "required_role": "admin",
+                            "current_role": "user"
+                        }
+                    }
+                }
+            }
+        },
+        429: {
+            "description": "⚠️ Rate limit exceeded",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": {
+                            "code": "RATE_LIMIT_EXCEEDED",
+                            "message": "Too many health check requests",
+                            "retry_after": 60,
+                            "limit": 10,
+                            "remaining": 0
+                        }
+                    }
+                }
+            }
+        },
+        503: {
+            "description": "🔧 Service degraded or unavailable",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "overall_status": "degraded",
+                        "timestamp": "2024-01-15T10:30:00Z",
+                        "components": {
+                            "database": {
+                                "status": "unhealthy",
+                                "error": "Connection timeout after 5 seconds",
+                                "response_time_ms": 5000,
+                                "connection": "failed"
+                            },
+                            "redis": {
+                                "status": "healthy",
+                                "response_time_ms": 2.15
+                            }
+                        },
+                        "affected_functionality": [
+                            "appointment_creation",
+                            "user_authentication",
+                            "analytics_dashboard"
+                        ],
+                        "estimated_resolution": "15-30 minutes"
+                    }
+                }
+            }
+        }
+    },
+    tags=["Health"]
+)
 async def detailed_health_check(db: AsyncSession = Depends(get_db)):
     """
     🔍 OM001 - Health check detalhado de todos os componentes

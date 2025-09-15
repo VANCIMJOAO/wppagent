@@ -280,13 +280,98 @@ async def lifespan(app: FastAPI):
     logger.info("Finalizando WhatsApp Agent API COM CORREÇÕES...")
 
 
-# Criar aplicação FastAPI
+# Criar aplicação FastAPI com documentação aprimorada
 app = FastAPI(
-    title="WhatsApp Agent API",
-    description="API para agente inteligente de WhatsApp",
+    title="🤖 WhatsApp Agent API",
+    description="""
+## 🚀 Enterprise WhatsApp Business API
+
+**Comprehensive AI-powered WhatsApp integration** for appointment management, customer engagement, and business automation.
+
+### 🎯 Key Features
+
+- ✅ **Smart Appointment Scheduling** with conflict detection
+- ✅ **Real-time WhatsApp Integration** via Meta Business API  
+- ✅ **AI-Powered Responses** with conversation context
+- ✅ **Enterprise Security** with JWT, 2FA, and RBAC
+- ✅ **High Performance** with Redis caching and optimized queries
+- ✅ **Real-time Updates** via WebSocket connections
+- ✅ **Comprehensive Analytics** and reporting dashboard
+
+### 🔐 Authentication
+
+This API uses **JWT tokens with HttpOnly cookies** for maximum security:
+
+1. **Login** → `/auth/login` with credentials
+2. **2FA Verification** → `/auth/2fa/verify` (if enabled)
+3. **Access Protected Endpoints** → Automatic cookie-based auth
+4. **Refresh Tokens** → `/auth/refresh` for token renewal
+
+### 📊 Rate Limiting
+
+- **Standard**: 100 requests/minute
+- **Premium**: 1000 requests/minute  
+- **Enterprise**: Custom limits
+
+### 🔗 External Documentation
+
+- **Complete API Guide**: [docs/api-documentation.md](docs/api-documentation.md)
+- **Setup Instructions**: [docs/setup-guide.md](docs/setup-guide.md)
+- **Security Practices**: [docs/security-practices.md](docs/security-practices.md)
+- **Performance Guide**: [docs/performance-optimization.md](docs/performance-optimization.md)
+""",
     version="1.0.0",
     debug=is_development(),
-    lifespan=lifespan
+    lifespan=lifespan,
+    contact={
+        "name": "WhatsApp Agent API Support",
+        "url": "https://docs.whatsappagent.com",
+        "email": "api-support@whatsappagent.com"
+    },
+    license_info={
+        "name": "Enterprise License",
+        "url": "https://whatsappagent.com/license"
+    },
+    servers=[
+        {
+            "url": "https://api.whatsappagent.com",
+            "description": "Production server"
+        },
+        {
+            "url": "https://staging-api.whatsappagent.com", 
+            "description": "Staging server"
+        },
+        {
+            "url": "http://localhost:8000",
+            "description": "Development server"
+        }
+    ],
+    tags_metadata=[
+        {
+            "name": "Authentication",
+            "description": "🔐 User authentication, 2FA, JWT token management",
+        },
+        {
+            "name": "Appointments",
+            "description": "📅 Appointment CRUD operations with smart scheduling",
+        },
+        {
+            "name": "WhatsApp",
+            "description": "📱 WhatsApp message sending and webhook handling",
+        },
+        {
+            "name": "Analytics", 
+            "description": "📊 Business analytics and performance metrics",
+        },
+        {
+            "name": "Health",
+            "description": "🏥 System health checks and monitoring",
+        },
+        {
+            "name": "Admin",
+            "description": "⚙️ Administrative functions and system management",
+        }
+    ]
 )
 
 # 📋 OB-001 - Configurar sistema de logs estruturados
@@ -337,6 +422,7 @@ else:
     logger.warning("CSP Middleware not available - skipping")
 
 # 🔧 CONFIGURAR CORS AVANÇADO - SOLUÇÃO PARA RAILWAY
+from app.config.api_documentation import configure_enhanced_openapi, API_METADATA
 from app.cors_config import setup_cors_middleware, add_cors_test_endpoint, get_cors_debug_info
 
 # Aplicar configuração CORS otimizada
@@ -346,6 +432,10 @@ setup_cors_middleware(app, debug=is_development())
 add_cors_test_endpoint(app)
 
 logger.info("CORS configured with advanced settings for Railway")
+
+# 📚 Configurar documentação API aprimorada
+configure_enhanced_openapi(app)
+logger.info("Enhanced API documentation configured with examples and schemas")
 
 # 🔒 Adicionar middleware de segurança HTTPS (primeiro)
 if HTTPS_MIDDLEWARE_AVAILABLE:
