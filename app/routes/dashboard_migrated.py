@@ -3,10 +3,11 @@ Dashboard Migrado - C002 Implementation
 Sistema de dashboard com migração de funcionalidades
 """
 
-from fastapi import APIRouter, Request, HTTPException, Depends
-from fastapi.responses import HTMLResponse, JSONResponse
-from typing import Dict, Any, Optional, List
 import logging
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +15,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter(
     prefix="/dashboard-migrated",
     tags=["Dashboard C002 - Migrated"],
-    responses={404: {"description": "Not found"}}
+    responses={404: {"description": "Not found"}},
 )
+
 
 @router.get("/", response_class=HTMLResponse)
 async def dashboard_home(request: Request):
@@ -74,6 +76,7 @@ async def dashboard_home(request: Request):
         logger.error(f"Erro no dashboard migrado: {e}")
         raise HTTPException(status_code=500, detail="Erro interno do dashboard")
 
+
 @router.get("/status")
 async def dashboard_status():
     """Status do dashboard migrado"""
@@ -85,22 +88,23 @@ async def dashboard_status():
                 "version": "C002-migrated",
                 "features": [
                     "dashboard_home",
-                    "status_endpoint", 
+                    "status_endpoint",
                     "health_check",
-                    "c002_integration"
+                    "c002_integration",
                 ],
                 "import_errors": "resolved",
-                "system": "functional"
+                "system": "functional",
             },
-            "error": None
+            "error": None,
         }
     except Exception as e:
         logger.error(f"Erro no status do dashboard: {e}")
         return {
             "success": False,
             "data": None,
-            "error": f"Erro ao obter status: {str(e)}"
+            "error": f"Erro ao obter status: {str(e)}",
         }
+
 
 @router.get("/health")
 async def dashboard_health():
@@ -115,20 +119,21 @@ async def dashboard_health():
                 "timestamp": "2025-09-11",
                 "components": {
                     "router": "operational",
-                    "endpoints": "functional", 
+                    "endpoints": "functional",
                     "imports": "resolved",
-                    "c002_fix": "complete"
-                }
+                    "c002_fix": "complete",
+                },
             },
-            "error": None
+            "error": None,
         }
     except Exception as e:
         logger.error(f"Erro no health check: {e}")
         return {
             "success": False,
             "data": None,
-            "error": f"Health check failed: {str(e)}"
+            "error": f"Health check failed: {str(e)}",
         }
+
 
 @router.get("/info")
 async def dashboard_info():
@@ -144,30 +149,31 @@ async def dashboard_info():
                     "dashboard_home": "Página principal HTML",
                     "status_api": "API de status do sistema",
                     "health_check": "Verificação de saúde",
-                    "import_resolution": "Resolução de erros de importação"
+                    "import_resolution": "Resolução de erros de importação",
                 },
                 "endpoints": {
                     "/": "Dashboard home page",
                     "/status": "System status API",
-                    "/health": "Health check endpoint", 
-                    "/info": "Dashboard information"
+                    "/health": "Health check endpoint",
+                    "/info": "Dashboard information",
                 },
                 "technical_details": {
                     "router_prefix": "/dashboard-migrated",
                     "response_format": "standardized",
                     "error_handling": "implemented",
-                    "logging": "structured"
-                }
+                    "logging": "structured",
+                },
             },
-            "error": None
+            "error": None,
         }
     except Exception as e:
         logger.error(f"Erro ao obter informações: {e}")
         return {
             "success": False,
             "data": None,
-            "error": f"Erro ao obter informações: {str(e)}"
+            "error": f"Erro ao obter informações: {str(e)}",
         }
+
 
 # Log de inicialização
 logger.info("🚀 Dashboard Migrado C002 - Router inicializado com sucesso")

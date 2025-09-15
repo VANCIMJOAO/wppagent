@@ -1,9 +1,11 @@
 """
 Schemas para health check e monitoramento
 """
-from pydantic import BaseModel
-from typing import Dict, Any, Optional
+
 from enum import Enum
+from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 
 class HealthStatus(str, Enum):
@@ -15,8 +17,9 @@ class HealthStatus(str, Enum):
 class HealthCheckResponse(BaseModel):
     status: HealthStatus
     timestamp: str
+    service: str = "WhatsApp Agent API"
     version: str = "1.0.0"
-    
+
 
 class SystemMetrics(BaseModel):
     cpu_percent: float
@@ -35,7 +38,7 @@ class SystemHealth(BaseModel):
     database: HealthStatus
     redis: Optional[HealthStatus] = None
     whatsapp_api: HealthStatus
-    
+
 
 class DetailedHealthResponse(BaseModel):
     status: HealthStatus

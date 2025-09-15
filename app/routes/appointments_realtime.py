@@ -12,27 +12,28 @@ Status: Resolução completa do problema 4.1 Real-time Updates Parciais
 """
 
 import asyncio
-from datetime import datetime, date
+import logging
+from datetime import date, datetime
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete, func
+
 from app.core.database import get_db
 from app.models.appointment import Appointment
-from app.websocket.event_broadcaster import (
-    notify_appointment_created,
-    notify_appointment_updated, 
-    notify_appointment_deleted,
-    notify_system_message
-)
-import logging
+from app.websocket.event_broadcaster import (notify_appointment_created,
+                                             notify_appointment_deleted,
+                                             notify_appointment_updated,
+                                             notify_system_message)
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
 
 # Schemas para validação
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
 
 class AppointmentCreate(BaseModel):
     nome: str
@@ -40,11 +41,13 @@ class AppointmentCreate(BaseModel):
     date_time: datetime  # Mantém compatibilidade com modelo do banco
     status: Optional[str] = "agendado"
 
+
 class AppointmentUpdate(BaseModel):
     nome: Optional[str] = None
     telefone: Optional[str] = None
     date_time: Optional[datetime] = None  # Mantém compatibilidade com modelo do banco
     status: Optional[str] = None
+
 
 class AppointmentResponse(BaseModel):
     id: int
@@ -54,14 +57,14 @@ class AppointmentResponse(BaseModel):
     status: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 @router.post("/", response_model=AppointmentResponse)
 async def create_appointment(
     appointment_data: AppointmentCreate,
     background_tasks: BackgroundTasks,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     📅 Criar novo agendamento com broadcast em tempo real
@@ -72,13 +75,13 @@ async def create_appointment(
             nome=appointment_data.nome,
             telefone=appointment_data.telefone,
             date_time=appointment_data.date_time,
-            status=appointment_data.status
+            status=appointment_data.status,
         )
-        
+
         db.add(new_appointment)
         await db.commit()
         await db.refresh(new_appointment)
-        
+
         # Converter para dict para broadcasting
         appointment_dict = {
             "id": new_appointment.id,
@@ -86,34 +89,34 @@ async def create_appointment(
             "telefone": new_appointment.telefone,
             "date_time": new_appointment.date_time.isoformat(),
             "status": new_appointment.status,
-            "created_at": new_appointment.created_at.isoformat()
+            "created_at": new_appointment.created_at.isoformat(),
         }
-        
+
         # 🚀 REAL-TIME UPDATE: Broadcast criação do agendamento
-        background_tasks.add_task(
-            notify_appointment_created,
-            appointment_dict
-        )
-        
+        background_tasks.add_task(notify_appointment_created, appointment_dict)
+
         # Log da operação
-        logger.info(f"Appointment created: ID {new_appointment.id} for {new_appointment.nome}")
-        
+        logger.info(
+            f"Appointment created: ID {new_appointment.id} for {new_appointment.nome}"
+        )
+
         # Broadcast notificação do sistema
         background_tasks.add_task(
             notify_system_message,
             f"Novo agendamento criado para {new_appointment.nome} em {new_appointment.date_time.strftime('%d/%m/%Y às %H:%M')}",
-            "success"
+            "success",
         )
-        
+
         return new_appointment
-        
+
     except Exception as e:
         await db.rollback()
         logger.error(f"Error creating appointment: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error creating appointment: {str(e)}"
+            detail=f"Error creating appointment: {str(e)}",
         )
+
 
 @router.get("/", response_model=List[AppointmentResponse])
 async def list_appointments(
@@ -121,42 +124,40 @@ async def list_appointments(
     limit: int = 100,
     status_filter: Optional[str] = None,
     date_filter: Optional[date] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     📋 Listar agendamentos com filtros
     """
     try:
         query = select(Appointment).offset(skip).limit(limit)
-        
+
         # Aplicar filtros
         if status_filter:
             query = query.where(Appointment.status == status_filter)
-        
+
         if date_filter:
             query = query.where(func.date(Appointment.date_time) == date_filter)
-        
+
         # Ordenar por data/hora
         query = query.order_by(Appointment.date_time.desc())
-        
+
         result = await db.execute(query)
         appointments = result.scalars().all()
-        
+
         logger.info(f"Listed {len(appointments)} appointments")
         return appointments
-        
+
     except Exception as e:
         logger.error(f"Error listing appointments: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error listing appointments: {str(e)}"
+            detail=f"Error listing appointments: {str(e)}",
         )
 
+
 @router.get("/{appointment_id}", response_model=AppointmentResponse)
-async def get_appointment(
-    appointment_id: int,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_appointment(appointment_id: int, db: AsyncSession = Depends(get_db)):
     """
     🔍 Obter agendamento específico por ID
     """
@@ -164,30 +165,31 @@ async def get_appointment(
         query = select(Appointment).where(Appointment.id == appointment_id)
         result = await db.execute(query)
         appointment = result.scalar_one_or_none()
-        
+
         if not appointment:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Appointment {appointment_id} not found"
+                detail=f"Appointment {appointment_id} not found",
             )
-        
+
         return appointment
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting appointment {appointment_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error getting appointment: {str(e)}"
+            detail=f"Error getting appointment: {str(e)}",
         )
+
 
 @router.put("/{appointment_id}", response_model=AppointmentResponse)
 async def update_appointment(
     appointment_id: int,
     appointment_data: AppointmentUpdate,
     background_tasks: BackgroundTasks,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     ✏️ Atualizar agendamento com broadcast em tempo real
@@ -197,22 +199,22 @@ async def update_appointment(
         query = select(Appointment).where(Appointment.id == appointment_id)
         result = await db.execute(query)
         existing_appointment = result.scalar_one_or_none()
-        
+
         if not existing_appointment:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Appointment {appointment_id} not found"
+                detail=f"Appointment {appointment_id} not found",
             )
-        
+
         # Dados antes da atualização (para comparação)
         old_data = {
             "id": existing_appointment.id,
             "nome": existing_appointment.nome,
             "telefone": existing_appointment.telefone,
             "date_time": existing_appointment.date_time.isoformat(),
-            "status": existing_appointment.status
+            "status": existing_appointment.status,
         }
-        
+
         # Atualizar campos fornecidos
         update_data = appointment_data.model_dump(exclude_unset=True)
         if update_data:
@@ -222,10 +224,10 @@ async def update_appointment(
                 .values(**update_data)
             )
             await db.commit()
-            
+
             # Buscar dados atualizados
             await db.refresh(existing_appointment)
-        
+
         # Converter para dict para broadcasting
         updated_appointment_dict = {
             "id": existing_appointment.id,
@@ -234,27 +236,24 @@ async def update_appointment(
             "date_time": existing_appointment.date_time.isoformat(),
             "status": existing_appointment.status,
             "created_at": existing_appointment.created_at.isoformat(),
-            "previous_data": old_data  # Para mostrar o que mudou
+            "previous_data": old_data,  # Para mostrar o que mudou
         }
-        
+
         # 🚀 REAL-TIME UPDATE: Broadcast atualização do agendamento
-        background_tasks.add_task(
-            notify_appointment_updated,
-            updated_appointment_dict
-        )
-        
+        background_tasks.add_task(notify_appointment_updated, updated_appointment_dict)
+
         # Log da operação
         logger.info(f"Appointment updated: ID {appointment_id}")
-        
+
         # Broadcast notificação do sistema
         background_tasks.add_task(
             notify_system_message,
             f"Agendamento atualizado: {existing_appointment.nome}",
-            "info"
+            "info",
         )
-        
+
         return existing_appointment
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -262,14 +261,15 @@ async def update_appointment(
         logger.error(f"Error updating appointment {appointment_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error updating appointment: {str(e)}"
+            detail=f"Error updating appointment: {str(e)}",
         )
+
 
 @router.delete("/{appointment_id}")
 async def delete_appointment(
     appointment_id: int,
     background_tasks: BackgroundTasks,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     🗑️ Deletar agendamento com broadcast em tempo real
@@ -279,47 +279,43 @@ async def delete_appointment(
         query = select(Appointment).where(Appointment.id == appointment_id)
         result = await db.execute(query)
         existing_appointment = result.scalar_one_or_none()
-        
+
         if not existing_appointment:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Appointment {appointment_id} not found"
+                detail=f"Appointment {appointment_id} not found",
             )
-        
+
         # Salvar dados para broadcast
         appointment_dict = {
             "id": existing_appointment.id,
             "nome": existing_appointment.nome,
             "telefone": existing_appointment.telefone,
             "date_time": existing_appointment.date_time.isoformat(),
-            "status": existing_appointment.status
+            "status": existing_appointment.status,
         }
-        
+
         # Deletar appointment
-        await db.execute(
-            delete(Appointment).where(Appointment.id == appointment_id)
-        )
+        await db.execute(delete(Appointment).where(Appointment.id == appointment_id))
         await db.commit()
-        
+
         # 🚀 REAL-TIME UPDATE: Broadcast deleção do agendamento
         background_tasks.add_task(
-            notify_appointment_deleted,
-            appointment_id,
-            appointment_dict
+            notify_appointment_deleted, appointment_id, appointment_dict
         )
-        
+
         # Log da operação
         logger.info(f"Appointment deleted: ID {appointment_id}")
-        
+
         # Broadcast notificação do sistema
         background_tasks.add_task(
             notify_system_message,
             f"Agendamento cancelado: {existing_appointment.nome}",
-            "warning"
+            "warning",
         )
-        
+
         return {"message": f"Appointment {appointment_id} deleted successfully"}
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -327,8 +323,9 @@ async def delete_appointment(
         logger.error(f"Error deleting appointment {appointment_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error deleting appointment: {str(e)}"
+            detail=f"Error deleting appointment: {str(e)}",
         )
+
 
 @router.get("/stats/summary")
 async def get_appointments_summary(db: AsyncSession = Depends(get_db)):
@@ -340,15 +337,14 @@ async def get_appointments_summary(db: AsyncSession = Depends(get_db)):
         total_query = select(func.count(Appointment.id))
         total_result = await db.execute(total_query)
         total = total_result.scalar()
-        
+
         # Agendamentos por status
         status_query = select(
-            Appointment.status,
-            func.count(Appointment.id).label('count')
+            Appointment.status, func.count(Appointment.id).label("count")
         ).group_by(Appointment.status)
         status_result = await db.execute(status_query)
         status_counts = {row.status: row.count for row in status_result}
-        
+
         # Agendamentos hoje
         today = datetime.now().date()
         today_query = select(func.count(Appointment.id)).where(
@@ -356,30 +352,31 @@ async def get_appointments_summary(db: AsyncSession = Depends(get_db)):
         )
         today_result = await db.execute(today_query)
         today_count = today_result.scalar()
-        
+
         summary = {
             "total_appointments": total,
             "appointments_today": today_count,
             "by_status": status_counts,
-            "last_updated": datetime.utcnow().isoformat()
+            "last_updated": datetime.utcnow().isoformat(),
         }
-        
+
         logger.info("Generated appointments summary")
         return summary
-        
+
     except Exception as e:
         logger.error(f"Error generating appointments summary: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error generating summary: {str(e)}"
+            detail=f"Error generating summary: {str(e)}",
         )
+
 
 @router.post("/{appointment_id}/status")
 async def update_appointment_status(
     appointment_id: int,
     status: str,
     background_tasks: BackgroundTasks,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     📋 Atualizar apenas status do agendamento
@@ -389,15 +386,15 @@ async def update_appointment_status(
         query = select(Appointment).where(Appointment.id == appointment_id)
         result = await db.execute(query)
         appointment = result.scalar_one_or_none()
-        
+
         if not appointment:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Appointment {appointment_id} not found"
+                detail=f"Appointment {appointment_id} not found",
             )
-        
+
         old_status = appointment.status
-        
+
         # Atualizar status
         await db.execute(
             update(Appointment)
@@ -406,7 +403,7 @@ async def update_appointment_status(
         )
         await db.commit()
         await db.refresh(appointment)
-        
+
         # Dados para broadcast
         appointment_dict = {
             "id": appointment.id,
@@ -414,31 +411,30 @@ async def update_appointment_status(
             "telefone": appointment.telefone,
             "date_time": appointment.date_time.isoformat(),
             "status": appointment.status,
-            "previous_status": old_status
+            "previous_status": old_status,
         }
-        
+
         # 🚀 REAL-TIME UPDATE: Broadcast mudança de status
-        background_tasks.add_task(
-            notify_appointment_updated,
-            appointment_dict
-        )
-        
+        background_tasks.add_task(notify_appointment_updated, appointment_dict)
+
         # Notificação específica para mudança de status
         background_tasks.add_task(
             notify_system_message,
             f"Status alterado: {appointment.nome} - {old_status} → {status}",
-            "info"
+            "info",
         )
-        
-        logger.info(f"Status updated for appointment {appointment_id}: {old_status} -> {status}")
-        
+
+        logger.info(
+            f"Status updated for appointment {appointment_id}: {old_status} -> {status}"
+        )
+
         return {
             "message": f"Status updated to {status}",
             "appointment_id": appointment_id,
             "old_status": old_status,
-            "new_status": status
+            "new_status": status,
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -446,5 +442,5 @@ async def update_appointment_status(
         logger.error(f"Error updating status for appointment {appointment_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error updating status: {str(e)}"
+            detail=f"Error updating status: {str(e)}",
         )

@@ -29,6 +29,7 @@ logs/
 tmp/
 .tmp/
 temp/
+temp_cleanup/
 *.db
 *.sqlite
 *.sqlite3
@@ -67,7 +68,6 @@ env/
 ENV/
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -86,10 +86,18 @@ logs/
 
 # Test Results
 test_results/
+htmlcov/
+htmlcov_jwt/
+.coverage
+coverage.xml
+coverage.json
 
 # Cache
 .cache/
 .pytest_cache/
+.mypy_cache/
+.hypothesis/
+mutants/
 
 # OS
 .DS_Store
@@ -140,10 +148,8 @@ logs/*.log
 Thumbs.db
 
 # Prevent automatic recreation of deleted directories
-scripts/
 *.tmp
 *.cache
-.vscode/settings.json
 __pycache__/
 *.pyc
 .pytest_cache/

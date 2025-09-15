@@ -6,55 +6,66 @@ Utilitários para prompts dinâmicos
 Gera prompts com data atual automaticamente
 """
 
-from datetime import datetime
 import locale
-from typing import Dict, Any
+from datetime import datetime
+from typing import Any, Dict
 
 # Configurar locale para português brasileiro
 try:
-    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+    locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 except locale.Error:
     try:
-        locale.setlocale(locale.LC_TIME, 'pt_BR')
+        locale.setlocale(locale.LC_TIME, "pt_BR")
     except locale.Error:
         # Fallback se não conseguir configurar locale
         pass
+
 
 def get_current_date_info() -> Dict[str, Any]:
     """
     Retorna informações sobre a data atual
     """
     now = datetime.now()
-    
+
     # Mapeamento manual dos dias da semana em português
     weekdays = {
-        'Monday': 'segunda-feira',
-        'Tuesday': 'terça-feira', 
-        'Wednesday': 'quarta-feira',
-        'Thursday': 'quinta-feira',
-        'Friday': 'sexta-feira',
-        'Saturday': 'sábado',
-        'Sunday': 'domingo'
+        "Monday": "segunda-feira",
+        "Tuesday": "terça-feira",
+        "Wednesday": "quarta-feira",
+        "Thursday": "quinta-feira",
+        "Friday": "sexta-feira",
+        "Saturday": "sábado",
+        "Sunday": "domingo",
     }
-    
+
     # Mapeamento manual dos meses em português
     months = {
-        1: 'janeiro', 2: 'fevereiro', 3: 'março', 4: 'abril',
-        5: 'maio', 6: 'junho', 7: 'julho', 8: 'agosto',
-        9: 'setembro', 10: 'outubro', 11: 'novembro', 12: 'dezembro'
+        1: "janeiro",
+        2: "fevereiro",
+        3: "março",
+        4: "abril",
+        5: "maio",
+        6: "junho",
+        7: "julho",
+        8: "agosto",
+        9: "setembro",
+        10: "outubro",
+        11: "novembro",
+        12: "dezembro",
     }
-    
-    weekday_pt = weekdays.get(now.strftime('%A'), now.strftime('%A'))
+
+    weekday_pt = weekdays.get(now.strftime("%A"), now.strftime("%A"))
     month_pt = months.get(now.month, str(now.month))
-    
+
     return {
-        'date': now.strftime('%d'),
-        'month': month_pt,
-        'year': str(now.year),
-        'weekday': weekday_pt,
-        'formatted_date': f"{now.day} de {month_pt} de {now.year}",
-        'full_info': f"{now.day} de {month_pt} de {now.year} ({weekday_pt})"
+        "date": now.strftime("%d"),
+        "month": month_pt,
+        "year": str(now.year),
+        "weekday": weekday_pt,
+        "formatted_date": f"{now.day} de {month_pt} de {now.year}",
+        "full_info": f"{now.day} de {month_pt} de {now.year} ({weekday_pt})",
     }
+
 
 async def get_dynamic_system_prompt_with_database() -> str:
     """
@@ -62,20 +73,20 @@ async def get_dynamic_system_prompt_with_database() -> str:
     ⚠️ VERSÃO CORRIGIDA - FORÇA O USO DOS DADOS REAIS
     """
     from app.services.business_data import business_data_service
-    
+
     date_info = get_current_date_info()
-    
+
     # Buscar dados reais da database
     try:
         # Buscar todas as informações do negócio
         complete_info = await business_data_service.get_complete_business_info()
-        
-        services = complete_info.get('services', [])
-        company_info = complete_info.get('company_info', {})
-        business_hours = complete_info.get('business_hours', {})
-        payment_methods = complete_info.get('payment_methods', [])
-        policies = complete_info.get('policies', [])
-        
+
+        services = complete_info.get("services", [])
+        company_info = complete_info.get("company_info", {})
+        business_hours = complete_info.get("business_hours", {})
+        payment_methods = complete_info.get("payment_methods", [])
+        policies = complete_info.get("policies", [])
+
         # Formatar serviços da database REAIS
         if services:
             services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
@@ -86,40 +97,50 @@ async def get_dynamic_system_prompt_with_database() -> str:
             services_text += "\n⚠️ CRÍTICO: USE APENAS ESTES PREÇOS E SERVIÇOS REAIS!\n"
         else:
             services_text = "❌ ERRO: Não foi possível carregar serviços da database!"
-        
+
         # Formatar horários de funcionamento
-        if business_hours and business_hours.get('formatted_text'):
-            hours_text = f"📅 HORÁRIO REAL DE FUNCIONAMENTO:\n{business_hours['formatted_text']}"
+        if business_hours and business_hours.get("formatted_text"):
+            hours_text = (
+                f"📅 HORÁRIO REAL DE FUNCIONAMENTO:\n{business_hours['formatted_text']}"
+            )
         else:
             hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
-        
+
         # Formatar formas de pagamento
         if payment_methods:
             payment_text = "💳 FORMAS DE PAGAMENTO REAIS:\n"
             for payment in payment_methods:
                 payment_text += f"✅ {payment['name']}"
-                if payment.get('description'):
+                if payment.get("description"):
                     payment_text += f": {payment['description']}"
-                if payment.get('additional_info'):
+                if payment.get("additional_info"):
                     payment_text += f" ({payment['additional_info']})"
                 payment_text += "\n"
         else:
             payment_text = "💳 FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
-        
+
         # Formatar políticas
         policies_text = ""
         if policies:
             policies_text = "📋 POLÍTICAS REAIS DO NEGÓCIO:\n"
             for policy in policies:
                 policies_text += f"� {policy['title']}:\n"
-                if policy.get('description'):
+                if policy.get("description"):
                     policies_text += f"   {policy['description']}\n"
-                if policy.get('rules'):
+                if policy.get("rules"):
                     policies_text += f"   � {policy['rules']}\n"
-        
-        company_name = company_info.get('company_name', 'Studio Beleza & Bem-Estar') if company_info else 'Studio Beleza & Bem-Estar'
-        company_address = f"{company_info.get('street_address', '')}, {company_info.get('city', '')}" if company_info else "Rua das Flores, 123 - Centro, São Paulo"
-        
+
+        company_name = (
+            company_info.get("company_name", "Studio Beleza & Bem-Estar")
+            if company_info
+            else "Studio Beleza & Bem-Estar"
+        )
+        company_address = (
+            f"{company_info.get('street_address', '')}, {company_info.get('city', '')}"
+            if company_info
+            else "Rua das Flores, 123 - Centro, São Paulo"
+        )
+
     except Exception as e:
         # Dados reais de fallback baseados no diagnóstico
         services_text = """🔧 SERVIÇOS REAIS (FALLBACK DA DATABASE):
@@ -141,13 +162,15 @@ async def get_dynamic_system_prompt_with_database() -> str:
 ✅ Day Spa Relax: R$ 280,00 - 300min
 
 ⚠️ CRÍTICO: USE APENAS ESTES PREÇOS REAIS!"""
-        
+
         company_name = "Studio Beleza & Bem-Estar"
         company_address = "Rua das Flores, 123 - Centro, São Paulo"
         hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
-        payment_text = "💳 FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
+        payment_text = (
+            "💳 FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
+        )
         policies_text = ""
-    
+
     return f"""
 🏢 EMPRESA REAL: {company_name}
 📍 ENDEREÇO REAL: {company_address}
@@ -221,13 +244,14 @@ Se faltar informações, pergunte de forma natural e amigável.
 ⚠️ ENDEREÇO: {company_address}
 """
 
+
 def get_dynamic_system_prompt() -> str:
     """
     Gera o prompt do sistema com data atual dinâmica
     DEPRECATED: Use get_dynamic_system_prompt_with_database() para dados reais
     """
     date_info = get_current_date_info()
-    
+
     return f"""
 Você é um assistente virtual inteligente para agendamentos via WhatsApp.
 Você trabalha para uma empresa de serviços e sua função é ajudar os clientes a:
@@ -278,12 +302,13 @@ Se faltar informações, pergunte de forma natural e amigável.
 IMPORTANTE: Se o usuário disser "segunda-feira" mas não especificar qual segunda, pergunte "qual segunda-feira você prefere?" ao invés de inventar uma data.
 """
 
+
 def get_dynamic_llm_system_prompt() -> str:
     """
     Gera prompt do sistema para LLM avançado com data dinâmica
     """
     date_info = get_current_date_info()
-    
+
     return f"""
 DATA ATUAL: {date_info['full_info']}
 
@@ -310,12 +335,13 @@ REGRAS:
 - Use emojis apropriados
 """
 
+
 def get_dynamic_data_extraction_prompt() -> str:
     """
     Gera prompt de extração de dados com contexto temporal dinâmico
     """
     date_info = get_current_date_info()
-    
+
     return f"""
 CONTEXTO TEMPORAL: Hoje é {date_info['full_info']}
 

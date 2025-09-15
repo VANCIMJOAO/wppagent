@@ -3,19 +3,22 @@ Dashboard Web para Administração LGPD
 Interface administrativa para gerenciamento de conformidade LGPD
 """
 
+from typing import Any, Dict
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
-from typing import Dict, Any
 
-from ..services.lgpd_compliance import get_lgpd_manager, LGPDComplianceManager
-from ..services.lgpd_scheduler import get_lgpd_scheduler, LGPDRetentionScheduler
+from ..services.lgpd_compliance import LGPDComplianceManager, get_lgpd_manager
+from ..services.lgpd_scheduler import (LGPDRetentionScheduler,
+                                       get_lgpd_scheduler)
 
 router = APIRouter(prefix="/admin/lgpd")
+
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def lgpd_admin_dashboard():
     """Dashboard principal para administração LGPD"""
-    
+
     dashboard_html = """
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -444,5 +447,5 @@ async def lgpd_admin_dashboard():
 </body>
 </html>
     """
-    
+
     return dashboard_html

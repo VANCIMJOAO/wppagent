@@ -22,15 +22,17 @@ Status: Solução crítica para Business Intelligence
 
 import asyncio
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import Any, Dict, List, Optional, Tuple
+
 import pandas as pd
-from sqlalchemy import text, select, func, and_, or_
+from sqlalchemy import and_, func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models.database import User, Message, Appointment, Business, Service, Conversation
+from app.models.database import (Appointment, Business, Conversation, Message,
+                                 Service, User)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -39,17 +41,19 @@ logger = get_logger(__name__)
 @dataclass
 class ConversionFunnelStage:
     """Representa uma etapa do funil de conversão"""
+
     name: str
     count: int
     conversion_rate: float
     drop_off_rate: float
     avg_time_to_next: Optional[float] = None  # Em horas
     bottleneck_score: float = 0.0  # Score de gargalo (0-100)
-    
+
 
 @dataclass
 class CustomerSegment:
     """Representa um segmento de clientes RFM"""
+
     segment_name: str
     customer_count: int
     percentage: float
@@ -65,6 +69,7 @@ class CustomerSegment:
 @dataclass
 class ChurnPrediction:
     """Predição de churn para um cliente"""
+
     user_id: int
     nome: str
     wa_id: str
@@ -81,6 +86,7 @@ class ChurnPrediction:
 @dataclass
 class ROIMetrics:
     """Métricas de ROI detalhadas"""
+
     period_start: datetime
     period_end: datetime
     total_revenue: float
@@ -92,9 +98,11 @@ class ROIMetrics:
     customer_lifetime_value: float
     payback_period_months: float
 
-@dataclass  
+
+@dataclass
 class ROIMetric:
     """Métrica ROI individual por canal"""
+
     channel: str
     total_customers: int
     converting_customers: int
@@ -115,71 +123,67 @@ class ROIMetric:
 
 class AdvancedAnalyticsEngine:
     """🚀 Engine avançada de analytics com BI capabilities"""
-    
+
     def __init__(self, db_session):
         self.db = db_session
-        
+
         # Configurações de pesos para diferentes cálculos
-        self.rfm_weights = {
-            'recency': 0.4,
-            'frequency': 0.3, 
-            'monetary': 0.3
-        }
-        
+        self.rfm_weights = {"recency": 0.4, "frequency": 0.3, "monetary": 0.3}
+
         self.churn_weights = {
-            'recency': 0.40,
-            'frequency': 0.25,
-            'monetary': 0.15,
-            'engagement': 0.20
+            "recency": 0.40,
+            "frequency": 0.25,
+            "monetary": 0.15,
+            "engagement": 0.20,
         }
-        
+
         # Configurações de funil padrão
         self.default_funnel_stages = [
             "first_contact",
-            "conversation_started", 
+            "conversation_started",
             "appointment_scheduled",
             "appointment_confirmed",
             "service_completed",
             "payment_received",
             "follow_up_contact",
-            "repeat_customer"
+            "repeat_customer",
         ]
-        
+
         # Configurações de segmentação
         self.rfm_thresholds = {
-            'recency': [7, 30, 90, 180],  # dias
-            'frequency': [1, 2, 5, 10],   # interações
-            'monetary': [0, 50, 100, 200, 500]  # valor R$
+            "recency": [7, 30, 90, 180],  # dias
+            "frequency": [1, 2, 5, 10],  # interações
+            "monetary": [0, 50, 100, 200, 500],  # valor R$
         }
-        
+
         # Pesos para churn prediction
         self.churn_weights = {
-            'recency': 0.4,
-            'frequency': 0.25,
-            'monetary': 0.15,
-            'engagement': 0.2
+            "recency": 0.4,
+            "frequency": 0.25,
+            "monetary": 0.15,
+            "engagement": 0.2,
         }
-        
+
         logger.info("🧠 AdvancedAnalyticsEngine inicializado")
-    
+
     async def calculate_detailed_conversion_funnel(
-        self, 
+        self,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
         custom_stages: Optional[List[str]] = None,
         include_cohort_analysis: bool = True,
-        segment_by: Optional[str] = None
+        segment_by: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         🔍 Calcula funil detalhado de conversão com timing entre etapas
-        
+
         Args:
             start_date: Data de início da análise
             end_date: Data de fim da análise
             custom_stages: Lista personalizada de estágios
             include_cohort_analysis: Se deve incluir análise de coorte
             segment_by: Segmentação (channel/month/week)
-        
+
         Returns:
             Dict com dados completos do funil
         """
@@ -188,9 +192,9 @@ class AdvancedAnalyticsEngine:
                 end_date = datetime.utcnow()
             if not start_date:
                 start_date = end_date - timedelta(days=30)
-                
+
             logger.info(f"🔍 Calculando funil de conversão: {start_date} a {end_date}")
-            
+
             # Query complexa para funil com timing detalhado
             funnel_query = """
             WITH funnel_data AS (
@@ -247,32 +251,32 @@ class AdvancedAnalyticsEngine:
             )
             SELECT * FROM funnel_metrics ORDER BY total_first_contact DESC
             """
-            
-            result = await self.db.execute(text(funnel_query), [
-                start_date, end_date, segment_by or 'all'
-            ])
+
+            result = await self.db.execute(
+                text(funnel_query), [start_date, end_date, segment_by or "all"]
+            )
             rows = result.fetchall()
-            
+
             if not rows:
                 return {
                     "stages": [],
                     "overall_conversion_rate": 0.0,
                     "bottlenecks": [],
                     "analysis_period": f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}",
-                    "total_analyzed": 0
+                    "total_analyzed": 0,
                 }
-            
+
             # Processar dados do funil
             stages_data = []
             bottlenecks = []
             total_segments = len(rows)
-            
+
             for row in rows:
                 total = row.total_first_contact
-                
+
                 # Definir estágios padrão ou customizados
                 stages_config = custom_stages or self.default_funnel_stages
-                
+
                 segment_stages = [
                     {
                         "name": "Primeiro Contato",
@@ -280,134 +284,271 @@ class AdvancedAnalyticsEngine:
                         "conversion_rate": 100.0,
                         "drop_off_rate": 0.0,
                         "avg_time_to_next": row.avg_response_time_minutes,
-                        "bottleneck_score": 0.0
+                        "bottleneck_score": 0.0,
                     },
                     {
                         "name": "Resposta Bot",
                         "count": row.bot_responded,
-                        "conversion_rate": (row.bot_responded / total * 100) if total > 0 else 0,
-                        "drop_off_rate": ((total - row.bot_responded) / total * 100) if total > 0 else 0,
+                        "conversion_rate": (
+                            (row.bot_responded / total * 100) if total > 0 else 0
+                        ),
+                        "drop_off_rate": (
+                            ((total - row.bot_responded) / total * 100)
+                            if total > 0
+                            else 0
+                        ),
                         "avg_time_to_next": row.avg_conversation_time_minutes,
-                        "bottleneck_score": ((total - row.bot_responded) / total * 100) if total > 0 else 0
+                        "bottleneck_score": (
+                            ((total - row.bot_responded) / total * 100)
+                            if total > 0
+                            else 0
+                        ),
                     },
                     {
                         "name": "Conversa Iniciada",
                         "count": row.conversation_started,
-                        "conversion_rate": (row.conversation_started / total * 100) if total > 0 else 0,
-                        "drop_off_rate": ((row.bot_responded - row.conversation_started) / row.bot_responded * 100) if row.bot_responded > 0 else 0,
+                        "conversion_rate": (
+                            (row.conversation_started / total * 100) if total > 0 else 0
+                        ),
+                        "drop_off_rate": (
+                            (
+                                (row.bot_responded - row.conversation_started)
+                                / row.bot_responded
+                                * 100
+                            )
+                            if row.bot_responded > 0
+                            else 0
+                        ),
                         "avg_time_to_next": row.avg_appointment_time_hours,
-                        "bottleneck_score": ((row.bot_responded - row.conversation_started) / row.bot_responded * 100) if row.bot_responded > 0 else 0
+                        "bottleneck_score": (
+                            (
+                                (row.bot_responded - row.conversation_started)
+                                / row.bot_responded
+                                * 100
+                            )
+                            if row.bot_responded > 0
+                            else 0
+                        ),
                     },
                     {
                         "name": "Tentativa Agendamento",
                         "count": row.appointment_attempted,
-                        "conversion_rate": (row.appointment_attempted / total * 100) if total > 0 else 0,
-                        "drop_off_rate": ((row.conversation_started - row.appointment_attempted) / row.conversation_started * 100) if row.conversation_started > 0 else 0,
+                        "conversion_rate": (
+                            (row.appointment_attempted / total * 100)
+                            if total > 0
+                            else 0
+                        ),
+                        "drop_off_rate": (
+                            (
+                                (row.conversation_started - row.appointment_attempted)
+                                / row.conversation_started
+                                * 100
+                            )
+                            if row.conversation_started > 0
+                            else 0
+                        ),
                         "avg_time_to_next": row.avg_confirmation_time_hours,
-                        "bottleneck_score": ((row.conversation_started - row.appointment_attempted) / row.conversation_started * 100) if row.conversation_started > 0 else 0
+                        "bottleneck_score": (
+                            (
+                                (row.conversation_started - row.appointment_attempted)
+                                / row.conversation_started
+                                * 100
+                            )
+                            if row.conversation_started > 0
+                            else 0
+                        ),
                     },
                     {
                         "name": "Agendamento Confirmado",
                         "count": row.appointment_confirmed,
-                        "conversion_rate": (row.appointment_confirmed / total * 100) if total > 0 else 0,
-                        "drop_off_rate": ((row.appointment_attempted - row.appointment_confirmed) / row.appointment_attempted * 100) if row.appointment_attempted > 0 else 0,
+                        "conversion_rate": (
+                            (row.appointment_confirmed / total * 100)
+                            if total > 0
+                            else 0
+                        ),
+                        "drop_off_rate": (
+                            (
+                                (row.appointment_attempted - row.appointment_confirmed)
+                                / row.appointment_attempted
+                                * 100
+                            )
+                            if row.appointment_attempted > 0
+                            else 0
+                        ),
                         "avg_time_to_next": row.avg_completion_time_days,
-                        "bottleneck_score": ((row.appointment_attempted - row.appointment_confirmed) / row.appointment_attempted * 100) if row.appointment_attempted > 0 else 0
+                        "bottleneck_score": (
+                            (
+                                (row.appointment_attempted - row.appointment_confirmed)
+                                / row.appointment_attempted
+                                * 100
+                            )
+                            if row.appointment_attempted > 0
+                            else 0
+                        ),
                     },
                     {
                         "name": "Serviço Realizado",
                         "count": row.service_completed,
-                        "conversion_rate": (row.service_completed / total * 100) if total > 0 else 0,
-                        "drop_off_rate": ((row.appointment_confirmed - row.service_completed) / row.appointment_confirmed * 100) if row.appointment_confirmed > 0 else 0,
+                        "conversion_rate": (
+                            (row.service_completed / total * 100) if total > 0 else 0
+                        ),
+                        "drop_off_rate": (
+                            (
+                                (row.appointment_confirmed - row.service_completed)
+                                / row.appointment_confirmed
+                                * 100
+                            )
+                            if row.appointment_confirmed > 0
+                            else 0
+                        ),
                         "avg_time_to_next": None,
-                        "bottleneck_score": ((row.appointment_confirmed - row.service_completed) / row.appointment_confirmed * 100) if row.appointment_confirmed > 0 else 0
+                        "bottleneck_score": (
+                            (
+                                (row.appointment_confirmed - row.service_completed)
+                                / row.appointment_confirmed
+                                * 100
+                            )
+                            if row.appointment_confirmed > 0
+                            else 0
+                        ),
                     },
                     {
                         "name": "Cliente Recorrente",
                         "count": row.repeat_customers,
-                        "conversion_rate": (row.repeat_customers / total * 100) if total > 0 else 0,
-                        "drop_off_rate": ((row.service_completed - row.repeat_customers) / row.service_completed * 100) if row.service_completed > 0 else 0,
+                        "conversion_rate": (
+                            (row.repeat_customers / total * 100) if total > 0 else 0
+                        ),
+                        "drop_off_rate": (
+                            (
+                                (row.service_completed - row.repeat_customers)
+                                / row.service_completed
+                                * 100
+                            )
+                            if row.service_completed > 0
+                            else 0
+                        ),
                         "avg_time_to_next": None,
-                        "bottleneck_score": ((row.service_completed - row.repeat_customers) / row.service_completed * 100) if row.service_completed > 0 else 0
-                    }
+                        "bottleneck_score": (
+                            (
+                                (row.service_completed - row.repeat_customers)
+                                / row.service_completed
+                                * 100
+                            )
+                            if row.service_completed > 0
+                            else 0
+                        ),
+                    },
                 ]
-                
+
                 # Identificar gargalos principais (drop_off > 30%)
                 segment_bottlenecks = [
-                    stage["name"] for stage in segment_stages 
+                    stage["name"]
+                    for stage in segment_stages
                     if stage["bottleneck_score"] > 30.0
                 ]
-                
+
                 bottlenecks.extend(segment_bottlenecks)
-                
+
                 segment_data = {
-                    "segment": row.segment if hasattr(row, 'segment') else "all",
+                    "segment": row.segment if hasattr(row, "segment") else "all",
                     "stages": segment_stages,
-                    "overall_conversion": (row.service_completed / total * 100) if total > 0 else 0,
-                    "bottlenecks": segment_bottlenecks
+                    "overall_conversion": (
+                        (row.service_completed / total * 100) if total > 0 else 0
+                    ),
+                    "bottlenecks": segment_bottlenecks,
                 }
-                
+
                 stages_data.append(segment_data)
-            
+
             # Calcular conversão overall
-            overall_conversion = sum(seg["overall_conversion"] for seg in stages_data) / len(stages_data) if stages_data else 0
-            
+            overall_conversion = (
+                sum(seg["overall_conversion"] for seg in stages_data) / len(stages_data)
+                if stages_data
+                else 0
+            )
+
             # Recomendações baseadas nos gargalos
-            recommendations = self._generate_funnel_recommendations(bottlenecks, stages_data)
-            
+            recommendations = self._generate_funnel_recommendations(
+                bottlenecks, stages_data
+            )
+
             result_data = {
-                "stages": stages_data[0]["stages"] if len(stages_data) == 1 else stages_data,
+                "stages": (
+                    stages_data[0]["stages"] if len(stages_data) == 1 else stages_data
+                ),
                 "overall_conversion_rate": overall_conversion,
                 "bottlenecks": list(set(bottlenecks)),  # Remove duplicatas
                 "analysis_period": f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}",
                 "total_analyzed": sum(seg["stages"][0]["count"] for seg in stages_data),
                 "segments": len(stages_data),
-                "recommendations": recommendations
+                "recommendations": recommendations,
             }
-            
+
             # Adicionar análise de coorte se solicitado
             if include_cohort_analysis:
-                cohort_data = await self._calculate_cohort_analysis(start_date, end_date)
+                cohort_data = await self._calculate_cohort_analysis(
+                    start_date, end_date
+                )
                 result_data["cohort_analysis"] = cohort_data
-            
-            logger.info(f"✅ Funil calculado: conversão overall {overall_conversion:.1f}%")
-            
+
+            logger.info(
+                f"✅ Funil calculado: conversão overall {overall_conversion:.1f}%"
+            )
+
             return result_data
-            
+
         except Exception as e:
             logger.error(f"❌ Erro ao calcular funil de conversão: {e}")
             raise
-    
-    def _generate_funnel_recommendations(self, bottlenecks: List[str], stages_data: List[Dict]) -> List[str]:
+
+    def _generate_funnel_recommendations(
+        self, bottlenecks: List[str], stages_data: List[Dict]
+    ) -> List[str]:
         """Gera recomendações baseadas nos gargalos identificados"""
         recommendations = []
-        
+
         if "Resposta Bot" in bottlenecks:
-            recommendations.append("🤖 Otimizar tempo de resposta do bot - considere resposta instantânea")
-            recommendations.append("💬 Melhorar primeira mensagem do bot para engajamento imediato")
-            
+            recommendations.append(
+                "🤖 Otimizar tempo de resposta do bot - considere resposta instantânea"
+            )
+            recommendations.append(
+                "💬 Melhorar primeira mensagem do bot para engajamento imediato"
+            )
+
         if "Conversa Iniciada" in bottlenecks:
             recommendations.append("🗣️ Revisar script de abertura de conversa")
-            recommendations.append("🎯 Adicionar call-to-action mais claro na primeira interação")
-            
+            recommendations.append(
+                "🎯 Adicionar call-to-action mais claro na primeira interação"
+            )
+
         if "Tentativa Agendamento" in bottlenecks:
-            recommendations.append("📅 Facilitar processo de agendamento - reduzir fricção")
-            recommendations.append("🎁 Considerar incentivos para agendamento (desconto, brinde)")
-            
+            recommendations.append(
+                "📅 Facilitar processo de agendamento - reduzir fricção"
+            )
+            recommendations.append(
+                "🎁 Considerar incentivos para agendamento (desconto, brinde)"
+            )
+
         if "Agendamento Confirmado" in bottlenecks:
-            recommendations.append("✅ Implementar lembretes automáticos de confirmação")
+            recommendations.append(
+                "✅ Implementar lembretes automáticos de confirmação"
+            )
             recommendations.append("📞 Adicionar confirmação proativa 24h antes")
-            
+
         if "Serviço Realizado" in bottlenecks:
             recommendations.append("🏥 Revisar processo de atendimento presencial")
             recommendations.append("📋 Implementar checklist de qualidade do serviço")
-            
+
         if not recommendations:
-            recommendations.append("🎉 Funil está bem otimizado - manter monitoramento constante")
-            
+            recommendations.append(
+                "🎉 Funil está bem otimizado - manter monitoramento constante"
+            )
+
         return recommendations
-    
-    async def _calculate_cohort_analysis(self, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
+
+    async def _calculate_cohort_analysis(
+        self, start_date: datetime, end_date: datetime
+    ) -> Dict[str, Any]:
         """Análise de coorte simples por mês de aquisição"""
         try:
             cohort_query = """
@@ -443,29 +584,39 @@ class AdvancedAnalyticsEngine:
                 avg_services_per_user
             FROM cohort_metrics
             """
-            
+
             result = await self.db.execute(text(cohort_query), [start_date, end_date])
             rows = result.fetchall()
-            
+
             cohort_data = []
             for row in rows:
-                cohort_data.append({
-                    "cohort": row.cohort,
-                    "size": row.cohort_size,
-                    "active_users": row.active_users,
-                    "activation_rate": float(row.activation_rate or 0),
-                    "retained_users": row.retained_users,
-                    "retention_rate": float(row.retention_rate or 0),
-                    "avg_services": float(row.avg_services_per_user or 0)
-                })
-            
+                cohort_data.append(
+                    {
+                        "cohort": row.cohort,
+                        "size": row.cohort_size,
+                        "active_users": row.active_users,
+                        "activation_rate": float(row.activation_rate or 0),
+                        "retained_users": row.retained_users,
+                        "retention_rate": float(row.retention_rate or 0),
+                        "avg_services": float(row.avg_services_per_user or 0),
+                    }
+                )
+
             return {
                 "cohorts": cohort_data,
                 "total_cohorts": len(cohort_data),
-                "avg_activation_rate": sum(c["activation_rate"] for c in cohort_data) / len(cohort_data) if cohort_data else 0,
-                "avg_retention_rate": sum(c["retention_rate"] for c in cohort_data) / len(cohort_data) if cohort_data else 0
+                "avg_activation_rate": (
+                    sum(c["activation_rate"] for c in cohort_data) / len(cohort_data)
+                    if cohort_data
+                    else 0
+                ),
+                "avg_retention_rate": (
+                    sum(c["retention_rate"] for c in cohort_data) / len(cohort_data)
+                    if cohort_data
+                    else 0
+                ),
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Erro na análise de coorte: {e}")
             return {"cohorts": [], "error": str(e)}
@@ -484,9 +635,10 @@ class AdvancedAnalyticsEngine:
         """
         try:
             logger.info(f"📈 Calculando funil detalhado: {start_date} to {end_date}")
-            
+
             # Query complexa para análise de funil
-            funnel_query = """
+            funnel_query = (
+                """
             WITH user_journey AS (
                 SELECT 
                     u.id as user_id,
@@ -546,7 +698,9 @@ class AdvancedAnalyticsEngine:
                 LEFT JOIN messages m ON u.id = m.user_id
                 LEFT JOIN appointments a ON u.id = a.user_id
                 WHERE u.created_at BETWEEN $1 AND $2
-                """ + (f"AND u.business_id = ${3}" if business_id else "") + """
+                """
+                + (f"AND u.business_id = ${3}" if business_id else "")
+                + """
                 GROUP BY u.id, u.nome, u.wa_id, u.created_at
             ),
             funnel_metrics AS (
@@ -572,128 +726,211 @@ class AdvancedAnalyticsEngine:
             )
             SELECT * FROM funnel_metrics
             """
-            
+            )
+
             # Executar query
             params = [start_date, end_date]
             if business_id:
                 params.append(business_id)
-            
+
             result = await self.db.execute(text(funnel_query), params)
             row = result.fetchone()
-            
+
             if not row:
                 return []
-            
+
             # Construir etapas do funil
             total = row.stage_1_first_contact or 1
             stages = []
-            
+
             # Função helper para calcular bottleneck score
-            def calculate_bottleneck_score(current_count: int, previous_count: int) -> float:
+            def calculate_bottleneck_score(
+                current_count: int, previous_count: int
+            ) -> float:
                 if previous_count == 0:
                     return 0.0
                 drop_rate = (previous_count - current_count) / previous_count
                 return min(drop_rate * 100, 100.0)
-            
+
             # Etapa 1: Primeiro Contato
-            stages.append(ConversionFunnelStage(
-                name="Primeiro Contato",
-                count=row.stage_1_first_contact,
-                conversion_rate=100.0,
-                drop_off_rate=0.0,
-                avg_time_to_next=row.avg_time_1_to_2,
-                bottleneck_score=0.0
-            ))
-            
+            stages.append(
+                ConversionFunnelStage(
+                    name="Primeiro Contato",
+                    count=row.stage_1_first_contact,
+                    conversion_rate=100.0,
+                    drop_off_rate=0.0,
+                    avg_time_to_next=row.avg_time_1_to_2,
+                    bottleneck_score=0.0,
+                )
+            )
+
             # Etapa 2: Resposta do Bot
-            stages.append(ConversionFunnelStage(
-                name="Resposta do Bot",
-                count=row.stage_2_bot_response,
-                conversion_rate=(row.stage_2_bot_response / total * 100),
-                drop_off_rate=((total - row.stage_2_bot_response) / total * 100),
-                avg_time_to_next=row.avg_time_2_to_3,
-                bottleneck_score=calculate_bottleneck_score(row.stage_2_bot_response, total)
-            ))
-            
+            stages.append(
+                ConversionFunnelStage(
+                    name="Resposta do Bot",
+                    count=row.stage_2_bot_response,
+                    conversion_rate=(row.stage_2_bot_response / total * 100),
+                    drop_off_rate=((total - row.stage_2_bot_response) / total * 100),
+                    avg_time_to_next=row.avg_time_2_to_3,
+                    bottleneck_score=calculate_bottleneck_score(
+                        row.stage_2_bot_response, total
+                    ),
+                )
+            )
+
             # Etapa 3: Engajamento
-            stages.append(ConversionFunnelStage(
-                name="Engajamento Ativo",
-                count=row.stage_3_engagement,
-                conversion_rate=(row.stage_3_engagement / total * 100),
-                drop_off_rate=((row.stage_2_bot_response - row.stage_3_engagement) / row.stage_2_bot_response * 100) if row.stage_2_bot_response > 0 else 0,
-                avg_time_to_next=row.avg_time_3_to_4,
-                bottleneck_score=calculate_bottleneck_score(row.stage_3_engagement, row.stage_2_bot_response)
-            ))
-            
+            stages.append(
+                ConversionFunnelStage(
+                    name="Engajamento Ativo",
+                    count=row.stage_3_engagement,
+                    conversion_rate=(row.stage_3_engagement / total * 100),
+                    drop_off_rate=(
+                        (
+                            (row.stage_2_bot_response - row.stage_3_engagement)
+                            / row.stage_2_bot_response
+                            * 100
+                        )
+                        if row.stage_2_bot_response > 0
+                        else 0
+                    ),
+                    avg_time_to_next=row.avg_time_3_to_4,
+                    bottleneck_score=calculate_bottleneck_score(
+                        row.stage_3_engagement, row.stage_2_bot_response
+                    ),
+                )
+            )
+
             # Etapa 4: Demonstrou Interesse
-            stages.append(ConversionFunnelStage(
-                name="Interesse Demonstrado",
-                count=row.stage_4_interest,
-                conversion_rate=(row.stage_4_interest / total * 100),
-                drop_off_rate=((row.stage_3_engagement - row.stage_4_interest) / row.stage_3_engagement * 100) if row.stage_3_engagement > 0 else 0,
-                avg_time_to_next=row.avg_time_4_to_5,
-                bottleneck_score=calculate_bottleneck_score(row.stage_4_interest, row.stage_3_engagement)
-            ))
-            
+            stages.append(
+                ConversionFunnelStage(
+                    name="Interesse Demonstrado",
+                    count=row.stage_4_interest,
+                    conversion_rate=(row.stage_4_interest / total * 100),
+                    drop_off_rate=(
+                        (
+                            (row.stage_3_engagement - row.stage_4_interest)
+                            / row.stage_3_engagement
+                            * 100
+                        )
+                        if row.stage_3_engagement > 0
+                        else 0
+                    ),
+                    avg_time_to_next=row.avg_time_4_to_5,
+                    bottleneck_score=calculate_bottleneck_score(
+                        row.stage_4_interest, row.stage_3_engagement
+                    ),
+                )
+            )
+
             # Etapa 5: Tentativa de Agendamento
-            stages.append(ConversionFunnelStage(
-                name="Agendamento Tentado",
-                count=row.stage_5_attempt,
-                conversion_rate=(row.stage_5_attempt / total * 100),
-                drop_off_rate=((row.stage_4_interest - row.stage_5_attempt) / row.stage_4_interest * 100) if row.stage_4_interest > 0 else 0,
-                avg_time_to_next=row.avg_time_5_to_6,
-                bottleneck_score=calculate_bottleneck_score(row.stage_5_attempt, row.stage_4_interest)
-            ))
-            
+            stages.append(
+                ConversionFunnelStage(
+                    name="Agendamento Tentado",
+                    count=row.stage_5_attempt,
+                    conversion_rate=(row.stage_5_attempt / total * 100),
+                    drop_off_rate=(
+                        (
+                            (row.stage_4_interest - row.stage_5_attempt)
+                            / row.stage_4_interest
+                            * 100
+                        )
+                        if row.stage_4_interest > 0
+                        else 0
+                    ),
+                    avg_time_to_next=row.avg_time_5_to_6,
+                    bottleneck_score=calculate_bottleneck_score(
+                        row.stage_5_attempt, row.stage_4_interest
+                    ),
+                )
+            )
+
             # Etapa 6: Agendamento Confirmado
-            stages.append(ConversionFunnelStage(
-                name="Agendamento Confirmado",
-                count=row.stage_6_confirmed,
-                conversion_rate=(row.stage_6_confirmed / total * 100),
-                drop_off_rate=((row.stage_5_attempt - row.stage_6_confirmed) / row.stage_5_attempt * 100) if row.stage_5_attempt > 0 else 0,
-                avg_time_to_next=row.avg_time_6_to_7_days,
-                bottleneck_score=calculate_bottleneck_score(row.stage_6_confirmed, row.stage_5_attempt)
-            ))
-            
+            stages.append(
+                ConversionFunnelStage(
+                    name="Agendamento Confirmado",
+                    count=row.stage_6_confirmed,
+                    conversion_rate=(row.stage_6_confirmed / total * 100),
+                    drop_off_rate=(
+                        (
+                            (row.stage_5_attempt - row.stage_6_confirmed)
+                            / row.stage_5_attempt
+                            * 100
+                        )
+                        if row.stage_5_attempt > 0
+                        else 0
+                    ),
+                    avg_time_to_next=row.avg_time_6_to_7_days,
+                    bottleneck_score=calculate_bottleneck_score(
+                        row.stage_6_confirmed, row.stage_5_attempt
+                    ),
+                )
+            )
+
             # Etapa 7: Serviço Realizado
-            stages.append(ConversionFunnelStage(
-                name="Serviço Realizado",
-                count=row.stage_7_completed,
-                conversion_rate=(row.stage_7_completed / total * 100),
-                drop_off_rate=((row.stage_6_confirmed - row.stage_7_completed) / row.stage_6_confirmed * 100) if row.stage_6_confirmed > 0 else 0,
-                avg_time_to_next=row.avg_time_7_to_8_days,
-                bottleneck_score=calculate_bottleneck_score(row.stage_7_completed, row.stage_6_confirmed)
-            ))
-            
+            stages.append(
+                ConversionFunnelStage(
+                    name="Serviço Realizado",
+                    count=row.stage_7_completed,
+                    conversion_rate=(row.stage_7_completed / total * 100),
+                    drop_off_rate=(
+                        (
+                            (row.stage_6_confirmed - row.stage_7_completed)
+                            / row.stage_6_confirmed
+                            * 100
+                        )
+                        if row.stage_6_confirmed > 0
+                        else 0
+                    ),
+                    avg_time_to_next=row.avg_time_7_to_8_days,
+                    bottleneck_score=calculate_bottleneck_score(
+                        row.stage_7_completed, row.stage_6_confirmed
+                    ),
+                )
+            )
+
             # Etapa 8: Cliente Recorrente
-            stages.append(ConversionFunnelStage(
-                name="Cliente Recorrente",
-                count=row.stage_8_recurring,
-                conversion_rate=(row.stage_8_recurring / total * 100),
-                drop_off_rate=((row.stage_7_completed - row.stage_8_recurring) / row.stage_7_completed * 100) if row.stage_7_completed > 0 else 0,
-                avg_time_to_next=None,
-                bottleneck_score=calculate_bottleneck_score(row.stage_8_recurring, row.stage_7_completed)
-            ))
-            
-            logger.info(f"✅ Funil calculado: {len(stages)} etapas, {total} leads iniciais")
+            stages.append(
+                ConversionFunnelStage(
+                    name="Cliente Recorrente",
+                    count=row.stage_8_recurring,
+                    conversion_rate=(row.stage_8_recurring / total * 100),
+                    drop_off_rate=(
+                        (
+                            (row.stage_7_completed - row.stage_8_recurring)
+                            / row.stage_7_completed
+                            * 100
+                        )
+                        if row.stage_7_completed > 0
+                        else 0
+                    ),
+                    avg_time_to_next=None,
+                    bottleneck_score=calculate_bottleneck_score(
+                        row.stage_8_recurring, row.stage_7_completed
+                    ),
+                )
+            )
+
+            logger.info(
+                f"✅ Funil calculado: {len(stages)} etapas, {total} leads iniciais"
+            )
             return stages
-            
+
         except Exception as e:
             logger.error(f"❌ Erro ao calcular funil de conversão: {e}")
             raise
-    
+
     async def calculate_customer_segmentation_rfm(
         self,
         analysis_date: Optional[datetime] = None,
         include_recommendations: bool = True,
-        min_transactions: int = 0
+        min_transactions: int = 0,
     ) -> List[CustomerSegment]:
         """
         🎯 Segmentação RFM (Recency, Frequency, Monetary) completa
-        
+
         Implementa segmentação avançada baseada na metodologia RFM com:
         - Análise de recência de interação
-        - Frequência de conversas e agendamentos  
+        - Frequência de conversas e agendamentos
         - Valor monetário total e médio
         - Classificação automática em segmentos acionáveis
         - Recomendações específicas por segmento
@@ -701,9 +938,9 @@ class AdvancedAnalyticsEngine:
         try:
             if not analysis_date:
                 analysis_date = datetime.utcnow()
-                
+
             logger.info(f"🎯 Calculando segmentação RFM para {analysis_date}")
-            
+
             # Query avançada para RFM
             rfm_query = """
             WITH customer_rfm AS (
@@ -813,26 +1050,26 @@ class AdvancedAnalyticsEngine:
             GROUP BY segment_name
             ORDER BY customer_count DESC
             """
-            
-            result = await self.db.execute(text(rfm_query), [
-                analysis_date, min_transactions
-            ])
+
+            result = await self.db.execute(
+                text(rfm_query), [analysis_date, min_transactions]
+            )
             rows = result.fetchall()
-            
+
             segments = []
             for row in rows:
                 # Obter características e ações recomendadas
                 characteristics = self._get_segment_characteristics(row.segment_name)
                 recommended_actions = []
-                
+
                 if include_recommendations:
                     recommended_actions = self._get_segment_recommendations(
-                        row.segment_name, 
+                        row.segment_name,
                         row.churn_risk,
                         row.customer_count,
-                        float(row.avg_ltv)
+                        float(row.avg_ltv),
                     )
-                
+
                 segment = CustomerSegment(
                     segment_name=row.segment_name,
                     customer_count=row.customer_count,
@@ -843,164 +1080,176 @@ class AdvancedAnalyticsEngine:
                     avg_recency_days=float(row.avg_recency_days),
                     churn_risk=row.churn_risk,
                     characteristics=characteristics,
-                    recommended_actions=recommended_actions
+                    recommended_actions=recommended_actions,
                 )
-                
+
                 segments.append(segment)
-            
+
             logger.info(f"✅ Segmentação RFM calculada: {len(segments)} segmentos")
             return segments
-            
+
         except Exception as e:
             logger.error(f"❌ Erro ao calcular segmentação RFM: {e}")
             raise
-    
+
     def _get_segment_characteristics(self, segment: str) -> List[str]:
         """Retorna características típicas de cada segmento RFM"""
         characteristics_map = {
-            'VIP Champions': [
-                'Clientes mais valiosos do negócio',
-                'Interagem frequentemente com a marca',
-                'Alto valor monetário e recência',
-                'Promotores naturais da marca',
-                'Baixíssimo risco de churn'
+            "VIP Champions": [
+                "Clientes mais valiosos do negócio",
+                "Interagem frequentemente com a marca",
+                "Alto valor monetário e recência",
+                "Promotores naturais da marca",
+                "Baixíssimo risco de churn",
             ],
-            'Loyal Customers': [
-                'Base fiel e consistente',
-                'Compram/agendam regularmente',
-                'Bom valor monetário histórico',
-                'Satisfeitos com o serviço',
-                'Potencial para upgrade'
+            "Loyal Customers": [
+                "Base fiel e consistente",
+                "Compram/agendam regularmente",
+                "Bom valor monetário histórico",
+                "Satisfeitos com o serviço",
+                "Potencial para upgrade",
             ],
-            'Potential Loyalists': [
-                'Clientes promissores',
-                'Engajamento crescente',
-                'Potencial não completamente explorado',
-                'Podem se tornar leais com nurturing',
-                'Boa oportunidade de crescimento'
+            "Potential Loyalists": [
+                "Clientes promissores",
+                "Engajamento crescente",
+                "Potencial não completamente explorado",
+                "Podem se tornar leais com nurturing",
+                "Boa oportunidade de crescimento",
             ],
-            'New Customers': [
-                'Recém-chegados ao negócio',
-                'Primeira impressão ainda sendo formada',
-                'Alto potencial futuro',
-                'Precisam de onboarding eficaz',
-                'Oportunidade de conversão'
+            "New Customers": [
+                "Recém-chegados ao negócio",
+                "Primeira impressão ainda sendo formada",
+                "Alto potencial futuro",
+                "Precisam de onboarding eficaz",
+                "Oportunidade de conversão",
             ],
-            'At Risk': [
-                'Diminuição na atividade recente',
-                'Eram clientes valiosos',
-                'Risco alto de churn',
-                'Podem ter problemas não reportados',
-                'Requerem atenção imediata'
+            "At Risk": [
+                "Diminuição na atividade recente",
+                "Eram clientes valiosos",
+                "Risco alto de churn",
+                "Podem ter problemas não reportados",
+                "Requerem atenção imediata",
             ],
-            'Cannot Lose Them': [
-                'Alto valor histórico para o negócio',
-                'Baixa atividade recente',
-                'Crítico para receita',
-                'Relacionamento em risco',
-                'Win-back prioritário'
+            "Cannot Lose Them": [
+                "Alto valor histórico para o negócio",
+                "Baixa atividade recente",
+                "Crítico para receita",
+                "Relacionamento em risco",
+                "Win-back prioritário",
             ],
-            'Lost Customers': [
-                'Sem atividade há muito tempo',
-                'Baixo valor histórico',
-                'Provavelmente churned',
-                'ROI de recuperação questionável',
-                'Campanha win-back básica'
+            "Lost Customers": [
+                "Sem atividade há muito tempo",
+                "Baixo valor histórico",
+                "Provavelmente churned",
+                "ROI de recuperação questionável",
+                "Campanha win-back básica",
             ],
-            'Regular Customers': [
-                'Padrão médio de comportamento',
-                'Engajamento moderado',
-                'Potencial de desenvolvimento',
-                'Base estável do negócio',
-                'Oportunidade de segmentação'
-            ]
+            "Regular Customers": [
+                "Padrão médio de comportamento",
+                "Engajamento moderado",
+                "Potencial de desenvolvimento",
+                "Base estável do negócio",
+                "Oportunidade de segmentação",
+            ],
         }
-        
-        return characteristics_map.get(segment, ['Características não definidas para este segmento'])
-    
-    def _get_segment_recommendations(self, segment: str, churn_risk: str, count: int, avg_ltv: float) -> List[str]:
+
+        return characteristics_map.get(
+            segment, ["Características não definidas para este segmento"]
+        )
+
+    def _get_segment_recommendations(
+        self, segment: str, churn_risk: str, count: int, avg_ltv: float
+    ) -> List[str]:
         """Gera recomendações específicas para cada segmento"""
         recommendations_map = {
-            'VIP Champions': [
-                '🏆 Programa VIP exclusivo com benefícios premium',
-                '📞 Atendimento prioritário e personalizado',
-                '🎁 Produtos/serviços exclusivos e early access',
-                '💎 Programa de referência com incentivos',
-                '📊 Solicitar feedback para melhorias de produto'
+            "VIP Champions": [
+                "🏆 Programa VIP exclusivo com benefícios premium",
+                "📞 Atendimento prioritário e personalizado",
+                "🎁 Produtos/serviços exclusivos e early access",
+                "💎 Programa de referência com incentivos",
+                "📊 Solicitar feedback para melhorias de produto",
             ],
-            'Loyal Customers': [
-                '🎯 Programas de fidelidade com pontos/cashback',
-                '🔄 Estratégias de cross-sell e up-sell',
-                '📬 Comunicação regular com ofertas especiais',
-                '⭐ Ofertas exclusivas para clientes fiéis',
-                '📝 Solicitar reviews e testimonials'
+            "Loyal Customers": [
+                "🎯 Programas de fidelidade com pontos/cashback",
+                "🔄 Estratégias de cross-sell e up-sell",
+                "📬 Comunicação regular com ofertas especiais",
+                "⭐ Ofertas exclusivas para clientes fiéis",
+                "📝 Solicitar reviews e testimonials",
             ],
-            'Potential Loyalists': [
-                '🌱 Programa de nurturing intensivo',
-                '💰 Ofertas atrativas para aumentar frequência',
-                '📚 Programa de onboarding estruturado',
-                '👀 Acompanhamento próximo da jornada',
-                '🎁 Incentivos para aumentar engajamento'
+            "Potential Loyalists": [
+                "🌱 Programa de nurturing intensivo",
+                "💰 Ofertas atrativas para aumentar frequência",
+                "📚 Programa de onboarding estruturado",
+                "👀 Acompanhamento próximo da jornada",
+                "🎁 Incentivos para aumentar engajamento",
             ],
-            'New Customers': [
-                '👋 Welcome series com introdução à marca',
-                '📖 Onboarding estruturado e educativo',
-                '🛡️ Suporte proativo nos primeiros contatos',
-                '💵 Ofertas de primeira compra/agendamento',
-                '💬 Coleta de feedback inicial e expectativas'
+            "New Customers": [
+                "👋 Welcome series com introdução à marca",
+                "📖 Onboarding estruturado e educativo",
+                "🛡️ Suporte proativo nos primeiros contatos",
+                "💵 Ofertas de primeira compra/agendamento",
+                "💬 Coleta de feedback inicial e expectativas",
             ],
-            'At Risk': [
-                '🚨 Campanha de reativação urgente',
-                '📱 Contato direto personalizado imediato',
-                '🔍 Investigar motivos da diminuição de atividade',
-                '💸 Ofertas especiais win-back agressivas',
-                '⚡ Melhorar experiência baseada em feedback'
+            "At Risk": [
+                "🚨 Campanha de reativação urgente",
+                "📱 Contato direto personalizado imediato",
+                "🔍 Investigar motivos da diminuição de atividade",
+                "💸 Ofertas especiais win-back agressivas",
+                "⚡ Melhorar experiência baseada em feedback",
             ],
-            'Cannot Lose Them': [
-                '👔 Atenção executiva de alto nível',
-                '🤝 Reunião presencial ou call executiva',
-                '📋 Proposta customizada e diferenciada',
-                '🎯 Gestor de conta dedicado',
-                '🔥 Recuperação com máxima prioridade'
+            "Cannot Lose Them": [
+                "👔 Atenção executiva de alto nível",
+                "🤝 Reunião presencial ou call executiva",
+                "📋 Proposta customizada e diferenciada",
+                "🎯 Gestor de conta dedicado",
+                "🔥 Recuperação com máxima prioridade",
             ],
-            'Lost Customers': [
-                '📧 Campanha win-back com oferta agressiva',
-                '💰 Desconto significativo para retorno',
-                '❓ Pesquisa para entender motivos de saída',
-                '🎯 Segmentação para remarketing futuro',
-                '💡 Análise de custo-benefício da recuperação'
+            "Lost Customers": [
+                "📧 Campanha win-back com oferta agressiva",
+                "💰 Desconto significativo para retorno",
+                "❓ Pesquisa para entender motivos de saída",
+                "🎯 Segmentação para remarketing futuro",
+                "💡 Análise de custo-benefício da recuperação",
             ],
-            'Regular Customers': [
-                '📈 Estratégias para upgrade de segmento',
-                '🎯 Personalização baseada em comportamento',
-                '📊 A/B testing de diferentes abordagens',
-                '🔄 Campanhas para aumentar frequência',
-                '💎 Identificar potencial de crescimento'
-            ]
+            "Regular Customers": [
+                "📈 Estratégias para upgrade de segmento",
+                "🎯 Personalização baseada em comportamento",
+                "📊 A/B testing de diferentes abordagens",
+                "🔄 Campanhas para aumentar frequência",
+                "💎 Identificar potencial de crescimento",
+            ],
         }
-        
+
         base_recommendations = recommendations_map.get(segment, [])
-        
+
         # Adicionar recomendações baseadas em risco de churn
-        if churn_risk == 'high' and segment not in ['At Risk', 'Cannot Lose Them', 'Lost Customers']:
-            base_recommendations.append('⚠️ Monitorar sinais de churn - implementar alertas')
-            
+        if churn_risk == "high" and segment not in [
+            "At Risk",
+            "Cannot Lose Them",
+            "Lost Customers",
+        ]:
+            base_recommendations.append(
+                "⚠️ Monitorar sinais de churn - implementar alertas"
+            )
+
         # Adicionar recomendações baseadas no tamanho do segmento
         if count > 50:
-            base_recommendations.append(f'📊 Segmento grande ({count} clientes) - automatizar campanhas')
+            base_recommendations.append(
+                f"📊 Segmento grande ({count} clientes) - automatizar campanhas"
+            )
         elif count < 10:
-            base_recommendations.append(f'👥 Segmento pequeno ({count} clientes) - atendimento personalizado')
-            
+            base_recommendations.append(
+                f"👥 Segmento pequeno ({count} clientes) - atendimento personalizado"
+            )
+
         return base_recommendations[:6]  # Limitar a 6 recomendações
-        
+
     async def calculate_enhanced_churn_prediction(
-        self,
-        analysis_date: Optional[datetime] = None,
-        prediction_window_days: int = 90
+        self, analysis_date: Optional[datetime] = None, prediction_window_days: int = 90
     ) -> List[ChurnPrediction]:
         """
         🔮 Predição de Churn Avançada com Machine Learning
-        
+
         Utiliza múltiplos fatores para predizer probabilidade de churn:
         - Padrões de engagement declinante
         - Análise de comportamento temporal
@@ -1010,9 +1259,11 @@ class AdvancedAnalyticsEngine:
         try:
             if not analysis_date:
                 analysis_date = datetime.utcnow()
-                
-            logger.info(f"🔮 Calculando predição de churn para {prediction_window_days} dias")
-            
+
+            logger.info(
+                f"🔮 Calculando predição de churn para {prediction_window_days} dias"
+            )
+
             # Query avançada para features de churn
             churn_query = """
             WITH customer_features AS (
@@ -1173,22 +1424,20 @@ class AdvancedAnalyticsEngine:
                     WHEN 'low' THEN 4 
                 END
             """
-            
-            result = await self.db.execute(text(churn_query), [
-                analysis_date, prediction_window_days
-            ])
+
+            result = await self.db.execute(
+                text(churn_query), [analysis_date, prediction_window_days]
+            )
             rows = result.fetchall()
-            
+
             predictions = []
             for row in rows:
                 # Obter features e ações recomendadas
                 key_factors = self._get_churn_risk_factors(row.risk_level)
                 recommended_actions = self._get_churn_prevention_actions(
-                    row.risk_level, 
-                    row.customer_count,
-                    float(row.avg_recent_revenue)
+                    row.risk_level, row.customer_count, float(row.avg_recent_revenue)
                 )
-                
+
                 prediction = ChurnPrediction(
                     risk_level=row.risk_level,
                     customer_count=row.customer_count,
@@ -1197,120 +1446,132 @@ class AdvancedAnalyticsEngine:
                     avg_days_since_contact=float(row.avg_days_since_contact),
                     avg_recent_revenue=float(row.avg_recent_revenue),
                     customers_with_issues=row.customers_with_cancellations,
-                    earliest_churn_date=row.earliest_churn_date.isoformat() if row.earliest_churn_date else None,
-                    latest_churn_date=row.latest_churn_date.isoformat() if row.latest_churn_date else None,
+                    earliest_churn_date=(
+                        row.earliest_churn_date.isoformat()
+                        if row.earliest_churn_date
+                        else None
+                    ),
+                    latest_churn_date=(
+                        row.latest_churn_date.isoformat()
+                        if row.latest_churn_date
+                        else None
+                    ),
                     key_risk_factors=key_factors,
-                    recommended_actions=recommended_actions
+                    recommended_actions=recommended_actions,
                 )
-                
+
                 predictions.append(prediction)
-            
-            logger.info(f"✅ Predição de churn calculada: {len(predictions)} níveis de risco")
+
+            logger.info(
+                f"✅ Predição de churn calculada: {len(predictions)} níveis de risco"
+            )
             return predictions
-            
+
         except Exception as e:
             logger.error(f"❌ Erro ao calcular predição de churn: {e}")
             raise
-            
+
     def _get_churn_risk_factors(self, risk_level: str) -> List[str]:
         """Retorna os principais fatores de risco para cada nível"""
         factors_map = {
-            'critical': [
-                '🔥 Sem contato há mais de 90 dias',
-                '📉 Declínio severo no engagement (>60%)',
-                '💸 Redução significativa no valor gasto',
-                '❌ Múltiplos cancelamentos recentes',
-                '⚠️ Padrão de comportamento de saída'
+            "critical": [
+                "🔥 Sem contato há mais de 90 dias",
+                "📉 Declínio severo no engagement (>60%)",
+                "💸 Redução significativa no valor gasto",
+                "❌ Múltiplos cancelamentos recentes",
+                "⚠️ Padrão de comportamento de saída",
             ],
-            'high': [
-                '⏰ Sem contato há mais de 60 dias',
-                '📊 Declínio moderado no engagement',
-                '💰 Redução no valor dos serviços',
-                '🔄 Reagendamentos frequentes',
-                '📱 Diminuição na frequência de mensagens'
+            "high": [
+                "⏰ Sem contato há mais de 60 dias",
+                "📊 Declínio moderado no engagement",
+                "💰 Redução no valor dos serviços",
+                "🔄 Reagendamentos frequentes",
+                "📱 Diminuição na frequência de mensagens",
             ],
-            'medium': [
-                '⌚ Sem contato há mais de 30 dias',
-                '📈 Ligeiro declínio na atividade',
-                '💵 Estabilidade no valor, mas sem crescimento',
-                '📅 Padrões de agendamento irregulares',
-                '🤔 Mudança sutil no comportamento'
+            "medium": [
+                "⌚ Sem contato há mais de 30 dias",
+                "📈 Ligeiro declínio na atividade",
+                "💵 Estabilidade no valor, mas sem crescimento",
+                "📅 Padrões de agendamento irregulares",
+                "🤔 Mudança sutil no comportamento",
             ],
-            'low': [
-                '✅ Contato recente e regular',
-                '📈 Engagement estável ou crescente',
-                '💎 Valor consistente ou em crescimento',
-                '😊 Comportamento positivo geral',
-                '🎯 Baixos sinais de risco identificados'
-            ]
+            "low": [
+                "✅ Contato recente e regular",
+                "📈 Engagement estável ou crescente",
+                "💎 Valor consistente ou em crescimento",
+                "😊 Comportamento positivo geral",
+                "🎯 Baixos sinais de risco identificados",
+            ],
         }
-        
-        return factors_map.get(risk_level, ['Fatores não identificados'])
-        
-    def _get_churn_prevention_actions(self, risk_level: str, count: int, avg_revenue: float) -> List[str]:
+
+        return factors_map.get(risk_level, ["Fatores não identificados"])
+
+    def _get_churn_prevention_actions(
+        self, risk_level: str, count: int, avg_revenue: float
+    ) -> List[str]:
         """Gera ações específicas de prevenção de churn"""
         actions_map = {
-            'critical': [
-                '🚨 Intervenção imediata - contato executivo',
-                '🎁 Oferta win-back agressiva (desconto >30%)',
-                '📞 Ligação pessoal do gerente/proprietário',
-                '💰 Proposta customizada com valor especial',
-                '📋 Reunião para entender problemas e soluções',
-                '⚡ Prazo máximo: 24-48h para ação'
+            "critical": [
+                "🚨 Intervenção imediata - contato executivo",
+                "🎁 Oferta win-back agressiva (desconto >30%)",
+                "📞 Ligação pessoal do gerente/proprietário",
+                "💰 Proposta customizada com valor especial",
+                "📋 Reunião para entender problemas e soluções",
+                "⚡ Prazo máximo: 24-48h para ação",
             ],
-            'high': [
-                '📱 Campanha de reengajamento personalizada',
-                '🎯 Oferta especial baseada no histórico',
-                '📧 Sequência de e-mails/mensagens de recuperação',
-                '🔍 Pesquisa de satisfação e feedback',
-                '🎁 Incentivos para retomar atividade',
-                '⏰ Prazo: 3-7 dias para primeira ação'
+            "high": [
+                "📱 Campanha de reengajamento personalizada",
+                "🎯 Oferta especial baseada no histórico",
+                "📧 Sequência de e-mails/mensagens de recuperação",
+                "🔍 Pesquisa de satisfação e feedback",
+                "🎁 Incentivos para retomar atividade",
+                "⏰ Prazo: 3-7 dias para primeira ação",
             ],
-            'medium': [
-                '💬 Check-in proativo via WhatsApp',
-                '📅 Lembretes de agendamento personalizado',
-                '🎊 Ofertas promocionais sazonais',
-                '📈 Conteúdo de valor e novidades',
-                '🔔 Newsletter com dicas e informações',
-                '📆 Prazo: 1-2 semanas para abordagem'
+            "medium": [
+                "💬 Check-in proativo via WhatsApp",
+                "📅 Lembretes de agendamento personalizado",
+                "🎊 Ofertas promocionais sazonais",
+                "📈 Conteúdo de valor e novidades",
+                "🔔 Newsletter com dicas e informações",
+                "📆 Prazo: 1-2 semanas para abordagem",
             ],
-            'low': [
-                '👍 Manter comunicação regular de qualidade',
-                '🌟 Programa de fidelidade preventivo',
-                '📊 Monitoramento contínuo de métricas',
-                '🎁 Recompensas por fidelidade',
-                '📢 Comunicação de novos serviços/produtos',
-                '✅ Manutenção da satisfação atual'
-            ]
+            "low": [
+                "👍 Manter comunicação regular de qualidade",
+                "🌟 Programa de fidelidade preventivo",
+                "📊 Monitoramento contínuo de métricas",
+                "🎁 Recompensas por fidelidade",
+                "📢 Comunicação de novos serviços/produtos",
+                "✅ Manutenção da satisfação atual",
+            ],
         }
-        
+
         base_actions = actions_map.get(risk_level, [])
-        
+
         # Adicionar ações baseadas no valor
         if avg_revenue > 200:
-            base_actions.append('💎 Cliente de alto valor - atenção premium')
+            base_actions.append("💎 Cliente de alto valor - atenção premium")
         elif avg_revenue < 50:
-            base_actions.append('💰 Avaliar custo-benefício da retenção')
-            
+            base_actions.append("💰 Avaliar custo-benefício da retenção")
+
         # Adicionar ações baseadas no volume
         if count > 100:
-            base_actions.append('🔄 Automatizar campanhas para escala')
+            base_actions.append("🔄 Automatizar campanhas para escala")
         elif count < 10:
-            base_actions.append('🎯 Abordagem individual personalizada')
-            
+            base_actions.append("🎯 Abordagem individual personalizada")
+
         return base_actions[:6]
-        
+
     async def calculate_advanced_roi_metrics(
         self,
         analysis_date: Optional[datetime] = None,
-        attribution_window_days: int = 30
+        attribution_window_days: int = 30,
     ) -> List[ROIMetric]:
         """
         💰 Métricas ROI Avançadas com Attribution Modeling
-        
+
         Calcula ROI detalhado por canal de aquisição com:
         - Customer Acquisition Cost (CAC) por canal
-        - Customer Lifetime Value (LTV) 
+        - Customer Lifetime Value (LTV)
         - ROI real considerando custos operacionais
         - Attribution modeling para conversões
         - Análise de payback period
@@ -1319,9 +1580,9 @@ class AdvancedAnalyticsEngine:
         try:
             if not analysis_date:
                 analysis_date = datetime.utcnow()
-                
+
             logger.info(f"💰 Calculando métricas ROI avançadas para {analysis_date}")
-            
+
             # Query complexa para ROI por canal
             roi_query = """
             WITH customer_attribution AS (
@@ -1475,10 +1736,10 @@ class AdvancedAnalyticsEngine:
             WHERE total_customers > 0
             ORDER BY roi_percentage DESC
             """
-            
+
             result = await self.db.execute(text(roi_query), [analysis_date])
             rows = result.fetchall()
-            
+
             metrics = []
             for row in rows:
                 # Obter insights e recomendações
@@ -1486,272 +1747,304 @@ class AdvancedAnalyticsEngine:
                     row.acquisition_channel,
                     float(row.roi_percentage) if row.roi_percentage else 0,
                     float(row.conversion_rate) if row.conversion_rate else 0,
-                    float(row.ltv_cac_ratio) if row.ltv_cac_ratio else 0
+                    float(row.ltv_cac_ratio) if row.ltv_cac_ratio else 0,
                 )
-                
+
                 optimization_tips = self._get_roi_optimization_tips(
                     row.acquisition_channel,
                     float(row.roi_percentage) if row.roi_percentage else 0,
                     row.total_customers,
-                    float(row.avg_days_to_convert) if row.avg_days_to_convert else 0
+                    float(row.avg_days_to_convert) if row.avg_days_to_convert else 0,
                 )
-                
+
                 metric = ROIMetric(
                     channel=row.acquisition_channel,
                     total_customers=row.total_customers,
                     converting_customers=row.converting_customers,
-                    conversion_rate=float(row.conversion_rate) if row.conversion_rate else 0.0,
-                    total_revenue=float(row.total_revenue) if row.total_revenue else 0.0,
+                    conversion_rate=(
+                        float(row.conversion_rate) if row.conversion_rate else 0.0
+                    ),
+                    total_revenue=(
+                        float(row.total_revenue) if row.total_revenue else 0.0
+                    ),
                     avg_ltv=float(row.avg_ltv) if row.avg_ltv else 0.0,
                     avg_cac=float(row.estimated_cac) if row.estimated_cac else 0.0,
-                    roi_percentage=float(row.roi_percentage) if row.roi_percentage else 0.0,
-                    payback_period_days=float(row.payback_months) * 30 if row.payback_months else None,
-                    ltv_cac_ratio=float(row.ltv_cac_ratio) if row.ltv_cac_ratio else 0.0,
-                    avg_days_to_convert=float(row.avg_days_to_convert) if row.avg_days_to_convert else 0.0,
+                    roi_percentage=(
+                        float(row.roi_percentage) if row.roi_percentage else 0.0
+                    ),
+                    payback_period_days=(
+                        float(row.payback_months) * 30 if row.payback_months else None
+                    ),
+                    ltv_cac_ratio=(
+                        float(row.ltv_cac_ratio) if row.ltv_cac_ratio else 0.0
+                    ),
+                    avg_days_to_convert=(
+                        float(row.avg_days_to_convert)
+                        if row.avg_days_to_convert
+                        else 0.0
+                    ),
                     active_customers=row.active_customers,
                     at_risk_customers=row.at_risk_customers,
-                    efficiency_score=float(row.channel_efficiency_score) if row.channel_efficiency_score else 0.0,
+                    efficiency_score=(
+                        float(row.channel_efficiency_score)
+                        if row.channel_efficiency_score
+                        else 0.0
+                    ),
                     key_insights=key_insights,
-                    optimization_recommendations=optimization_tips
+                    optimization_recommendations=optimization_tips,
                 )
-                
+
                 metrics.append(metric)
-            
+
             logger.info(f"✅ Métricas ROI calculadas para {len(metrics)} canais")
             return metrics
-            
+
         except Exception as e:
             logger.error(f"❌ Erro ao calcular métricas ROI: {e}")
             raise
-            
-    def _get_roi_insights(self, channel: str, roi: float, conversion_rate: float, ltv_cac_ratio: float) -> List[str]:
+
+    def _get_roi_insights(
+        self, channel: str, roi: float, conversion_rate: float, ltv_cac_ratio: float
+    ) -> List[str]:
         """Gera insights específicos baseados nas métricas ROI"""
         insights = []
-        
+
         # Análise de ROI
         if roi > 300:
-            insights.append(f'🚀 Canal {channel} tem ROI excepcional ({roi}%)')
+            insights.append(f"🚀 Canal {channel} tem ROI excepcional ({roi}%)")
         elif roi > 150:
-            insights.append(f'✅ Canal {channel} é altamente rentável ({roi}%)')
+            insights.append(f"✅ Canal {channel} é altamente rentável ({roi}%)")
         elif roi > 50:
-            insights.append(f'👍 Canal {channel} tem ROI positivo moderado ({roi}%)')
+            insights.append(f"👍 Canal {channel} tem ROI positivo moderado ({roi}%)")
         elif roi > 0:
-            insights.append(f'⚠️ Canal {channel} tem ROI baixo ({roi}%) - otimizar')
+            insights.append(f"⚠️ Canal {channel} tem ROI baixo ({roi}%) - otimizar")
         else:
-            insights.append(f'❌ Canal {channel} tem ROI negativo ({roi}%) - revisar estratégia')
-            
+            insights.append(
+                f"❌ Canal {channel} tem ROI negativo ({roi}%) - revisar estratégia"
+            )
+
         # Análise de conversão
         if conversion_rate > 20:
-            insights.append(f'🎯 Taxa de conversão excelente ({conversion_rate}%)')
+            insights.append(f"🎯 Taxa de conversão excelente ({conversion_rate}%)")
         elif conversion_rate > 10:
-            insights.append(f'✅ Taxa de conversão boa ({conversion_rate}%)')
+            insights.append(f"✅ Taxa de conversão boa ({conversion_rate}%)")
         elif conversion_rate > 5:
-            insights.append(f'📈 Taxa de conversão média ({conversion_rate}%)')
+            insights.append(f"📈 Taxa de conversão média ({conversion_rate}%)")
         else:
-            insights.append(f'⚠️ Taxa de conversão baixa ({conversion_rate}%) - melhorar qualificação')
-            
+            insights.append(
+                f"⚠️ Taxa de conversão baixa ({conversion_rate}%) - melhorar qualificação"
+            )
+
         # Análise LTV/CAC
         if ltv_cac_ratio > 3:
-            insights.append(f'💰 Excelente relação LTV/CAC ({ltv_cac_ratio:.1f}:1)')
+            insights.append(f"💰 Excelente relação LTV/CAC ({ltv_cac_ratio:.1f}:1)")
         elif ltv_cac_ratio > 1.5:
-            insights.append(f'👌 Boa relação LTV/CAC ({ltv_cac_ratio:.1f}:1)')
+            insights.append(f"👌 Boa relação LTV/CAC ({ltv_cac_ratio:.1f}:1)")
         elif ltv_cac_ratio > 1:
-            insights.append(f'⚖️ Relação LTV/CAC equilibrada ({ltv_cac_ratio:.1f}:1)')
+            insights.append(f"⚖️ Relação LTV/CAC equilibrada ({ltv_cac_ratio:.1f}:1)")
         else:
-            insights.append(f'🔴 Relação LTV/CAC problemática ({ltv_cac_ratio:.1f}:1)')
-            
+            insights.append(f"🔴 Relação LTV/CAC problemática ({ltv_cac_ratio:.1f}:1)")
+
         return insights
-        
-    def _get_roi_optimization_tips(self, channel: str, roi: float, customers: int, days_to_convert: float) -> List[str]:
+
+    def _get_roi_optimization_tips(
+        self, channel: str, roi: float, customers: int, days_to_convert: float
+    ) -> List[str]:
         """Gera recomendações de otimização específicas por canal"""
         tips = []
-        
+
         # Dicas baseadas no canal
         channel_tips = {
-            'instagram': [
-                '📱 Otimizar creative visual e copy',
-                '🎯 Testar diferentes audiences e interesses',
-                '💫 Investir em stories e reels',
-                '🔥 Usar UGC e social proof'
+            "instagram": [
+                "📱 Otimizar creative visual e copy",
+                "🎯 Testar diferentes audiences e interesses",
+                "💫 Investir em stories e reels",
+                "🔥 Usar UGC e social proof",
             ],
-            'facebook': [
-                '👥 Refinar targeting demográfico',
-                '📊 Usar lookalike audiences',
-                '💬 Implementar chatbot para qualificação',
-                '🔄 Otimizar frequency cap'
+            "facebook": [
+                "👥 Refinar targeting demográfico",
+                "📊 Usar lookalike audiences",
+                "💬 Implementar chatbot para qualificação",
+                "🔄 Otimizar frequency cap",
             ],
-            'google_ads': [
-                '🔍 Melhorar quality score das palavras-chave',
-                '📝 Otimizar landing pages',
-                '🎯 Usar extensions e sitelinks',
-                '⏰ Ajustar bid strategies'
+            "google_ads": [
+                "🔍 Melhorar quality score das palavras-chave",
+                "📝 Otimizar landing pages",
+                "🎯 Usar extensions e sitelinks",
+                "⏰ Ajustar bid strategies",
             ],
-            'organic_business_hours': [
-                '📞 Melhorar atendimento durante horário comercial',
-                '⚡ Reduzir tempo de resposta',
-                '📋 Criar scripts de qualificação',
-                '🎯 Treinar equipe em conversão'
+            "organic_business_hours": [
+                "📞 Melhorar atendimento durante horário comercial",
+                "⚡ Reduzir tempo de resposta",
+                "📋 Criar scripts de qualificação",
+                "🎯 Treinar equipe em conversão",
             ],
-            'evening_social': [
-                '🌙 Criar conteúdo específico para horário noturno',
-                '💬 Implementar chatbot after-hours',
-                '📱 Otimizar para mobile',
-                '🎊 Campanhas promocionais noturnas'
-            ]
+            "evening_social": [
+                "🌙 Criar conteúdo específico para horário noturno",
+                "💬 Implementar chatbot after-hours",
+                "📱 Otimizar para mobile",
+                "🎊 Campanhas promocionais noturnas",
+            ],
         }
-        
-        base_tips = channel_tips.get(channel, [
-            '📊 Analisar dados de performance detalhadamente',
-            '🎯 Melhorar targeting e segmentação',
-            '💬 Otimizar processo de qualificação',
-            '🔄 Testar diferentes abordagens'
-        ])
-        
+
+        base_tips = channel_tips.get(
+            channel,
+            [
+                "📊 Analisar dados de performance detalhadamente",
+                "🎯 Melhorar targeting e segmentação",
+                "💬 Otimizar processo de qualificação",
+                "🔄 Testar diferentes abordagens",
+            ],
+        )
+
         # Adicionar dicas baseadas na performance
         if roi < 50:
-            tips.extend([
-                '🚨 Revisar estratégia completa do canal',
-                '💰 Considerar reduzir investimento temporariamente',
-                '🔍 Investigar vazamentos no funil'
-            ])
+            tips.extend(
+                [
+                    "🚨 Revisar estratégia completa do canal",
+                    "💰 Considerar reduzir investimento temporariamente",
+                    "🔍 Investigar vazamentos no funil",
+                ]
+            )
         elif days_to_convert > 14:
-            tips.append('⚡ Acelerar processo de conversão - muito longo')
-            
+            tips.append("⚡ Acelerar processo de conversão - muito longo")
+
         if customers > 100:
-            tips.append('🔄 Canal com volume - focar em automação')
+            tips.append("🔄 Canal com volume - focar em automação")
         elif customers < 20:
-            tips.append('🎯 Canal pequeno - testar diferentes abordagens')
-            
+            tips.append("🎯 Canal pequeno - testar diferentes abordagens")
+
         return (base_tips + tips)[:6]
-    
+
     def _get_segment_details(self, segment: str) -> Tuple[List[str], List[str]]:
         """Retorna características e ações recomendadas para cada segmento"""
-        
+
         segment_details = {
-            'VIP Champions': {
-                'characteristics': [
-                    'Clientes mais valiosos do negócio',
-                    'Alta frequência de interação',
-                    'Maior valor monetário',
-                    'Promotores naturais da marca',
-                    'Baixíssimo risco de churn'
+            "VIP Champions": {
+                "characteristics": [
+                    "Clientes mais valiosos do negócio",
+                    "Alta frequência de interação",
+                    "Maior valor monetário",
+                    "Promotores naturais da marca",
+                    "Baixíssimo risco de churn",
                 ],
-                'actions': [
-                    'Programa VIP exclusivo',
-                    'Atendimento prioritário',
-                    'Produtos/serviços premium',
-                    'Programa de referência',
-                    'Feedback para melhorias'
-                ]
+                "actions": [
+                    "Programa VIP exclusivo",
+                    "Atendimento prioritário",
+                    "Produtos/serviços premium",
+                    "Programa de referência",
+                    "Feedback para melhorias",
+                ],
             },
-            'Loyal Customers': {
-                'characteristics': [
-                    'Clientes fiéis e consistentes',
-                    'Compram regularmente',
-                    'Bom valor monetário',
-                    'Satisfeitos com o serviço',
-                    'Potencial para upgrade'
+            "Loyal Customers": {
+                "characteristics": [
+                    "Clientes fiéis e consistentes",
+                    "Compram regularmente",
+                    "Bom valor monetário",
+                    "Satisfeitos com o serviço",
+                    "Potencial para upgrade",
                 ],
-                'actions': [
-                    'Programas de fidelidade',
-                    'Cross-sell/Up-sell',
-                    'Comunicação regular',
-                    'Ofertas exclusivas',
-                    'Solicitar reviews'
-                ]
+                "actions": [
+                    "Programas de fidelidade",
+                    "Cross-sell/Up-sell",
+                    "Comunicação regular",
+                    "Ofertas exclusivas",
+                    "Solicitar reviews",
+                ],
             },
-            'Potential Loyalists': {
-                'characteristics': [
-                    'Clientes promissores',
-                    'Engajamento crescente',
-                    'Potencial não explorado',
-                    'Recentes mas ativos'
+            "Potential Loyalists": {
+                "characteristics": [
+                    "Clientes promissores",
+                    "Engajamento crescente",
+                    "Potencial não explorado",
+                    "Recentes mas ativos",
                 ],
-                'actions': [
-                    'Nurturing intensivo',
-                    'Ofertas atrativas',
-                    'Programa de onboarding',
-                    'Acompanhamento próximo',
-                    'Incentivos para frequência'
-                ]
+                "actions": [
+                    "Nurturing intensivo",
+                    "Ofertas atrativas",
+                    "Programa de onboarding",
+                    "Acompanhamento próximo",
+                    "Incentivos para frequência",
+                ],
             },
-            'New Customers': {
-                'characteristics': [
-                    'Recém-chegados ao negócio',
-                    'Primeira impressão crítica',
-                    'Alto potencial futuro',
-                    'Precisam de orientação'
+            "New Customers": {
+                "characteristics": [
+                    "Recém-chegados ao negócio",
+                    "Primeira impressão crítica",
+                    "Alto potencial futuro",
+                    "Precisam de orientação",
                 ],
-                'actions': [
-                    'Welcome series',
-                    'Onboarding estruturado',
-                    'Suporte proativo',
-                    'Ofertas de primeira compra',
-                    'Coleta de feedback inicial'
-                ]
+                "actions": [
+                    "Welcome series",
+                    "Onboarding estruturado",
+                    "Suporte proativo",
+                    "Ofertas de primeira compra",
+                    "Coleta de feedback inicial",
+                ],
             },
-            'At Risk': {
-                'characteristics': [
-                    'Diminuição na atividade',
-                    'Eram clientes valiosos',
-                    'Risco alto de churn',
-                    'Podem ter problemas não relatados'
+            "At Risk": {
+                "characteristics": [
+                    "Diminuição na atividade",
+                    "Eram clientes valiosos",
+                    "Risco alto de churn",
+                    "Podem ter problemas não relatados",
                 ],
-                'actions': [
-                    'Campanha de reativação urgente',
-                    'Contato direto personalizado',
-                    'Investigar motivos da inatividade',
-                    'Ofertas especiais win-back',
-                    'Melhorar experiência'
-                ]
+                "actions": [
+                    "Campanha de reativação urgente",
+                    "Contato direto personalizado",
+                    "Investigar motivos da inatividade",
+                    "Ofertas especiais win-back",
+                    "Melhorar experiência",
+                ],
             },
-            'Cannot Lose Them': {
-                'characteristics': [
-                    'Alto valor histórico',
-                    'Baixa atividade recente',
-                    'Crítico para o negócio',
-                    'Relacionamento em risco'
+            "Cannot Lose Them": {
+                "characteristics": [
+                    "Alto valor histórico",
+                    "Baixa atividade recente",
+                    "Crítico para o negócio",
+                    "Relacionamento em risco",
                 ],
-                'actions': [
-                    'Atenção executiva imediata',
-                    'Reunião presencial/call',
-                    'Proposta customizada',
-                    'Gestor de conta dedicado',
-                    'Recuperação prioritária'
-                ]
+                "actions": [
+                    "Atenção executiva imediata",
+                    "Reunião presencial/call",
+                    "Proposta customizada",
+                    "Gestor de conta dedicado",
+                    "Recuperação prioritária",
+                ],
             },
-            'Lost Customers': {
-                'characteristics': [
-                    'Sem atividade há muito tempo',
-                    'Baixo valor histórico',
-                    'Provavelmente churned',
-                    'ROI de recuperação questionável'
+            "Lost Customers": {
+                "characteristics": [
+                    "Sem atividade há muito tempo",
+                    "Baixo valor histórico",
+                    "Provavelmente churned",
+                    "ROI de recuperação questionável",
                 ],
-                'actions': [
-                    'Campanha win-back básica',
-                    'Ofertas agressivas de retorno',
-                    'Pesquisa de motivos de saída',
-                    'Segmentação para remarketing',
-                    'Análise de custo-benefício'
-                ]
-            }
+                "actions": [
+                    "Campanha win-back básica",
+                    "Ofertas agressivas de retorno",
+                    "Pesquisa de motivos de saída",
+                    "Segmentação para remarketing",
+                    "Análise de custo-benefício",
+                ],
+            },
         }
-        
-        details = segment_details.get(segment, {
-            'characteristics': ['Segmento não categorizado'],
-            'actions': ['Análise manual necessária']
-        })
-        
-        return details['characteristics'], details['actions']
-    
+
+        details = segment_details.get(
+            segment,
+            {
+                "characteristics": ["Segmento não categorizado"],
+                "actions": ["Análise manual necessária"],
+            },
+        )
+
+        return details["characteristics"], details["actions"]
+
     async def calculate_churn_prediction(
-        self,
-        analysis_date: Optional[datetime] = None,
-        include_predictions: bool = True
+        self, analysis_date: Optional[datetime] = None, include_predictions: bool = True
     ) -> Dict[str, Any]:
         """
         🔮 Predição de churn usando algoritmo de scoring avançado
-        
+
         Combina múltiplos fatores para predizer probabilidade de churn:
         - Recency (peso 40%)
         - Frequency (peso 25%)
@@ -1761,9 +2054,9 @@ class AdvancedAnalyticsEngine:
         try:
             if not analysis_date:
                 analysis_date = datetime.utcnow()
-                
+
             logger.info(f"🔮 Calculando predição de churn para {analysis_date}")
-            
+
             # Query para features de churn
             churn_query = """
             WITH customer_features AS (
@@ -1880,10 +2173,10 @@ class AdvancedAnalyticsEngine:
             FROM churn_scores
             ORDER BY churn_score DESC
             """
-            
+
             result = await self.db.execute(text(churn_query), [analysis_date])
             rows = result.fetchall()
-            
+
             # Processar predições
             predictions = []
             for row in rows:
@@ -1894,11 +2187,13 @@ class AdvancedAnalyticsEngine:
                     risk_level = "medium"
                 else:
                     risk_level = "low"
-                
+
                 # Identificar fatores-chave
                 key_factors = []
                 if row.recency_score >= 50:
-                    key_factors.append(f"Sem contato há {row.days_since_last_message} dias")
+                    key_factors.append(
+                        f"Sem contato há {row.days_since_last_message} dias"
+                    )
                 if row.frequency_score >= 30:
                     key_factors.append("Baixa frequência de interação")
                 if row.monetary_score >= 35:
@@ -1907,12 +2202,12 @@ class AdvancedAnalyticsEngine:
                     key_factors.append("Problemas de engajamento")
                 if row.messages_last_30d == 0 and row.messages_prev_30d > 0:
                     key_factors.append("Atividade em declínio")
-                
+
                 # Recomendações baseadas no perfil
                 recommended_actions = self._get_churn_prevention_actions(
                     risk_level, row.churn_score, key_factors
                 )
-                
+
                 # Determinar engagement level
                 if row.total_messages >= 10 and row.total_conversations >= 3:
                     engagement_level = "high"
@@ -1920,44 +2215,59 @@ class AdvancedAnalyticsEngine:
                     engagement_level = "medium"
                 else:
                     engagement_level = "low"
-                
-                if include_predictions or risk_level in ['high', 'medium']:
-                    predictions.append(ChurnPrediction(
-                        user_id=row.id,
-                        nome=row.nome or "N/A",
-                        wa_id=row.wa_id or "",
-                        churn_score=float(row.churn_score),
-                        churn_risk=risk_level,
-                        churn_probability=float(row.churn_probability),
-                        key_factors=key_factors,
-                        recommended_actions=recommended_actions,
-                        days_since_last_contact=int(row.days_since_last_message),
-                        engagement_level=engagement_level,
-                        monetary_value=float(row.total_spent)
-                    ))
-            
+
+                if include_predictions or risk_level in ["high", "medium"]:
+                    predictions.append(
+                        ChurnPrediction(
+                            user_id=row.id,
+                            nome=row.nome or "N/A",
+                            wa_id=row.wa_id or "",
+                            churn_score=float(row.churn_score),
+                            churn_risk=risk_level,
+                            churn_probability=float(row.churn_probability),
+                            key_factors=key_factors,
+                            recommended_actions=recommended_actions,
+                            days_since_last_contact=int(row.days_since_last_message),
+                            engagement_level=engagement_level,
+                            monetary_value=float(row.total_spent),
+                        )
+                    )
+
             # Calcular estatísticas sumárias
             total_analyzed = len(predictions)
             high_risk = len([p for p in predictions if p.churn_risk == "high"])
             medium_risk = len([p for p in predictions if p.churn_risk == "medium"])
             low_risk = len([p for p in predictions if p.churn_risk == "low"])
-            
+
             # Top at-risk customers (top 10 highest scores)
-            top_at_risk = sorted(predictions, key=lambda x: x.churn_score, reverse=True)[:10]
-            
+            top_at_risk = sorted(
+                predictions, key=lambda x: x.churn_score, reverse=True
+            )[:10]
+
             summary = {
                 "total_customers_analyzed": total_analyzed,
                 "high_risk_count": high_risk,
                 "medium_risk_count": medium_risk,
                 "low_risk_count": low_risk,
-                "high_risk_percentage": (high_risk / total_analyzed * 100) if total_analyzed > 0 else 0,
-                "avg_churn_score": sum(p.churn_score for p in predictions) / total_analyzed if total_analyzed > 0 else 0,
-                "predicted_churn_30d": high_risk + int(medium_risk * 0.3),  # Estimativa conservadora
-                "revenue_at_risk": sum(p.monetary_value for p in predictions if p.churn_risk == "high")
+                "high_risk_percentage": (
+                    (high_risk / total_analyzed * 100) if total_analyzed > 0 else 0
+                ),
+                "avg_churn_score": (
+                    sum(p.churn_score for p in predictions) / total_analyzed
+                    if total_analyzed > 0
+                    else 0
+                ),
+                "predicted_churn_30d": high_risk
+                + int(medium_risk * 0.3),  # Estimativa conservadora
+                "revenue_at_risk": sum(
+                    p.monetary_value for p in predictions if p.churn_risk == "high"
+                ),
             }
-            
-            logger.info(f"✅ Churn prediction calculada: {total_analyzed} clientes analisados, {high_risk} alto risco")
-            
+
+            logger.info(
+                f"✅ Churn prediction calculada: {total_analyzed} clientes analisados, {high_risk} alto risco"
+            )
+
             return {
                 "predictions": predictions,
                 "summary": summary,
@@ -1966,74 +2276,69 @@ class AdvancedAnalyticsEngine:
                 "methodology": {
                     "weights": self.churn_weights,
                     "features": ["recency", "frequency", "monetary", "engagement"],
-                    "score_range": "0-100 (higher = more risk)"
-                }
+                    "score_range": "0-100 (higher = more risk)",
+                },
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Erro ao calcular predição de churn: {e}")
             raise
-    
+
     def _get_churn_prevention_actions(
-        self, 
-        risk_level: str, 
-        churn_score: float, 
-        key_factors: List[str]
+        self, risk_level: str, churn_score: float, key_factors: List[str]
     ) -> List[str]:
         """Retorna ações específicas para prevenção de churn baseadas no perfil"""
-        
+
         base_actions = {
             "high": [
                 "🚨 AÇÃO IMEDIATA: Contato personalizado do gerente",
                 "📞 Ligação ou WhatsApp direto em 24h",
                 "🎁 Oferta especial exclusiva (desconto 20-30%)",
                 "❓ Pesquisa: 'Como podemos melhorar sua experiência?'",
-                "⭐ Upgrade gratuito de serviço por período limitado"
+                "⭐ Upgrade gratuito de serviço por período limitado",
             ],
             "medium": [
                 "📧 Campanha de reengajamento personalizada",
                 "🎯 Ofertas baseadas em histórico de compras",
                 "📊 Acompanhamento semanal de satisfação",
                 "💡 Sugestões de novos serviços relevantes",
-                "🔔 Lembretes proativos de agendamento"
+                "🔔 Lembretes proativos de agendamento",
             ],
             "low": [
                 "📬 Newsletter com conteúdo de valor",
                 "🎉 Comunicação de novidades e promoções",
                 "📝 Feedback survey trimestral",
                 "💬 Check-in mensual automatizado",
-                "🏆 Programa de pontos/fidelidade"
-            ]
+                "🏆 Programa de pontos/fidelidade",
+            ],
         }
-        
+
         actions = base_actions.get(risk_level, [])
-        
+
         # Ações específicas baseadas nos fatores-chave
         if any("Sem contato há" in factor for factor in key_factors):
             actions.append("📱 Reativação via múltiplos canais (WhatsApp + Email)")
-        
+
         if any("frequência" in factor.lower() for factor in key_factors):
             actions.append("⏰ Campanha de agendamento recorrente")
-            
+
         if any("monetário" in factor.lower() for factor in key_factors):
             actions.append("💰 Pacotes com desconto progressivo")
-            
+
         if any("engajamento" in factor.lower() for factor in key_factors):
             actions.append("🤝 Atendimento consultivo personalizado")
-            
+
         if any("declínio" in factor.lower() for factor in key_factors):
             actions.append("🔄 Campanha 'Sentimos sua falta' com benefício exclusivo")
-        
+
         return actions[:6]  # Máximo 6 ações para não sobrecarregar
-    
+
     async def calculate_roi_metrics(
-        self,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None
+        self, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None
     ) -> Dict[str, Any]:
         """
         💰 Cálculo abrangente de métricas de ROI e performance do negócio
-        
+
         Inclui:
         - ROI por canal de aquisição
         - Customer Lifetime Value (CLV)
@@ -2046,9 +2351,9 @@ class AdvancedAnalyticsEngine:
                 end_date = datetime.utcnow()
             if not start_date:
                 start_date = end_date - timedelta(days=90)  # Últimos 3 meses default
-                
+
             logger.info(f"💰 Calculando métricas de ROI: {start_date} a {end_date}")
-            
+
             # Query complexa para métricas de ROI
             roi_query = """
             WITH customer_metrics AS (
@@ -2156,126 +2461,172 @@ class AdvancedAnalyticsEngine:
                 (SELECT row_to_json(overall_metrics.*) FROM overall_metrics) as overall
             FROM channel_metrics c
             """
-            
+
             result = await self.db.execute(text(roi_query), [start_date, end_date])
             row = result.fetchone()
-            
+
             if not row or not row.overall:
                 return {
                     "error": "Dados insuficientes para cálculo de ROI",
-                    "period": f"{start_date.strftime('%Y-%m-%d')} a {end_date.strftime('%Y-%m-%d')}"
+                    "period": f"{start_date.strftime('%Y-%m-%d')} a {end_date.strftime('%Y-%m-%d')}",
                 }
-            
+
             # Processar dados
             channels_data = row.channels or []
             overall_data = row.overall
-            
+
             # Calcular métricas derivadas
             period_days = (end_date - start_date).days
-            
+
             # CAC estimado (assumindo custo médio de aquisição)
             estimated_cac_by_channel = {
-                'organic': 0,
-                'whatsapp': 15,      # Custo estimado por lead WhatsApp
-                'google_ads': 45,    # CPC médio Google Ads
-                'facebook': 35,      # CPC médio Facebook
-                'instagram': 30,     # CPC médio Instagram
-                'referral': 20,      # Custo de programa de referência
-                'other': 25          # Custo médio geral
+                "organic": 0,
+                "whatsapp": 15,  # Custo estimado por lead WhatsApp
+                "google_ads": 45,  # CPC médio Google Ads
+                "facebook": 35,  # CPC médio Facebook
+                "instagram": 30,  # CPC médio Instagram
+                "referral": 20,  # Custo de programa de referência
+                "other": 25,  # Custo médio geral
             }
-            
+
             # Processar dados por canal
             channel_roi_metrics = []
             for channel in channels_data:
-                estimated_cac = estimated_cac_by_channel.get(channel['channel'], 25)
-                total_acquisition_cost = channel['customers_acquired'] * estimated_cac
-                
+                estimated_cac = estimated_cac_by_channel.get(channel["channel"], 25)
+                total_acquisition_cost = channel["customers_acquired"] * estimated_cac
+
                 # ROI Calculation: (Revenue - Investment) / Investment * 100
                 if total_acquisition_cost > 0:
-                    roi_percentage = ((channel['total_revenue'] - total_acquisition_cost) / total_acquisition_cost) * 100
+                    roi_percentage = (
+                        (channel["total_revenue"] - total_acquisition_cost)
+                        / total_acquisition_cost
+                    ) * 100
                 else:
-                    roi_percentage = float('inf') if channel['total_revenue'] > 0 else 0
-                
+                    roi_percentage = float("inf") if channel["total_revenue"] > 0 else 0
+
                 # Payback period em dias (CAC / Revenue per day)
-                if channel['avg_customer_value'] > 0:
-                    avg_lifespan = channel['avg_lifespan_days'] or 365
-                    daily_revenue_per_customer = channel['avg_customer_value'] / avg_lifespan
-                    payback_period_days = estimated_cac / daily_revenue_per_customer if daily_revenue_per_customer > 0 else None
+                if channel["avg_customer_value"] > 0:
+                    avg_lifespan = channel["avg_lifespan_days"] or 365
+                    daily_revenue_per_customer = (
+                        channel["avg_customer_value"] / avg_lifespan
+                    )
+                    payback_period_days = (
+                        estimated_cac / daily_revenue_per_customer
+                        if daily_revenue_per_customer > 0
+                        else None
+                    )
                 else:
                     payback_period_days = None
-                
-                channel_roi_metrics.append(ROIMetrics(
-                    canal=channel['channel'],
-                    receita_total=float(channel['total_revenue'] or 0),
-                    receita_periodo=float(channel['period_revenue'] or 0),
-                    custo_aquisicao_estimado=total_acquisition_cost,
-                    roi_percentual=roi_percentage if roi_percentage != float('inf') else 9999.99,
-                    clientes_adquiridos=channel['customers_acquired'],
-                    clientes_pagantes=channel['paying_customers'],
-                    taxa_conversao=float(channel['conversion_rate'] or 0),
-                    valor_medio_pedido=float(channel['avg_order_value'] or 0),
-                    clv_estimado=float(channel['avg_customer_value'] or 0),
-                    payback_period_dias=int(payback_period_days) if payback_period_days else None,
-                    lifetime_dias=int(channel['avg_lifespan_days'] or 0)
-                ))
-            
+
+                channel_roi_metrics.append(
+                    ROIMetrics(
+                        canal=channel["channel"],
+                        receita_total=float(channel["total_revenue"] or 0),
+                        receita_periodo=float(channel["period_revenue"] or 0),
+                        custo_aquisicao_estimado=total_acquisition_cost,
+                        roi_percentual=(
+                            roi_percentage
+                            if roi_percentage != float("inf")
+                            else 9999.99
+                        ),
+                        clientes_adquiridos=channel["customers_acquired"],
+                        clientes_pagantes=channel["paying_customers"],
+                        taxa_conversao=float(channel["conversion_rate"] or 0),
+                        valor_medio_pedido=float(channel["avg_order_value"] or 0),
+                        clv_estimado=float(channel["avg_customer_value"] or 0),
+                        payback_period_dias=(
+                            int(payback_period_days) if payback_period_days else None
+                        ),
+                        lifetime_dias=int(channel["avg_lifespan_days"] or 0),
+                    )
+                )
+
             # Métricas consolidadas
-            total_revenue = float(overall_data.get('total_period_revenue', 0))
-            total_customers = overall_data.get('total_customers', 0)
-            total_paying_customers = overall_data.get('total_paying_customers', 0)
-            
+            total_revenue = float(overall_data.get("total_period_revenue", 0))
+            total_customers = overall_data.get("total_customers", 0)
+            total_paying_customers = overall_data.get("total_paying_customers", 0)
+
             # Estimativa de investimento total em marketing
             total_estimated_investment = sum(
-                channel['customers_acquired'] * estimated_cac_by_channel.get(channel['channel'], 25)
+                channel["customers_acquired"]
+                * estimated_cac_by_channel.get(channel["channel"], 25)
                 for channel in channels_data
             )
-            
+
             # ROI consolidado
-            consolidated_roi = ((total_revenue - total_estimated_investment) / total_estimated_investment * 100) if total_estimated_investment > 0 else 0
-            
+            consolidated_roi = (
+                (
+                    (total_revenue - total_estimated_investment)
+                    / total_estimated_investment
+                    * 100
+                )
+                if total_estimated_investment > 0
+                else 0
+            )
+
             # Métricas de tendência (comparar com período anterior)
             previous_period_start = start_date - timedelta(days=period_days)
             previous_period_end = start_date
-            
+
             prev_result = await self.db.execute(
-                text("SELECT SUM(a.price) as prev_revenue FROM appointments a WHERE a.status IN ('realizado', 'completed') AND a.created_at BETWEEN $1 AND $2"),
-                [previous_period_start, previous_period_end]
+                text(
+                    "SELECT SUM(a.price) as prev_revenue FROM appointments a WHERE a.status IN ('realizado', 'completed') AND a.created_at BETWEEN $1 AND $2"
+                ),
+                [previous_period_start, previous_period_end],
             )
             prev_row = prev_result.fetchone()
             previous_revenue = float(prev_row.prev_revenue or 0) if prev_row else 0
-            
+
             # Growth rate
-            growth_rate = ((total_revenue - previous_revenue) / previous_revenue * 100) if previous_revenue > 0 else 0
-            
+            growth_rate = (
+                ((total_revenue - previous_revenue) / previous_revenue * 100)
+                if previous_revenue > 0
+                else 0
+            )
+
             # Top performing channels
-            top_channels = sorted(channel_roi_metrics, key=lambda x: x.roi_percentual, reverse=True)[:3]
-            
+            top_channels = sorted(
+                channel_roi_metrics, key=lambda x: x.roi_percentual, reverse=True
+            )[:3]
+
             # Análise de performance
             performance_insights = []
-            
+
             if consolidated_roi > 200:
-                performance_insights.append("🔥 ROI excepcional! Estratégia altamente lucrativa")
+                performance_insights.append(
+                    "🔥 ROI excepcional! Estratégia altamente lucrativa"
+                )
             elif consolidated_roi > 100:
-                performance_insights.append("✅ ROI positivo, bom retorno do investimento")
+                performance_insights.append(
+                    "✅ ROI positivo, bom retorno do investimento"
+                )
             elif consolidated_roi > 0:
-                performance_insights.append("⚠️ ROI baixo, revisar estratégia de marketing")
+                performance_insights.append(
+                    "⚠️ ROI baixo, revisar estratégia de marketing"
+                )
             else:
-                performance_insights.append("🚨 ROI negativo, investimento não está pagando")
-            
+                performance_insights.append(
+                    "🚨 ROI negativo, investimento não está pagando"
+                )
+
             if growth_rate > 20:
                 performance_insights.append("📈 Crescimento acelerado mês a mês")
             elif growth_rate > 0:
                 performance_insights.append("📊 Crescimento estável")
             else:
                 performance_insights.append("📉 Receita em declínio, ação necessária")
-            
+
             # Canal mais eficiente
             if top_channels:
                 best_channel = top_channels[0]
-                performance_insights.append(f"🏆 Melhor canal: {best_channel.canal} (ROI: {best_channel.roi_percentual:.1f}%)")
-            
-            logger.info(f"✅ ROI metrics calculadas: ROI consolidado {consolidated_roi:.1f}%")
-            
+                performance_insights.append(
+                    f"🏆 Melhor canal: {best_channel.canal} (ROI: {best_channel.roi_percentual:.1f}%)"
+                )
+
+            logger.info(
+                f"✅ ROI metrics calculadas: ROI consolidado {consolidated_roi:.1f}%"
+            )
+
             return {
                 "channel_metrics": channel_roi_metrics,
                 "consolidated_metrics": {
@@ -2284,17 +2635,25 @@ class AdvancedAnalyticsEngine:
                     "consolidated_roi": consolidated_roi,
                     "total_customers": total_customers,
                     "paying_customers": total_paying_customers,
-                    "conversion_rate": (total_paying_customers / total_customers * 100) if total_customers > 0 else 0,
-                    "avg_customer_lifetime_value": float(overall_data.get('avg_customer_lifetime_value', 0)),
-                    "avg_order_value": float(overall_data.get('overall_avg_order_value', 0)),
-                    "growth_rate": growth_rate
+                    "conversion_rate": (
+                        (total_paying_customers / total_customers * 100)
+                        if total_customers > 0
+                        else 0
+                    ),
+                    "avg_customer_lifetime_value": float(
+                        overall_data.get("avg_customer_lifetime_value", 0)
+                    ),
+                    "avg_order_value": float(
+                        overall_data.get("overall_avg_order_value", 0)
+                    ),
+                    "growth_rate": growth_rate,
                 },
                 "performance_insights": performance_insights,
                 "top_channels": top_channels,
                 "period": {
                     "start_date": start_date.isoformat(),
                     "end_date": end_date.isoformat(),
-                    "days": period_days
+                    "days": period_days,
                 },
                 "methodology": {
                     "cac_estimates": estimated_cac_by_channel,
@@ -2302,11 +2661,11 @@ class AdvancedAnalyticsEngine:
                     "assumptions": [
                         "CAC estimado por canal baseado em médias de mercado",
                         "CLV calculado baseado em histórico de transações",
-                        "Payback period assumindo revenue distribuído uniformemente"
-                    ]
-                }
+                        "Payback period assumindo revenue distribuído uniformemente",
+                    ],
+                },
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Erro ao calcular ROI metrics: {e}")
             raise

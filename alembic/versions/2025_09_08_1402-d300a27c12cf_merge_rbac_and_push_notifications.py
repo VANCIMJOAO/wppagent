@@ -5,13 +5,14 @@ Revises: push_notifications_001, rbac_2025
 Create Date: 2025-09-08 14:02:50.652902-03:00
 
 """
-from alembic import op
+
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'd300a27c12cf'
-down_revision = ('push_notifications_001', 'rbac_2025')
+revision = "d300a27c12cf"
+down_revision = ("push_notifications_001", "rbac_2025")
 branch_labels = None
 depends_on = None
 

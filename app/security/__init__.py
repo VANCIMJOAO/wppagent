@@ -10,14 +10,9 @@ Módulo completo de segurança com:
 - Validação de certificados
 """
 
-from .encryption_service import EncryptionService
-from .ssl_manager import SSLManager
 from .certificate_validator import CertificateValidator
 from .data_encryption import DataEncryption
+from .encryption_service import EncryptionService
+from .ssl_manager import SSLManager
 
-__all__ = [
-    'EncryptionService',
-    'SSLManager', 
-    'CertificateValidator',
-    'DataEncryption'
-]
+__all__ = ["EncryptionService", "SSLManager", "CertificateValidator", "DataEncryption"]

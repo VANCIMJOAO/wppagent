@@ -12,38 +12,42 @@ CORREÇÕES IMPLEMENTADAS:
 4. 📊 Monitoramento de Efetividade
 
 """
+
 import asyncio
-import time
-import json
 import hashlib
+import json
+import time
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
-from fastapi import APIRouter, Request, Depends, HTTPException, Query
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.utils.logger import get_logger
-from app.services.whatsapp import whatsapp_service
-from app.services.data import UserService, ConversationService, MessageService
-from app.utils.whatsapp_sanitizer import sanitize_whatsapp_data, sanitize_message, sanitize_phone
-from app.models.database import MetaLog
 from app.config import settings
+from app.database import get_db
+from app.models.database import MetaLog
+from app.services.data import ConversationService, MessageService, UserService
+from app.services.whatsapp import whatsapp_service
+from app.utils.logger import get_logger
+from app.utils.whatsapp_sanitizer import (sanitize_message, sanitize_phone,
+                                          sanitize_whatsapp_data)
 
 logger = get_logger(__name__)
 
 # 🚨 CONTROLE GLOBAL DE RESPOSTA ÚNICA
 GLOBAL_RESPONSE_CONTROL = {
-    'active_responses': {},  # user_id -> timestamp
-    'processing_locks': {},  # user_id -> asyncio.Lock
-    'message_cache': {},     # message_key -> response_data
-    'stats': {
-        'messages_processed': 0,
-        'messages_blocked': 0,
-        'responses_sent': 0,
-        'duplicates_prevented': 0,
-        'errors': 0
-    }
+    "active_responses": {},  # user_id -> timestamp
+    "processing_locks": {},  # user_id -> asyncio.Lock
+    "message_cache": {},  # message_key -> response_data
+    "stats": {
+        "messages_processed": 0,
+        "messages_blocked": 0,
+        "responses_sent": 0,
+        "duplicates_prevented": 0,
+        "errors": 0,
+    },
 }
+
 
 def get_message_key(user_id: str, content: str) -> str:
     """Gera chave única para mensagem"""
@@ -51,117 +55,157 @@ def get_message_key(user_id: str, content: str) -> str:
     timestamp_window = int(time.time() / 10)  # Janela de 10 segundos
     return f"{user_id}_{content_hash}_{timestamp_window}"
 
+
 async def ensure_single_response(user_id: str, message_content: str) -> bool:
     """
     🚨 CONTROLE RIGOROSO DE RESPOSTA ÚNICA - VERSÃO CORRIGIDA
-    
+
     Returns:
         True: Deve processar a mensagem (primeira vez)
         False: Deve ignorar completamente (duplicada/bloqueada)
     """
     message_key = get_message_key(user_id, message_content)
-    
+
     # Criar lock global se não existir
-    if user_id not in GLOBAL_RESPONSE_CONTROL['processing_locks']:
-        GLOBAL_RESPONSE_CONTROL['processing_locks'][user_id] = asyncio.Lock()
-    
+    if user_id not in GLOBAL_RESPONSE_CONTROL["processing_locks"]:
+        GLOBAL_RESPONSE_CONTROL["processing_locks"][user_id] = asyncio.Lock()
+
     # LOCK RIGOROSO - Apenas um processamento por usuário simultaneamente
-    async with GLOBAL_RESPONSE_CONTROL['processing_locks'][user_id]:
+    async with GLOBAL_RESPONSE_CONTROL["processing_locks"][user_id]:
         current_time = time.time()
-        
+
         # 1. VERIFICAÇÃO RÍGIDA: Mensagem já processada recentemente?
-        if message_key in GLOBAL_RESPONSE_CONTROL['message_cache']:
-            cache_entry = GLOBAL_RESPONSE_CONTROL['message_cache'][message_key]
+        if message_key in GLOBAL_RESPONSE_CONTROL["message_cache"]:
+            cache_entry = GLOBAL_RESPONSE_CONTROL["message_cache"][message_key]
             # Aumentar janela de cache para 60 segundos
-            if current_time - cache_entry['timestamp'] < 60:  
+            if current_time - cache_entry["timestamp"] < 60:
                 logger.warning(f"🚫 BLOQUEADO: Mensagem duplicada {message_key}")
-                GLOBAL_RESPONSE_CONTROL['stats']['messages_blocked'] += 1
-                GLOBAL_RESPONSE_CONTROL['stats']['duplicates_prevented'] += 1
+                GLOBAL_RESPONSE_CONTROL["stats"]["messages_blocked"] += 1
+                GLOBAL_RESPONSE_CONTROL["stats"]["duplicates_prevented"] += 1
                 return False
-        
+
         # 2. VERIFICAÇÃO RÍGIDA: Resposta muito recente para este usuário?
-        if user_id in GLOBAL_RESPONSE_CONTROL['active_responses']:
-            last_response_time = GLOBAL_RESPONSE_CONTROL['active_responses'][user_id]
+        if user_id in GLOBAL_RESPONSE_CONTROL["active_responses"]:
+            last_response_time = GLOBAL_RESPONSE_CONTROL["active_responses"][user_id]
             # Aumentar intervalo para 8 segundos entre respostas
-            if current_time - last_response_time < 8:  
+            if current_time - last_response_time < 8:
                 logger.warning(f"🚫 BLOQUEADO: Resposta muito recente para {user_id}")
-                GLOBAL_RESPONSE_CONTROL['stats']['messages_blocked'] += 1
+                GLOBAL_RESPONSE_CONTROL["stats"]["messages_blocked"] += 1
                 return False
-        
+
         # 3. VERIFICAÇÃO EXTRA: Se há algum processamento em andamento
-        for cached_key, cached_data in GLOBAL_RESPONSE_CONTROL['message_cache'].items():
-            if (cached_data.get('user_id') == user_id and 
-                cached_data.get('processing') == True and
-                current_time - cached_data.get('timestamp', 0) < 30):
-                logger.warning(f"🚫 BLOQUEADO: Usuário {user_id} já processando outra mensagem")
-                GLOBAL_RESPONSE_CONTROL['stats']['messages_blocked'] += 1
+        for cached_key, cached_data in GLOBAL_RESPONSE_CONTROL["message_cache"].items():
+            if (
+                cached_data.get("user_id") == user_id
+                and cached_data.get("processing") == True
+                and current_time - cached_data.get("timestamp", 0) < 30
+            ):
+                logger.warning(
+                    f"🚫 BLOQUEADO: Usuário {user_id} já processando outra mensagem"
+                )
+                GLOBAL_RESPONSE_CONTROL["stats"]["messages_blocked"] += 1
                 return False
-        
+
         # 4. MARCAR COMO PROCESSANDO COM TIMESTAMP RIGOROSO
-        GLOBAL_RESPONSE_CONTROL['message_cache'][message_key] = {
-            'timestamp': current_time,
-            'processing': True,
-            'user_id': user_id,
-            'blocked_similar': True  # Flag para bloquear similares
+        GLOBAL_RESPONSE_CONTROL["message_cache"][message_key] = {
+            "timestamp": current_time,
+            "processing": True,
+            "user_id": user_id,
+            "blocked_similar": True,  # Flag para bloquear similares
         }
-        
-        GLOBAL_RESPONSE_CONTROL['active_responses'][user_id] = current_time
-        GLOBAL_RESPONSE_CONTROL['stats']['messages_processed'] += 1
-        
+
+        GLOBAL_RESPONSE_CONTROL["active_responses"][user_id] = current_time
+        GLOBAL_RESPONSE_CONTROL["stats"]["messages_processed"] += 1
+
         logger.info(f"✅ AUTORIZADO: Processamento único para {user_id}: {message_key}")
         return True
+
 
 def mark_response_sent(user_id: str, message_content: str, response: str):
     """Marca que resposta foi enviada"""
     message_key = get_message_key(user_id, message_content)
-    
-    if message_key in GLOBAL_RESPONSE_CONTROL['message_cache']:
-        GLOBAL_RESPONSE_CONTROL['message_cache'][message_key].update({
-            'response': response,
-            'processing': False,
-            'sent_at': time.time()
-        })
-    
-    GLOBAL_RESPONSE_CONTROL['active_responses'][user_id] = time.time()
-    GLOBAL_RESPONSE_CONTROL['stats']['responses_sent'] += 1
+
+    if message_key in GLOBAL_RESPONSE_CONTROL["message_cache"]:
+        GLOBAL_RESPONSE_CONTROL["message_cache"][message_key].update(
+            {"response": response, "processing": False, "sent_at": time.time()}
+        )
+
+    GLOBAL_RESPONSE_CONTROL["active_responses"][user_id] = time.time()
+    GLOBAL_RESPONSE_CONTROL["stats"]["responses_sent"] += 1
     logger.info(f"✅ Resposta marcada como enviada para {user_id}")
+
 
 # ================================
 # SISTEMA DE RESPOSTA SIMPLIFICADO
 # ================================
 
+
 class SimplifiedResponseGenerator:
     """Gerador de respostas simplificado para controle único"""
-    
+
     def __init__(self):
         self.response_patterns = {
-            'greeting': [
-                'oi', 'olá', 'bom dia', 'boa tarde', 'boa noite', 'tudo bem', 'tchau', 'até'
+            "greeting": [
+                "oi",
+                "olá",
+                "bom dia",
+                "boa tarde",
+                "boa noite",
+                "tudo bem",
+                "tchau",
+                "até",
             ],
-            'services': [
-                'serviço', 'tratamento', 'procedimento', 'o que vocês fazem', 'quais serviços',
-                'lista de serviços', 'oferece', 'especialidade'
+            "services": [
+                "serviço",
+                "tratamento",
+                "procedimento",
+                "o que vocês fazem",
+                "quais serviços",
+                "lista de serviços",
+                "oferece",
+                "especialidade",
             ],
-            'price': [
-                'preço', 'valor', 'quanto custa', 'custa quanto', 'investimento', 'orçamento',
-                'tabela', 'custo', 'taxa'
+            "price": [
+                "preço",
+                "valor",
+                "quanto custa",
+                "custa quanto",
+                "investimento",
+                "orçamento",
+                "tabela",
+                "custo",
+                "taxa",
             ],
-            'booking': [
-                'agendar', 'marcar', 'quero agendar', 'preciso agendar', 'disponibilidade',
-                'horário livre', 'marcar consulta'
+            "booking": [
+                "agendar",
+                "marcar",
+                "quero agendar",
+                "preciso agendar",
+                "disponibilidade",
+                "horário livre",
+                "marcar consulta",
             ],
-            'info': [
-                'horário', 'funcionamento', 'endereço', 'onde', 'localização', 'telefone',
-                'contato', 'como chegar'
+            "info": [
+                "horário",
+                "funcionamento",
+                "endereço",
+                "onde",
+                "localização",
+                "telefone",
+                "contato",
+                "como chegar",
             ],
-            'more_services': [
-                'mais serviço', 'outros serviços', 'mais opções', 'parte 2'
-            ]
+            "more_services": [
+                "mais serviço",
+                "outros serviços",
+                "mais opções",
+                "parte 2",
+            ],
         }
-        
+
         self.responses = {
-            'greeting': "Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar? 🌟",
-            'services': """📋 Aqui estão nossos serviços disponíveis:
+            "greeting": "Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar? 🌟",
+            "services": """📋 Aqui estão nossos serviços disponíveis:
 
 🔹 Limpeza de Pele Profunda - R$ 80,00 (60 min)
 🔹 Hidrofacial - R$ 150,00 (75 min)  
@@ -173,8 +217,7 @@ class SimplifiedResponseGenerator:
 🔹 Depilação - R$ 60,00 (45 min)
 
 Digite "mais serviços" para ver mais opções! 😊""",
-            
-            'more_services': """📋 Mais serviços disponíveis:
+            "more_services": """📋 Mais serviços disponíveis:
 
 🔹 Peeling Químico - R$ 180,00 (50 min)
 🔹 Microagulhamento - R$ 250,00 (60 min)
@@ -186,8 +229,7 @@ Digite "mais serviços" para ver mais opções! 😊""",
 🔹 Maquiagem - R$ 70,00 (40 min)
 
 Qual serviço te interessa? 💆‍♀️""",
-            
-            'price': """💰 Aqui está a informação sobre preços:
+            "price": """💰 Aqui está a informação sobre preços:
 
 🏷️ TRATAMENTOS FACIAIS:
 • Limpeza de Pele - R$ 80,00
@@ -200,8 +242,7 @@ Qual serviço te interessa? 💆‍♀️""",
 • Radiofrequência - R$ 200,00
 
 Qual serviço específico te interessa? Posso dar mais detalhes! 😊""",
-            
-            'booking': """📅 Vamos agendar seu serviço!
+            "booking": """📅 Vamos agendar seu serviço!
 
 Para fazer seu agendamento, preciso saber:
 🔸 Qual serviço você deseja?
@@ -215,8 +256,7 @@ Nossos horários disponíveis:
 • Domingo: Fechado
 
 Qual serviço gostaria de agendar? 💆‍♀️""",
-            
-            'info': """🏢 Aqui estão as informações da empresa:
+            "info": """🏢 Aqui estão as informações da empresa:
 
 📍 **Endereço:**
 Rua das Flores, 123 - Centro
@@ -234,36 +274,40 @@ São Paulo - SP
 🚌 **Transporte:** Próximo ao metrô e pontos de ônibus
 
 Como posso ajudar mais? 😊""",
-            
-            'default': "Como posso ajudar você? 😊\n\nPosso falar sobre nossos serviços, preços, agendamentos ou informações da empresa!"
+            "default": "Como posso ajudar você? 😊\n\nPosso falar sobre nossos serviços, preços, agendamentos ou informações da empresa!",
         }
-    
+
     def generate_single_response(self, message: str) -> str:
         """Gera UMA única resposta para a mensagem"""
         message_lower = message.lower().strip()
-        
+
         # Verificar comando especial primeiro
-        if 'mais serviço' in message_lower or 'outros serviços' in message_lower or 'parte 2' in message_lower:
-            return self.responses['more_services']
-        
+        if (
+            "mais serviço" in message_lower
+            or "outros serviços" in message_lower
+            or "parte 2" in message_lower
+        ):
+            return self.responses["more_services"]
+
         # Detectar intenção principal com prioridade
         intent_scores = {}
-        
+
         for intent, patterns in self.response_patterns.items():
             score = 0
             for pattern in patterns:
                 if pattern in message_lower:
                     score += len(pattern.split())  # Palavras maiores têm mais peso
-            
+
             if score > 0:
                 intent_scores[intent] = score
-        
+
         # Selecionar intenção com maior score
         if intent_scores:
             best_intent = max(intent_scores.items(), key=lambda x: x[1])[0]
             return self.responses[best_intent]
-        
-        return self.responses['default']
+
+        return self.responses["default"]
+
 
 # Instância global
 response_generator = SimplifiedResponseGenerator()
@@ -272,32 +316,38 @@ response_generator = SimplifiedResponseGenerator()
 # LIMPEZA AUTOMÁTICA
 # ================================
 
+
 async def cleanup_response_control():
     """Limpa controles antigos periodicamente"""
     current_time = time.time()
-    
+
     # Limpar cache antigo (mais de 1 hora)
     old_keys = [
-        key for key, data in GLOBAL_RESPONSE_CONTROL['message_cache'].items()
-        if current_time - data['timestamp'] > 3600
+        key
+        for key, data in GLOBAL_RESPONSE_CONTROL["message_cache"].items()
+        if current_time - data["timestamp"] > 3600
     ]
-    
+
     for key in old_keys:
-        del GLOBAL_RESPONSE_CONTROL['message_cache'][key]
-    
+        del GLOBAL_RESPONSE_CONTROL["message_cache"][key]
+
     # Limpar respostas ativas antigas (mais de 5 minutos)
     old_users = [
-        user_id for user_id, timestamp in GLOBAL_RESPONSE_CONTROL['active_responses'].items()
+        user_id
+        for user_id, timestamp in GLOBAL_RESPONSE_CONTROL["active_responses"].items()
         if current_time - timestamp > 300
     ]
-    
+
     for user_id in old_users:
-        del GLOBAL_RESPONSE_CONTROL['active_responses'][user_id]
+        del GLOBAL_RESPONSE_CONTROL["active_responses"][user_id]
         # Também limpar locks antigos
-        if user_id in GLOBAL_RESPONSE_CONTROL['processing_locks']:
-            del GLOBAL_RESPONSE_CONTROL['processing_locks'][user_id]
-    
-    logger.info(f"🧹 Limpeza: removidos {len(old_keys)} caches e {len(old_users)} respostas ativas")
+        if user_id in GLOBAL_RESPONSE_CONTROL["processing_locks"]:
+            del GLOBAL_RESPONSE_CONTROL["processing_locks"][user_id]
+
+    logger.info(
+        f"🧹 Limpeza: removidos {len(old_keys)} caches e {len(old_users)} respostas ativas"
+    )
+
 
 # ================================
 # WEBHOOK CORRIGIDO
@@ -305,20 +355,21 @@ async def cleanup_response_control():
 
 router = APIRouter()
 
+
 @router.get("/webhook")
 async def verify_webhook_corrected(
     hub_mode: str = Query(alias="hub.mode"),
     hub_verify_token: str = Query(alias="hub.verify_token"),
-    hub_challenge: str = Query(alias="hub.challenge")
+    hub_challenge: str = Query(alias="hub.challenge"),
 ):
     """Verificação do webhook (mantida do original)"""
     logger.info(f"🔍 Verificação webhook recebida:")
     logger.info(f"  - Mode: {hub_mode}")
     logger.info(f"  - Token recebido: '{hub_verify_token}'")
-    
+
     try:
-        webhook_token = getattr(settings, 'webhook_verify_token', None)
-        if webhook_token and hasattr(webhook_token, 'get_secret_value'):
+        webhook_token = getattr(settings, "webhook_verify_token", None)
+        if webhook_token and hasattr(webhook_token, "get_secret_value"):
             expected_token = webhook_token.get_secret_value()
         elif webhook_token:
             expected_token = str(webhook_token)
@@ -328,35 +379,40 @@ async def verify_webhook_corrected(
     except Exception as e:
         logger.error(f"Erro ao acessar webhook_verify_token: {e}")
         expected_token = None
-    
+
     logger.info(f"  - Challenge: {hub_challenge}")
-    
+
     if hub_mode == "subscribe":
         challenge = whatsapp_service.verify_webhook(hub_verify_token, hub_challenge)
         if challenge:
             logger.info("✅ Webhook verificado com sucesso!")
             return int(challenge)
         else:
-            logger.error(f"❌ Token não confere! Recebido: '{hub_verify_token}', Esperado: '{expected_token}'")
-    
+            logger.error(
+                f"❌ Token não confere! Recebido: '{hub_verify_token}', Esperado: '{expected_token}'"
+            )
+
     logger.error("❌ Falha na verificação do webhook")
     raise HTTPException(status_code=403, detail="Erro de verificação")
 
+
 @router.post("/webhook")
-async def receive_webhook_corrected(request: Request, db: AsyncSession = Depends(get_db)):
+async def receive_webhook_corrected(
+    request: Request, db: AsyncSession = Depends(get_db)
+):
     """
     🚨 WEBHOOK CORRIGIDO QUE ENVIA APENAS UMA RESPOSTA POR MENSAGEM
     """
     try:
         # 1. Validar e parsear payload
         payload_raw = await request.body()
-        
+
         try:
             payload_dict = json.loads(payload_raw)
         except json.JSONDecodeError as e:
             logger.error(f"❌ Payload JSON inválido: {e}")
             raise HTTPException(status_code=400, detail="JSON inválido")
-        
+
         # 2. Sanitizar payload
         try:
             sanitized_payload = sanitize_whatsapp_data(payload_dict)
@@ -364,10 +420,10 @@ async def receive_webhook_corrected(request: Request, db: AsyncSession = Depends
         except ValueError as e:
             logger.error(f"❌ Falha na sanitização do payload: {e}")
             raise HTTPException(status_code=400, detail=f"Payload inseguro: {str(e)}")
-        
+
         # 3. Log da requisição
         await log_incoming_request_safe(db, sanitized_payload, dict(request.headers))
-        
+
         # 4. Processar entradas
         if "entry" in sanitized_payload:
             for entry in sanitized_payload["entry"]:
@@ -375,15 +431,16 @@ async def receive_webhook_corrected(request: Request, db: AsyncSession = Depends
                     for change in entry["changes"]:
                         if change.get("field") == "messages":
                             await process_single_message_corrected(db, change["value"])
-        
+
         return {"status": "ok"}
-        
+
     except HTTPException:
         raise  # Re-raise HTTP exceptions
     except Exception as e:
         logger.error(f"❌ Erro crítico no webhook corrigido: {e}")
-        GLOBAL_RESPONSE_CONTROL['stats']['errors'] += 1
+        GLOBAL_RESPONSE_CONTROL["stats"]["errors"] += 1
         raise HTTPException(status_code=500, detail="Erro interno do servidor")
+
 
 async def log_incoming_request_safe(db: AsyncSession, payload: dict, headers: dict):
     """Registra requisição de forma segura"""
@@ -395,28 +452,29 @@ async def log_incoming_request_safe(db: AsyncSession, payload: dict, headers: di
                 safe_key = key[:100]
                 safe_value = value[:500]
                 safe_headers[safe_key] = safe_value
-        
+
         log_entry = MetaLog(
             direction="in",
             endpoint="/webhook",
             method="POST",
             status_code=200,
             headers=safe_headers,
-            payload=payload
+            payload=payload,
         )
         db.add(log_entry)
         await db.commit()
         logger.debug("✅ Log de entrada salvo com segurança")
-        
+
     except Exception as e:
         logger.error(f"❌ Erro ao salvar log: {e}")
+
 
 async def process_single_message_corrected(db: AsyncSession, value: dict):
     """🎯 Processa mensagem com controle de resposta única"""
     try:
         if "messages" not in value:
             return
-        
+
         # Processar contatos se disponível
         contacts = value.get("contacts", [])
         contact_info = {}
@@ -424,17 +482,17 @@ async def process_single_message_corrected(db: AsyncSession, value: dict):
             contact = contacts[0]
             if "profile" in contact and "name" in contact["profile"]:
                 contact_info["name"] = contact["profile"]["name"]
-        
+
         for message in value["messages"]:
             # Extrair dados básicos
             wa_id = message.get("from")
             content = extract_message_content_safe(message)
             message_id = message.get("id")
-            
+
             if not wa_id or not content:
                 logger.warning("❌ Mensagem sem wa_id ou conteúdo")
                 continue
-            
+
             # Sanitizar dados
             try:
                 clean_wa_id = sanitize_phone(wa_id)
@@ -442,90 +500,111 @@ async def process_single_message_corrected(db: AsyncSession, value: dict):
             except ValueError as e:
                 logger.error(f"❌ Dados inválidos: {e}")
                 continue
-            
+
             # 🚨 CONTROLE DE RESPOSTA ÚNICA CRÍTICO
             should_process = await ensure_single_response(clean_wa_id, clean_content)
             if not should_process:
-                logger.info(f"🔄 Mensagem ignorada - controle de resposta única: {clean_wa_id}")
+                logger.info(
+                    f"🔄 Mensagem ignorada - controle de resposta única: {clean_wa_id}"
+                )
                 continue
-            
-            logger.info(f"📨 Processando mensagem de {clean_wa_id}: {clean_content[:50]}...")
-            
+
+            logger.info(
+                f"📨 Processando mensagem de {clean_wa_id}: {clean_content[:50]}..."
+            )
+
             # Obter/criar usuário e conversa
             user = await UserService.get_or_create_user(
-                db=db, 
-                wa_id=clean_wa_id, 
-                nome=contact_info.get("name"), 
-                telefone=clean_wa_id
+                db=db,
+                wa_id=clean_wa_id,
+                nome=contact_info.get("name"),
+                telefone=clean_wa_id,
             )
-            
+
             conversation = await ConversationService.get_or_create_conversation(
                 db=db, user_id=user.id
             )
-            
+
             # Verificar se conversa está em modo humano
             if conversation.status == "human":
                 logger.info(f"Conversa {conversation.id} em modo humano - ignorando")
                 # Apenas salvar mensagem, não responder
                 await MessageService.create_message(
-                    db=db, user_id=user.id, conversation_id=conversation.id,
-                    direction="in", content=clean_content, message_type="text",
-                    message_id=message_id
+                    db=db,
+                    user_id=user.id,
+                    conversation_id=conversation.id,
+                    direction="in",
+                    content=clean_content,
+                    message_type="text",
+                    message_id=message_id,
                 )
                 continue
-            
+
             # Salvar mensagem recebida
             await MessageService.create_message(
-                db=db, user_id=user.id, conversation_id=conversation.id,
-                direction="in", content=clean_content, message_type="text",
-                message_id=message_id
+                db=db,
+                user_id=user.id,
+                conversation_id=conversation.id,
+                direction="in",
+                content=clean_content,
+                message_type="text",
+                message_id=message_id,
             )
-            
+
             # 🎯 GERAR UMA ÚNICA RESPOSTA
             start_time = time.time()
             response = response_generator.generate_single_response(clean_content)
-            
+
             # Sanitizar resposta
             safe_response = sanitize_message(response, "text")
-            
+
             # 🚨 ENVIAR APENAS UMA RESPOSTA
             try:
-                send_result = await whatsapp_service.send_text_message(clean_wa_id, safe_response)
-                
+                send_result = await whatsapp_service.send_text_message(
+                    clean_wa_id, safe_response
+                )
+
                 if send_result and "error" not in send_result:
                     # Salvar resposta enviada
                     await MessageService.create_message(
-                        db=db, user_id=user.id, conversation_id=conversation.id,
-                        direction="out", content=safe_response, message_type="text",
+                        db=db,
+                        user_id=user.id,
+                        conversation_id=conversation.id,
+                        direction="out",
+                        content=safe_response,
+                        message_type="text",
                         metadata={
                             "system": "corrected_single_response",
                             "response_time": time.time() - start_time,
                             "timestamp": time.time(),
-                            "whatsapp_response": send_result
-                        }
+                            "whatsapp_response": send_result,
+                        },
                     )
-                    
+
                     # Marcar como enviada
                     mark_response_sent(clean_wa_id, clean_content, safe_response)
-                    
+
                     logger.info(f"✅ ÚNICA resposta enviada para {clean_wa_id}")
                 else:
                     logger.error(f"❌ Falha no envio para {clean_wa_id}: {send_result}")
-                    GLOBAL_RESPONSE_CONTROL['stats']['errors'] += 1
-                
+                    GLOBAL_RESPONSE_CONTROL["stats"]["errors"] += 1
+
             except Exception as send_error:
-                logger.error(f"❌ Erro ao enviar resposta para {clean_wa_id}: {send_error}")
-                GLOBAL_RESPONSE_CONTROL['stats']['errors'] += 1
-                
+                logger.error(
+                    f"❌ Erro ao enviar resposta para {clean_wa_id}: {send_error}"
+                )
+                GLOBAL_RESPONSE_CONTROL["stats"]["errors"] += 1
+
     except Exception as e:
         logger.error(f"❌ Erro no processamento da mensagem: {e}")
-        GLOBAL_RESPONSE_CONTROL['stats']['errors'] += 1
+        GLOBAL_RESPONSE_CONTROL["stats"]["errors"] += 1
+
 
 def extract_message_content_safe(message: dict) -> str:
     """Extrai conteúdo da mensagem de forma segura"""
     try:
         message_type = message.get("type", "text")
-        
+
         if message_type == "text":
             return message.get("text", {}).get("body", "")
         elif message_type == "interactive":
@@ -551,61 +630,68 @@ def extract_message_content_safe(message: dict) -> str:
             return "[Contato compartilhado]"
         else:
             return f"[Mensagem do tipo {message_type}]"
-        
+
         return ""
     except Exception as e:
         logger.error(f"❌ Erro ao extrair conteúdo da mensagem: {e}")
         return "[Erro ao processar mensagem]"
 
+
 # ================================
 # ENDPOINTS DE MONITORAMENTO
 # ================================
+
 
 @router.get("/webhook/stats")
 async def get_correction_stats():
     """Retorna estatísticas das correções"""
     try:
-        stats = GLOBAL_RESPONSE_CONTROL['stats'].copy()
-        
+        stats = GLOBAL_RESPONSE_CONTROL["stats"].copy()
+
         # Calcular métricas
-        total_messages = stats['messages_processed']
-        
+        total_messages = stats["messages_processed"]
+
         if total_messages > 0:
-            block_rate = (stats['messages_blocked'] / total_messages) * 100
-            response_rate = (stats['responses_sent'] / total_messages) * 100
-            
+            block_rate = (stats["messages_blocked"] / total_messages) * 100
+            response_rate = (stats["responses_sent"] / total_messages) * 100
+
             # Verificar efetividade (idealmente 1 resposta por mensagem processada)
-            expected_responses = total_messages - stats['messages_blocked']
-            effectiveness = (stats['responses_sent'] / expected_responses * 100) if expected_responses > 0 else 0
+            expected_responses = total_messages - stats["messages_blocked"]
+            effectiveness = (
+                (stats["responses_sent"] / expected_responses * 100)
+                if expected_responses > 0
+                else 0
+            )
         else:
             block_rate = 0
             response_rate = 0
             effectiveness = 0
-        
+
         return {
             "status": "active",
             "stats": stats,
             "metrics": {
                 "block_rate_percent": round(block_rate, 2),
                 "response_rate_percent": round(response_rate, 2),
-                "effectiveness_percent": round(effectiveness, 2)
+                "effectiveness_percent": round(effectiveness, 2),
             },
             "health": {
                 "single_response_working": effectiveness >= 90,
                 "duplicate_prevention_working": block_rate >= 5,
-                "low_errors": stats['errors'] < 10
+                "low_errors": stats["errors"] < 10,
             },
             "cache_info": {
-                "cached_messages": len(GLOBAL_RESPONSE_CONTROL['message_cache']),
-                "active_users": len(GLOBAL_RESPONSE_CONTROL['active_responses']),
-                "processing_locks": len(GLOBAL_RESPONSE_CONTROL['processing_locks'])
+                "cached_messages": len(GLOBAL_RESPONSE_CONTROL["message_cache"]),
+                "active_users": len(GLOBAL_RESPONSE_CONTROL["active_responses"]),
+                "processing_locks": len(GLOBAL_RESPONSE_CONTROL["processing_locks"]),
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"❌ Erro ao obter estatísticas: {e}")
         return {"error": str(e), "timestamp": datetime.now().isoformat()}
+
 
 @router.post("/webhook/cleanup")
 async def manual_cleanup():
@@ -616,53 +702,57 @@ async def manual_cleanup():
             "status": "cleanup_completed",
             "timestamp": datetime.now().isoformat(),
             "remaining": {
-                "cached_messages": len(GLOBAL_RESPONSE_CONTROL['message_cache']),
-                "active_users": len(GLOBAL_RESPONSE_CONTROL['active_responses']),
-                "processing_locks": len(GLOBAL_RESPONSE_CONTROL['processing_locks'])
-            }
+                "cached_messages": len(GLOBAL_RESPONSE_CONTROL["message_cache"]),
+                "active_users": len(GLOBAL_RESPONSE_CONTROL["active_responses"]),
+                "processing_locks": len(GLOBAL_RESPONSE_CONTROL["processing_locks"]),
+            },
         }
     except Exception as e:
         logger.error(f"❌ Erro na limpeza manual: {e}")
         return {"error": str(e), "timestamp": datetime.now().isoformat()}
 
+
 @router.post("/webhook/reset-stats")
 async def reset_stats():
     """Reseta estatísticas (apenas para desenvolvimento)"""
     try:
-        GLOBAL_RESPONSE_CONTROL['stats'] = {
-            'messages_processed': 0,
-            'messages_blocked': 0,
-            'responses_sent': 0,
-            'duplicates_prevented': 0,
-            'errors': 0
+        GLOBAL_RESPONSE_CONTROL["stats"] = {
+            "messages_processed": 0,
+            "messages_blocked": 0,
+            "responses_sent": 0,
+            "duplicates_prevented": 0,
+            "errors": 0,
         }
-        
-        return {
-            "status": "stats_reset",
-            "timestamp": datetime.now().isoformat()
-        }
+
+        return {"status": "stats_reset", "timestamp": datetime.now().isoformat()}
     except Exception as e:
         logger.error(f"❌ Erro ao resetar estatísticas: {e}")
         return {"error": str(e), "timestamp": datetime.now().isoformat()}
 
+
 # ================================
 # ENDPOINTS FUNCIONAIS QUE O TESTE PROCURA
 # ================================
+
 
 @router.get("/webhook/status")
 async def webhook_status():
     """Status do webhook corrigido"""
     try:
         current_time = time.time()
-        stats = GLOBAL_RESPONSE_CONTROL['stats']
-        
+        stats = GLOBAL_RESPONSE_CONTROL["stats"]
+
         # Calcular efetividade
-        total_messages = stats['messages_processed']
+        total_messages = stats["messages_processed"]
         effectiveness = 0
         if total_messages > 0:
-            expected_responses = total_messages - stats['messages_blocked']
-            effectiveness = (stats['responses_sent'] / expected_responses * 100) if expected_responses > 0 else 0
-        
+            expected_responses = total_messages - stats["messages_blocked"]
+            effectiveness = (
+                (stats["responses_sent"] / expected_responses * 100)
+                if expected_responses > 0
+                else 0
+            )
+
         return {
             "status": "active",
             "corrections_active": True,
@@ -671,51 +761,54 @@ async def webhook_status():
             "effectiveness_percent": round(effectiveness, 2),
             "stats": stats,
             "cache_status": {
-                "messages_cached": len(GLOBAL_RESPONSE_CONTROL['message_cache']),
-                "active_users": len(GLOBAL_RESPONSE_CONTROL['active_responses']),
-                "locks_active": len(GLOBAL_RESPONSE_CONTROL['processing_locks'])
+                "messages_cached": len(GLOBAL_RESPONSE_CONTROL["message_cache"]),
+                "active_users": len(GLOBAL_RESPONSE_CONTROL["active_responses"]),
+                "locks_active": len(GLOBAL_RESPONSE_CONTROL["processing_locks"]),
             },
             "timestamp": datetime.now().isoformat(),
-            "uptime": current_time - start_time if 'start_time' in globals() else 0
+            "uptime": current_time - start_time if "start_time" in globals() else 0,
         }
     except Exception as e:
         return {
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
+
 
 @router.get("/webhook/control")
 async def webhook_control():
     """Status do controle de resposta"""
     try:
-        stats = GLOBAL_RESPONSE_CONTROL['stats']
-        
+        stats = GLOBAL_RESPONSE_CONTROL["stats"]
+
         # Verificar se está funcionando corretamente
-        total_messages = stats['messages_processed']
-        responses_sent = stats['responses_sent']
-        blocks = stats['messages_blocked']
-        
+        total_messages = stats["messages_processed"]
+        responses_sent = stats["responses_sent"]
+        blocks = stats["messages_blocked"]
+
         # Para ser considerado funcionando:
         # 1. Deve ter processado mensagens
         # 2. Deve ter bloqueado duplicatas (se houverem)
         # 3. Taxa de resposta deve ser próxima de 1:1 (excluindo bloqueadas)
-        
+
         control_working = True
         issues = []
-        
+
         if total_messages == 0:
             control_working = False
             issues.append("Nenhuma mensagem processada ainda")
-        
+
         if total_messages > 0:
             expected_responses = total_messages - blocks
             if expected_responses > 0:
                 response_ratio = responses_sent / expected_responses
                 if response_ratio > 1.1:  # Mais de 1.1 resposta por mensagem = problema
                     control_working = False
-                    issues.append(f"Múltiplas respostas detectadas: {response_ratio:.2f} por mensagem")
-        
+                    issues.append(
+                        f"Múltiplas respostas detectadas: {response_ratio:.2f} por mensagem"
+                    )
+
         return {
             "status": "active" if control_working else "issues_detected",
             "response_control": control_working,
@@ -726,22 +819,27 @@ async def webhook_control():
                 "total_messages": total_messages,
                 "responses_sent": responses_sent,
                 "messages_blocked": blocks,
-                "duplicates_prevented": stats['duplicates_prevented'],
-                "errors": stats['errors']
+                "duplicates_prevented": stats["duplicates_prevented"],
+                "errors": stats["errors"],
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
     except Exception as e:
         return {
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
+
 
 # Variável global para tracking de início
 start_time = time.time()
 
-logger.info("✅ Webhook RIGOROSAMENTE corrigido carregado com controle de resposta única")
+logger.info(
+    "✅ Webhook RIGOROSAMENTE corrigido carregado com controle de resposta única"
+)
 logger.info("🚫 Proteções RÍGIDAS: Cache 60s, Intervalo 8s, Verificação tripla")
-logger.info("📊 Endpoints funcionais: /webhook/status, /webhook/control, /webhook/stats")
+logger.info(
+    "📊 Endpoints funcionais: /webhook/status, /webhook/control, /webhook/stats"
+)
 logger.info("🎯 Sistema simplificado com controle RIGOROSO de duplicação")

@@ -3,14 +3,16 @@ Interface Web para Cache Invalidation Manual
 Dashboard administrativo para gerenciamento de cache
 """
 
+import json
+from typing import Dict
+
 from fastapi import Request
 from fastapi.responses import HTMLResponse
-from typing import Dict
-import json
+
 
 def generate_cache_admin_dashboard() -> str:
     """Gera HTML do dashboard administrativo"""
-    return '''
+    return """
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -522,7 +524,8 @@ def generate_cache_admin_dashboard() -> str:
     </script>
 </body>
 </html>
-    '''
+    """
+
 
 async def cache_admin_dashboard():
     """Endpoint para dashboard administrativo"""

@@ -7,16 +7,17 @@ Endpoints para gerenciamento de push notifications:
 - Estatísticas e gerenciamento
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Header
-from sqlalchemy.orm import Session
-from typing import Dict, List, Optional, Any
 import logging
+from typing import Any, Dict, List, Optional
 
-from ..database import get_db
-from ..services.push_service import push_service, send_alert_notification
-from ..models.database import AdminUser
-from ..auth.middleware import require_admin, get_current_user
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from ..auth.middleware import get_current_user, require_admin
+from ..database import get_db
+from ..models.database import AdminUser
+from ..services.push_service import push_service, send_alert_notification
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/push", tags=["push-notifications"])
@@ -25,6 +26,7 @@ router = APIRouter(prefix="/api/push", tags=["push-notifications"])
 # 📝 Pydantic Models
 class PushSubscriptionRequest(BaseModel):
     """Request para subscription de push notifications"""
+
     endpoint: str
     keys: Dict[str, str]  # p256dh e auth
     user_agent: Optional[str] = None
@@ -32,6 +34,7 @@ class PushSubscriptionRequest(BaseModel):
 
 class PushNotificationRequest(BaseModel):
     """Request para envio de notificação"""
+
     title: str
     body: str
     data: Optional[Dict[str, Any]] = None
@@ -43,6 +46,7 @@ class PushNotificationRequest(BaseModel):
 
 class AlertNotificationRequest(BaseModel):
     """Request para notificação de alerta"""
+
     level: str  # HIGH, CRITICAL
     title: str
     message: str
@@ -54,11 +58,11 @@ class AlertNotificationRequest(BaseModel):
 async def subscribe_push_notifications(
     request: PushSubscriptionRequest,
     db: Session = Depends(get_db),
-    admin_user: Dict = Depends(require_admin)
+    admin_user: Dict = Depends(require_admin),
 ):
     """
     🔔 Registra admin para receber push notifications
-    
+
     Body:
     ```json
     {
@@ -72,24 +76,21 @@ async def subscribe_push_notifications(
     ```
     """
     try:
-        subscription_data = {
-            "endpoint": request.endpoint,
-            "keys": request.keys
-        }
-        
+        subscription_data = {"endpoint": request.endpoint, "keys": request.keys}
+
         subscription = await push_service.subscribe_admin(
             db=db,
             admin_user_id=admin_user.id,
             subscription_data=subscription_data,
-            user_agent=request.user_agent
+            user_agent=request.user_agent,
         )
-        
+
         return {
             "success": True,
             "message": "Push notifications ativadas com sucesso",
-            "subscription_id": subscription.id
+            "subscription_id": subscription.id,
         }
-        
+
     except Exception as e:
         logger.error(f"Erro ao ativar push notifications: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -99,26 +100,24 @@ async def subscribe_push_notifications(
 async def unsubscribe_push_notifications(
     endpoint: Optional[str] = None,
     db: Session = Depends(get_db),
-    admin_user: Dict = Depends(require_admin)
+    admin_user: Dict = Depends(require_admin),
 ):
     """
     ❌ Remove subscription de push notifications
-    
+
     Query params:
     - endpoint (opcional): Remove subscription específica, senão remove todas
     """
     try:
         count = await push_service.unsubscribe_admin(
-            db=db,
-            admin_user_id=admin_user.id,
-            endpoint=endpoint
+            db=db, admin_user_id=admin_user.id, endpoint=endpoint
         )
-        
+
         return {
             "success": True,
-            "message": f"Push notifications desativadas ({count} subscriptions removidas)"
+            "message": f"Push notifications desativadas ({count} subscriptions removidas)",
         }
-        
+
     except Exception as e:
         logger.error(f"Erro ao desativar push notifications: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -126,31 +125,33 @@ async def unsubscribe_push_notifications(
 
 @router.get("/subscriptions")
 async def list_admin_subscriptions(
-    db: Session = Depends(get_db),
-    admin_user: Dict = Depends(require_admin)
+    db: Session = Depends(get_db), admin_user: Dict = Depends(require_admin)
 ):
     """
     📋 Lista subscriptions ativas do admin
     """
     try:
         subscriptions = await push_service.get_admin_subscriptions(
-            db=db,
-            admin_user_id=admin_user.id
+            db=db, admin_user_id=admin_user.id
         )
-        
+
         return {
             "subscriptions": [
                 {
                     "id": sub.id,
-                    "endpoint": sub.endpoint[:50] + "..." if len(sub.endpoint) > 50 else sub.endpoint,
+                    "endpoint": (
+                        sub.endpoint[:50] + "..."
+                        if len(sub.endpoint) > 50
+                        else sub.endpoint
+                    ),
                     "user_agent": sub.user_agent,
                     "created_at": sub.created_at,
-                    "last_used_at": sub.last_used_at
+                    "last_used_at": sub.last_used_at,
                 }
                 for sub in subscriptions
             ]
         }
-        
+
     except Exception as e:
         logger.error(f"Erro ao listar subscriptions: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -162,11 +163,11 @@ async def send_push_notification(
     admin_user_id: Optional[int] = None,
     send_to_all: bool = False,
     db: Session = Depends(get_db),
-    admin_user: Dict = Depends(require_admin)
+    admin_user: Dict = Depends(require_admin),
 ):
     """
     📤 Envia push notification
-    
+
     Body:
     ```json
     {
@@ -176,7 +177,7 @@ async def send_push_notification(
         "require_interaction": false
     }
     ```
-    
+
     Query params:
     - admin_user_id: ID do admin de destino (opcional)
     - send_to_all: Enviar para todos os admins (default: false)
@@ -192,14 +193,14 @@ async def send_push_notification(
                 icon=request.icon,
                 badge=request.badge,
                 tag=request.tag,
-                require_interaction=request.require_interaction
+                require_interaction=request.require_interaction,
             )
-            
+
             return {
                 "success": True,
-                "message": f"Notificação enviada para todos os admins ({count} notificações)"
+                "message": f"Notificação enviada para todos os admins ({count} notificações)",
             }
-            
+
         elif admin_user_id:
             # Enviar para admin específico
             count = await push_service.send_to_admin(
@@ -211,14 +212,14 @@ async def send_push_notification(
                 icon=request.icon,
                 badge=request.badge,
                 tag=request.tag,
-                require_interaction=request.require_interaction
+                require_interaction=request.require_interaction,
             )
-            
+
             return {
                 "success": True,
-                "message": f"Notificação enviada para admin {admin_user_id} ({count} notificações)"
+                "message": f"Notificação enviada para admin {admin_user_id} ({count} notificações)",
             }
-            
+
         else:
             # Enviar para o próprio admin
             count = await push_service.send_to_admin(
@@ -230,14 +231,14 @@ async def send_push_notification(
                 icon=request.icon,
                 badge=request.badge,
                 tag=request.tag,
-                require_interaction=request.require_interaction
+                require_interaction=request.require_interaction,
             )
-            
+
             return {
                 "success": True,
-                "message": f"Notificação enviada ({count} notificações)"
+                "message": f"Notificação enviada ({count} notificações)",
             }
-            
+
     except Exception as e:
         logger.error(f"Erro ao enviar notificação: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -247,11 +248,11 @@ async def send_push_notification(
 async def send_alert_push_notification(
     request: AlertNotificationRequest,
     db: Session = Depends(get_db),
-    admin_user: Dict = Depends(require_admin)
+    admin_user: Dict = Depends(require_admin),
 ):
     """
     🚨 Envia push notification para alerta HIGH/CRITICAL
-    
+
     Body:
     ```json
     {
@@ -265,23 +266,22 @@ async def send_alert_push_notification(
     try:
         if request.level not in ["HIGH", "CRITICAL"]:
             raise HTTPException(
-                status_code=400,
-                detail="Level deve ser HIGH ou CRITICAL"
+                status_code=400, detail="Level deve ser HIGH ou CRITICAL"
             )
-        
+
         await send_alert_notification(
             db=db,
             alert_level=request.level,
             title=request.title,
             message=request.message,
-            data=request.data
+            data=request.data,
         )
-        
+
         return {
             "success": True,
-            "message": f"Alerta {request.level} enviado para todos os admins"
+            "message": f"Alerta {request.level} enviado para todos os admins",
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -291,8 +291,7 @@ async def send_alert_push_notification(
 
 @router.get("/stats")
 async def get_push_notification_stats(
-    db: Session = Depends(get_db),
-    admin_user: Dict = Depends(require_admin)
+    db: Session = Depends(get_db), admin_user: Dict = Depends(require_admin)
 ):
     """
     📊 Estatísticas de push notifications
@@ -300,7 +299,7 @@ async def get_push_notification_stats(
     try:
         stats = await push_service.get_notification_stats(db)
         return stats
-        
+
     except Exception as e:
         logger.error(f"Erro ao obter estatísticas: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -308,8 +307,7 @@ async def get_push_notification_stats(
 
 @router.post("/test")
 async def test_push_notification(
-    db: Session = Depends(get_db),
-    admin_user: Dict = Depends(require_admin)
+    db: Session = Depends(get_db), admin_user: Dict = Depends(require_admin)
 ):
     """
     🧪 Envia notificação de teste para o admin atual
@@ -321,14 +319,14 @@ async def test_push_notification(
             title="🧪 Teste de Push Notification",
             body="Se você está vendo isso, as push notifications estão funcionando!",
             data={"test": True},
-            tag="test-notification"
+            tag="test-notification",
         )
-        
+
         return {
             "success": True,
-            "message": f"Notificação de teste enviada ({count} subscriptions)"
+            "message": f"Notificação de teste enviada ({count} subscriptions)",
         }
-        
+
     except Exception as e:
         logger.error(f"Erro ao enviar teste: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -336,8 +334,7 @@ async def test_push_notification(
 
 @router.delete("/cleanup")
 async def cleanup_invalid_subscriptions(
-    db: Session = Depends(get_db),
-    admin_user: Dict = Depends(require_admin)
+    db: Session = Depends(get_db), admin_user: Dict = Depends(require_admin)
 ):
     """
     🧹 Remove subscriptions inválidas (apenas super admin)
@@ -346,17 +343,16 @@ async def cleanup_invalid_subscriptions(
         # Verificar se é super admin
         if not admin_user.is_super_admin:
             raise HTTPException(
-                status_code=403,
-                detail="Apenas super admins podem executar cleanup"
+                status_code=403, detail="Apenas super admins podem executar cleanup"
             )
-        
+
         count = await push_service.cleanup_invalid_subscriptions(db)
-        
+
         return {
             "success": True,
-            "message": f"Cleanup concluído ({count} subscriptions removidas)"
+            "message": f"Cleanup concluído ({count} subscriptions removidas)",
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -369,12 +365,11 @@ async def cleanup_invalid_subscriptions(
 async def get_vapid_public_key():
     """
     🔑 Retorna VAPID public key para o frontend
-    
+
     Não requer autenticação pois é chave pública.
     """
     from ..config import get_settings
+
     settings = get_settings()
-    
-    return {
-        "vapid_public_key": settings.VAPID_PUBLIC_KEY_FRONTEND
-    }
+
+    return {"vapid_public_key": settings.VAPID_PUBLIC_KEY_FRONTEND}

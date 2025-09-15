@@ -1,0 +1,204 @@
+name: 🔍 CI/CD Observabilidade
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # 📊 Quality Metrics Integration
+  quality-metrics:
+    name: 📊 Quality Metrics
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov black flake8 mypy bandit safety
+
+      - name: 📊 Calculate Quality Score
+        run: |
+          python scripts/calculate_quality_score.py
+          echo "Quality score calculated and stored"
+
+      - name: 🏷️ Type Checking Advanced
+        run: |
+          mypy app/ --ignore-missing-imports --strict-optional
+          echo "✅ Advanced type checking: PASSED"
+
+      - name: 🔍 Advanced Linting
+        run: |
+          flake8 app/ --max-line-length=88 --extend-ignore=E203,W503 --statistics
+          echo "✅ Advanced linting: PASSED"
+
+      - name: 🛡️ Comprehensive Security Scan
+        run: |
+          bandit -r app/ -f json -o bandit-report.json -ll
+          safety check --json --output safety-report.json --full-report
+          echo "✅ Comprehensive security scan: PASSED"
+
+  # 🧪 Extended Testing Suite
+  extended-testing:
+    name: 🧪 Extended Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-suite: [unit-extended, integration-extended, performance, chaos]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: whatsapp_agent_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-xdist pytest-benchmark locust
+
+      - name: 🧪 Run Extended Tests - ${{ matrix.test-suite }}
+        run: |
+          case "${{ matrix.test-suite }}" in
+            "unit-extended")
+              pytest tests/unit/ -v --cov=app --cov-report=xml --cov-report=html --cov-branch
+              ;;
+            "integration-extended")
+              pytest tests/integration/ -v --tb=long --durations=10
+              ;;
+            "performance")
+              pytest tests/performance/ -v --benchmark-only --benchmark-json=benchmark.json
+              ;;
+            "chaos")
+              python scripts/chaos_testing.py --duration=300 --scenarios=all
+              ;;
+          esac
+
+      - name: 📊 Upload Extended Coverage
+        if: matrix.test-suite == 'unit-extended'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: extended-tests
+          name: extended-coverage
+
+  # 📈 Performance Monitoring
+  performance-monitoring:
+    name: 📈 Performance Monitoring
+    runs-on: ubuntu-latest
+    needs: extended-testing
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📈 Performance Analysis
+        run: |
+          python scripts/performance_analysis.py --comprehensive
+          echo "✅ Performance analysis completed"
+
+      - name: 🎯 Benchmark Validation
+        run: |
+          python scripts/benchmark_validation.py
+          echo "✅ Benchmark validation passed"
+
+      - name: 📊 Memory Profiling
+        run: |
+          python scripts/memory_profiling.py
+          echo "✅ Memory profiling completed"
+
+  # 🔍 Observability Validation
+  observability-validation:
+    name: 🔍 Observability Validation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 📊 Validate Observability Stack
+        run: |
+          python scripts/validate_observability_stack.py
+          echo "✅ Observability stack validation: PASSED"
+
+      - name: 🧠 AI Insights Validation
+        run: |
+          python scripts/validate_ai_insights.py
+          echo "✅ AI insights validation: PASSED"
+
+      - name: 🛡️ Resilience Testing
+        run: |
+          python scripts/resilience_testing.py --duration=180
+          echo "✅ Resilience testing: PASSED"
+
+      - name: 🔄 Auto-Recovery Validation
+        run: |
+          python scripts/validate_auto_recovery.py
+          echo "✅ Auto-recovery validation: PASSED"
+
+  # 📋 Metrics Reporting
+  metrics-reporting:
+    name: 📋 Metrics Reporting
+    runs-on: ubuntu-latest
+    needs: [quality-metrics, extended-testing, performance-monitoring, observability-validation]
+    if: always()
+    steps:
+      - name: 📊 Generate Comprehensive Report
+        run: |
+          python scripts/generate_comprehensive_report.py
+          echo "✅ Comprehensive report generated"
+
+      - name: 📈 Update Dashboard Metrics
+        run: |
+          python scripts/update_dashboard_metrics.py
+          echo "✅ Dashboard metrics updated"
+
+      - name: 🚨 Alert Management
+        if: failure()
+        run: |
+          python scripts/alert_management.py --type=failure --context="CI/CD Pipeline"
+          echo "✅ Failure alerts sent"
+
+      - name: 🎉 Success Notification
+        if: success()
+        run: |
+          python scripts/success_notification.py --context="CI/CD Pipeline"
+          echo "✅ Success notification sent"

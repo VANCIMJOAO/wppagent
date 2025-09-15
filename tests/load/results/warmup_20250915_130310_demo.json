@@ -1,0 +1,113 @@
+{
+  "scenario": "warmup",
+  "config": {
+    "users": 2,
+    "duration": 10,
+    "endpoints": {
+      "/health": 100
+    }
+  },
+  "metrics": {
+    "total_requests": 10,
+    "successful_requests": 10,
+    "failed_requests": 0,
+    "failure_rate": 0.0,
+    "avg_response_time": 75.54684972768403,
+    "min_response_time": 36.45848197237915,
+    "max_response_time": 102.33939292766232,
+    "rps": 13.218903868597105,
+    "duration_actual": 0.7564923763275146
+  },
+  "raw_results": [
+    {
+      "endpoint": "/health",
+      "response_time": 51.77337550763878,
+      "success": true,
+      "status_code": 200,
+      "user_id": 0,
+      "request_num": 0,
+      "timestamp": 1757952189.7828526
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 69.53854519144741,
+      "success": true,
+      "status_code": 200,
+      "user_id": 0,
+      "request_num": 1,
+      "timestamp": 1757952189.852502
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 67.6568988664152,
+      "success": true,
+      "status_code": 200,
+      "user_id": 0,
+      "request_num": 2,
+      "timestamp": 1757952189.9202535
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 102.33939292766232,
+      "success": true,
+      "status_code": 200,
+      "user_id": 0,
+      "request_num": 3,
+      "timestamp": 1757952190.0226936
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 99.489409613048,
+      "success": true,
+      "status_code": 200,
+      "user_id": 0,
+      "request_num": 4,
+      "timestamp": 1757952190.1222875
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 76.96484633298597,
+      "success": true,
+      "status_code": 200,
+      "user_id": 1,
+      "request_num": 0,
+      "timestamp": 1757952190.1993475
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 82.73140392955547,
+      "success": true,
+      "status_code": 200,
+      "user_id": 1,
+      "request_num": 1,
+      "timestamp": 1757952190.2821696
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 96.30489767658277,
+      "success": true,
+      "status_code": 200,
+      "user_id": 1,
+      "request_num": 2,
+      "timestamp": 1757952190.3785667
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 36.45848197237915,
+      "success": true,
+      "status_code": 200,
+      "user_id": 1,
+      "request_num": 3,
+      "timestamp": 1757952190.4151177
+    },
+    {
+      "endpoint": "/health",
+      "response_time": 72.21124525912532,
+      "success": true,
+      "status_code": 200,
+      "user_id": 1,
+      "request_num": 4,
+      "timestamp": 1757952190.4874473
+    }
+  ]
+}

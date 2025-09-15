@@ -3,16 +3,18 @@ Utilitários para prompts dinâmicos - VERSÃO CORRIGIDA
 Gera prompts com data atual e dados REAIS da database Railway
 """
 
-from datetime import datetime
 import locale
-from typing import Dict, Any
+from datetime import datetime
+from typing import Any, Dict
+
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 # Importar funções de formatação
 try:
-    from app.services.business_data import get_database_services_formatted, business_data_service
+    from app.services.business_data import (business_data_service,
+                                            get_database_services_formatted)
 except ImportError as e:
     logger.warning(f"Não foi possível importar funções de formatação: {e}")
     get_database_services_formatted = None
@@ -20,103 +22,129 @@ except ImportError as e:
 
 # Configurar locale para português brasileiro
 try:
-    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+    locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 except locale.Error:
     try:
-        locale.setlocale(locale.LC_TIME, 'pt_BR')
+        locale.setlocale(locale.LC_TIME, "pt_BR")
     except locale.Error:
         # Fallback se não conseguir configurar locale
         pass
+
 
 def get_current_date_info() -> Dict[str, Any]:
     """
     Retorna informações sobre a data atual
     """
     now = datetime.now()
-    
+
     # Mapeamento manual dos dias da semana em português
     weekdays = {
-        'Monday': 'segunda-feira',
-        'Tuesday': 'terça-feira', 
-        'Wednesday': 'quarta-feira',
-        'Thursday': 'quinta-feira',
-        'Friday': 'sexta-feira',
-        'Saturday': 'sábado',
-        'Sunday': 'domingo'
+        "Monday": "segunda-feira",
+        "Tuesday": "terça-feira",
+        "Wednesday": "quarta-feira",
+        "Thursday": "quinta-feira",
+        "Friday": "sexta-feira",
+        "Saturday": "sábado",
+        "Sunday": "domingo",
     }
-    
+
     # Mapeamento manual dos meses em português
     months = {
-        1: 'janeiro', 2: 'fevereiro', 3: 'março', 4: 'abril',
-        5: 'maio', 6: 'junho', 7: 'julho', 8: 'agosto',
-        9: 'setembro', 10: 'outubro', 11: 'novembro', 12: 'dezembro'
+        1: "janeiro",
+        2: "fevereiro",
+        3: "março",
+        4: "abril",
+        5: "maio",
+        6: "junho",
+        7: "julho",
+        8: "agosto",
+        9: "setembro",
+        10: "outubro",
+        11: "novembro",
+        12: "dezembro",
     }
-    
-    weekday_pt = weekdays.get(now.strftime('%A'), now.strftime('%A'))
+
+    weekday_pt = weekdays.get(now.strftime("%A"), now.strftime("%A"))
     month_pt = months.get(now.month, str(now.month))
-    
+
     return {
-        'date': now.strftime('%d'),
-        'month': month_pt,
-        'year': str(now.year),
-        'weekday': weekday_pt,
-        'formatted_date': f"{now.day} de {month_pt} de {now.year}",
-        'full_info': f"{now.day} de {month_pt} de {now.year} ({weekday_pt})"
+        "date": now.strftime("%d"),
+        "month": month_pt,
+        "year": str(now.year),
+        "weekday": weekday_pt,
+        "formatted_date": f"{now.day} de {month_pt} de {now.year}",
+        "full_info": f"{now.day} de {month_pt} de {now.year} ({weekday_pt})",
     }
+
 
 async def get_dynamic_system_prompt_with_database(user_message: str = "") -> str:
     """
     Gera o prompt do sistema com data atual dinâmica E dados reais da database
     VERSÃO CORRIGIDA - CONEXÃO DIRETA COM RAILWAY
-    
+
     Args:
         user_message: Mensagem do usuário para detecção inteligente de conteúdo
     """
     # CONEXÃO DIRETA COM RAILWAY - SEM DEPENDÊNCIAS
     import asyncpg
-    
+
     date_info = get_current_date_info()
-    
+
     # URL REAL DO RAILWAY QUE FUNCIONA
     RAILWAY_DATABASE_URL = "postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway"
-    
+
     # Buscar dados reais da database
     try:
         # Conectar diretamente ao Railway
         conn = await asyncpg.connect(RAILWAY_DATABASE_URL)
-        
+
         # Buscar empresa
-        company_info = await conn.fetchrow("SELECT * FROM company_info WHERE business_id = 3")
-        
+        company_info = await conn.fetchrow(
+            "SELECT * FROM company_info WHERE business_id = 3"
+        )
+
         # Buscar serviços reais
-        services = await conn.fetch("SELECT * FROM services WHERE business_id = 3 AND is_active = true ORDER BY name")
-        
+        services = await conn.fetch(
+            "SELECT * FROM services WHERE business_id = 3 AND is_active = true ORDER BY name"
+        )
+
         # Buscar horários de funcionamento
-        business_hours = await conn.fetch("SELECT * FROM business_hours WHERE business_id = 3")
-        
+        business_hours = await conn.fetch(
+            "SELECT * FROM business_hours WHERE business_id = 3"
+        )
+
         # Buscar formas de pagamento
-        payment_methods = await conn.fetch("SELECT * FROM payment_methods WHERE business_id = 3")
-        
+        payment_methods = await conn.fetch(
+            "SELECT * FROM payment_methods WHERE business_id = 3"
+        )
+
         # Buscar políticas
-        policies = await conn.fetch("SELECT * FROM business_policies WHERE business_id = 3")
-        
+        policies = await conn.fetch(
+            "SELECT * FROM business_policies WHERE business_id = 3"
+        )
+
         await conn.close()
-        
+
         # Usar formatação melhorada dos serviços
         if get_database_services_formatted:
             try:
                 services_text = await get_database_services_formatted(user_message)
-                services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n" + services_text
+                services_text = (
+                    "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
+                    + services_text
+                )
                 services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
                 logger.info("✅ Formatação melhorada de serviços aplicada")
             except Exception as e:
                 logger.error(f"Erro ao formatar serviços melhorados: {e}")
                 # Fallback para formatação básica
                 if services:
-                    services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
+                    services_text = (
+                        "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
+                    )
                     for service in services:
                         services_text += f"✅ {service['name']}: {service['price']} - {service['duration_minutes']}min\n"
-                        if service['description']:
+                        if service["description"]:
                             services_text += f"   📝 {service['description']}\n"
                     services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
                 else:
@@ -128,16 +156,18 @@ async def get_dynamic_system_prompt_with_database(user_message: str = "") -> str
                 services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
                 for service in services:
                     services_text += f"✅ {service['name']}: {service['price']} - {service['duration_minutes']}min\n"
-                    if service['description']:
+                    if service["description"]:
                         services_text += f"   📝 {service['description']}\n"
                 services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
             else:
                 services_text = "❌ ERRO: Nenhum serviço encontrado na database!"
-        
+
         # Usar formatação melhorada dos horários
         if business_data_service:
             try:
-                hours_text = await business_data_service.get_business_hours_formatted_text()
+                hours_text = (
+                    await business_data_service.get_business_hours_formatted_text()
+                )
                 logger.info("✅ Formatação melhorada de horários aplicada")
             except Exception as e:
                 logger.error(f"Erro ao formatar horários melhorados: {e}")
@@ -146,70 +176,106 @@ async def get_dynamic_system_prompt_with_database(user_message: str = "") -> str
                     hours_text = "📅 HORÁRIO REAL DE FUNCIONAMENTO:\n"
                     for hour in business_hours:
                         # Converter day_of_week para string se necessário
-                        day_val = hour['day_of_week']
+                        day_val = hour["day_of_week"]
                         if isinstance(day_val, int):
-                            days_map = {0: 'segunda', 1: 'terça', 2: 'quarta', 3: 'quinta', 4: 'sexta', 5: 'sábado', 6: 'domingo'}
-                            day_name = days_map.get(day_val, f'Dia {day_val}')
+                            days_map = {
+                                0: "segunda",
+                                1: "terça",
+                                2: "quarta",
+                                3: "quinta",
+                                4: "sexta",
+                                5: "sábado",
+                                6: "domingo",
+                            }
+                            day_name = days_map.get(day_val, f"Dia {day_val}")
                         elif isinstance(day_val, str):
                             day_name = day_val.capitalize()
                         else:
-                            day_name = 'Dia'
-                            
-                        open_time = hour['open_time'].strftime('%H:%M') if hour['open_time'] else '09:00'
-                        close_time = hour['close_time'].strftime('%H:%M') if hour['close_time'] else '18:00'
+                            day_name = "Dia"
+
+                        open_time = (
+                            hour["open_time"].strftime("%H:%M")
+                            if hour["open_time"]
+                            else "09:00"
+                        )
+                        close_time = (
+                            hour["close_time"].strftime("%H:%M")
+                            if hour["close_time"]
+                            else "18:00"
+                        )
                         hours_text += f"- {day_name}: {open_time} às {close_time}\n"
                 else:
                     hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
         else:
-            logger.warning("Serviço de dados não disponível para horários, usando fallback")
+            logger.warning(
+                "Serviço de dados não disponível para horários, usando fallback"
+            )
             # Fallback para formatação básica
             if business_hours:
                 hours_text = "📅 HORÁRIO REAL DE FUNCIONAMENTO:\n"
                 for hour in business_hours:
                     # Converter day_of_week para string se necessário
-                    day_val = hour['day_of_week']
+                    day_val = hour["day_of_week"]
                     if isinstance(day_val, int):
-                        days_map = {0: 'segunda', 1: 'terça', 2: 'quarta', 3: 'quinta', 4: 'sexta', 5: 'sábado', 6: 'domingo'}
-                        day_name = days_map.get(day_val, f'Dia {day_val}')
+                        days_map = {
+                            0: "segunda",
+                            1: "terça",
+                            2: "quarta",
+                            3: "quinta",
+                            4: "sexta",
+                            5: "sábado",
+                            6: "domingo",
+                        }
+                        day_name = days_map.get(day_val, f"Dia {day_val}")
                     elif isinstance(day_val, str):
                         day_name = day_val.capitalize()
                     else:
-                        day_name = 'Dia'
-                        
-                    open_time = hour['open_time'].strftime('%H:%M') if hour['open_time'] else '09:00'
-                    close_time = hour['close_time'].strftime('%H:%M') if hour['close_time'] else '18:00'
+                        day_name = "Dia"
+
+                    open_time = (
+                        hour["open_time"].strftime("%H:%M")
+                        if hour["open_time"]
+                        else "09:00"
+                    )
+                    close_time = (
+                        hour["close_time"].strftime("%H:%M")
+                        if hour["close_time"]
+                        else "18:00"
+                    )
                     hours_text += f"- {day_name}: {open_time} às {close_time}\n"
             else:
                 hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
-        
+
         # Formatar formas de pagamento REAIS
         if payment_methods:
             payment_text = "💳 FORMAS DE PAGAMENTO REAIS:\n"
             for payment in payment_methods:
                 payment_text += f"✅ {payment['name']}"
-                if payment.get('description'):
+                if payment.get("description"):
                     payment_text += f": {payment['description']}"
                 payment_text += "\n"
         else:
             payment_text = "💳 FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
-        
+
         # Formatar políticas REAIS
         policies_text = ""
         if policies:
             policies_text = "📋 POLÍTICAS REAIS DO NEGÓCIO:\n"
             for policy in policies:
                 policies_text += f"📝 {policy['policy_type']}:\n"
-                if policy.get('description'):
+                if policy.get("description"):
                     policies_text += f"   {policy['description']}\n"
-        
+
         # Dados REAIS da empresa
         if company_info:
-            company_name = company_info['company_name']
+            company_name = company_info["company_name"]
             company_address = f"{company_info['street_address']}, {company_info['city']}, {company_info['state']}"
-            logger.info(f"✅ DADOS REAIS CARREGADOS: {company_name} - {len(services)} serviços")
+            logger.info(
+                f"✅ DADOS REAIS CARREGADOS: {company_name} - {len(services)} serviços"
+            )
         else:
             raise Exception("Empresa não encontrada")
-        
+
     except Exception as e:
         logger.error(f"❌ ERRO ao conectar com Railway: {e}")
         # Se falhar, usar dados que sabemos que estão no banco (do diagnóstico)
@@ -232,13 +298,15 @@ async def get_dynamic_system_prompt_with_database(user_message: str = "") -> str
 ✅ Day Spa Relax: R$ 280,00 - 300min
 
 ⚠️ ESTES SÃO OS PREÇOS REAIS DA DATABASE!"""
-        
+
         company_name = "Studio Beleza & Bem-Estar"
         company_address = "Rua das Flores, 123 - Centro, São Paulo, SP"
         hours_text = "📅 HORÁRIO DE FUNCIONAMENTO:\n- Segunda a Sexta: 9h às 18h\n- Sábado: 9h às 16h\n- Domingo: Fechado"
-        payment_text = "💳 FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
+        payment_text = (
+            "💳 FORMAS DE PAGAMENTO: Dinheiro, PIX, Cartão de Débito, Cartão de Crédito"
+        )
         policies_text = ""
-    
+
     return f"""
 🏢 EMPRESA REAL: {company_name}
 📍 ENDEREÇO REAL: {company_address}
@@ -426,13 +494,14 @@ Se faltar informações, pergunte de forma natural e amigável.
 ⚠️ ENDEREÇO: {company_address}
 """
 
+
 def get_dynamic_system_prompt() -> str:
     """
     Gera o prompt do sistema com data atual dinâmica
     DEPRECATED: Use get_dynamic_system_prompt_with_database() para dados reais
     """
     date_info = get_current_date_info()
-    
+
     return f"""
 Você é um assistente virtual inteligente para agendamentos via WhatsApp.
 Você trabalha para uma empresa de serviços e sua função é ajudar os clientes a:
@@ -483,12 +552,13 @@ Se faltar informações, pergunte de forma natural e amigável.
 IMPORTANTE: Se o usuário disser "segunda-feira" mas não especificar qual segunda, pergunte "qual segunda-feira você prefere?" ao invés de inventar uma data.
 """
 
+
 def get_dynamic_llm_system_prompt() -> str:
     """
     Gera prompt do sistema para LLM avançado com data dinâmica
     """
     date_info = get_current_date_info()
-    
+
     return f"""
 DATA ATUAL: {date_info['full_info']}
 
@@ -515,12 +585,13 @@ REGRAS:
 - Use emojis apropriados
 """
 
+
 def get_dynamic_data_extraction_prompt() -> str:
     """
     Gera prompt de extração de dados com contexto temporal dinâmico
     """
     date_info = get_current_date_info()
-    
+
     return f"""
 CONTEXTO TEMPORAL: Hoje é {date_info['full_info']}
 

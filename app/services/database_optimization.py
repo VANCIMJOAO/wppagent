@@ -10,91 +10,91 @@ Implementa:
 """
 
 import asyncio
-import asyncpg
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
+
+import asyncpg
+
 from app.config import settings
-from app.utils.logger import get_logger
 from app.database import engine
+from app.utils.logger import get_logger
+
 logger = get_logger(__name__)
-from sqlalchemy import text, inspect
-from sqlalchemy.ext.asyncio import AsyncSession
 import json
 import os
 import subprocess
 
+from sqlalchemy import inspect, text
+from sqlalchemy.ext.asyncio import AsyncSession
+
 logger = logging.getLogger(__name__)
+
 
 class DatabaseOptimizationService:
     """Serviço para otimização e administração do banco de dados"""
-    
+
     def __init__(self):
         self.db_config = {
-            'host': settings.db_host,
-            'port': settings.db_port,
-            'database': settings.db_name,
-            'user': settings.db_user,
-            'password': settings.db_password.get_secret_value()
+            "host": settings.db_host,
+            "port": settings.db_port,
+            "database": settings.db_name,
+            "user": settings.db_user,
+            "password": settings.db_password.get_secret_value(),
         }
         self.backup_dir = "backups/database"
         self.engine = engine
-    
+
     async def create_optimized_indexes(self) -> Dict[str, Any]:
         """
         Cria índices otimizados para queries frequentes
         """
         logger.info("🚀 Criando índices otimizados...")
-        
+
         indexes = {
             # Índices para messages (usando colunas que existem)
             "messages_performance": [
                 "CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages (created_at DESC);",
                 "CREATE INDEX IF NOT EXISTS idx_messages_user_conversation ON messages (user_id, conversation_id);",
                 "CREATE INDEX IF NOT EXISTS idx_messages_direction ON messages (direction);",
-                "CREATE INDEX IF NOT EXISTS idx_messages_content_search ON messages USING gin(to_tsvector('portuguese', content));"
+                "CREATE INDEX IF NOT EXISTS idx_messages_content_search ON messages USING gin(to_tsvector('portuguese', content));",
             ],
-            
             # Índices para conversations (usando colunas que existem)
             "conversations_performance": [
                 "CREATE INDEX IF NOT EXISTS idx_conversations_status_updated ON conversations (status, updated_at DESC);",
                 "CREATE INDEX IF NOT EXISTS idx_conversations_user_status ON conversations (user_id, status);",
                 "CREATE INDEX IF NOT EXISTS idx_conversations_last_message ON conversations (last_message_at DESC);",
-                "CREATE INDEX IF NOT EXISTS idx_conversations_user_created ON conversations (user_id, created_at DESC);"
+                "CREATE INDEX IF NOT EXISTS idx_conversations_user_created ON conversations (user_id, created_at DESC);",
             ],
-            
             # Índices para users (usando colunas que existem: wa_id, nome, telefone, email)
             "users_performance": [
                 "CREATE INDEX IF NOT EXISTS idx_users_wa_id ON users (wa_id) WHERE wa_id IS NOT NULL;",
                 "CREATE INDEX IF NOT EXISTS idx_users_telefone ON users (telefone) WHERE telefone IS NOT NULL;",
                 "CREATE INDEX IF NOT EXISTS idx_users_email ON users (email) WHERE email IS NOT NULL;",
-                "CREATE INDEX IF NOT EXISTS idx_users_created_at ON users (created_at DESC);"
+                "CREATE INDEX IF NOT EXISTS idx_users_created_at ON users (created_at DESC);",
             ],
-            
             # Índices para appointments (usando colunas que existem: date_time, status, service_id)
             "appointments_performance": [
                 "CREATE INDEX IF NOT EXISTS idx_appointments_datetime_status ON appointments (date_time, status);",
                 "CREATE INDEX IF NOT EXISTS idx_appointments_user_future ON appointments (user_id, date_time) WHERE date_time > NOW();",
                 "CREATE INDEX IF NOT EXISTS idx_appointments_service_date ON appointments (service_id, date_time);",
-                "CREATE INDEX IF NOT EXISTS idx_appointments_status_created ON appointments (status, created_at DESC);"
+                "CREATE INDEX IF NOT EXISTS idx_appointments_status_created ON appointments (status, created_at DESC);",
             ],
-            
             # Índices para meta_logs (queries por data, endpoint, status)
             "meta_logs_performance": [
                 "CREATE INDEX IF NOT EXISTS idx_meta_logs_created_direction ON meta_logs (created_at DESC, direction);",
                 "CREATE INDEX IF NOT EXISTS idx_meta_logs_endpoint_status ON meta_logs (endpoint, status_code);",
                 "CREATE INDEX IF NOT EXISTS idx_meta_logs_error_analysis ON meta_logs (status_code) WHERE status_code >= 400;",
-                "CREATE INDEX IF NOT EXISTS idx_meta_logs_created_at ON meta_logs (created_at DESC);"
+                "CREATE INDEX IF NOT EXISTS idx_meta_logs_created_at ON meta_logs (created_at DESC);",
             ],
-            
             # Índices para admin_users e login_sessions
             "admin_performance": [
                 "CREATE INDEX IF NOT EXISTS idx_admin_users_username_active ON admin_users (username) WHERE is_active = true;",
                 "CREATE INDEX IF NOT EXISTS idx_admin_users_username ON admin_users (username);",
-                "CREATE INDEX IF NOT EXISTS idx_login_sessions_admin_expires ON login_sessions (admin_user_id, expires_at);"
-            ]
+                "CREATE INDEX IF NOT EXISTS idx_login_sessions_admin_expires ON login_sessions (admin_user_id, expires_at);",
+            ],
         }
-        
+
         results = {}
         # Executar cada índice individualmente para evitar problemas de transação
         for category, index_list in indexes.items():
@@ -103,23 +103,27 @@ class DatabaseOptimizationService:
                 try:
                     async with self.engine.begin() as conn:
                         await conn.execute(text(index_sql))
-                        index_name = index_sql.split("idx_")[1].split(" ")[0] if "idx_" in index_sql else "unknown"
+                        index_name = (
+                            index_sql.split("idx_")[1].split(" ")[0]
+                            if "idx_" in index_sql
+                            else "unknown"
+                        )
                         results[category].append(f"✅ {index_name}")
                         logger.info(f"✅ Índice criado: {index_name}")
                 except Exception as e:
                     error_msg = f"❌ Erro ao criar índice: {str(e)[:100]}"
                     results[category].append(error_msg)
                     logger.error(error_msg)
-        
+
         logger.info("🎯 Criação de índices concluída")
         return results
-    
+
     async def create_stored_procedures(self) -> Dict[str, Any]:
         """
         Cria stored procedures para operações complexas
         """
         logger.info("🔧 Criando stored procedures...")
-        
+
         procedures = {
             # Procedure para análise de conversas
             "conversation_analytics": """
@@ -155,7 +159,6 @@ class DatabaseOptimizationService:
                 END;
                 $$ LANGUAGE plpgsql;
             """,
-            
             # Procedure para limpeza de dados antigos
             "cleanup_old_data": """
                 CREATE OR REPLACE FUNCTION cleanup_old_data(
@@ -185,7 +188,6 @@ class DatabaseOptimizationService:
                 END;
                 $$ LANGUAGE plpgsql;
             """,
-            
             # Procedure para estatísticas de performance
             "performance_stats": """
                 CREATE OR REPLACE FUNCTION get_performance_stats()
@@ -221,7 +223,6 @@ class DatabaseOptimizationService:
                 END;
                 $$ LANGUAGE plpgsql;
             """,
-            
             # Procedure para backup de conversas críticas
             "backup_critical_conversations": """
                 CREATE OR REPLACE FUNCTION backup_critical_conversations(
@@ -249,7 +250,6 @@ class DatabaseOptimizationService:
                 END;
                 $$ LANGUAGE plpgsql;
             """,
-            
             # Procedure para otimização automática
             "auto_optimize": """
                 CREATE OR REPLACE FUNCTION auto_optimize_database()
@@ -281,9 +281,9 @@ class DatabaseOptimizationService:
                     RETURN QUERY VALUES ('ANALYZE_STATS', 'Completed', end_time - start_time);
                 END;
                 $$ LANGUAGE plpgsql;
-            """
+            """,
         }
-        
+
         results = {}
         async with self.engine.begin() as conn:
             for proc_name, proc_sql in procedures.items():
@@ -295,35 +295,35 @@ class DatabaseOptimizationService:
                     error_msg = f"❌ Erro: {str(e)[:100]}"
                     results[proc_name] = error_msg
                     logger.error(f"❌ Erro ao criar procedure {proc_name}: {e}")
-        
+
         logger.info("🎯 Criação de stored procedures concluída")
         return results
-    
+
     async def setup_backup_strategy(self) -> Dict[str, Any]:
         """
         Configura estratégia de backup/restore
         """
         logger.info("💾 Configurando estratégia de backup...")
-        
+
         # Criar diretório de backup
         os.makedirs(self.backup_dir, exist_ok=True)
-        
+
         backup_config = {
             "backup_schedule": {
                 "full_backup": "daily_2am",
                 "incremental": "every_6h",
-                "transaction_log": "every_15m"
+                "transaction_log": "every_15m",
             },
             "retention_policy": {
                 "daily_backups": "30_days",
-                "weekly_backups": "12_weeks", 
-                "monthly_backups": "12_months"
+                "weekly_backups": "12_weeks",
+                "monthly_backups": "12_months",
             },
             "backup_verification": "automatic",
             "compression": "gzip",
-            "encryption": "AES256"
+            "encryption": "AES256",
         }
-        
+
         # Script de backup diário
         backup_script = f"""#!/bin/bash
 # Backup automático do WhatsApp Agent Database
@@ -420,13 +420,13 @@ case "$1" in
         ;;
 esac
 """
-        
+
         # Salvar script de backup
         script_path = f"{self.backup_dir}/backup_script.sh"
-        with open(script_path, 'w') as f:
+        with open(script_path, "w") as f:
             f.write(backup_script)
         os.chmod(script_path, 0o755)
-        
+
         # Script de restore
         restore_script = f"""#!/bin/bash
 # Script de restore do WhatsApp Agent Database
@@ -508,34 +508,34 @@ case "$1" in
         ;;
 esac
 """
-        
+
         restore_script_path = f"{self.backup_dir}/restore_script.sh"
-        with open(restore_script_path, 'w') as f:
+        with open(restore_script_path, "w") as f:
             f.write(restore_script)
         os.chmod(restore_script_path, 0o755)
-        
+
         return {
             "backup_config": backup_config,
             "backup_script": script_path,
             "restore_script": restore_script_path,
             "backup_directory": self.backup_dir,
-            "status": "✅ Estratégia de backup configurada"
+            "status": "✅ Estratégia de backup configurada",
         }
-    
+
     async def setup_replication_config(self) -> Dict[str, Any]:
         """
         Configura replicação para alta disponibilidade
         """
         logger.info("🔄 Configurando replicação para alta disponibilidade...")
-        
+
         replication_config = {
             "architecture": "primary_replica",
             "replication_type": "streaming_replication",
             "sync_mode": "asynchronous",  # Para melhor performance
             "replica_count": 2,
-            "failover": "automatic"
+            "failover": "automatic",
         }
-        
+
         # Configurações do PostgreSQL para replicação
         postgresql_conf = """
 # Configurações de Replicação para Alta Disponibilidade
@@ -572,7 +572,7 @@ maintenance_work_mem = 64MB
 hot_standby = on
 wal_receiver_timeout = 60s
 """
-        
+
         # pg_hba.conf para replicação
         pg_hba_replication = """
 # Configuração de acesso para replicação
@@ -583,7 +583,7 @@ host    replication     replicator      10.0.0.0/8              md5
 host    replication     replicator      172.16.0.0/12           md5
 host    replication     replicator      192.168.0.0/16          md5
 """
-        
+
         # Script de configuração do Primary
         primary_setup = """#!/bin/bash
 # Configuração do servidor Primary para replicação
@@ -605,7 +605,7 @@ echo "✅ Usuário de replicação criado"
 echo "⚠️  Para ativar a replicação, aplique as configurações do postgresql.conf"
 echo "⚠️  e reinicie o PostgreSQL: sudo systemctl restart postgresql"
 """
-        
+
         # Script de configuração do Replica
         replica_setup = """#!/bin/bash
 # Configuração do servidor Replica
@@ -639,7 +639,7 @@ sudo systemctl start postgresql
 echo "✅ Replica configurado e iniciado"
 echo "💡 Para promover a replica a primary: touch /tmp/promote_replica"
 """
-        
+
         # Monitoramento de replicação
         monitoring_script = """#!/bin/bash
 # Script de monitoramento da replicação
@@ -702,26 +702,26 @@ case "$1" in
         ;;
 esac
 """
-        
+
         # Salvar arquivos de configuração
         config_dir = f"{self.backup_dir}/../replication"
         os.makedirs(config_dir, exist_ok=True)
-        
+
         configs = {
             "postgresql.conf": postgresql_conf,
             "pg_hba_replication.conf": pg_hba_replication,
             "setup_primary.sh": primary_setup,
             "setup_replica.sh": replica_setup,
-            "monitor_replication.sh": monitoring_script
+            "monitor_replication.sh": monitoring_script,
         }
-        
+
         for filename, content in configs.items():
             filepath = f"{config_dir}/{filename}"
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write(content)
-            if filename.endswith('.sh'):
+            if filename.endswith(".sh"):
                 os.chmod(filepath, 0o755)
-        
+
         return {
             "replication_config": replication_config,
             "config_directory": config_dir,
@@ -730,31 +730,35 @@ esac
                 "1. Aplicar configurações do postgresql.conf no Primary",
                 "2. Reiniciar PostgreSQL no Primary",
                 "3. Executar setup_replica.sh no servidor Replica",
-                "4. Monitorar com monitor_replication.sh"
+                "4. Monitorar com monitor_replication.sh",
             ],
-            "status": "✅ Configuração de replicação preparada"
+            "status": "✅ Configuração de replicação preparada",
         }
-    
+
     async def run_performance_analysis(self) -> Dict[str, Any]:
         """
         Executa análise de performance do banco
         """
         logger.info("📊 Executando análise de performance...")
-        
+
         results = {}
-        
+
         # Verificar se pg_stat_statements está disponível
         async with self.engine.begin() as conn:
             try:
-                check_extension = await conn.execute(text("""
+                check_extension = await conn.execute(
+                    text(
+                        """
                     SELECT EXISTS(
                         SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements'
                     ) as has_extension;
-                """))
+                """
+                    )
+                )
                 has_pg_stat_statements = check_extension.scalar()
             except Exception:
                 has_pg_stat_statements = False
-        
+
         # Queries básicas sempre disponíveis
         base_queries = {
             "table_sizes": """
@@ -766,7 +770,6 @@ esac
                 WHERE schemaname = 'public'
                 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
             """,
-            
             "index_usage": """
                 SELECT 
                     schemaname,
@@ -783,7 +786,6 @@ esac
                 WHERE schemaname = 'public'
                 ORDER BY idx_tup_read DESC;
             """,
-            
             "connection_stats": """
                 SELECT 
                     state,
@@ -791,7 +793,6 @@ esac
                 FROM pg_stat_activity 
                 GROUP BY state;
             """,
-            
             "database_stats": """
                 SELECT 
                     pg_database_size(current_database()) as db_size_bytes,
@@ -799,7 +800,6 @@ esac
                     (SELECT count(*) FROM pg_stat_activity WHERE state = 'active') as active_connections,
                     (SELECT setting FROM pg_settings WHERE name = 'max_connections') as max_connections;
             """,
-            
             "table_activity": """
                 SELECT 
                     schemaname,
@@ -814,12 +814,14 @@ esac
                 FROM pg_stat_user_tables 
                 WHERE schemaname = 'public'
                 ORDER BY (n_tup_ins + n_tup_upd + n_tup_del) DESC;
-            """
+            """,
         }
-        
+
         # Query específica se pg_stat_statements estiver disponível
         if has_pg_stat_statements:
-            base_queries["slow_queries"] = """
+            base_queries[
+                "slow_queries"
+            ] = """
                 SELECT 
                     LEFT(query, 80) as query_preview,
                     calls,
@@ -835,34 +837,48 @@ esac
             results["slow_queries"] = {
                 "status": "⚠️ Extensão pg_stat_statements não disponível",
                 "solution": "Execute: CREATE EXTENSION IF NOT EXISTS pg_stat_statements;",
-                "note": "Requer reinicialização do banco após habilitar"
+                "note": "Requer reinicialização do banco após habilitar",
             }
-        
+
         # Executar todas as queries disponíveis
         for analysis_name, query in base_queries.items():
             try:
                 async with self.engine.begin() as conn:
                     result = await conn.execute(text(query))
                     rows = result.fetchall()
-                    results[analysis_name] = [dict(row._mapping) for row in rows] if rows else []
+                    results[analysis_name] = (
+                        [dict(row._mapping) for row in rows] if rows else []
+                    )
                     logger.info(f"✅ Análise {analysis_name}: {len(rows)} resultados")
             except Exception as e:
                 results[analysis_name] = {
                     "error": f"❌ Erro: {str(e)[:150]}",
-                    "query": analysis_name
+                    "query": analysis_name,
                 }
                 logger.error(f"❌ Erro na análise {analysis_name}: {e}")
-        
+
         # Adicionar resumo da análise
         results["analysis_summary"] = {
             "timestamp": datetime.now().isoformat(),
             "pg_stat_statements_available": has_pg_stat_statements,
-            "queries_executed": len([k for k in results.keys() if not isinstance(results[k], dict) or "error" not in results[k]]),
-            "errors": len([k for k in results.keys() if isinstance(results[k], dict) and "error" in results[k]])
+            "queries_executed": len(
+                [
+                    k
+                    for k in results.keys()
+                    if not isinstance(results[k], dict) or "error" not in results[k]
+                ]
+            ),
+            "errors": len(
+                [
+                    k
+                    for k in results.keys()
+                    if isinstance(results[k], dict) and "error" in results[k]
+                ]
+            ),
         }
-        
+
         return results
-    
+
     async def get_optimization_status(self) -> Dict[str, Any]:
         """
         Retorna status das otimizações implementadas
@@ -870,16 +886,22 @@ esac
         status = {
             "timestamp": datetime.utcnow().isoformat(),
             "optimizations": {},
-            "health_score": 0
+            "health_score": 0,
         }
-        
+
         checks = [
             ("indexes", "SELECT count(*) FROM pg_indexes WHERE schemaname = 'public'"),
-            ("procedures", "SELECT count(*) FROM pg_proc WHERE prokind = 'f' AND pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')"),
+            (
+                "procedures",
+                "SELECT count(*) FROM pg_proc WHERE prokind = 'f' AND pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')",
+            ),
             ("connections", "SELECT count(*) FROM pg_stat_activity"),
-            ("database_size", "SELECT pg_database_size(current_database()) / 1024.0 / 1024.0 as size_mb")
+            (
+                "database_size",
+                "SELECT pg_database_size(current_database()) / 1024.0 / 1024.0 as size_mb",
+            ),
         ]
-        
+
         async with self.engine.begin() as conn:
             for check_name, query in checks:
                 try:
@@ -887,22 +909,28 @@ esac
                     value = result.scalar()
                     status["optimizations"][check_name] = {
                         "value": float(value) if value else 0,
-                        "status": "healthy" if value else "needs_attention"
+                        "status": "healthy" if value else "needs_attention",
                     }
                 except Exception as e:
                     status["optimizations"][check_name] = {
                         "value": 0,
                         "status": "error",
-                        "error": str(e)
+                        "error": str(e),
                     }
-        
+
         # Calcular health score
-        healthy_count = sum(1 for opt in status["optimizations"].values() 
-                          if opt.get("status") == "healthy")
+        healthy_count = sum(
+            1
+            for opt in status["optimizations"].values()
+            if opt.get("status") == "healthy"
+        )
         total_checks = len(status["optimizations"])
-        status["health_score"] = (healthy_count / total_checks * 100) if total_checks > 0 else 0
-        
+        status["health_score"] = (
+            (healthy_count / total_checks * 100) if total_checks > 0 else 0
+        )
+
         return status
+
 
 # Instância global
 db_optimizer = DatabaseOptimizationService()

@@ -86,7 +86,6 @@ OPTIMIZED_QUERIES = {
         WHERE wa_id = %(wa_id)s
         LIMIT 1
     """,
-    
     "get_recent_conversations": """
         SELECT c.id, c.status, c.last_message_at, c.created_at,
                u.wa_id, u.nome
@@ -97,7 +96,6 @@ OPTIMIZED_QUERIES = {
         ORDER BY c.last_message_at DESC
         LIMIT %(limit)s
     """,
-    
     "get_conversation_history": """
         SELECT m.id, m.content, m.message_type, m.timestamp,
                m.metadata, c.status
@@ -108,7 +106,6 @@ OPTIMIZED_QUERIES = {
         ORDER BY m.timestamp DESC
         LIMIT %(limit)s
     """,
-    
     "get_available_slots_optimized": """
         SELECT slot_time, business_id
         FROM available_slots
@@ -117,7 +114,6 @@ OPTIMIZED_QUERIES = {
           AND business_id = %(business_id)s
         ORDER BY slot_time
     """,
-    
     "get_user_stats": """
         WITH user_stats AS (
             SELECT 
@@ -133,7 +129,6 @@ OPTIMIZED_QUERIES = {
         )
         SELECT * FROM user_stats
     """,
-    
     "search_users": """
         SELECT id, wa_id, nome, telefone, email, created_at,
                ts_rank(to_tsvector('portuguese', nome), query) as rank
@@ -142,7 +137,6 @@ OPTIMIZED_QUERIES = {
         ORDER BY rank DESC, created_at DESC
         LIMIT %(limit)s
     """,
-    
     "get_business_metrics": """
         WITH daily_stats AS (
             SELECT 
@@ -167,13 +161,11 @@ OPTIMIZED_QUERIES = {
         FROM daily_stats
         ORDER BY date DESC
     """,
-    
     "cleanup_old_sessions": """
         DELETE FROM login_sessions 
         WHERE expires_at < NOW() 
            OR (created_at < NOW() - INTERVAL '30 days' AND is_active = false)
     """,
-    
     "cleanup_old_messages": """
         DELETE FROM messages 
         WHERE timestamp < NOW() - INTERVAL '%(days)s days'
@@ -181,7 +173,6 @@ OPTIMIZED_QUERIES = {
               SELECT id FROM conversations WHERE status = 'closed'
           )
     """,
-    
     "get_popular_intents": """
         SELECT 
             metadata->>'intent' as intent,
@@ -195,7 +186,7 @@ OPTIMIZED_QUERIES = {
         GROUP BY metadata->>'intent'
         ORDER BY frequency DESC
         LIMIT 20
-    """
+    """,
 }
 
 # Configurações de performance por tabela

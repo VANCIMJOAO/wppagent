@@ -1,11 +1,12 @@
 import asyncio
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+
+from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import AsyncEngine
+
 from alembic import context
-from app.models.database import Base
 from app.config import settings
+from app.models.database import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -28,16 +29,17 @@ target_metadata = Base.metadata
 # H003 FIX - Override URL with DATABASE_URL environment variable
 # This ensures production environments use PostgreSQL instead of SQLite
 import os
+
 database_url = os.environ.get("DATABASE_URL")
 if database_url:
     # Escape % characters for configparser
-    escaped_url = database_url.replace('%', '%%')
+    escaped_url = database_url.replace("%", "%%")
     config.set_main_option("sqlalchemy.url", escaped_url)
     print(f"H003 - Using DATABASE_URL from environment: {database_url[:20]}...")
 else:
     # Fallback to settings.database_url if available
-    if hasattr(settings, 'database_url') and settings.database_url:
-        escaped_url = settings.database_url.replace('%', '%%')
+    if hasattr(settings, "database_url") and settings.database_url:
+        escaped_url = settings.database_url.replace("%", "%%")
         config.set_main_option("sqlalchemy.url", escaped_url)
         print(f"H003 - Using settings.database_url: {settings.database_url[:20]}...")
     else:
@@ -82,17 +84,20 @@ async def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    from sqlalchemy.ext.asyncio import create_async_engine
     import os
-    
+
+    from sqlalchemy.ext.asyncio import create_async_engine
+
     # H003 FIX - Improved database URL resolution
     # Priority: 1. DATABASE_URL env var, 2. alembic.ini, 3. fallback
-    database_url = os.environ.get("DATABASE_URL") or config.get_main_option("sqlalchemy.url")
-    
+    database_url = os.environ.get("DATABASE_URL") or config.get_main_option(
+        "sqlalchemy.url"
+    )
+
     if not database_url:
         database_url = "sqlite+aiosqlite:///./whatsapp_agent.db"
         print("H003 - WARNING: No DATABASE_URL found, using SQLite fallback")
-    
+
     # Convert to async driver if necessary
     if database_url.startswith("postgresql://"):
         database_url = database_url.replace("postgresql://", "postgresql+asyncpg://")
@@ -100,9 +105,11 @@ async def run_migrations_online() -> None:
     elif database_url.startswith("sqlite:///"):
         database_url = database_url.replace("sqlite:///", "sqlite+aiosqlite:///")
         print("H003 - Converted SQLite URL to async driver")
-    
-    print(f"H003 - Connecting to: {database_url.split('@')[-1] if '@' in database_url else database_url[:30]}...")
-    
+
+    print(
+        f"H003 - Connecting to: {database_url.split('@')[-1] if '@' in database_url else database_url[:30]}..."
+    )
+
     connectable = create_async_engine(database_url)
 
     async with connectable.connect() as connection:

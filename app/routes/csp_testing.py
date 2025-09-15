@@ -5,9 +5,10 @@
 Router para testes de Content Security Policy (CSP) implementados no S001.
 """
 
+from typing import Any, Dict
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-from typing import Dict, Any
 
 # Criar router para testes CSP
 csp_testing_router = APIRouter(prefix="/csp-test", tags=["CSP Testing"])
@@ -87,12 +88,12 @@ async def csp_status():
                 "connect-src 'self'",
                 "frame-ancestors 'none'",
                 "base-uri 'self'",
-                "form-action 'self'"
+                "form-action 'self'",
             ],
             "implementation": "S001 - Content Security Policy",
-            "test_endpoint": "/csp-test/"
+            "test_endpoint": "/csp-test/",
         },
-        "error": None
+        "error": None,
     }
 
 
@@ -103,23 +104,23 @@ async def csp_violation_report(request: Request):
     """
     try:
         violation_data = await request.json()
-        
+
         # Log da violação para monitoramento
         print(f"🚨 CSP Violation Report: {violation_data}")
-        
+
         return {
             "success": True,
             "data": {
                 "message": "CSP violation report received",
-                "violation": violation_data
+                "violation": violation_data,
             },
-            "error": None
+            "error": None,
         }
     except Exception as e:
         return {
             "success": False,
             "data": None,
-            "error": f"Error processing CSP violation report: {str(e)}"
+            "error": f"Error processing CSP violation report: {str(e)}",
         }
 
 
@@ -133,7 +134,7 @@ async def check_csp_headers(request: Request):
         "data": {
             "request_headers": dict(request.headers),
             "csp_header_present": "content-security-policy" in request.headers,
-            "expected_csp": "default-src 'self'; script-src 'self' 'nonce-{nonce}'; style-src 'self' 'unsafe-inline'"
+            "expected_csp": "default-src 'self'; script-src 'self' 'nonce-{nonce}'; style-src 'self' 'unsafe-inline'",
         },
-        "error": None
+        "error": None,
     }

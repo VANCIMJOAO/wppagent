@@ -1,0 +1,271 @@
+{
+  "timestamp": "2025-09-15T13:05:54.870762",
+  "test_suites": [
+    {
+      "test_name": "JWT Security",
+      "tests": [
+        {
+          "test_name": "none_algorithm",
+          "passed": true,
+          "message": "Token com algoritmo 'none' rejeitado corretamente",
+          "token_preview": "eyJhbGciOiAibm9uZSIsICJ0eXAiOiAiSldUIn0.eyJ1c2VyX2..."
+        },
+        {
+          "test_name": "expired_token",
+          "passed": true,
+          "message": "Token expirado rejeitado corretamente",
+          "token_preview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkI..."
+        },
+        {
+          "test_name": "invalid_signature",
+          "passed": true,
+          "message": "Assinatura inv\u00e1lida detectada corretamente",
+          "token_preview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkI..."
+        },
+        {
+          "test_name": "malformed_token_0",
+          "passed": true,
+          "message": "Token malformado rejeitado corretamente",
+          "token_preview": "invalid.token"
+        },
+        {
+          "test_name": "malformed_token_1",
+          "passed": true,
+          "message": "Token malformado rejeitado corretamente",
+          "token_preview": "header.payload"
+        },
+        {
+          "test_name": "malformed_token_2",
+          "passed": true,
+          "message": "Token malformado rejeitado corretamente",
+          "token_preview": "not_a_token_at_all"
+        },
+        {
+          "test_name": "malformed_token_3",
+          "passed": true,
+          "message": "Token malformado rejeitado corretamente",
+          "token_preview": ""
+        },
+        {
+          "test_name": "malformed_token_4",
+          "passed": true,
+          "message": "Token malformado rejeitado corretamente",
+          "token_preview": "a.b.c.d.e"
+        },
+        {
+          "test_name": "jwt_bombing",
+          "passed": true,
+          "message": "JWT bombing detectado e bloqueado",
+          "token_preview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkI..."
+        }
+      ],
+      "overall_success": true
+    },
+    {
+      "test_name": "Input Sanitization",
+      "tests": [
+        {
+          "test_name": "sql_injection_0",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "'; DROP TABLE users; --"
+        },
+        {
+          "test_name": "sql_injection_1",
+          "passed": false,
+          "message": "Payload malicioso N\u00c3O detectado - vulnerabilidade!",
+          "payload_preview": "1' OR '1'='1"
+        },
+        {
+          "test_name": "sql_injection_2",
+          "passed": false,
+          "message": "Payload malicioso N\u00c3O detectado - vulnerabilidade!",
+          "payload_preview": "admin'--"
+        },
+        {
+          "test_name": "xss_0",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "<script>alert('XSS')</script>"
+        },
+        {
+          "test_name": "xss_1",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "javascript:alert('XSS')"
+        },
+        {
+          "test_name": "xss_2",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "<img src=x onerror=alert('XSS')>"
+        },
+        {
+          "test_name": "command_injection_0",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "; ls -la"
+        },
+        {
+          "test_name": "command_injection_1",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "| cat /etc/passwd"
+        },
+        {
+          "test_name": "command_injection_2",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "`whoami`"
+        },
+        {
+          "test_name": "path_traversal_0",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "../../../etc/passwd"
+        },
+        {
+          "test_name": "path_traversal_1",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "..\\..\\..\\windows\\system32\\config\\sam"
+        },
+        {
+          "test_name": "path_traversal_2",
+          "passed": false,
+          "message": "Payload malicioso N\u00c3O detectado - vulnerabilidade!",
+          "payload_preview": "%2e%2e%2f%2e%2e%2f%2e%2e%2f%65%74%63%2f%70%61%73%7..."
+        },
+        {
+          "test_name": "buffer_overflow_0",
+          "passed": false,
+          "message": "Payload malicioso N\u00c3O detectado - vulnerabilidade!",
+          "payload_preview": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..."
+        },
+        {
+          "test_name": "buffer_overflow_1",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..."
+        },
+        {
+          "test_name": "buffer_overflow_2",
+          "passed": true,
+          "message": "Payload malicioso detectado e bloqueado",
+          "payload_preview": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..."
+        },
+        {
+          "test_name": "json_injection_0",
+          "passed": false,
+          "message": "Payload malicioso N\u00c3O detectado - vulnerabilidade!",
+          "payload_preview": "{\"admin\": true, \"role\": \"admin\"}"
+        },
+        {
+          "test_name": "json_injection_1",
+          "passed": false,
+          "message": "Payload malicioso N\u00c3O detectado - vulnerabilidade!",
+          "payload_preview": "{\"$ne\": null}"
+        },
+        {
+          "test_name": "json_injection_2",
+          "passed": false,
+          "message": "Payload malicioso N\u00c3O detectado - vulnerabilidade!",
+          "payload_preview": "{\"$gt\": \"\"}"
+        }
+      ],
+      "overall_success": false
+    },
+    {
+      "test_name": "Security Headers",
+      "tests": [
+        {
+          "test_name": "header_X-Content-Type-Options",
+          "passed": true,
+          "message": "Header X-Content-Type-Options presente",
+          "header_name": "X-Content-Type-Options",
+          "expected": "nosniff"
+        },
+        {
+          "test_name": "header_X-Frame-Options",
+          "passed": true,
+          "message": "Header X-Frame-Options presente",
+          "header_name": "X-Frame-Options",
+          "expected": [
+            "DENY",
+            "SAMEORIGIN"
+          ]
+        },
+        {
+          "test_name": "header_X-XSS-Protection",
+          "passed": false,
+          "message": "Header X-XSS-Protection AUSENTE",
+          "header_name": "X-XSS-Protection",
+          "expected": "1; mode=block"
+        },
+        {
+          "test_name": "header_Strict-Transport-Security",
+          "passed": true,
+          "message": "Header Strict-Transport-Security presente",
+          "header_name": "Strict-Transport-Security",
+          "expected": "max-age="
+        },
+        {
+          "test_name": "header_Content-Security-Policy",
+          "passed": false,
+          "message": "Header Content-Security-Policy AUSENTE",
+          "header_name": "Content-Security-Policy",
+          "expected": "default-src"
+        },
+        {
+          "test_name": "header_Referrer-Policy",
+          "passed": true,
+          "message": "Header Referrer-Policy presente",
+          "header_name": "Referrer-Policy",
+          "expected": [
+            "strict-origin",
+            "no-referrer"
+          ]
+        }
+      ],
+      "overall_success": false
+    },
+    {
+      "test_name": "Rate Limiting",
+      "tests": [
+        {
+          "test_name": "rate_limit_10_requests",
+          "passed": true,
+          "message": "10 requests: permitidas",
+          "request_count": 10
+        },
+        {
+          "test_name": "rate_limit_50_requests",
+          "passed": true,
+          "message": "50 requests: permitidas",
+          "request_count": 50
+        },
+        {
+          "test_name": "rate_limit_100_requests",
+          "passed": false,
+          "message": "100 requests: permitidas",
+          "request_count": 100
+        },
+        {
+          "test_name": "rate_limit_200_requests",
+          "passed": true,
+          "message": "200 requests: bloqueadas",
+          "request_count": 200
+        }
+      ],
+      "overall_success": false
+    }
+  ],
+  "overall_success": false,
+  "summary": {
+    "total_suites": 4,
+    "successful_suites": 1,
+    "total_tests": 37,
+    "failed_tests": 10,
+    "success_rate": 72.97297297297297
+  }
+}

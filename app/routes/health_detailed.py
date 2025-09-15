@@ -14,19 +14,22 @@ Data: 2025-09-12
 Status: OM001 Implementation - Detailed Health Monitoring
 """
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import get_db
-from app.services.cache_service import cache_service
 import asyncio
 import time
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any, Dict
+
 import aiohttp
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
+from app.services.cache_service import cache_service
 from app.utils.structured_logger import get_structured_logger
 
 logger = get_structured_logger(__name__)
 router = APIRouter(prefix="/health", tags=["Health Monitoring"])
+
 
 @router.get(
     "/detailed",
@@ -68,43 +71,43 @@ router = APIRouter(prefix="/health", tags=["Health Monitoring"])
                                 "appointments_count": 1247,
                                 "active_connections": 12,
                                 "max_connections": 100,
-                                "last_check": "2024-01-15T10:30:00Z"
+                                "last_check": "2024-01-15T10:30:00Z",
                             },
                             "redis": {
-                                "status": "healthy", 
+                                "status": "healthy",
                                 "response_time_ms": 2.15,
                                 "memory_usage_mb": 45.2,
                                 "hit_rate_percent": 94.5,
                                 "keys_count": 1523,
-                                "last_check": "2024-01-15T10:30:00Z"
+                                "last_check": "2024-01-15T10:30:00Z",
                             },
                             "meta_api": {
                                 "status": "healthy",
                                 "response_time_ms": 145.67,
                                 "rate_limit_remaining": 95,
                                 "webhook_verified": True,
-                                "last_message_sent": "2024-01-15T10:25:00Z"
+                                "last_message_sent": "2024-01-15T10:25:00Z",
                             },
                             "webhook": {
                                 "status": "healthy",
-                                "response_time_ms": 89.12, 
+                                "response_time_ms": 89.12,
                                 "last_received": "2024-01-15T10:29:45Z",
                                 "success_rate_percent": 99.8,
-                                "total_received_24h": 156
-                            }
+                                "total_received_24h": 156,
+                            },
                         },
                         "performance": {
                             "cpu_usage_percent": 23.5,
                             "memory_usage_percent": 67.2,
                             "disk_usage_percent": 45.1,
                             "uptime_seconds": 86400,
-                            "load_average": [0.8, 0.6, 0.4]
+                            "load_average": [0.8, 0.6, 0.4],
                         },
                         "version": "1.0.0",
-                        "environment": "production"
+                        "environment": "production",
                     }
                 }
-            }
+            },
         },
         401: {
             "description": "❌ Authentication required",
@@ -114,11 +117,11 @@ router = APIRouter(prefix="/health", tags=["Health Monitoring"])
                         "error": {
                             "code": "AUTH_TOKEN_MISSING",
                             "message": "Authentication token is required for detailed health check",
-                            "request_id": "req_abc123"
+                            "request_id": "req_abc123",
                         }
                     }
                 }
-            }
+            },
         },
         403: {
             "description": "🚫 Insufficient permissions",
@@ -129,11 +132,11 @@ router = APIRouter(prefix="/health", tags=["Health Monitoring"])
                             "code": "AUTH_INSUFFICIENT_PERMISSIONS",
                             "message": "Admin role required for detailed health information",
                             "required_role": "admin",
-                            "current_role": "user"
+                            "current_role": "user",
                         }
                     }
                 }
-            }
+            },
         },
         429: {
             "description": "⚠️ Rate limit exceeded",
@@ -145,11 +148,11 @@ router = APIRouter(prefix="/health", tags=["Health Monitoring"])
                             "message": "Too many health check requests",
                             "retry_after": 60,
                             "limit": 10,
-                            "remaining": 0
+                            "remaining": 0,
                         }
                     }
                 }
-            }
+            },
         },
         503: {
             "description": "🔧 Service degraded or unavailable",
@@ -163,149 +166,151 @@ router = APIRouter(prefix="/health", tags=["Health Monitoring"])
                                 "status": "unhealthy",
                                 "error": "Connection timeout after 5 seconds",
                                 "response_time_ms": 5000,
-                                "connection": "failed"
+                                "connection": "failed",
                             },
-                            "redis": {
-                                "status": "healthy",
-                                "response_time_ms": 2.15
-                            }
+                            "redis": {"status": "healthy", "response_time_ms": 2.15},
                         },
                         "affected_functionality": [
                             "appointment_creation",
                             "user_authentication",
-                            "analytics_dashboard"
+                            "analytics_dashboard",
                         ],
-                        "estimated_resolution": "15-30 minutes"
+                        "estimated_resolution": "15-30 minutes",
                     }
                 }
-            }
-        }
+            },
+        },
     },
-    tags=["Health"]
+    tags=["Health"],
 )
 async def detailed_health_check(db: AsyncSession = Depends(get_db)):
     """
     🔍 OM001 - Health check detalhado de todos os componentes
-    
+
     Verifica:
     - Database (PostgreSQL)
     - Redis/Cache
-    - Meta API (WhatsApp) 
+    - Meta API (WhatsApp)
     - Webhook endpoint
     - Performance metrics
     """
-    
+
     health_results = {
         "overall_status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
         "components": {},
         "performance": {},
         "uptime_seconds": 0,
-        "version": "1.0.0"
+        "version": "1.0.0",
     }
-    
+
     logger.info(
         "🔍 OM001 - Iniciando health check detalhado",
         category="health_check",
-        check_type="detailed"
+        check_type="detailed",
     )
-    
+
     # 1. Database Health
     db_start = time.time()
     try:
         # Testar conexão básica
         from sqlalchemy import text
+
         result = await db.execute(text("SELECT 1 as test"))
         result.fetchone()
-        
+
         # Testar uma query mais complexa
-        count_result = await db.execute(text("SELECT COUNT(*) as total FROM appointments"))
+        count_result = await db.execute(
+            text("SELECT COUNT(*) as total FROM appointments")
+        )
         appointment_count = count_result.scalar() or 0
-        
+
         db_time = time.time() - db_start
-        
+
         health_results["components"]["database"] = {
             "status": "healthy",
             "response_time_ms": round(db_time * 1000, 2),
             "connection": "active",
             "appointments_count": appointment_count,
-            "last_check": datetime.utcnow().isoformat()
+            "last_check": datetime.utcnow().isoformat(),
         }
-        
+
         logger.info(
             "✅ OM001 Database healthy",
-            response_time_ms=round(db_time*1000, 2),
+            response_time_ms=round(db_time * 1000, 2),
             appointments_count=appointment_count,
             category="health_check",
             component="database",
-            status="healthy"
+            status="healthy",
         )
-        
+
     except Exception as e:
         db_time = time.time() - db_start
         health_results["components"]["database"] = {
-            "status": "unhealthy", 
+            "status": "unhealthy",
             "error": str(e),
             "response_time_ms": round(db_time * 1000, 2),
             "connection": "failed",
-            "last_check": datetime.utcnow().isoformat()
+            "last_check": datetime.utcnow().isoformat(),
         }
         health_results["overall_status"] = "degraded"
-        
+
         logger.error(
             "❌ OM001 Database unhealthy",
             error=str(e),
             response_time_ms=round(db_time * 1000, 2),
             category="health_check",
             component="database",
-            status="unhealthy"
+            status="unhealthy",
         )
-    
-    # 2. Redis/Cache Health  
+
+    # 2. Redis/Cache Health
     redis_start = time.time()
     try:
         # Usar método específico de health check do cache service
         cache_health = await cache_service.get_cache_health()
-        
+
         redis_time = time.time() - redis_start
-        
+
         health_results["components"]["redis"] = {
-            "status": "healthy" if cache_health.get("status") == "healthy" else "degraded",
+            "status": (
+                "healthy" if cache_health.get("status") == "healthy" else "degraded"
+            ),
             "response_time_ms": round(redis_time * 1000, 2),
             "cache_working": cache_health.get("redis_available", False),
             "operations_tested": ["health_check"],
             "last_check": datetime.utcnow().isoformat(),
-            "redis_info": cache_health
+            "redis_info": cache_health,
         }
-        
+
         logger.info(
             "✅ OM001 Redis healthy",
-            response_time_ms=round(redis_time*1000, 2),
+            response_time_ms=round(redis_time * 1000, 2),
             category="health_check",
             component="redis",
-            status="healthy"
+            status="healthy",
         )
-        
+
     except Exception as e:
         redis_time = time.time() - redis_start
         health_results["components"]["redis"] = {
             "status": "unhealthy",
-            "error": str(e), 
+            "error": str(e),
             "response_time_ms": round(redis_time * 1000, 2),
             "cache_working": False,
-            "last_check": datetime.utcnow().isoformat()
+            "last_check": datetime.utcnow().isoformat(),
         }
         health_results["overall_status"] = "degraded"
-        
+
         logger.error(
             "❌ OM001 Redis unhealthy",
             error=str(e),
             response_time_ms=round(redis_time * 1000, 2),
             category="health_check",
             component="redis",
-            status="unhealthy"
+            status="unhealthy",
         )
-    
+
     # 3. Meta API Health (WhatsApp)
     meta_start = time.time()
     try:
@@ -316,22 +321,25 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
                 "success": True,
                 "webhook_verified": True,
                 "api_version": "v17.0",
-                "business_id": "test_business_123"
+                "business_id": "test_business_123",
             }
-            
+
         meta_time = time.time() - meta_start
-        
+
         health_results["components"]["meta_api"] = {
             "status": "healthy" if meta_health.get("success") else "degraded",
             "response_time_ms": round(meta_time * 1000, 2),
             "webhook_verified": meta_health.get("webhook_verified", False),
             "api_version": meta_health.get("api_version", "unknown"),
             "business_id": meta_health.get("business_id", "unknown"),
-            "last_check": datetime.utcnow().isoformat()
+            "last_check": datetime.utcnow().isoformat(),
         }
-        
-        logger.info(f"✅ OM001 Meta API healthy: {meta_time*1000:.2f}ms", category="health_check")
-        
+
+        logger.info(
+            f"✅ OM001 Meta API healthy: {meta_time*1000:.2f}ms",
+            category="health_check",
+        )
+
     except Exception as e:
         meta_time = time.time() - meta_start
         health_results["components"]["meta_api"] = {
@@ -339,11 +347,13 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
             "error": str(e),
             "response_time_ms": round(meta_time * 1000, 2),
             "webhook_verified": False,
-            "last_check": datetime.utcnow().isoformat()
+            "last_check": datetime.utcnow().isoformat(),
         }
-        
-        logger.warning(f"⚠️ OM001 Meta API check failed: {str(e)}", category="health_check")
-    
+
+        logger.warning(
+            f"⚠️ OM001 Meta API check failed: {str(e)}", category="health_check"
+        )
+
     # 4. Webhook Health
     webhook_start = time.time()
     try:
@@ -351,12 +361,13 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
         webhook_stats = {
             "messages_processed": 1234,
             "blocked_percentage": 2.5,
-            "redis_available": health_results["components"]["redis"]["status"] == "healthy",
-            "average_response_time": 150.0
+            "redis_available": health_results["components"]["redis"]["status"]
+            == "healthy",
+            "average_response_time": 150.0,
         }
-        
+
         webhook_time = time.time() - webhook_start
-        
+
         health_results["components"]["webhook"] = {
             "status": "healthy",
             "response_time_ms": round(webhook_time * 1000, 2),
@@ -364,49 +375,64 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
             "blocked_percentage": webhook_stats.get("blocked_percentage", 0),
             "redis_available": webhook_stats.get("redis_available", False),
             "average_response_time": webhook_stats.get("average_response_time", 0),
-            "last_check": datetime.utcnow().isoformat()
+            "last_check": datetime.utcnow().isoformat(),
         }
-        
-        logger.info(f"✅ OM001 Webhook healthy: {webhook_time*1000:.2f}ms", category="health_check")
-        
+
+        logger.info(
+            f"✅ OM001 Webhook healthy: {webhook_time*1000:.2f}ms",
+            category="health_check",
+        )
+
     except Exception as e:
         webhook_time = time.time() - webhook_start
         health_results["components"]["webhook"] = {
-            "status": "unhealthy", 
+            "status": "unhealthy",
             "error": str(e),
             "response_time_ms": round(webhook_time * 1000, 2),
-            "last_check": datetime.utcnow().isoformat()
+            "last_check": datetime.utcnow().isoformat(),
         }
-        
+
         logger.error(f"❌ OM001 Webhook unhealthy: {str(e)}", category="health_check")
-    
+
     # 5. Performance Metrics Agregadas
     health_results["performance"] = {
-        "total_check_time_ms": sum([
-            comp.get("response_time_ms", 0) 
-            for comp in health_results["components"].values()
-        ]),
-        "fastest_component": min(
-            health_results["components"].items(),
-            key=lambda x: x[1].get("response_time_ms", float('inf'))
-        )[0] if health_results["components"] else "none",
-        "slowest_component": max(
-            health_results["components"].items(), 
-            key=lambda x: x[1].get("response_time_ms", 0)
-        )[0] if health_results["components"] else "none"
+        "total_check_time_ms": sum(
+            [
+                comp.get("response_time_ms", 0)
+                for comp in health_results["components"].values()
+            ]
+        ),
+        "fastest_component": (
+            min(
+                health_results["components"].items(),
+                key=lambda x: x[1].get("response_time_ms", float("inf")),
+            )[0]
+            if health_results["components"]
+            else "none"
+        ),
+        "slowest_component": (
+            max(
+                health_results["components"].items(),
+                key=lambda x: x[1].get("response_time_ms", 0),
+            )[0]
+            if health_results["components"]
+            else "none"
+        ),
     }
-    
+
     # Calcular status geral baseado em componentes
     unhealthy_components = [
-        name for name, comp in health_results["components"].items() 
+        name
+        for name, comp in health_results["components"].items()
         if comp["status"] == "unhealthy"
     ]
-    
+
     degraded_components = [
-        name for name, comp in health_results["components"].items()
-        if comp["status"] == "degraded"  
+        name
+        for name, comp in health_results["components"].items()
+        if comp["status"] == "degraded"
     ]
-    
+
     if unhealthy_components:
         health_results["overall_status"] = "unhealthy"
         health_results["unhealthy_components"] = unhealthy_components
@@ -418,34 +444,34 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
     else:
         health_results["overall_status"] = "healthy"
         health_results["impact"] = "none"
-    
+
     # Adicionar recomendações baseadas no status
     health_results["recommendations"] = []
-    
+
     if unhealthy_components:
-        health_results["recommendations"].extend([
-            f"Verificar conectividade com {comp}" for comp in unhealthy_components
-        ])
-    
+        health_results["recommendations"].extend(
+            [f"Verificar conectividade com {comp}" for comp in unhealthy_components]
+        )
+
     if degraded_components:
-        health_results["recommendations"].extend([
-            f"Monitorar performance de {comp}" for comp in degraded_components
-        ])
-    
+        health_results["recommendations"].extend(
+            [f"Monitorar performance de {comp}" for comp in degraded_components]
+        )
+
     if not unhealthy_components and not degraded_components:
         health_results["recommendations"].append("Sistema operando normalmente")
-    
+
     # Log resultado final
     logger.info(
         f"🔍 OM001 Health check completed: {health_results['overall_status']}",
         metadata={
             "overall_status": health_results["overall_status"],
             "total_time_ms": health_results["performance"]["total_check_time_ms"],
-            "components_checked": len(health_results["components"])
+            "components_checked": len(health_results["components"]),
         },
-        category="health_check"
+        category="health_check",
     )
-    
+
     return health_results
 
 
@@ -455,5 +481,5 @@ async def simple_health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
-        "service": "whats_agent"
+        "service": "whats_agent",
     }

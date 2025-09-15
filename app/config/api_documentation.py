@@ -12,10 +12,11 @@ Autor: GitHub Copilot
 Status: DOC-001 Task 7 - API Documentation Enhancement
 """
 
-from fastapi.openapi.utils import get_openapi
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from typing import Any, Dict
+
 from fastapi import FastAPI, Request
-from typing import Dict, Any
+from fastapi.openapi.utils import get_openapi
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 # Security scheme para documentação
 security_scheme = HTTPBearer(
@@ -35,44 +36,45 @@ security_scheme = HTTPBearer(
     ```
     Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
     ```
-    """
+    """,
 )
+
 
 def configure_enhanced_openapi(app: FastAPI) -> None:
     """
     Configure enhanced OpenAPI documentation with custom schemas,
     examples, and security definitions.
     """
-    
+
     def custom_openapi():
         if app.openapi_schema:
             return app.openapi_schema
-            
+
         openapi_schema = get_openapi(
             title=app.title,
             version=app.version,
             description=app.description,
             routes=app.routes,
             servers=app.servers,
-            tags=app.tags_metadata
+            tags=app.tags_metadata,
         )
-        
+
         # Add custom security scheme
         openapi_schema["components"]["securitySchemes"] = {
             "HTTPBearer": {
                 "type": "http",
                 "scheme": "bearer",
                 "bearerFormat": "JWT",
-                "description": "JWT token authentication via Bearer header or HttpOnly cookies"
+                "description": "JWT token authentication via Bearer header or HttpOnly cookies",
             },
             "ApiKey": {
                 "type": "apiKey",
                 "in": "header",
                 "name": "X-API-Key",
-                "description": "API key for external integrations"
-            }
+                "description": "API key for external integrations",
+            },
         }
-        
+
         # Add global examples
         openapi_schema["components"]["examples"] = {
             "ErrorResponse": {
@@ -85,13 +87,13 @@ def configure_enhanced_openapi(app: FastAPI) -> None:
                             {
                                 "field": "phone_number",
                                 "message": "Invalid phone number format",
-                                "code": "INVALID_FORMAT"
+                                "code": "INVALID_FORMAT",
                             }
                         ],
                         "request_id": "req_abc123456",
-                        "timestamp": "2024-01-15T10:30:00Z"
+                        "timestamp": "2024-01-15T10:30:00Z",
                     }
-                }
+                },
             },
             "SuccessResponse": {
                 "summary": "Standard Success Response",
@@ -99,8 +101,8 @@ def configure_enhanced_openapi(app: FastAPI) -> None:
                     "success": True,
                     "message": "Operation completed successfully",
                     "data": {},
-                    "timestamp": "2024-01-15T10:30:00Z"
-                }
+                    "timestamp": "2024-01-15T10:30:00Z",
+                },
             },
             "PaginatedResponse": {
                 "summary": "Paginated List Response",
@@ -112,66 +114,64 @@ def configure_enhanced_openapi(app: FastAPI) -> None:
                         "total_items": 87,
                         "items_per_page": 20,
                         "has_next": True,
-                        "has_previous": False
+                        "has_previous": False,
                     },
                     "filters_applied": {},
-                    "cache_info": {
-                        "cache_hit": True,
-                        "cache_ttl": 120
-                    }
-                }
-            }
+                    "cache_info": {"cache_hit": True, "cache_ttl": 120},
+                },
+            },
         }
-        
+
         # Add custom headers
         openapi_schema["components"]["headers"] = {
             "X-RateLimit-Limit": {
                 "description": "The number of allowed requests in the current period",
-                "schema": {"type": "integer", "example": 100}
+                "schema": {"type": "integer", "example": 100},
             },
             "X-RateLimit-Remaining": {
-                "description": "The number of remaining requests in the current period", 
-                "schema": {"type": "integer", "example": 87}
+                "description": "The number of remaining requests in the current period",
+                "schema": {"type": "integer", "example": 87},
             },
             "X-RateLimit-Reset": {
                 "description": "The timestamp when the rate limit will reset",
-                "schema": {"type": "integer", "example": 1704198660}
+                "schema": {"type": "integer", "example": 1704198660},
             },
             "X-Response-Time": {
                 "description": "Response processing time in milliseconds",
-                "schema": {"type": "string", "example": "145ms"}
+                "schema": {"type": "string", "example": "145ms"},
             },
             "X-Cache-Status": {
                 "description": "Cache hit/miss status",
-                "schema": {"type": "string", "enum": ["hit", "miss", "bypass"]}
-            }
+                "schema": {"type": "string", "enum": ["hit", "miss", "bypass"]},
+            },
         }
-        
+
         # Add custom info
         openapi_schema["info"]["x-logo"] = {
             "url": "https://whatsappagent.com/logo.png",
-            "altText": "WhatsApp Agent API"
+            "altText": "WhatsApp Agent API",
         }
-        
+
         openapi_schema["info"]["x-api-features"] = [
             "JWT Authentication with HttpOnly cookies",
-            "Real-time WebSocket connections", 
+            "Real-time WebSocket connections",
             "Comprehensive rate limiting",
             "Detailed error responses",
             "Performance monitoring headers",
-            "Automatic API documentation"
+            "Automatic API documentation",
         ]
-        
+
         # Add external documentation
         openapi_schema["externalDocs"] = {
             "description": "Complete API Documentation",
-            "url": "https://docs.whatsappagent.com/api"
+            "url": "https://docs.whatsappagent.com/api",
         }
-        
+
         app.openapi_schema = openapi_schema
         return app.openapi_schema
-    
+
     app.openapi = custom_openapi
+
 
 # Common response examples for reuse
 COMMON_RESPONSES = {
@@ -186,16 +186,16 @@ COMMON_RESPONSES = {
                         "details": [
                             {
                                 "field": "phone_number",
-                                "message": "Invalid phone number format", 
-                                "code": "INVALID_FORMAT"
+                                "message": "Invalid phone number format",
+                                "code": "INVALID_FORMAT",
                             }
                         ],
                         "request_id": "req_abc123",
-                        "timestamp": "2024-01-15T10:30:00Z"
+                        "timestamp": "2024-01-15T10:30:00Z",
                     }
                 }
             }
-        }
+        },
     },
     "Unauthorized": {
         "description": "🔐 Authentication required",
@@ -205,11 +205,11 @@ COMMON_RESPONSES = {
                     "error": {
                         "code": "AUTH_TOKEN_MISSING",
                         "message": "Authentication token is required",
-                        "request_id": "req_abc123"
+                        "request_id": "req_abc123",
                     }
                 }
             }
-        }
+        },
     },
     "Forbidden": {
         "description": "🚫 Insufficient permissions",
@@ -220,11 +220,11 @@ COMMON_RESPONSES = {
                         "code": "AUTH_INSUFFICIENT_PERMISSIONS",
                         "message": "You don't have permission to access this resource",
                         "required_permission": "admin",
-                        "current_role": "user"
+                        "current_role": "user",
                     }
                 }
             }
-        }
+        },
     },
     "NotFound": {
         "description": "🔍 Resource not found",
@@ -235,11 +235,11 @@ COMMON_RESPONSES = {
                         "code": "RESOURCE_NOT_FOUND",
                         "message": "The requested resource was not found",
                         "resource_type": "appointment",
-                        "resource_id": 123
+                        "resource_id": 123,
                     }
                 }
             }
-        }
+        },
     },
     "RateLimit": {
         "description": "⚠️ Rate limit exceeded",
@@ -252,7 +252,7 @@ COMMON_RESPONSES = {
                         "retry_after": 60,
                         "limit": 100,
                         "remaining": 0,
-                        "reset_time": "2024-01-15T10:31:00Z"
+                        "reset_time": "2024-01-15T10:31:00Z",
                     }
                 }
             }
@@ -260,8 +260,8 @@ COMMON_RESPONSES = {
         "headers": {
             "X-RateLimit-Limit": {"description": "Request limit per window"},
             "X-RateLimit-Remaining": {"description": "Remaining requests in window"},
-            "X-RateLimit-Reset": {"description": "Window reset timestamp"}
-        }
+            "X-RateLimit-Reset": {"description": "Window reset timestamp"},
+        },
     },
     "ServerError": {
         "description": "🔧 Internal server error",
@@ -272,12 +272,12 @@ COMMON_RESPONSES = {
                         "code": "INTERNAL_SERVER_ERROR",
                         "message": "An unexpected error occurred",
                         "request_id": "req_abc123",
-                        "support_reference": "Please contact support with this reference"
+                        "support_reference": "Please contact support with this reference",
                     }
                 }
             }
-        }
-    }
+        },
+    },
 }
 
 # API metadata for documentation
@@ -324,25 +324,19 @@ This API uses **JWT tokens with HttpOnly cookies** for maximum security:
     "contact": {
         "name": "WhatsApp Agent API Support",
         "url": "https://docs.whatsappagent.com",
-        "email": "api-support@whatsappagent.com"
+        "email": "api-support@whatsappagent.com",
     },
     "license_info": {
         "name": "Enterprise License",
-        "url": "https://whatsappagent.com/license"
+        "url": "https://whatsappagent.com/license",
     },
     "servers": [
+        {"url": "https://api.whatsappagent.com", "description": "Production server"},
         {
-            "url": "https://api.whatsappagent.com",
-            "description": "Production server"
+            "url": "https://staging-api.whatsappagent.com",
+            "description": "Staging server",
         },
-        {
-            "url": "https://staging-api.whatsappagent.com", 
-            "description": "Staging server"
-        },
-        {
-            "url": "http://localhost:8000",
-            "description": "Development server"
-        }
+        {"url": "http://localhost:8000", "description": "Development server"},
     ],
     "tags_metadata": [
         {
@@ -350,51 +344,52 @@ This API uses **JWT tokens with HttpOnly cookies** for maximum security:
             "description": "🔐 User authentication, 2FA, JWT token management",
             "externalDocs": {
                 "description": "Authentication Guide",
-                "url": "https://docs.whatsappagent.com/auth"
-            }
+                "url": "https://docs.whatsappagent.com/auth",
+            },
         },
         {
             "name": "Appointments",
             "description": "📅 Appointment CRUD operations with smart scheduling",
             "externalDocs": {
-                "description": "Appointment Management Guide", 
-                "url": "https://docs.whatsappagent.com/appointments"
-            }
+                "description": "Appointment Management Guide",
+                "url": "https://docs.whatsappagent.com/appointments",
+            },
         },
         {
             "name": "WhatsApp",
             "description": "📱 WhatsApp message sending and webhook handling",
             "externalDocs": {
                 "description": "WhatsApp Integration Guide",
-                "url": "https://docs.whatsappagent.com/whatsapp"
-            }
+                "url": "https://docs.whatsappagent.com/whatsapp",
+            },
         },
         {
-            "name": "Analytics", 
+            "name": "Analytics",
             "description": "📊 Business analytics and performance metrics",
             "externalDocs": {
                 "description": "Analytics Dashboard Guide",
-                "url": "https://docs.whatsappagent.com/analytics"
-            }
+                "url": "https://docs.whatsappagent.com/analytics",
+            },
         },
         {
             "name": "Health",
             "description": "🏥 System health checks and monitoring",
             "externalDocs": {
                 "description": "Monitoring & Health Guide",
-                "url": "https://docs.whatsappagent.com/monitoring"
-            }
+                "url": "https://docs.whatsappagent.com/monitoring",
+            },
         },
         {
             "name": "Admin",
             "description": "⚙️ Administrative functions and system management",
             "externalDocs": {
                 "description": "Admin Operations Guide",
-                "url": "https://docs.whatsappagent.com/admin"
-            }
-        }
-    ]
+                "url": "https://docs.whatsappagent.com/admin",
+            },
+        },
+    ],
 }
+
 
 def get_enhanced_response_examples():
     """
@@ -422,11 +417,11 @@ def get_enhanced_response_examples():
                 "webhook_events": [
                     {
                         "event": "appointment_created",
-                        "status": "sent", 
-                        "timestamp": "2024-01-15T10:35:01Z"
+                        "status": "sent",
+                        "timestamp": "2024-01-15T10:35:01Z",
                     }
-                ]
-            }
+                ],
+            },
         },
         "appointment_list": {
             "summary": "List of appointments with pagination",
@@ -442,21 +437,18 @@ def get_enhanced_response_examples():
                         "service": {
                             "id": 101,
                             "name": "Consulta Médica",
-                            "duration": 60
-                        }
+                            "duration": 60,
+                        },
                     }
                 ],
                 "pagination": {
                     "current_page": 1,
                     "total_pages": 5,
                     "total_items": 87,
-                    "items_per_page": 20
+                    "items_per_page": 20,
                 },
-                "performance_info": {
-                    "query_time_ms": 23.45,
-                    "cache_status": "hit"
-                }
-            }
+                "performance_info": {"query_time_ms": 23.45, "cache_status": "hit"},
+            },
         },
         "health_check": {
             "summary": "System health status",
@@ -466,10 +458,10 @@ def get_enhanced_response_examples():
                 "components": {
                     "database": "healthy",
                     "redis": "healthy",
-                    "meta_api": "healthy"
+                    "meta_api": "healthy",
                 },
                 "version": "1.0.0",
-                "uptime": 86400
-            }
-        }
+                "uptime": 86400,
+            },
+        },
     }
