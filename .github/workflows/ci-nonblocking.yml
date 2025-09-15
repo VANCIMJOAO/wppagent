@@ -11,12 +11,14 @@ jobs:
   quality-metrics:
     name: Quality Metrics
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: 'pip'
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
@@ -32,12 +34,14 @@ jobs:
   extended-testing-unit:
     name: Extended Testing (unit-extended)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: 'pip'
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
@@ -50,12 +54,14 @@ jobs:
   extended-testing-integration:
     name: Extended Testing (integration)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: 'pip'
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
@@ -68,12 +74,14 @@ jobs:
   extended-testing-performance:
     name: Extended Testing (performance)
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: 'pip'
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
@@ -86,12 +94,14 @@ jobs:
   extended-testing-chaos:
     name: Extended Testing (chaos)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: 'pip'
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
@@ -103,12 +113,14 @@ jobs:
   observability-validation:
     name: Observability Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: 'pip'
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
@@ -123,12 +135,14 @@ jobs:
   performance-monitoring:
     name: Performance Monitoring
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: 'pip'
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
@@ -140,6 +154,7 @@ jobs:
   metrics-reporting:
     name: Metrics Reporting
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [quality-metrics, extended-testing-unit, extended-testing-integration, extended-testing-performance, extended-testing-chaos, observability-validation, performance-monitoring]
     if: always()
     continue-on-error: true
