@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Parâmetros de filtro
     const startDate = searchParams.get('start_date') || format(subDays(new Date(), 30), 'yyyy-MM-dd');
     const endDate = searchParams.get('end_date') || format(new Date(), 'yyyy-MM-dd');
@@ -84,8 +84,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Erro ao carregar dados de conversas:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Erro interno do servidor',
         message: 'Falha ao carregar dados de conversas'
       },
@@ -99,19 +99,19 @@ function generateDetailedTimeSeriesData(startDate: string, endDate: string) {
   const start = parseISO(startDate);
   const end = parseISO(endDate);
   const data = [];
-  
+
   let current = start;
   while (current <= end) {
     const dayOfWeek = current.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    
+
     // Variação mais realista por dia da semana
     const multiplier = isWeekend ? 0.6 : 1.0;
-    
+
     const conversations = Math.floor((90 + (Math.random() * 60)) * multiplier);
     const messages = Math.floor((conversations * 3.5) + (Math.random() * 50) - 25);
     const responses = Math.floor(conversations * (0.82 + (Math.random() * 0.15)));
-    
+
     data.push({
       date: format(current, 'yyyy-MM-dd'),
       conversations,
@@ -121,9 +121,9 @@ function generateDetailedTimeSeriesData(startDate: string, endDate: string) {
       avgResponseTime: Math.floor(25 + (Math.random() * 40)), // segundos
       satisfaction: Number((4.2 + (Math.random() * 0.8)).toFixed(1)),
     });
-    
+
     current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
   }
-  
+
   return data;
 }

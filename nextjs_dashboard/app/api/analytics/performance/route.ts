@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Parâmetros de filtro
     const startDate = searchParams.get('start_date') || format(subDays(new Date(), 30), 'yyyy-MM-dd');
     const endDate = searchParams.get('end_date') || format(new Date(), 'yyyy-MM-dd');
@@ -93,61 +93,61 @@ export async function GET(request: NextRequest) {
         processingCapacity: 95.2,
       },
       performanceTrends: [
-        { 
-          date: '2025-09-01', 
-          responseTime: 32, 
-          satisfaction: 4.5, 
-          resolutionRate: 89, 
-          conversations: 180 
+        {
+          date: '2025-09-01',
+          responseTime: 32,
+          satisfaction: 4.5,
+          resolutionRate: 89,
+          conversations: 180
         },
-        { 
-          date: '2025-09-02', 
-          responseTime: 30, 
-          satisfaction: 4.6, 
-          resolutionRate: 91, 
-          conversations: 195 
+        {
+          date: '2025-09-02',
+          responseTime: 30,
+          satisfaction: 4.6,
+          resolutionRate: 91,
+          conversations: 195
         },
-        { 
-          date: '2025-09-03', 
-          responseTime: 28, 
-          satisfaction: 4.6, 
-          resolutionRate: 92, 
-          conversations: 210 
+        {
+          date: '2025-09-03',
+          responseTime: 28,
+          satisfaction: 4.6,
+          resolutionRate: 92,
+          conversations: 210
         },
-        { 
-          date: '2025-09-04', 
-          responseTime: 31, 
-          satisfaction: 4.7, 
-          resolutionRate: 93, 
-          conversations: 185 
+        {
+          date: '2025-09-04',
+          responseTime: 31,
+          satisfaction: 4.7,
+          resolutionRate: 93,
+          conversations: 185
         },
-        { 
-          date: '2025-09-05', 
-          responseTime: 29, 
-          satisfaction: 4.8, 
-          resolutionRate: 94, 
-          conversations: 220 
+        {
+          date: '2025-09-05',
+          responseTime: 29,
+          satisfaction: 4.8,
+          resolutionRate: 94,
+          conversations: 220
         },
-        { 
-          date: '2025-09-06', 
-          responseTime: 27, 
-          satisfaction: 4.7, 
-          resolutionRate: 93, 
-          conversations: 175 
+        {
+          date: '2025-09-06',
+          responseTime: 27,
+          satisfaction: 4.7,
+          resolutionRate: 93,
+          conversations: 175
         },
-        { 
-          date: '2025-09-07', 
-          responseTime: 26, 
-          satisfaction: 4.8, 
-          resolutionRate: 95, 
-          conversations: 165 
+        {
+          date: '2025-09-07',
+          responseTime: 26,
+          satisfaction: 4.8,
+          resolutionRate: 95,
+          conversations: 165
         },
-        { 
-          date: '2025-09-08', 
-          responseTime: 28, 
-          satisfaction: 4.9, 
-          resolutionRate: 96, 
-          conversations: 240 
+        {
+          date: '2025-09-08',
+          responseTime: 28,
+          satisfaction: 4.9,
+          resolutionRate: 96,
+          conversations: 240
         },
       ],
       kpiMetrics: {
@@ -210,8 +210,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Erro ao carregar dados de performance:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Erro interno do servidor',
         message: 'Falha ao carregar dados de performance'
       },

@@ -40,7 +40,8 @@ PRODUCTION_URL=https://your-app-production.railway.app
 
 ### 3. 🚂 Railway Setup
 
-#### A. Criar Projeto Staging:
+#### A. Criar Projeto Staging
+
 ```bash
 # No Railway dashboard
 1. Criar novo projeto: "whatsapp-agent-staging"
@@ -49,14 +50,16 @@ PRODUCTION_URL=https://your-app-production.railway.app
 4. Configurar custom domain (opcional)
 ```
 
-#### B. Obter Railway Token:
+#### B. Obter Railway Token
+
 ```bash
 # No Railway dashboard → Account Settings → Tokens
 1. Create New Token
 2. Copiar token para RAILWAY_TOKEN secret
 ```
 
-#### C. Obter Project ID:
+#### C. Obter Project ID
+
 ```bash
 # Na URL do projeto Railway
 railway.app/project/[PROJECT-ID] ← copiar este ID
@@ -64,7 +67,7 @@ railway.app/project/[PROJECT-ID] ← copiar este ID
 
 ## 🔄 Como Funciona
 
-### 📊 Fluxo Automatizado:
+### 📊 Fluxo Automatizado
 
 ```mermaid
 graph TD
@@ -77,7 +80,7 @@ graph TD
     G --> H[Deploy to Production]
 ```
 
-### 🎯 Features Implementadas:
+### 🎯 Features Implementadas
 
 1. **🚂 Railway CLI Integration**
    - Instalação automática
@@ -104,13 +107,15 @@ graph TD
 
 ## 🧪 Como Testar
 
-### 1. Criar Branch Develop:
+### 1. Criar Branch Develop
+
 ```bash
 git checkout -b develop
 git push origin develop
 ```
 
-### 2. Fazer Push para Develop:
+### 2. Fazer Push para Develop
+
 ```bash
 # Qualquer mudança no código
 git add .
@@ -118,17 +123,20 @@ git commit -m "Test staging deployment"
 git push origin develop
 ```
 
-### 3. Acompanhar Pipeline:
+### 3. Acompanhar Pipeline
+
 - GitHub Actions executará automaticamente
 - Deploy para staging acontecerá
 - Health check validará aplicação
 
-### 4. Testar Staging:
+### 4. Testar Staging
+
 - Acessar URL do staging
 - Fazer testes manuais
 - Validar funcionalidades
 
-### 5. Deploy Produção:
+### 5. Deploy Produção
+
 ```bash
 # Quando tudo estiver OK
 git checkout main
@@ -138,22 +146,26 @@ git push origin main
 
 ## 📈 Benefícios
 
-### ✅ **Qualidade**:
+### ✅ **Qualidade**
+
 - Bugs detectados antes da produção
 - Testes em ambiente real
 - Validação de integrações
 
-### ✅ **Segurança**:
+### ✅ **Segurança**
+
 - Deploy seguro com validação
 - Rollback fácil se necessário
 - Separação de ambientes
 
-### ✅ **Eficiência**:
+### ✅ **Eficiência**
+
 - Processo automatizado
 - Feedback rápido
 - Deploy confiável
 
-### ✅ **Visibilidade**:
+### ✅ **Visibilidade**
+
 - Status claro do deployment
 - Health checks detalhados
 - Histórico de deployments

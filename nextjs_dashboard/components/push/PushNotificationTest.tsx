@@ -17,7 +17,7 @@ const PushNotificationTest: React.FC = () => {
     // Check if push notifications are supported
     setIsSupported('serviceWorker' in navigator && 'PushManager' in window)
     setPermission(Notification.permission)
-    
+
     // Load existing subscription
     loadExistingSubscription()
   }, [])
@@ -50,7 +50,7 @@ const PushNotificationTest: React.FC = () => {
   const subscribe = async () => {
     setLoading(true)
     setStatus('Inscrevendo em notificações...')
-    
+
     try {
       // Request permission if not granted
       if (permission !== 'granted') {
@@ -106,12 +106,12 @@ const PushNotificationTest: React.FC = () => {
   const unsubscribe = async () => {
     setLoading(true)
     setStatus('Cancelando inscrição...')
-    
+
     try {
       if (subscription) {
         // Unsubscribe from push manager
         await subscription.unsubscribe()
-        
+
         // Remove from backend
         await fetch('/api/push/unsubscribe', {
           method: 'DELETE',
@@ -138,7 +138,7 @@ const PushNotificationTest: React.FC = () => {
   const sendTestNotification = async () => {
     setLoading(true)
     setStatus('Enviando notificação de teste...')
-    
+
     try {
       const response = await fetch('/api/push/test', {
         method: 'POST',
@@ -249,8 +249,8 @@ const PushNotificationTest: React.FC = () => {
 
         <div className="flex gap-2 flex-wrap">
           {!subscription ? (
-            <Button 
-              onClick={subscribe} 
+            <Button
+              onClick={subscribe}
               disabled={loading}
               className="flex items-center gap-2"
             >
@@ -259,8 +259,8 @@ const PushNotificationTest: React.FC = () => {
             </Button>
           ) : (
             <>
-              <Button 
-                onClick={unsubscribe} 
+              <Button
+                onClick={unsubscribe}
                 disabled={loading}
                 variant="outline"
                 className="flex items-center gap-2"
@@ -268,8 +268,8 @@ const PushNotificationTest: React.FC = () => {
                 <Bell className="h-4 w-4" />
                 Cancelar Inscrição
               </Button>
-              <Button 
-                onClick={sendTestNotification} 
+              <Button
+                onClick={sendTestNotification}
                 disabled={loading}
                 className="flex items-center gap-2"
               >

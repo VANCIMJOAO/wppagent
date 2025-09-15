@@ -28,7 +28,7 @@ interface ToastState {
   isOnline: boolean;
 }
 
-type ToastAction = 
+type ToastAction =
   | { type: 'ADD_TOAST'; toast: Toast }
   | { type: 'REMOVE_TOAST'; id: string }
   | { type: 'CLEAR_ALL' }
@@ -47,35 +47,35 @@ function toastReducer(state: ToastState, action: ToastAction): ToastState {
         ...state,
         toasts: [...state.toasts, action.toast]
       };
-    
+
     case 'REMOVE_TOAST':
       return {
         ...state,
         toasts: state.toasts.filter(toast => toast.id !== action.id)
       };
-    
+
     case 'CLEAR_ALL':
       return {
         ...state,
         toasts: []
       };
-    
+
     case 'SET_ONLINE':
       return {
         ...state,
         isOnline: action.isOnline
       };
-    
+
     case 'UPDATE_TOAST':
       return {
         ...state,
-        toasts: state.toasts.map(toast => 
-          toast.id === action.id 
+        toasts: state.toasts.map(toast =>
+          toast.id === action.id
             ? { ...toast, ...action.updates }
             : toast
         )
       };
-    
+
     default:
       return state;
   }
@@ -88,14 +88,14 @@ interface ToastContextType {
   removeToast: (id: string) => void;
   clearAll: () => void;
   updateToast: (id: string, updates: Partial<Toast>) => void;
-  
+
   // Convenience methods
   showSuccess: (title: string, description?: string, options?: Partial<Toast>) => string;
   showError: (title: string, description?: string, options?: Partial<Toast>) => string;
   showWarning: (title: string, description?: string, options?: Partial<Toast>) => string;
   showInfo: (title: string, description?: string, options?: Partial<Toast>) => string;
   showLoading: (title: string, description?: string) => string;
-  
+
   // API-specific methods
   showApiError: (error: Error, options?: { endpoint?: string; retryAction?: () => void }) => string;
   showNetworkError: (retryAction?: () => void) => string;
@@ -128,7 +128,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
-      
+
       return () => {
         window.removeEventListener('online', handleOnline);
         window.removeEventListener('offline', handleOffline);
@@ -145,7 +145,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         if (timers[toast.id]) {
           clearTimeout(timers[toast.id]);
         }
-        
+
         timers[toast.id] = setTimeout(() => {
           removeToast(toast.id);
         }, toast.duration);
@@ -239,7 +239,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   // API-specific methods
   const showApiError = (error: Error, options?: { endpoint?: string; retryAction?: () => void }): string => {
     const { endpoint, retryAction } = options || {};
-    
+
     return addToast({
       type: 'error',
       title: 'Erro na API',
@@ -319,8 +319,8 @@ function ToastContainer() {
       {/* Online/Offline Indicator */}
       <div className="flex justify-end">
         <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium pointer-events-auto ${
-          isOnline 
-            ? 'bg-green-100 text-green-800 border border-green-200' 
+          isOnline
+            ? 'bg-green-100 text-green-800 border border-green-200'
             : 'bg-red-100 text-red-800 border border-red-200'
         }`}>
           {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
@@ -330,10 +330,10 @@ function ToastContainer() {
 
       {/* Toast Messages */}
       {toasts.map(toast => (
-        <ToastItem 
-          key={toast.id} 
-          toast={toast} 
-          onRemove={() => removeToast(toast.id)} 
+        <ToastItem
+          key={toast.id}
+          toast={toast}
+          onRemove={() => removeToast(toast.id)}
         />
       ))}
     </div>
@@ -389,7 +389,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
         <div className="flex-shrink-0 mr-3">
           {getIcon()}
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm">
             {toast.title}
@@ -399,14 +399,14 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
               {toast.description}
             </p>
           )}
-          
+
           {/* Error ID for debugging */}
           {toast.errorId && (
             <p className="text-xs opacity-75 mt-2 font-mono">
               ID: {toast.errorId}
             </p>
           )}
-          
+
           {/* Metadata */}
           {toast.metadata && (
             <div className="text-xs opacity-75 mt-2 space-y-1">
@@ -421,7 +421,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
               )}
             </div>
           )}
-          
+
           {/* Action Button */}
           {toast.action && (
             <Button
@@ -451,7 +451,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
 // Helper function to get user-friendly API error messages
 function getApiErrorMessage(error: Error, endpoint?: string): string {
   const apiError = error as any;
-  
+
   if (apiError.status) {
     switch (apiError.status) {
       case 400:
@@ -474,14 +474,14 @@ function getApiErrorMessage(error: Error, endpoint?: string): string {
         return `Erro ${apiError.status}: ${apiError.statusText || 'Erro desconhecido'}`;
     }
   }
-  
+
   if (error.message.includes('fetch')) {
     return 'Problema de conexão com o servidor.';
   }
-  
+
   if (error.message.includes('timeout')) {
     return 'Tempo limite esgotado.';
   }
-  
+
   return error.message || 'Erro desconhecido na API.';
 }

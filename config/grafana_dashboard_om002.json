@@ -1,25 +1,99 @@
 {
   "dashboard": {
-    "id": null,
-    "title": "WhatsApp Agent Overview - OM002",
+    "annotations": {
+      "list": [
+        {
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "changes(app_build_info[1d])",
+          "iconColor": "blue",
+          "name": "Deployments",
+          "step": "1m",
+          "tags": [
+            "deployment",
+            "release"
+          ]
+        },
+        {
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "alert_active{severity=\"critical\"}",
+          "iconColor": "red",
+          "name": "Critical Alerts",
+          "step": "30s",
+          "tags": [
+            "alert",
+            "critical"
+          ]
+        }
+      ]
+    },
     "description": "Dashboard de observabilidade completo para WhatsApp Agent API",
-    "tags": ["whatsapp", "webhook", "business", "om002", "observability"],
-    "timezone": "America/Sao_Paulo",
-    "refresh": "30s",
-    "schemaVersion": 30,
-    "time": {
-      "from": "now-1h",
-      "to": "now"
-    },
-    "timepicker": {
-      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
-    },
+    "id": null,
+    "links": [
+      {
+        "title": "Health Check Detalhado",
+        "type": "absolute",
+        "url": "/health/detailed"
+      },
+      {
+        "title": "Alertas Ativos",
+        "type": "absolute",
+        "url": "/health/alerts"
+      },
+      {
+        "title": "Logs Estruturados",
+        "type": "absolute",
+        "url": "/logs"
+      }
+    ],
     "panels": [
       {
-        "id": 1,
-        "title": "🚨 Webhook Failure Rate",
-        "type": "stat",
         "description": "Taxa de falha do webhook em tempo real (OM003 Alert: >10%)",
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "max": 100,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 5
+                },
+                {
+                  "color": "red",
+                  "value": 10
+                }
+              ]
+            },
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        },
+        "id": 1,
+        "options": {
+          "colorMode": "background",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
         "targets": [
           {
             "expr": "rate(webhook_errors_total[5m]) / rate(webhook_requests_total[5m]) * 100",
@@ -27,39 +101,53 @@
             "refId": "A"
           }
         ],
+        "title": "\ud83d\udea8 Webhook Failure Rate",
+        "type": "stat"
+      },
+      {
+        "description": "Taxa de mensagens enviadas por minuto",
         "fieldConfig": {
           "defaults": {
-            "unit": "percent",
             "min": 0,
-            "max": 100,
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"color": "green", "value": 0},
-                {"color": "yellow", "value": 5},
-                {"color": "red", "value": 10}
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 50
+                },
+                {
+                  "color": "red",
+                  "value": 100
+                }
               ]
             },
-            "mappings": []
+            "unit": "short"
           }
         },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          },
-          "orientation": "auto",
-          "textMode": "auto",
-          "colorMode": "background"
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 6,
+          "y": 0
         },
-        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
-      },
-      {
         "id": 2,
-        "title": "📤 Messages Sent Rate",
-        "type": "stat",
-        "description": "Taxa de mensagens enviadas por minuto",
+        "options": {
+          "colorMode": "value",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
         "targets": [
           {
             "expr": "rate(whatsapp_messages_sent_total[5m]) * 60",
@@ -67,37 +155,56 @@
             "refId": "A"
           }
         ],
+        "title": "\ud83d\udce4 Messages Sent Rate",
+        "type": "stat"
+      },
+      {
+        "description": "Total de agendamentos criados nas \u00faltimas 24h",
         "fieldConfig": {
           "defaults": {
-            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            },
             "min": 0,
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"color": "green", "value": 0},
-                {"color": "yellow", "value": 50},
-                {"color": "red", "value": 100}
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 1
+                },
+                {
+                  "color": "green",
+                  "value": 10
+                }
               ]
-            }
+            },
+            "unit": "short"
           }
         },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          },
-          "orientation": "auto",
-          "textMode": "auto",
-          "colorMode": "value"
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 0
         },
-        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
-      },
-      {
         "id": 3,
-        "title": "📅 Appointments Created Today",
-        "type": "stat",
-        "description": "Total de agendamentos criados nas últimas 24h",
+        "options": {
+          "colorMode": "background",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
         "targets": [
           {
             "expr": "increase(appointments_created_total[24h])",
@@ -105,46 +212,11 @@
             "refId": "A"
           }
         ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "min": 0,
-            "color": {"mode": "palette-classic"},
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"color": "red", "value": 0},
-                {"color": "yellow", "value": 1},
-                {"color": "green", "value": 10}
-              ]
-            }
-          }
-        },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          },
-          "orientation": "auto",
-          "textMode": "auto",
-          "colorMode": "background"
-        },
-        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+        "title": "\ud83d\udcc5 Appointments Created Today",
+        "type": "stat"
       },
       {
-        "id": 4,
-        "title": "🔍 System Health Components",
-        "type": "table",
-        "description": "Status de saúde de todos os componentes (OM001)",
-        "targets": [
-          {
-            "expr": "health_component_status",
-            "legendFormat": "{{component}}: {{status}}",
-            "refId": "A",
-            "format": "table"
-          }
-        ],
+        "description": "Status de sa\u00fade de todos os componentes (OM001)",
         "fieldConfig": {
           "defaults": {
             "custom": {
@@ -154,25 +226,118 @@
             "mappings": [
               {
                 "options": {
-                  "healthy": {"color": "green", "index": 0},
-                  "degraded": {"color": "yellow", "index": 1},
-                  "unhealthy": {"color": "red", "index": 2}
+                  "degraded": {
+                    "color": "yellow",
+                    "index": 1
+                  },
+                  "healthy": {
+                    "color": "green",
+                    "index": 0
+                  },
+                  "unhealthy": {
+                    "color": "red",
+                    "index": 2
+                  }
                 },
                 "type": "value"
               }
             ]
           }
         },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        },
+        "id": 4,
         "options": {
           "showHeader": true
         },
-        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+        "targets": [
+          {
+            "expr": "health_component_status",
+            "format": "table",
+            "legendFormat": "{{component}}: {{status}}",
+            "refId": "A"
+          }
+        ],
+        "title": "\ud83d\udd0d System Health Components",
+        "type": "table"
       },
       {
+        "description": "Lat\u00eancia do webhook (OM003 Alert: >5000ms)",
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "vis": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 5
+                }
+              ]
+            },
+            "unit": "s"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        },
         "id": 5,
-        "title": "⚡ Webhook Response Times",
-        "type": "timeseries",
-        "description": "Latência do webhook (OM003 Alert: >5000ms)",
+        "options": {
+          "legend": {
+            "calcs": [
+              "mean",
+              "lastNotNull",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
         "targets": [
           {
             "expr": "histogram_quantile(0.95, webhook_duration_seconds_bucket)",
@@ -180,7 +345,7 @@
             "refId": "A"
           },
           {
-            "expr": "histogram_quantile(0.50, webhook_duration_seconds_bucket)", 
+            "expr": "histogram_quantile(0.50, webhook_duration_seconds_bucket)",
             "legendFormat": "50th percentile",
             "refId": "B"
           },
@@ -190,49 +355,69 @@
             "refId": "C"
           }
         ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "s",
-            "min": 0,
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "linear",
-              "barAlignment": 0,
-              "lineWidth": 1,
-              "fillOpacity": 10,
-              "gradientMode": "none",
-              "spanNulls": false,
-              "insertNulls": false,
-              "showPoints": "never",
-              "pointSize": 5,
-              "stacking": {"mode": "none", "group": "A"},
-              "axisPlacement": "auto",
-              "axisLabel": "",
-              "axisColorMode": "text",
-              "scaleDistribution": {"type": "linear"},
-              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
-              "thresholdsStyle": {"mode": "off"}
-            },
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "red", "value": 5}
-              ]
-            }
-          }
-        },
-        "options": {
-          "tooltip": {"mode": "single", "sort": "none"},
-          "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["mean", "lastNotNull", "max"]}
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+        "title": "\u26a1 Webhook Response Times",
+        "type": "timeseries"
       },
       {
-        "id": 6,
-        "title": "💬 Message Volume by Hour",
-        "type": "timeseries",
         "description": "Volume de mensagens recebidas vs enviadas",
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 20,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "vis": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 2,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "min": 0,
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        },
+        "id": 6,
+        "options": {
+          "legend": {
+            "calcs": [
+              "mean",
+              "lastNotNull",
+              "max"
+            ],
+            "displayMode": "table",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi",
+            "sort": "none"
+          }
+        },
         "targets": [
           {
             "expr": "rate(whatsapp_messages_received_total[1h])",
@@ -245,42 +430,53 @@
             "refId": "B"
           }
         ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "min": 0,
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "linear",
-              "barAlignment": 0,
-              "lineWidth": 2,
-              "fillOpacity": 20,
-              "gradientMode": "none",
-              "spanNulls": false,
-              "insertNulls": false,
-              "showPoints": "never",
-              "pointSize": 5,
-              "stacking": {"mode": "none", "group": "A"},
-              "axisPlacement": "auto",
-              "axisLabel": "",
-              "axisColorMode": "text",
-              "scaleDistribution": {"type": "linear"},
-              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
-              "thresholdsStyle": {"mode": "off"}
-            }
-          }
-        },
-        "options": {
-          "tooltip": {"mode": "multi", "sort": "none"},
-          "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["mean", "lastNotNull", "max"]}
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+        "title": "\ud83d\udcac Message Volume by Hour",
+        "type": "timeseries"
       },
       {
-        "id": 7,
-        "title": "🚨 Active Alerts Summary",
-        "type": "stat",
         "description": "Resumo de alertas ativos (OM003)",
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 1
+                },
+                {
+                  "color": "red",
+                  "value": 3
+                }
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        },
+        "id": 7,
+        "options": {
+          "colorMode": "background",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
         "targets": [
           {
             "expr": "sum(alert_active{severity=\"critical\"})",
@@ -289,7 +485,7 @@
           },
           {
             "expr": "sum(alert_active{severity=\"warning\"})",
-            "legendFormat": "Warning", 
+            "legendFormat": "Warning",
             "refId": "B"
           },
           {
@@ -298,37 +494,30 @@
             "refId": "C"
           }
         ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "short",
-            "min": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"color": "green", "value": 0},
-                {"color": "yellow", "value": 1},
-                {"color": "red", "value": 3}
-              ]
-            }
-          }
-        },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"],
-            "fields": ""
-          },
-          "orientation": "horizontal",
-          "textMode": "auto",
-          "colorMode": "background"
-        },
-        "gridPos": {"h": 4, "w": 12, "x": 0, "y": 16}
+        "title": "\ud83d\udea8 Active Alerts Summary",
+        "type": "stat"
       },
       {
+        "description": "M\u00e9tricas de performance do PostgreSQL",
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "lineInterpolation": "linear",
+              "lineWidth": 1
+            },
+            "min": 0,
+            "unit": "ms"
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        },
         "id": 8,
-        "title": "💾 Database Performance",
-        "type": "timeseries",
-        "description": "Métricas de performance do PostgreSQL",
         "targets": [
           {
             "expr": "database_response_time_ms",
@@ -341,103 +530,82 @@
             "refId": "B"
           }
         ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "ms",
-            "min": 0,
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
-              "fillOpacity": 10
-            }
-          }
-        },
-        "gridPos": {"h": 4, "w": 12, "x": 12, "y": 16}
+        "title": "\ud83d\udcbe Database Performance",
+        "type": "timeseries"
       }
     ],
-    "annotations": {
-      "list": [
-        {
-          "name": "Deployments",
-          "datasource": "prometheus",
-          "enable": true,
-          "expr": "changes(app_build_info[1d])",
-          "step": "1m",
-          "iconColor": "blue",
-          "tags": ["deployment", "release"]
-        },
-        {
-          "name": "Critical Alerts",
-          "datasource": "prometheus", 
-          "enable": true,
-          "expr": "alert_active{severity=\"critical\"}",
-          "step": "30s",
-          "iconColor": "red",
-          "tags": ["alert", "critical"]
-        }
-      ]
-    },
+    "refresh": "30s",
+    "schemaVersion": 30,
+    "tags": [
+      "whatsapp",
+      "webhook",
+      "business",
+      "om002",
+      "observability"
+    ],
     "templating": {
       "list": [
         {
+          "datasource": "prometheus",
+          "includeAll": false,
+          "multi": false,
           "name": "instance",
           "query": "label_values(up, instance)",
-          "type": "query",
-          "datasource": "prometheus",
           "refresh": 1,
-          "includeAll": false,
-          "multi": false
+          "type": "query"
         },
         {
+          "datasource": "prometheus",
+          "includeAll": true,
+          "multi": true,
           "name": "component",
           "query": "label_values(health_component_status, component)",
-          "type": "query", 
-          "datasource": "prometheus",
           "refresh": 1,
-          "includeAll": true,
-          "multi": true
+          "type": "query"
         }
       ]
     },
-    "links": [
-      {
-        "title": "Health Check Detalhado",
-        "url": "/health/detailed",
-        "type": "absolute"
-      },
-      {
-        "title": "Alertas Ativos",
-        "url": "/health/alerts",
-        "type": "absolute"
-      },
-      {
-        "title": "Logs Estruturados",
-        "url": "/logs",
-        "type": "absolute"
-      }
-    ]
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ]
+    },
+    "timezone": "America/Sao_Paulo",
+    "title": "WhatsApp Agent Overview - OM002"
   },
   "meta": {
-    "type": "db",
-    "canSave": true,
-    "canEdit": true,
     "canAdmin": false,
+    "canEdit": true,
+    "canSave": true,
     "canStar": true,
-    "slug": "whatsapp-agent-overview-om002",
-    "url": "/d/whatsapp-agent-overview-om002",
-    "expires": "0001-01-01T00:00:00Z",
     "created": "2025-09-12T00:00:00Z",
-    "updated": "2025-09-12T00:00:00Z",
-    "updatedBy": "github-copilot",
     "createdBy": "github-copilot",
-    "version": 1,
-    "hasAcl": false,
-    "isFolder": false,
+    "expires": "0001-01-01T00:00:00Z",
     "folderId": 0,
     "folderTitle": "General",
     "folderUrl": "",
+    "hasAcl": false,
+    "isFolder": false,
     "provisioned": false,
-    "provisionedExternalId": ""
+    "provisionedExternalId": "",
+    "slug": "whatsapp-agent-overview-om002",
+    "type": "db",
+    "updated": "2025-09-12T00:00:00Z",
+    "updatedBy": "github-copilot",
+    "url": "/d/whatsapp-agent-overview-om002",
+    "version": 1
   }
 }

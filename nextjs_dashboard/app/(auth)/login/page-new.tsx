@@ -37,10 +37,10 @@ export default function LoginPage() {
       }
 
       const data = await response.json()
-      
+
       // Salvar token
       // ✅ SEGURO: Tokens agora em cookies HttpOnly
-      
+
       // Decodificar JWT para user info
       const payload = JSON.parse(atob(data.access_token.split('.')[1]))
       const userData = {
@@ -78,7 +78,7 @@ export default function LoginPage() {
               Acesse sua conta para continuar
             </CardDescription>
           </CardHeader>
-          
+
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
               {error && (
@@ -140,8 +140,8 @@ export default function LoginPage() {
             </CardContent>
 
             <CardFooter>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-white text-blue-600 hover:bg-white/90"
                 disabled={isLoading}
               >

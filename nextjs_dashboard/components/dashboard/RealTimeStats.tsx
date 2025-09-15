@@ -8,10 +8,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 // import { Separator } from '@/components/ui/separator'
 import { Separator } from '../ui/separator'
-import { 
-  Activity, 
-  Users, 
-  MessageSquare, 
+import {
+  Activity,
+  Users,
+  MessageSquare,
   Calendar,
   TrendingUp,
   TrendingDown,
@@ -31,14 +31,14 @@ interface StatsCardProps {
   isAnimating?: boolean
 }
 
-function StatsCard({ 
-  title, 
-  value, 
-  previousValue, 
-  icon, 
-  trend, 
-  isRealTime = false, 
-  isAnimating = false 
+function StatsCard({
+  title,
+  value,
+  previousValue,
+  icon,
+  trend,
+  isRealTime = false,
+  isAnimating = false
 }: StatsCardProps) {
   const [displayValue, setDisplayValue] = useState(value)
 
@@ -53,11 +53,11 @@ function StatsCard({
       const animate = () => {
         const elapsed = Date.now() - startTime
         const progress = Math.min(elapsed / duration, 1)
-        
+
         // Ease out animation
         const easedProgress = 1 - Math.pow(1 - progress, 3)
         const currentValue = Math.round(startValue + (endValue - startValue) * easedProgress)
-        
+
         setDisplayValue(currentValue)
 
         if (progress < 1) {
@@ -110,7 +110,7 @@ function StatsCard({
           {icon}
           {isRealTime && (
             <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" 
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"
                    title="Dados em tempo real" />
             </div>
           )}
@@ -181,13 +181,13 @@ function AlertItem({ alert }: { alert: SystemAlert }) {
 }
 
 export default function RealTimeStats() {
-  const { 
-    dashboardStats, 
-    systemAlerts, 
+  const {
+    dashboardStats,
+    systemAlerts,
     analyticsUpdates,
-    isConnected, 
-    connectionStats, 
-    requestStats 
+    isConnected,
+    connectionStats,
+    requestStats
   } = useDashboardWebSocket()
 
   const [previousStats, setPreviousStats] = useState<any>(null)
@@ -197,23 +197,23 @@ export default function RealTimeStats() {
   useEffect(() => {
     if (dashboardStats && previousStats) {
       const newAnimating = new Set<string>()
-      
+
       Object.keys(dashboardStats).forEach(key => {
         if (dashboardStats[key] !== previousStats[key]) {
           newAnimating.add(key)
         }
       })
-      
+
       if (newAnimating.size > 0) {
         setAnimatingStats(newAnimating)
-        
+
         // Clear animations after duration
         setTimeout(() => {
           setAnimatingStats(new Set())
         }, 1000)
       }
     }
-    
+
     if (dashboardStats) {
       setPreviousStats({ ...dashboardStats })
     }
@@ -249,8 +249,8 @@ export default function RealTimeStats() {
             <RefreshCw className="w-4 h-4" />
             <span>Atualizar</span>
           </Button>
-          
-          <Badge 
+
+          <Badge
             variant={isConnected ? "default" : "destructive"}
             className={`flex items-center space-x-2 ${
               isConnected ? "bg-green-600 hover:bg-green-700" : ""
@@ -282,7 +282,7 @@ export default function RealTimeStats() {
           isRealTime={isConnected}
           isAnimating={animatingStats.has('messages_today')}
         />
-        
+
         <StatsCard
           title="Conversas Ativas"
           value={stats.conversations_today}
@@ -292,7 +292,7 @@ export default function RealTimeStats() {
           isRealTime={isConnected}
           isAnimating={animatingStats.has('conversations_today')}
         />
-        
+
         <StatsCard
           title="Agendamentos"
           value={stats.appointments_today}
@@ -302,7 +302,7 @@ export default function RealTimeStats() {
           isRealTime={isConnected}
           isAnimating={animatingStats.has('appointments_today')}
         />
-        
+
         <StatsCard
           title="Novos Clientes"
           value={stats.new_clients_today}
@@ -326,16 +326,16 @@ export default function RealTimeStats() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between py-2">
               <span className="text-sm text-gray-600">Status</span>
-              <Badge 
+              <Badge
                 variant={isConnected ? "default" : "destructive"}
                 className={isConnected ? "bg-green-600 hover:bg-green-700" : ""}
               >
                 {isConnected ? 'Conectado' : 'Desconectado'}
               </Badge>
             </div>
-            
+
             <Separator />
-            
+
             <div className="flex items-center justify-between py-2">
               <span className="text-sm text-gray-600">Inscrições</span>
               <div className="flex flex-wrap gap-1">
@@ -346,7 +346,7 @@ export default function RealTimeStats() {
                 ))}
               </div>
             </div>
-            
+
             {connectionStats.connectionTime && (
               <>
                 <Separator />
@@ -358,7 +358,7 @@ export default function RealTimeStats() {
                 </div>
               </>
             )}
-            
+
             {connectionStats.reconnectCount > 0 && (
               <>
                 <Separator />

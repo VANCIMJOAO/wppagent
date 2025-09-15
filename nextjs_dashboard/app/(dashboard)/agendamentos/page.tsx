@@ -16,13 +16,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Calendar, 
-  CalendarPlus, 
-  Search, 
-  Filter, 
-  Clock, 
-  User, 
+import {
+  Calendar,
+  CalendarPlus,
+  Search,
+  Filter,
+  Clock,
+  User,
   Phone,
   CheckCircle,
   XCircle,
@@ -93,18 +93,18 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
   });
 
   // WebSocket para atualizações em tempo real
-  const { 
-    recentActivity, 
+  const {
+    recentActivity,
     appointmentCounts,
-    isConnected, 
-    connectionStats 
+    isConnected,
+    connectionStats
   } = useAppointmentsWebSocket();
 
   // Handle real-time appointment events
   useEffect(() => {
     if (recentActivity.length > 0) {
       const latestActivity = recentActivity[recentActivity.length - 1];
-      
+
       // Atualizar appointments baseado no evento
       if (latestActivity.event_type === 'appointment_created') {
         // Recarregar dados quando um novo agendamento for criado
@@ -126,7 +126,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
   async function loadData() {
     try {
       setLoading(true);
-      
+
       const [appointmentsResponse, dashboardResponse] = await Promise.all([
         api.getAppointments(),
         api.getDashboardStats()
@@ -137,32 +137,32 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
       const dashboardData = dashboardResponse.data || {};
 
       setAppointments(appointmentsData);
-      
+
       // Calculate stats from actual appointments data
       const today = new Date().toDateString();
       const thisWeek = new Date();
       thisWeek.setDate(thisWeek.getDate() - thisWeek.getDay()); // Start of week
       const thisMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // Start of month
-      
+
       const calculatedStats: AppointmentStats = {
         total: appointmentsData.length || 0,
         confirmed: appointmentsData.filter((a: any) => a.status === 'confirmado').length || 0,
         pending: appointmentsData.filter((a: any) => a.status === 'agendado').length || 0,
         cancelled: appointmentsData.filter((a: any) => a.status === 'cancelado').length || 0,
         completed: appointmentsData.filter((a: any) => a.status === 'realizado').length || 0,
-        today: appointmentsData.filter((a: any) => 
+        today: appointmentsData.filter((a: any) =>
             new Date(a.data_agendamento).toDateString() === today
           ).length || 0,
-          thisWeek: appointmentsData.filter((a: any) => 
+          thisWeek: appointmentsData.filter((a: any) =>
             new Date(a.data_agendamento) >= thisWeek
           ).length || 0,
-          thisMonth: appointmentsData.filter((a: any) => 
+          thisMonth: appointmentsData.filter((a: any) =>
             new Date(a.data_agendamento) >= thisMonth
           ).length || 0
         };
-        
+
         setAppointmentStats(calculatedStats);
-        
+
       } catch (error) {
         console.error('Erro ao carregar dados dos agendamentos:', error);
         toast.error('Erro ao carregar dados dos agendamentos');
@@ -180,7 +180,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
     const matchesSearch = appointment.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          appointment.servico_nome.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
-    
+
     let matchesDate = true;
     if (dateFilter === 'today') {
       const today = new Date().toDateString();
@@ -194,7 +194,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
       weekFromNow.setDate(weekFromNow.getDate() + 7);
       matchesDate = new Date(appointment.data_agendamento) <= weekFromNow;
     }
-    
+
     return matchesSearch && matchesStatus && matchesDate;
   });
 
@@ -245,7 +245,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
             <p className="text-gray-600 mt-1">Gestão de agenda e compromissos</p>
           </div>
           {/* WebSocket Status */}
-          <Badge 
+          <Badge
             variant={isConnected ? "default" : "destructive"}
             className={`flex items-center space-x-2 ${
               isConnected ? "bg-green-600 hover:bg-green-700" : ""
@@ -271,7 +271,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
           )}
         </div>
         <div className="flex items-center space-x-3">
-          <ExportButtons 
+          <ExportButtons
             startDate={new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0]}
             endDate={new Date().toISOString().split('T')[0]}
             className="bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600"

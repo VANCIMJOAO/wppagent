@@ -16,6 +16,7 @@ Sistema completamente observável com **4 pilares da observabilidade**:
 - ✅ **Alertas**: Sistema proativo de notificações
 
 ### **Components Monitored**
+
 1. 🔍 **Application Health**: FastAPI + Next.js
 2. 🗄️ **Database Health**: PostgreSQL connections
 3. 🚀 **Cache Health**: Redis operations
@@ -28,6 +29,7 @@ Sistema completamente observável com **4 pilares da observabilidade**:
 ## 📋 **HEALTH CHECKS SYSTEM**
 
 ### **Basic Health Check**
+
 ```python
 # app/routes/health.py
 from fastapi import APIRouter, Depends, HTTPException
@@ -59,6 +61,7 @@ async def basic_health_check():
 ```
 
 ### **Detailed Health Check**
+
 ```python
 # app/routes/health.py
 @router.get("/health/detailed")
@@ -69,14 +72,14 @@ async def detailed_health_check():
     start_time = datetime.utcnow()
     checks = {}
     overall_status = "healthy"
-    
+
     # ✅ 1. Database Health Check
     try:
         db_start = time.time()
         async with AsyncSessionLocal() as db:
             await db.execute(text("SELECT 1"))
             db_duration = (time.time() - db_start) * 1000
-            
+
         checks["database"] = {
             "status": "healthy",
             "response_time_ms": round(db_duration, 2),
@@ -89,19 +92,19 @@ async def detailed_health_check():
             "details": "Database connection failed"
         }
         overall_status = "unhealthy"
-    
+
     # ✅ 2. Redis Health Check
     try:
         redis_start = time.time()
         await redis_client.ping()
         redis_duration = (time.time() - redis_start) * 1000
-        
+
         # Check cache operations
         test_key = "health_check_test"
         await redis_client.set(test_key, "test", ex=5)
         test_value = await redis_client.get(test_key)
         await redis_client.delete(test_key)
-        
+
         checks["redis"] = {
             "status": "healthy",
             "response_time_ms": round(redis_duration, 2),
@@ -115,7 +118,7 @@ async def detailed_health_check():
             "details": "Redis connection failed"
         }
         overall_status = "unhealthy"
-    
+
     # ✅ 3. Meta API Health Check
     try:
         meta_start = time.time()
@@ -126,7 +129,7 @@ async def detailed_health_check():
                 timeout=5.0
             )
             meta_duration = (time.time() - meta_start) * 1000
-            
+
         if response.status_code == 200:
             checks["meta_api"] = {
                 "status": "healthy",
@@ -142,7 +145,7 @@ async def detailed_health_check():
                 "token_valid": False
             }
             overall_status = "degraded"
-            
+
     except Exception as e:
         checks["meta_api"] = {
             "status": "unhealthy",
@@ -150,7 +153,7 @@ async def detailed_health_check():
             "details": "Meta API unreachable"
         }
         overall_status = "unhealthy"
-    
+
     # ✅ 4. Webhook Health Check
     try:
         # Check recent webhook processing
@@ -160,18 +163,18 @@ async def detailed_health_check():
                 text("""
                     SELECT COUNT(*) as total,
                            SUM(CASE WHEN status = 'processed' THEN 1 ELSE 0 END) as processed
-                    FROM webhook_events 
+                    FROM webhook_events
                     WHERE created_at > NOW() - INTERVAL '5 minutes'
                 """)
             )
             webhook_stats = recent_webhooks.fetchone()
             webhook_duration = (time.time() - webhook_start) * 1000
-        
+
         total_webhooks = webhook_stats.total if webhook_stats else 0
         processed_webhooks = webhook_stats.processed if webhook_stats else 0
-        
+
         success_rate = (processed_webhooks / total_webhooks * 100) if total_webhooks > 0 else 100
-        
+
         checks["webhook"] = {
             "status": "healthy" if success_rate >= 95 else "degraded",
             "response_time_ms": round(webhook_duration, 2),
@@ -180,10 +183,10 @@ async def detailed_health_check():
             "processed_webhooks": processed_webhooks,
             "success_rate": round(success_rate, 2)
         }
-        
+
         if success_rate < 95:
             overall_status = "degraded"
-            
+
     except Exception as e:
         checks["webhook"] = {
             "status": "unhealthy",
@@ -191,10 +194,10 @@ async def detailed_health_check():
             "details": "Webhook status check failed"
         }
         overall_status = "unhealthy"
-    
+
     # ✅ Calculate total check duration
     total_duration = (datetime.utcnow() - start_time).total_seconds() * 1000
-    
+
     return {
         "status": overall_status,
         "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -212,6 +215,7 @@ async def detailed_health_check():
 ### **Health Check Response Examples**
 
 **Healthy System:**
+
 ```json
 {
     "status": "healthy",
@@ -224,7 +228,7 @@ async def detailed_health_check():
             "details": "PostgreSQL connection successful"
         },
         "redis": {
-            "status": "healthy", 
+            "status": "healthy",
             "response_time_ms": 3.21,
             "details": "Redis operations successful",
             "cache_test": "passed"
@@ -258,6 +262,7 @@ async def detailed_health_check():
 ## 📝 **STRUCTURED LOGGING SYSTEM**
 
 ### **Log Architecture**
+
 ```python
 # app/utils/structured_logger.py
 import json
@@ -275,11 +280,11 @@ class StructuredLogger:
     """
     Enterprise-grade structured logging with trace correlation
     """
-    
+
     def __init__(self, service_name: str = "whatsapp-agent"):
         self.service_name = service_name
         self.log_file = "logs/security_audit.log"
-        
+
     async def log(
         self,
         level: str,
@@ -295,7 +300,7 @@ class StructuredLogger:
         """
         # ✅ Get or generate trace ID
         current_trace_id = trace_id or trace_id_context.get() or str(uuid.uuid4())
-        
+
         # ✅ Build log entry
         log_entry = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -308,24 +313,24 @@ class StructuredLogger:
             "metadata": metadata or {},
             "performance_metrics": performance_metrics or {}
         }
-        
+
         # ✅ Write to file and stdout
         log_line = json.dumps(log_entry, ensure_ascii=False)
         print(log_line, file=sys.stdout)
-        
+
         # ✅ Write to log file
         with open(self.log_file, "a", encoding="utf-8") as f:
             f.write(log_line + "\n")
-    
+
     async def info(self, message: str, **kwargs):
         await self.log("INFO", message, **kwargs)
-    
+
     async def warning(self, message: str, **kwargs):
         await self.log("WARNING", message, **kwargs)
-    
+
     async def error(self, message: str, **kwargs):
         await self.log("ERROR", message, **kwargs)
-    
+
     async def critical(self, message: str, **kwargs):
         await self.log("CRITICAL", message, **kwargs)
 
@@ -334,6 +339,7 @@ logger = StructuredLogger()
 ```
 
 ### **Request Logging Middleware**
+
 ```python
 # app/middleware/logging_middleware.py
 import time
@@ -344,19 +350,19 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """
     Log all HTTP requests with performance metrics
     """
-    
+
     async def dispatch(self, request: Request, call_next):
         # ✅ Generate trace ID for request
         trace_id = str(uuid.uuid4())
         trace_id_context.set(trace_id)
-        
+
         # ✅ Start timing
         start_time = time.time()
-        
+
         # ✅ Extract request info
         client_ip = request.client.host if request.client else "unknown"
         user_agent = request.headers.get("user-agent", "unknown")
-        
+
         # ✅ Log request start
         await logger.info(
             f"Request started: {request.method} {request.url.path}",
@@ -370,14 +376,14 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 "user_agent": user_agent
             }
         )
-        
+
         try:
             # ✅ Process request
             response = await call_next(request)
-            
+
             # ✅ Calculate performance metrics
             duration_ms = (time.time() - start_time) * 1000
-            
+
             # ✅ Log request completion
             await logger.info(
                 f"Request completed: {request.method} {request.url.path} - {response.status_code} in {duration_ms:.2f}ms",
@@ -389,16 +395,16 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                     "response_size_bytes": len(response.body) if hasattr(response, 'body') else 0
                 }
             )
-            
+
             # ✅ Add trace ID to response headers
             response.headers["X-Trace-ID"] = trace_id
-            
+
             return response
-            
+
         except Exception as e:
             # ✅ Log request error
             duration_ms = (time.time() - start_time) * 1000
-            
+
             await logger.error(
                 f"Request failed: {request.method} {request.url.path} - {str(e)}",
                 category="api",
@@ -418,20 +424,21 @@ app.add_middleware(RequestLoggingMiddleware)
 ```
 
 ### **Business Logic Logging**
+
 ```python
 # app/services/logged_appointment_service.py
 class LoggedAppointmentService:
     """
     Appointment service with comprehensive logging
     """
-    
+
     @staticmethod
     async def create_appointment(appointment_data: dict, user_id: str) -> Appointment:
         """
         Create appointment with detailed logging
         """
         trace_id = trace_id_context.get()
-        
+
         await logger.info(
             "Creating new appointment",
             category="business_logic",
@@ -443,11 +450,11 @@ class LoggedAppointmentService:
                 "scheduled_at": appointment_data.get("scheduled_at")
             }
         )
-        
+
         try:
             # ✅ Create appointment
             appointment = await AppointmentService.create_appointment(appointment_data)
-            
+
             await logger.info(
                 f"Appointment created successfully: {appointment.id}",
                 category="business_logic",
@@ -458,9 +465,9 @@ class LoggedAppointmentService:
                     "status": appointment.status
                 }
             )
-            
+
             return appointment
-            
+
         except Exception as e:
             await logger.error(
                 f"Failed to create appointment: {str(e)}",
@@ -478,6 +485,7 @@ class LoggedAppointmentService:
 ### **Log Examples**
 
 **API Request Log:**
+
 ```json
 {
     "timestamp": "2025-01-16T21:45:32.123456Z",
@@ -502,6 +510,7 @@ class LoggedAppointmentService:
 ```
 
 **Security Event Log:**
+
 ```json
 {
     "timestamp": "2025-01-16T21:45:32.123456Z",
@@ -524,6 +533,7 @@ class LoggedAppointmentService:
 ## 📊 **PERFORMANCE METRICS**
 
 ### **Prometheus Metrics**
+
 ```python
 # app/monitoring/prometheus_metrics.py
 from prometheus_client import Counter, Histogram, Gauge, Info
@@ -606,6 +616,7 @@ cpu_usage_percent = Gauge(
 ```
 
 ### **Metrics Collection Middleware**
+
 ```python
 # app/middleware/metrics_middleware.py
 import time
@@ -616,54 +627,55 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     """
     Collect Prometheus metrics for all requests
     """
-    
+
     async def dispatch(self, request: Request, call_next):
         start_time = time.time()
-        
+
         try:
             response = await call_next(request)
             duration = time.time() - start_time
-            
+
             # ✅ Record HTTP metrics
             http_requests_total.labels(
                 method=request.method,
                 endpoint=request.url.path,
                 status_code=response.status_code
             ).inc()
-            
+
             http_request_duration_seconds.labels(
                 method=request.method,
                 endpoint=request.url.path
             ).observe(duration)
-            
+
             # ✅ Update system metrics
             process = psutil.Process()
             memory_usage_bytes.set(process.memory_info().rss)
             cpu_usage_percent.set(process.cpu_percent())
-            
+
             return response
-            
+
         except Exception as e:
             duration = time.time() - start_time
-            
+
             # ✅ Record failed request
             http_requests_total.labels(
                 method=request.method,
                 endpoint=request.url.path,
                 status_code=500
             ).inc()
-            
+
             http_request_duration_seconds.labels(
                 method=request.method,
                 endpoint=request.url.path
             ).observe(duration)
-            
+
             raise
 
 app.add_middleware(MetricsMiddleware)
 ```
 
 ### **Metrics Endpoint**
+
 ```python
 # app/routes/metrics.py
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -684,12 +696,13 @@ async def metrics():
 ## 🚨 **ALERTING SYSTEM**
 
 ### **Prometheus Alerts Configuration**
+
 ```yaml
 # prometheus/alert_rules.yml
 groups:
   - name: whatsapp_agent_alerts
     rules:
-      
+
       # ✅ High Error Rate Alert
       - alert: HighErrorRate
         expr: rate(http_requests_total{status_code=~"5.."}[5m]) > 0.1
@@ -700,7 +713,7 @@ groups:
         annotations:
           summary: "High error rate detected"
           description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
-          
+
       # ✅ High Response Time Alert
       - alert: HighResponseTime
         expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1.0
@@ -711,7 +724,7 @@ groups:
         annotations:
           summary: "High response time detected"
           description: "95th percentile response time is {{ $value }}s"
-          
+
       # ✅ Database Connection Issues
       - alert: DatabaseConnectionHigh
         expr: db_connections_total > 18
@@ -722,7 +735,7 @@ groups:
         annotations:
           summary: "High database connection count"
           description: "Current connections: {{ $value }} (max: 20)"
-          
+
       # ✅ Cache Hit Rate Low
       - alert: LowCacheHitRate
         expr: cache_hit_rate < 80
@@ -733,7 +746,7 @@ groups:
         annotations:
           summary: "Low cache hit rate"
           description: "Cache hit rate is {{ $value }}%"
-          
+
       # ✅ Memory Usage High
       - alert: HighMemoryUsage
         expr: memory_usage_bytes > 1073741824  # 1GB
@@ -744,7 +757,7 @@ groups:
         annotations:
           summary: "High memory usage"
           description: "Memory usage is {{ $value | humanize }}B"
-          
+
       # ✅ Failed Authentication Spike
       - alert: AuthenticationFailureSpike
         expr: rate(failed_auth_attempts_total[5m]) > 0.5
@@ -755,7 +768,7 @@ groups:
         annotations:
           summary: "High authentication failure rate"
           description: "{{ $value }} failed authentication attempts per second"
-          
+
       # ✅ Health Check Failure
       - alert: HealthCheckFailure
         expr: up{job="whatsapp-agent"} == 0
@@ -769,6 +782,7 @@ groups:
 ```
 
 ### **Alert Manager Configuration**
+
 ```yaml
 # alertmanager/alertmanager.yml
 global:
@@ -801,20 +815,20 @@ receivers:
           Alert: {{ .GroupLabels.alertname }}
           Severity: {{ .CommonLabels.severity }}
           Service: {{ .CommonLabels.service }}
-          
+
           Details:
           {{ range .Alerts }}
           - {{ .Annotations.summary }}
           - {{ .Annotations.description }}
           {{ end }}
-          
+
           Dashboard: https://grafana.whatsappagent.com
     slack_configs:
       - api_url: '${SLACK_WEBHOOK_URL}'
         channel: '#alerts'
         title: '🚨 Critical Alert'
         text: '{{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}'
-        
+
   # ✅ Warning Alerts (batch notification)
   - name: 'warning-alerts'
     email_configs:
@@ -823,11 +837,12 @@ receivers:
         body: |
           Alert: {{ .GroupLabels.alertname }}
           Severity: {{ .CommonLabels.severity }}
-          
+
           {{ .CommonAnnotations.description }}
 ```
 
 ### **Custom Alert Handler**
+
 ```python
 # app/monitoring/alert_handler.py
 import asyncio
@@ -838,21 +853,21 @@ class AlertHandler:
     """
     Custom alert handling and escalation
     """
-    
+
     def __init__(self):
         self.alert_history = []
         self.escalation_rules = {
             "critical": {"escalate_after": 300, "max_attempts": 5},  # 5 minutes
             "warning": {"escalate_after": 1800, "max_attempts": 3}   # 30 minutes
         }
-    
+
     async def handle_alert(self, alert: Dict[str, Any]):
         """
         Process incoming alert with custom logic
         """
         alert_id = self.generate_alert_id(alert)
         severity = alert.get("labels", {}).get("severity", "warning")
-        
+
         # ✅ Log alert
         await logger.critical(
             f"Alert triggered: {alert.get('annotations', {}).get('summary', 'Unknown alert')}",
@@ -864,10 +879,10 @@ class AlertHandler:
                 "annotations": alert.get("annotations", {})
             }
         )
-        
+
         # ✅ Check for automatic remediation
         remediation_result = await self.attempt_auto_remediation(alert)
-        
+
         if remediation_result:
             await logger.info(
                 f"Alert auto-remediated: {alert_id}",
@@ -875,7 +890,7 @@ class AlertHandler:
                 metadata={"remediation_action": remediation_result}
             )
             return
-        
+
         # ✅ Store alert for escalation tracking
         self.alert_history.append({
             "alert_id": alert_id,
@@ -883,39 +898,39 @@ class AlertHandler:
             "severity": severity,
             "alert": alert
         })
-        
+
         # ✅ Send immediate notification for critical alerts
         if severity == "critical":
             await self.send_immediate_notification(alert)
-    
+
     async def attempt_auto_remediation(self, alert: Dict[str, Any]) -> str:
         """
         Attempt automatic remediation for known issues
         """
         alert_name = alert.get("labels", {}).get("alertname", "")
-        
+
         # ✅ Auto-restart for memory issues
         if alert_name == "HighMemoryUsage":
             # Trigger garbage collection
             import gc
             gc.collect()
             return "garbage_collection_triggered"
-        
+
         # ✅ Cache clearing for cache issues
         if alert_name == "LowCacheHitRate":
             # Clear problematic cache entries
             pattern = "stale:*"
             await cache_manager.delete_pattern(pattern)
             return "stale_cache_cleared"
-        
+
         # ✅ Connection pool refresh for DB issues
         if alert_name == "DatabaseConnectionHigh":
             # Force connection pool refresh
             await database_manager.refresh_connection_pool()
             return "db_pool_refreshed"
-        
+
         return None
-    
+
     async def send_immediate_notification(self, alert: Dict[str, Any]):
         """
         Send immediate notification for critical alerts
@@ -933,6 +948,7 @@ alert_handler = AlertHandler()
 ## 🔍 **LOG ANALYSIS TOOLS**
 
 ### **Log Query Commands**
+
 ```bash
 # ✅ Real-time log monitoring
 tail -f logs/security_audit.log | jq '.'
@@ -963,6 +979,7 @@ grep '"category":"security"' logs/security_audit.log | jq -r '.message' | sort |
 ```
 
 ### **Log Aggregation Queries**
+
 ```bash
 # ✅ Request volume per minute
 grep '"category":"api"' logs/security_audit.log | \
@@ -984,6 +1001,7 @@ jq -r '.message' | sort | uniq -c | sort -nr | head -10
 ```
 
 ### **Log Analysis Script**
+
 ```python
 # scripts/log_analyzer.py
 import json
@@ -995,12 +1013,12 @@ class LogAnalyzer:
     """
     Analyze structured logs for insights
     """
-    
+
     def __init__(self, log_file: str):
         self.log_file = log_file
         self.logs = []
         self.load_logs()
-    
+
     def load_logs(self):
         """Load and parse log file"""
         with open(self.log_file, 'r') as f:
@@ -1010,25 +1028,25 @@ class LogAnalyzer:
                     self.logs.append(log_entry)
                 except json.JSONDecodeError:
                     continue
-    
+
     def analyze_performance(self, hours: int = 1) -> dict:
         """Analyze performance metrics for last N hours"""
         cutoff = datetime.utcnow() - timedelta(hours=hours)
-        
+
         api_logs = [
             log for log in self.logs
-            if log.get('category') == 'api' and 
+            if log.get('category') == 'api' and
             datetime.fromisoformat(log['timestamp'].replace('Z', '+00:00')) > cutoff
         ]
-        
+
         if not api_logs:
             return {"error": "No API logs found"}
-        
+
         durations = [
             log.get('performance_metrics', {}).get('duration_ms', 0)
             for log in api_logs
         ]
-        
+
         return {
             "total_requests": len(api_logs),
             "avg_response_time_ms": sum(durations) / len(durations),
@@ -1036,47 +1054,47 @@ class LogAnalyzer:
             "min_response_time_ms": min(durations),
             "slow_requests": len([d for d in durations if d > 1000])
         }
-    
+
     def analyze_errors(self, hours: int = 24) -> dict:
         """Analyze error patterns"""
         cutoff = datetime.utcnow() - timedelta(hours=hours)
-        
+
         error_logs = [
             log for log in self.logs
             if log.get('level') in ['ERROR', 'CRITICAL'] and
             datetime.fromisoformat(log['timestamp'].replace('Z', '+00:00')) > cutoff
         ]
-        
+
         error_messages = Counter([log.get('message', '') for log in error_logs])
         error_categories = Counter([log.get('category', '') for log in error_logs])
-        
+
         return {
             "total_errors": len(error_logs),
             "top_error_messages": dict(error_messages.most_common(5)),
             "error_categories": dict(error_categories),
             "error_rate_per_hour": len(error_logs) / hours
         }
-    
+
     def analyze_security(self, hours: int = 24) -> dict:
         """Analyze security events"""
         cutoff = datetime.utcnow() - timedelta(hours=hours)
-        
+
         security_logs = [
             log for log in self.logs
             if log.get('category') == 'security' and
             datetime.fromisoformat(log['timestamp'].replace('Z', '+00:00')) > cutoff
         ]
-        
+
         event_types = Counter([
             log.get('metadata', {}).get('event_type', 'unknown')
             for log in security_logs
         ])
-        
+
         return {
             "total_security_events": len(security_logs),
             "event_types": dict(event_types),
             "critical_events": len([
-                log for log in security_logs 
+                log for log in security_logs
                 if log.get('level') == 'CRITICAL'
             ])
         }
@@ -1084,13 +1102,13 @@ class LogAnalyzer:
 # Usage example
 if __name__ == "__main__":
     analyzer = LogAnalyzer("logs/security_audit.log")
-    
+
     print("Performance Analysis (Last Hour):")
     print(json.dumps(analyzer.analyze_performance(1), indent=2))
-    
+
     print("\nError Analysis (Last 24 Hours):")
     print(json.dumps(analyzer.analyze_errors(24), indent=2))
-    
+
     print("\nSecurity Analysis (Last 24 Hours):")
     print(json.dumps(analyzer.analyze_security(24), indent=2))
 ```
@@ -1100,6 +1118,7 @@ if __name__ == "__main__":
 ## 📈 **DASHBOARD SETUP**
 
 ### **Grafana Dashboard Configuration**
+
 ```json
 {
   "dashboard": {
@@ -1177,6 +1196,7 @@ if __name__ == "__main__":
 ## 🔧 **OPERATIONAL PROCEDURES**
 
 ### **Daily Monitoring Checklist**
+
 ```bash
 #!/bin/bash
 # scripts/daily_health_check.sh
@@ -1211,6 +1231,7 @@ echo -e "\n✅ Daily health check completed"
 ```
 
 ### **Incident Response Playbook**
+
 ```markdown
 # Incident Response Playbook
 
@@ -1256,11 +1277,13 @@ echo -e "\n✅ Daily health check completed"
 ## 📞 **MONITORING SUPPORT**
 
 ### **Runbook Contacts**
-- 🔧 **Operations Team**: ops@whatsappagent.com
-- 🛡️ **Security Team**: security@whatsappagent.com
-- 👨‍💻 **Development Team**: dev@whatsappagent.com
+
+- 🔧 **Operations Team**: <ops@whatsappagent.com>
+- 🛡️ **Security Team**: <security@whatsappagent.com>
+- 👨‍💻 **Development Team**: <dev@whatsappagent.com>
 
 ### **Escalation Matrix**
+
 1. **Level 1**: Automated resolution attempts
 2. **Level 2**: Operations team notification
 3. **Level 3**: Development team escalation

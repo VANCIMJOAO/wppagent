@@ -71,12 +71,12 @@ export async function GET(
 ) {
   try {
     const conversationId = params.conversationId;
-    
+
     console.log(`🔍 API: Buscando mensagens REAIS para conversa ${conversationId}`);
-    
+
     // Buscar mensagens reais do banco PostgreSQL
     const realMessages = await fetchRealMessages(conversationId);
-    
+
     if (realMessages.length === 0) {
       // Se não há mensagens específicas, criar mensagens de exemplo baseadas no padrão
       const fallbackMessages = [
@@ -97,9 +97,9 @@ export async function GET(
           message_type: 'text'
         }
       ];
-      
+
       console.log(`⚠️ API: Usando mensagens de fallback para conversa ${conversationId}`);
-      
+
       return NextResponse.json({
         success: true,
         messages: fallbackMessages,
@@ -108,16 +108,16 @@ export async function GET(
         source: 'fallback'
       });
     }
-    
+
     // Adicionar campos extras necessários
     const formattedMessages = realMessages.map(msg => ({
       ...msg,
       direction: msg.sender_type === 'user' ? 'in' : 'out',
       message_type: 'text'
     }));
-    
+
     console.log(`✅ API: Retornando ${formattedMessages.length} mensagens REAIS para conversa ${conversationId}`);
-    
+
     return NextResponse.json({
       success: true,
       messages: formattedMessages,
@@ -125,10 +125,10 @@ export async function GET(
       conversation_id: conversationId,
       source: 'database'
     });
-    
+
   } catch (error) {
     console.error('❌ Erro na API de mensagens:', error);
-    
+
     return NextResponse.json({
       success: false,
       error: 'Erro ao carregar mensagens',

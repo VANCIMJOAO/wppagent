@@ -1,6 +1,6 @@
 /**
  * 🔔 Hook para Push Notifications
- * 
+ *
  * React hook para gerenciar push notifications no dashboard.
  */
 
@@ -41,7 +41,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
   useEffect(() => {
     const initialize = async () => {
       setIsLoading(true);
-      
+
       try {
         await pushNotificationService.initialize();
         updateStatus();
@@ -58,7 +58,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
   // Função para subscrever
   const subscribe = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
       const success = await pushNotificationService.subscribe();
       updateStatus();
@@ -74,7 +74,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
   // Função para dessubscrever
   const unsubscribe = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
       const success = await pushNotificationService.unsubscribe();
       updateStatus();

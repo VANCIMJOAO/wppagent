@@ -30,8 +30,8 @@ export default class ErrorBoundary extends React.Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): State {
     const errorId = `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    return { 
-      hasError: true, 
+    return {
+      hasError: true,
       error,
       errorId
     };
@@ -39,18 +39,18 @@ export default class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const { level = 'component', name = 'Unknown', onError } = this.props;
-    
+
     console.group(`🚨 Error Boundary [${level}${name ? ` - ${name}` : ''}]`);
     console.error('Error:', error);
     console.error('Error Info:', errorInfo);
     console.error('Component Stack:', errorInfo.componentStack);
     console.groupEnd();
-    
+
     this.setState({ errorInfo });
-    
+
     // Report error to monitoring service
     this.reportError(error, errorInfo);
-    
+
     // Custom error handler
     if (onError) {
       onError(error, errorInfo);
@@ -91,9 +91,9 @@ export default class ErrorBoundary extends React.Component<Props, State> {
     if (this.retryCount < this.maxRetries) {
       this.retryCount++;
       console.log(`🔄 Retry attempt ${this.retryCount}/${this.maxRetries}`);
-      this.setState({ 
-        hasError: false, 
-        error: undefined, 
+      this.setState({
+        hasError: false,
+        error: undefined,
         errorInfo: undefined,
         errorId: undefined
       });
@@ -141,10 +141,10 @@ URL: ${typeof window !== 'undefined' ? window.location.href : 'SSR'}
       }
 
       const { level = 'component' } = this.props;
-      
+
       // Different UI based on error level
       if (level === 'component') {
-        return <ComponentErrorFallback 
+        return <ComponentErrorFallback
           error={this.state.error!}
           errorId={this.state.errorId!}
           onRetry={this.handleRetry}
@@ -154,7 +154,7 @@ URL: ${typeof window !== 'undefined' ? window.location.href : 'SSR'}
       }
 
       if (level === 'page') {
-        return <PageErrorFallback 
+        return <PageErrorFallback
           error={this.state.error!}
           errorId={this.state.errorId!}
           onRetry={this.handleRetry}
@@ -166,7 +166,7 @@ URL: ${typeof window !== 'undefined' ? window.location.href : 'SSR'}
       }
 
       // Global level
-      return <GlobalErrorFallback 
+      return <GlobalErrorFallback
         error={this.state.error!}
         errorInfo={this.state.errorInfo}
         errorId={this.state.errorId!}
@@ -183,12 +183,12 @@ URL: ${typeof window !== 'undefined' ? window.location.href : 'SSR'}
 }
 
 // Component-level error fallback
-function ComponentErrorFallback({ 
-  error, 
-  errorId, 
-  onRetry, 
-  retryCount, 
-  maxRetries 
+function ComponentErrorFallback({
+  error,
+  errorId,
+  onRetry,
+  retryCount,
+  maxRetries
 }: {
   error: Error;
   errorId: string;
@@ -208,9 +208,9 @@ function ComponentErrorFallback({
             {error.message || 'Falha ao carregar este componente.'}
           </p>
           {retryCount < maxRetries ? (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={onRetry}
               className="mt-2 border-red-300 text-red-700 hover:bg-red-100"
             >
@@ -228,15 +228,15 @@ function ComponentErrorFallback({
   );
 }
 
-// Page-level error fallback  
-function PageErrorFallback({ 
-  error, 
-  errorId, 
-  onRetry, 
-  onGoHome, 
+// Page-level error fallback
+function PageErrorFallback({
+  error,
+  errorId,
+  onRetry,
+  onGoHome,
   onCopyDetails,
-  retryCount, 
-  maxRetries 
+  retryCount,
+  maxRetries
 }: {
   error: Error;
   errorId: string;
@@ -256,7 +256,7 @@ function PageErrorFallback({
         <p className="text-gray-600 mb-4">
           {error.message || 'Esta página encontrou um problema inesperado.'}
         </p>
-        
+
         <div className="flex flex-col gap-2">
           {retryCount < maxRetries ? (
             <Button onClick={onRetry} className="w-full">
@@ -264,7 +264,7 @@ function PageErrorFallback({
               Tentar novamente ({retryCount}/{maxRetries})
             </Button>
           ) : null}
-          
+
           <Button onClick={onGoHome} variant="outline" className="w-full">
             <Home className="w-4 h-4 mr-2" />
             Voltar ao Dashboard
@@ -281,15 +281,15 @@ function PageErrorFallback({
 }
 
 // Global-level error fallback
-function GlobalErrorFallback({ 
-  error, 
-  errorInfo, 
-  errorId, 
-  onRetry, 
-  onReload, 
+function GlobalErrorFallback({
+  error,
+  errorInfo,
+  errorId,
+  onRetry,
+  onReload,
   onCopyDetails,
-  retryCount, 
-  maxRetries 
+  retryCount,
+  maxRetries
 }: {
   error: Error;
   errorInfo?: ErrorInfo;
@@ -321,7 +321,7 @@ function GlobalErrorFallback({
             Use este ID para reportar o problema ao suporte
           </p>
         </div>
-        
+
         {isDev && (
           <details className="text-left bg-gray-100 p-4 rounded mb-6 text-sm">
             <summary className="font-medium cursor-pointer mb-2">Detalhes técnicos</summary>
@@ -351,7 +351,7 @@ function GlobalErrorFallback({
             </div>
           </details>
         )}
-        
+
         <div className="flex flex-col gap-3">
           {retryCount < maxRetries ? (
             <Button onClick={onRetry} className="w-full">
@@ -364,24 +364,24 @@ function GlobalErrorFallback({
               Recarregar Página
             </Button>
           )}
-          
+
           <Button onClick={onCopyDetails} variant="outline" className="w-full">
             <Copy className="w-4 h-4 mr-2" />
             Copiar Detalhes do Erro
           </Button>
 
           <div className="flex gap-2">
-            <Button 
-              onClick={() => window.location.href = '/dashboard'} 
-              variant="ghost" 
+            <Button
+              onClick={() => window.location.href = '/dashboard'}
+              variant="ghost"
               className="flex-1"
             >
               <Home className="w-4 h-4 mr-2" />
               Dashboard
             </Button>
-            <Button 
-              onClick={() => window.location.href = '/suporte'} 
-              variant="ghost" 
+            <Button
+              onClick={() => window.location.href = '/suporte'}
+              variant="ghost"
               className="flex-1"
             >
               <Bug className="w-4 h-4 mr-2" />

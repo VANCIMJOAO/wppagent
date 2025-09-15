@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     if (sessionInfo) {
       try {
         userData = JSON.parse(sessionInfo);
-        
+
         // Verificar se o token não expirou
         if (userData.tokenExpiry && Date.now() > userData.tokenExpiry) {
           return NextResponse.json({
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
       if (backendResponse.ok) {
         const backendData = await backendResponse.json();
-        
+
         return NextResponse.json({
           isAuthenticated: true,
           user: backendData.user || userData?.user,
@@ -80,9 +80,9 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('🚨 Erro ao verificar status:', error);
     return NextResponse.json(
-      { 
-        isAuthenticated: false, 
-        error: 'Erro interno do servidor' 
+      {
+        isAuthenticated: false,
+        error: 'Erro interno do servidor'
       },
       { status: 500 }
     );

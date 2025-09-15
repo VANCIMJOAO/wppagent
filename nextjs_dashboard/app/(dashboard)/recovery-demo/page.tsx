@@ -33,9 +33,9 @@ export default function ErrorRecoveryDemoPage() {
           </h1>
           <Shield className="w-8 h-8 text-blue-600" />
         </div>
-        
+
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Demonstração completa do sistema robusto de recuperação de erros, com retry automático, 
+          Demonstração completa do sistema robusto de recuperação de erros, com retry automático,
           cache fallback, detecção de rede e modo degradado.
         </p>
 
@@ -48,7 +48,7 @@ export default function ErrorRecoveryDemoPage() {
               Exponential backoff automático
             </p>
           </div>
-          
+
           <div className="flex flex-col items-center p-4 bg-green-50 rounded-lg">
             <CheckCircle className="w-8 h-8 text-green-600 mb-2" />
             <h3 className="font-semibold text-green-900">Cache Fallback</h3>
@@ -56,7 +56,7 @@ export default function ErrorRecoveryDemoPage() {
               Dados salvos localmente
             </p>
           </div>
-          
+
           <div className="flex flex-col items-center p-4 bg-orange-50 rounded-lg">
             <AlertTriangle className="w-8 h-8 text-orange-600 mb-2" />
             <h3 className="font-semibold text-orange-900">Modo Degradado</h3>
@@ -64,7 +64,7 @@ export default function ErrorRecoveryDemoPage() {
               Funcionalidade essencial mantida
             </p>
           </div>
-          
+
           <div className="flex flex-col items-center p-4 bg-purple-50 rounded-lg">
             <Activity className="w-8 h-8 text-purple-600 mb-2" />
             <h3 className="font-semibold text-purple-900">Network Detection</h3>
@@ -107,7 +107,7 @@ export default function ErrorRecoveryDemoPage() {
           <Shield className="w-5 h-5 mr-2 text-blue-600" />
           Como Usar o Sistema de Recovery
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h3 className="font-medium text-gray-900 mb-2">🎯 Dashboard Robusto</h3>
@@ -119,7 +119,7 @@ export default function ErrorRecoveryDemoPage() {
               <li>Alertas contextuais para cada situação</li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="font-medium text-gray-900 mb-2">⚡ Simulador de Erros</h3>
             <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">

@@ -58,7 +58,7 @@ function toastReducer(state: ToastState, action: ToastAction): ToastState {
   switch (action.type) {
     case 'ADD_TOAST': {
       const newToast = action.toast;
-      
+
       // Remove oldest toast if at max capacity
       let toasts = [...state.toasts];
       if (toasts.length >= state.maxToasts) {
@@ -154,7 +154,7 @@ function toastReducer(state: ToastState, action: ToastAction): ToastState {
 interface ToastContextType {
   // State
   toasts: Toast[];
-  
+
   // Core actions
   addToast: (toast: Omit<Toast, 'id' | 'timestamp'>) => string;
   removeToast: (id: string) => void;
@@ -162,23 +162,23 @@ interface ToastContextType {
   clearAll: () => void;
   clearByType: (type: Toast['type']) => void;
   clearByCategory: (category: string) => void;
-  
+
   // Convenience methods
   success: (title: string, description?: string, options?: Partial<Toast>) => string;
   error: (title: string, description?: string, options?: Partial<Toast>) => string;
   warning: (title: string, description?: string, options?: Partial<Toast>) => string;
   info: (title: string, description?: string, options?: Partial<Toast>) => string;
   loading: (title: string, description?: string, options?: Partial<Toast>) => string;
-  
+
   // API-specific methods
   apiError: (endpoint: string, status?: number, message?: string) => string;
   networkError: (message?: string) => string;
-  
+
   // Advanced features
   retryableError: (title: string, onRetry: () => void, maxRetries?: number) => string;
   progressToast: (title: string, initialProgress: number) => string;
   updateProgress: (id: string, progress: number) => void;
-  
+
   // Control
   pauseAll: () => void;
   resumeAll: () => void;
@@ -196,7 +196,7 @@ export function AdvancedToastProvider({ children }: { children: ReactNode }) {
     state.toasts.forEach(toast => {
       if (!toast.persistent && !state.globalPause && toast.duration !== 0) {
         const duration = toast.duration || state.defaultDuration;
-        
+
         timers[toast.id] = setTimeout(() => {
           dispatch({ type: 'REMOVE_TOAST', id: toast.id });
         }, duration);
@@ -515,8 +515,8 @@ function ToastComponent({ toast }: { toast: Toast }) {
       case 'loading':
         return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />;
       case 'network':
-        return navigator.onLine ? 
-          <Wifi className="h-5 w-5 text-orange-500" /> : 
+        return navigator.onLine ?
+          <Wifi className="h-5 w-5 text-orange-500" /> :
           <WifiOff className="h-5 w-5 text-red-500" />;
       default:
         return <Info className="h-5 w-5 text-blue-500" />;
@@ -555,13 +555,13 @@ function ToastComponent({ toast }: { toast: Toast }) {
 
         <div className="flex items-start space-x-3">
           {getIcon()}
-          
+
           <div className="flex-1 space-y-1">
             <div className="flex items-center justify-between">
               <AlertTitle className="text-sm font-medium">
                 {toast.title}
                 {toast.priority && toast.priority !== 'medium' && (
-                  <Badge 
+                  <Badge
                     variant={toast.priority === 'critical' ? 'destructive' : 'secondary'}
                     className="ml-2 text-xs"
                   >
@@ -569,7 +569,7 @@ function ToastComponent({ toast }: { toast: Toast }) {
                   </Badge>
                 )}
               </AlertTitle>
-              
+
               {toast.dismissible && (
                 <Button
                   variant="ghost"
@@ -581,7 +581,7 @@ function ToastComponent({ toast }: { toast: Toast }) {
                 </Button>
               )}
             </div>
-            
+
             {toast.description && (
               <AlertDescription className="text-sm">
                 {toast.description}
@@ -610,7 +610,7 @@ function ToastComponent({ toast }: { toast: Toast }) {
                     {toast.action.label}
                   </Button>
                 )}
-                
+
                 {toast.retry && toast.retry.retryCount < toast.retry.maxRetries && (
                   <Button
                     size="sm"

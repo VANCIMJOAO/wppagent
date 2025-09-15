@@ -19,7 +19,9 @@ O WhatsApp Agent implementa **segurança enterprise-grade** com múltiplas camad
 - ✅ **Logs de auditoria** estruturados
 
 ### **Threat Model**
+
 Proteção contra:
+
 - 🚫 **XSS** (Cross-Site Scripting)
 - 🚫 **CSRF** (Cross-Site Request Forgery)
 - 🚫 **DDoS** (Distributed Denial of Service)
@@ -33,6 +35,7 @@ Proteção contra:
 ## 🍪 **HTTPONLY COOKIES - IMPLEMENTAÇÃO**
 
 ### **Configuração Atual**
+
 ```python
 # app/auth/services.py
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -44,7 +47,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -57,11 +60,11 @@ async def login(response: Response, user_credentials: UserLogin):
     """
     # Authenticate user
     user = await authenticate_user(user_credentials.email, user_credentials.password)
-    
+
     # Create tokens
     access_token = create_access_token(data={"sub": user.email})
     refresh_token = create_refresh_token(data={"sub": user.email})
-    
+
     # Set HttpOnly cookies
     response.set_cookie(
         key="access_token",
@@ -72,7 +75,7 @@ async def login(response: Response, user_credentials: UserLogin):
         max_age=1800,              # ✅ 30 minutes
         path="/",                  # ✅ Application scope
     )
-    
+
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
@@ -82,11 +85,12 @@ async def login(response: Response, user_credentials: UserLogin):
         max_age=604800,            # ✅ 7 days
         path="/auth/refresh",      # ✅ Limited scope
     )
-    
+
     return {"status": "success", "user": user}
 ```
 
 ### **Environment Configuration**
+
 ```env
 # Cookie Security Settings
 COOKIE_SECURE=true              # HTTPS only
@@ -97,6 +101,7 @@ REFRESH_COOKIE_MAX_AGE=604800  # 7 days refresh
 ```
 
 ### **Frontend Integration**
+
 ```typescript
 // nextjs_dashboard/lib/auth.ts
 // ✅ No localStorage usage - cookies handled automatically
@@ -134,6 +139,7 @@ export async function refreshToken(): Promise<void> {
 ```
 
 ### **Security Benefits**
+
 - ✅ **XSS Immunity**: JavaScript cannot access HttpOnly cookies
 - ✅ **CSRF Protection**: SameSite=strict prevents cross-origin requests
 - ✅ **Secure Transport**: Only transmitted over HTTPS
@@ -145,6 +151,7 @@ export async function refreshToken(): Promise<void> {
 ## 🚦 **RATE LIMITING - PROTEÇÃO DDOS**
 
 ### **Configuração Global**
+
 ```python
 # app/middleware/rate_limiting.py
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -171,7 +178,7 @@ async def rate_limit_handler(request: Request):
         user_agent=request.headers.get("user-agent"),
         endpoint=str(request.url)
     )
-    
+
     raise HTTPException(
         status_code=429,
         detail={
@@ -187,6 +194,7 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 ```
 
 ### **Endpoint-Specific Limits**
+
 ```python
 # app/routes/auth.py
 @router.post("/login")
@@ -216,36 +224,37 @@ async def webhook(request: Request, payload: dict):
 ```
 
 ### **Burst Protection**
+
 ```python
 # app/middleware/burst_protection.py
 class BurstProtectionMiddleware:
     """
     Advanced burst protection beyond basic rate limiting
     """
-    
+
     def __init__(self, app):
         self.app = app
         self.burst_threshold = 20  # requests
         self.burst_window = 5      # seconds
-        
+
     async def __call__(self, scope, receive, send):
         if scope["type"] == "http":
             client_ip = self.get_client_ip(scope)
-            
+
             # Check burst pattern
             if await self.is_burst_attack(client_ip):
                 await self.send_429_response(send)
                 return
-                
+
         await self.app(scope, receive, send)
-    
+
     async def is_burst_attack(self, client_ip: str) -> bool:
         """
         Detect burst attack patterns
         """
         redis_key = f"burst:{client_ip}"
         current_time = time.time()
-        
+
         # Get requests in burst window
         async with redis.pipeline() as pipe:
             pipe.zremrangebyscore(redis_key, 0, current_time - self.burst_window)
@@ -253,12 +262,13 @@ class BurstProtectionMiddleware:
             pipe.zadd(redis_key, {str(current_time): current_time})
             pipe.expire(redis_key, self.burst_window)
             results = await pipe.execute()
-            
+
         request_count = results[1]
         return request_count >= self.burst_threshold
 ```
 
 ### **Environment Configuration**
+
 ```env
 # Rate Limiting Configuration
 RATE_LIMIT_ENABLED=true
@@ -269,6 +279,7 @@ RATE_LIMIT_REDIS_URL=redis://localhost:6379
 ```
 
 ### **Response Headers**
+
 ```python
 # Automatic rate limit headers in responses
 {
@@ -284,6 +295,7 @@ RATE_LIMIT_REDIS_URL=redis://localhost:6379
 ## 🔐 **WEBHOOK HMAC VALIDATION**
 
 ### **Meta Webhook Security**
+
 ```python
 # app/routes/webhook.py
 import hmac
@@ -302,18 +314,18 @@ async def verify_webhook_signature(
             status_code=401,
             detail="Missing webhook signature"
         )
-    
+
     # Remove 'sha256=' prefix
     if signature.startswith('sha256='):
         signature = signature[7:]
-    
+
     # Calculate expected signature
     expected_signature = hmac.new(
         settings.WEBHOOK_SECRET.encode('utf-8'),
         payload,
         hashlib.sha256
     ).hexdigest()
-    
+
     # Secure comparison to prevent timing attacks
     if not hmac.compare_digest(expected_signature, signature):
         await audit_logger.log_security_event(
@@ -328,7 +340,7 @@ async def verify_webhook_signature(
             status_code=401,
             detail="Invalid webhook signature"
         )
-    
+
     return True
 
 @router.post("/webhook")
@@ -346,6 +358,7 @@ async def webhook_handler(
 ```
 
 ### **Verification Token (Initial Setup)**
+
 ```python
 # app/routes/webhook.py
 @router.get("/webhook")
@@ -363,7 +376,7 @@ async def webhook_verification(
             details={"hub_mode": hub_mode}
         )
         return int(hub_challenge)
-    
+
     await audit_logger.log_security_event(
         event_type="webhook_verification_failed",
         details={
@@ -375,6 +388,7 @@ async def webhook_verification(
 ```
 
 ### **Environment Configuration**
+
 ```env
 # Webhook Security
 WEBHOOK_SECRET=your-webhook-secret-from-meta-console
@@ -383,6 +397,7 @@ WEBHOOK_URL=https://yourdomain.com/webhook
 ```
 
 ### **Security Logging**
+
 ```python
 # app/utils/security_audit.py
 async def log_webhook_event(event_type: str, payload_hash: str, signature_valid: bool):
@@ -404,6 +419,7 @@ async def log_webhook_event(event_type: str, payload_hash: str, signature_valid:
 ## 🚫 **CORS CONFIGURATION**
 
 ### **Strict CORS Policy**
+
 ```python
 # app/cors_config.py
 from fastapi.middleware.cors import CORSMiddleware
@@ -417,14 +433,14 @@ def configure_cors(app):
         "https://yourdomain.com",
         "https://www.yourdomain.com",
     ]
-    
+
     # ✅ Development origins (only in dev mode)
     if settings.DEBUG:
         allowed_origins.extend([
             "http://localhost:3000",
             "http://localhost:8000",
         ])
-    
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,        # ✅ Specific origins
@@ -442,6 +458,7 @@ def configure_cors(app):
 ```
 
 ### **Environment Configuration**
+
 ```env
 # CORS Configuration
 CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
@@ -450,9 +467,10 @@ CORS_MAX_AGE=3600
 ```
 
 ### **Frontend CORS Headers**
+
 ```typescript
 // nextjs_dashboard/lib/api.ts
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
+const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? 'https://yourdomain.com/api'
   : 'http://localhost:8000/api';
 
@@ -480,6 +498,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 ## 🛡️ **SECURITY HEADERS**
 
 ### **Complete Security Headers**
+
 ```python
 # app/middleware/security_headers.py
 from fastapi import Request
@@ -489,15 +508,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """
     Add comprehensive security headers to all responses
     """
-    
+
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
-        
+
         # ✅ Strict Transport Security
         response.headers["Strict-Transport-Security"] = (
             "max-age=63072000; includeSubDomains; preload"
         )
-        
+
         # ✅ Content Security Policy
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
@@ -509,25 +528,25 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "frame-ancestors 'none'; "
             "base-uri 'self'"
         )
-        
+
         # ✅ X-Content-Type-Options
         response.headers["X-Content-Type-Options"] = "nosniff"
-        
+
         # ✅ X-Frame-Options
         response.headers["X-Frame-Options"] = "DENY"
-        
+
         # ✅ X-XSS-Protection
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        
+
         # ✅ Referrer Policy
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        
+
         # ✅ Permissions Policy
         response.headers["Permissions-Policy"] = (
             "geolocation=(), microphone=(), camera=(), "
             "fullscreen=(self), payment=()"
         )
-        
+
         return response
 
 # Apply middleware
@@ -535,6 +554,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 ```
 
 ### **Next.js Security Headers**
+
 ```javascript
 // nextjs_dashboard/next.config.js
 const nextConfig = {
@@ -573,6 +593,7 @@ module.exports = nextConfig;
 ## 📊 **SECURITY LOGGING & AUDIT**
 
 ### **Structured Security Logs**
+
 ```python
 # app/utils/security_audit.py
 import json
@@ -584,10 +605,10 @@ class SecurityAuditLogger:
     """
     Comprehensive security event logging
     """
-    
+
     def __init__(self):
         self.log_file = "logs/security_audit.log"
-    
+
     async def log_security_event(
         self,
         event_type: str,
@@ -612,15 +633,15 @@ class SecurityAuditLogger:
             "details": details or {},
             "service": "whatsapp-agent"
         }
-        
+
         # Write to security log file
         with open(self.log_file, "a") as f:
             f.write(json.dumps(log_entry) + "\n")
-        
+
         # Alert on critical events
         if severity in ["CRITICAL", "HIGH"]:
             await self.send_security_alert(log_entry)
-    
+
     async def send_security_alert(self, log_entry: Dict[str, Any]):
         """
         Send immediate alerts for critical security events
@@ -633,6 +654,7 @@ audit_logger = SecurityAuditLogger()
 ```
 
 ### **Authentication Events**
+
 ```python
 # app/auth/services.py
 @audit_logger.log_security_event
@@ -649,7 +671,7 @@ async def authenticate_user(email: str, password: str):
                 severity="WARNING"
             )
             raise HTTPException(status_code=401, detail="Invalid credentials")
-        
+
         if not verify_password(password, user.hashed_password):
             await audit_logger.log_security_event(
                 event_type="login_failed_invalid_password",
@@ -658,15 +680,15 @@ async def authenticate_user(email: str, password: str):
                 severity="WARNING"
             )
             raise HTTPException(status_code=401, detail="Invalid credentials")
-        
+
         await audit_logger.log_security_event(
             event_type="login_success",
             user_id=str(user.id),
             details={"email": email}
         )
-        
+
         return user
-    
+
     except Exception as e:
         await audit_logger.log_security_event(
             event_type="login_error",
@@ -677,6 +699,7 @@ async def authenticate_user(email: str, password: str):
 ```
 
 ### **Log Analysis Commands**
+
 ```bash
 # Security events summary
 grep "security" logs/security_audit.log | jq -r '.event_type' | sort | uniq -c
@@ -699,6 +722,7 @@ grep '"severity":"CRITICAL"' logs/security_audit.log | jq .
 ## 🔍 **SECURITY MONITORING**
 
 ### **Real-time Security Metrics**
+
 ```python
 # app/monitoring/security_metrics.py
 from prometheus_client import Counter, Histogram, Gauge
@@ -733,6 +757,7 @@ async def update_security_metrics(event_type: str, severity: str):
 ```
 
 ### **Security Dashboard Queries**
+
 ```promql
 # Failed authentication rate
 rate(failed_auth_attempts_total[5m])
@@ -752,6 +777,7 @@ rate(security_events_total{severity="CRITICAL"}[5m])
 ## ⚠️ **SECURITY BEST PRACTICES**
 
 ### **Development Security**
+
 ```bash
 # ✅ Environment variables (never commit)
 cp .env.example .env
@@ -771,6 +797,7 @@ semgrep --config=auto app/
 ```
 
 ### **Production Security**
+
 ```bash
 # ✅ SSL/TLS configuration
 certbot --nginx -d yourdomain.com
@@ -789,6 +816,7 @@ tail -f logs/security_audit.log | grep -i "critical\|error"
 ```
 
 ### **Security Checklist**
+
 - [ ] ✅ All secrets in environment variables
 - [ ] ✅ HTTPS enforced in production
 - [ ] ✅ Rate limiting configured
@@ -805,6 +833,7 @@ tail -f logs/security_audit.log | grep -i "critical\|error"
 ## 🚨 **INCIDENT RESPONSE**
 
 ### **Security Incident Types**
+
 1. **Authentication Breach**
 2. **Rate Limiting Bypass**
 3. **Webhook Spoofing**
@@ -812,6 +841,7 @@ tail -f logs/security_audit.log | grep -i "critical\|error"
 5. **DDoS Attacks**
 
 ### **Response Procedures**
+
 ```bash
 # 1. Immediate Assessment
 grep "CRITICAL" logs/security_audit.log | tail -20
@@ -834,11 +864,13 @@ tail -f logs/security_audit.log | grep -E "(CRITICAL|HIGH)"
 ## 📞 **SECURITY SUPPORT**
 
 ### **Contato Segurança**
-- 🔒 **Security Email**: security@whatsappagent.com
+
+- 🔒 **Security Email**: <security@whatsappagent.com>
 - 🚨 **Incident Report**: [Security Issues](https://github.com/VANCIMJOAO/wppagent/security)
 - 📊 **Security Audit**: Disponível na documentação
 
 ### **Bug Bounty Program**
+
 Valorizamos a segurança e incentivamos reportes responsáveis de vulnerabilidades através do nosso programa de recompensas.
 
 ---

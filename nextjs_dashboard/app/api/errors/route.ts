@@ -21,7 +21,7 @@ interface ErrorReport {
 export async function POST(request: NextRequest) {
   try {
     const errorReport: ErrorReport = await request.json();
-    
+
     // Log do erro de forma estruturada
     console.group(`🚨 Frontend Error Report [${errorReport.level}]`);
     console.log('📋 Error ID:', errorReport.id);
@@ -33,25 +33,25 @@ export async function POST(request: NextRequest) {
     console.log('🔄 Retry Count:', errorReport.retryCount);
     console.log('💻 User Agent:', errorReport.userAgent);
     console.log('📝 Message:', errorReport.message);
-    
+
     if (errorReport.stack) {
       console.log('📚 Stack Trace:');
       console.log(errorReport.stack);
     }
-    
+
     if (errorReport.componentStack) {
       console.log('🧩 Component Stack:');
       console.log(errorReport.componentStack);
     }
     console.groupEnd();
-    
+
     // Em produção, aqui você enviaria para um serviço de monitoramento como:
     // - Sentry
-    // - LogRocket  
+    // - LogRocket
     // - Bugsnag
     // - DataDog
     // - New Relic
-    
+
     // Exemplo de integração com serviço externo:
     /*
     await fetch('https://api.sentry.io/api/errors', {
@@ -63,24 +63,24 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(errorReport)
     });
     */
-    
+
     // Salvar no banco de dados local (opcional)
     await saveErrorToDatabase(errorReport);
-    
+
     // Notificar equipe em casos críticos
     if (errorReport.level === 'global' || errorReport.retryCount >= 3) {
       await notifyTeam(errorReport);
     }
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: 'Error reported successfully',
-      errorId: errorReport.id 
+      errorId: errorReport.id
     });
-    
+
   } catch (error) {
     console.error('❌ Failed to process error report:', error);
-    
+
     return NextResponse.json(
       { success: false, message: 'Failed to process error report' },
       { status: 500 }
@@ -95,7 +95,7 @@ async function saveErrorToDatabase(errorReport: ErrorReport) {
     /*
     await db.execute(`
       INSERT INTO error_reports (
-        id, message, stack, component_stack, level, name, 
+        id, message, stack, component_stack, level, name,
         timestamp, user_agent, url, user_id, session_id, retry_count
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
@@ -105,7 +105,7 @@ async function saveErrorToDatabase(errorReport: ErrorReport) {
       errorReport.userId, errorReport.sessionId, errorReport.retryCount
     ]);
     */
-    
+
     console.log(`💾 Error ${errorReport.id} saved to database`);
   } catch (error) {
     console.error('❌ Failed to save error to database:', error);
@@ -134,7 +134,7 @@ async function notifyTeam(errorReport: ErrorReport) {
       })
     });
     */
-    
+
     console.log(`📢 Critical error ${errorReport.id} notification sent to team`);
   } catch (error) {
     console.error('❌ Failed to notify team:', error);
@@ -149,19 +149,19 @@ export async function GET(request: NextRequest) {
     const errorId = searchParams.get('id');
     const level = searchParams.get('level');
     const limit = parseInt(searchParams.get('limit') || '50');
-    
+
     // Aqui você buscaria no banco de dados
     const errors = await getErrorsFromDatabase({ errorId, level, limit });
-    
+
     return NextResponse.json({
       success: true,
       data: errors,
       total: errors.length
     });
-    
+
   } catch (error) {
     console.error('❌ Failed to fetch errors:', error);
-    
+
     return NextResponse.json(
       { success: false, message: 'Failed to fetch errors' },
       { status: 500 }

@@ -15,14 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Users, 
-  UserPlus, 
-  Search, 
-  Filter, 
-  MoreVertical, 
-  Phone, 
-  Mail, 
+import {
+  Users,
+  UserPlus,
+  Search,
+  Filter,
+  MoreVertical,
+  Phone,
+  Mail,
   Calendar,
   MessageCircle,
   Star,
@@ -79,7 +79,7 @@ export default function ClientesPage() {
       try {
         setLoading(true);
         console.log('🔄 Loading clients data...');
-        
+
         const [clientsResponse, dashboardResponse] = await Promise.all([
           api.getClients(),
           api.getDashboardStats()
@@ -97,10 +97,10 @@ export default function ClientesPage() {
           telefone: c.telefone,
           email: c.email
         })));
-        
+
         setAllClients(clientsData); // Guardar todos os clientes
         setClients(clientsData); // Inicialmente mostrar todos
-        
+
         // Calculate client stats from dashboard data
         if (dashboardData.total_clients) {
           setClientStats({
@@ -119,7 +119,7 @@ export default function ClientesPage() {
           };
           setClientStats(calculatedStats);
         }
-        
+
       } catch (error) {
         console.error('Erro ao carregar dados dos clientes:', error);
         toast.error('Erro ao carregar dados dos clientes');
@@ -133,12 +133,12 @@ export default function ClientesPage() {
 
   // Filtro que trabalha com todos os dados
   const filteredClients = allClients.filter(client => {
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
                          client.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          client.telefone?.includes(searchTerm) ||
                          (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || true; // Por enquanto aceita todos os status
-    
+
     // Debug detalhado do filtro
     if (searchTerm && searchTerm.length > 2) {
       console.log('🔍 Filtro Debug:', {
@@ -157,7 +157,7 @@ export default function ClientesPage() {
         }
       });
     }
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -335,8 +335,8 @@ export default function ClientesPage() {
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">
-                {searchTerm || statusFilter !== 'all' 
-                  ? 'Nenhum cliente encontrado com os filtros aplicados.' 
+                {searchTerm || statusFilter !== 'all'
+                  ? 'Nenhum cliente encontrado com os filtros aplicados.'
                   : 'Nenhum cliente encontrado.'}
               </p>
             </div>
@@ -409,7 +409,7 @@ export default function ClientesPage() {
               ))}
             </div>
           )}
-          
+
           {/* Pagination Controls */}
           {filteredClients.length > 0 && (
             <div className="mt-6 flex items-center justify-between">
@@ -425,7 +425,7 @@ export default function ClientesPage() {
                 >
                   Anterior
                 </Button>
-                
+
                 <div className="flex items-center space-x-1">
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     let pageNum;
@@ -438,7 +438,7 @@ export default function ClientesPage() {
                     } else {
                       pageNum = currentPage - 2 + i;
                     }
-                    
+
                     return (
                       <Button
                         key={pageNum}
@@ -452,7 +452,7 @@ export default function ClientesPage() {
                     );
                   })}
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -494,7 +494,7 @@ export default function ClientesPage() {
                     </Badge>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Telefone</Label>

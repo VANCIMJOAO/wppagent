@@ -1,7 +1,7 @@
 /**
  * 📋 Index de Tipos TypeScript
  * ============================
- * 
+ *
  * Centraliza todos os exports de tipos para imports mais limpos.
  */
 

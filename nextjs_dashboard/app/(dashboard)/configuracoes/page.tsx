@@ -18,13 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Settings, 
-  Building2, 
-  Bot, 
-  Clock, 
-  FileText, 
-  Shield, 
+import {
+  Settings,
+  Building2,
+  Bot,
+  Clock,
+  FileText,
+  Shield,
   Save,
   AlertCircle,
   CheckCircle,
@@ -126,7 +126,7 @@ export default function ConfiguracoesPage() {
     const loadConfigurations = async () => {
       try {
         setLoading(true);
-        
+
         // In a real implementation, you would fetch from different API endpoints
         // For now, we'll use default values that simulate real data
         setCompanyConfig({
@@ -164,7 +164,7 @@ export default function ConfiguracoesPage() {
           appointmentReminders: true,
           newMessageAlerts: true
         });
-        
+
       } catch (error) {
         console.error('Erro ao carregar configurações:', error);
         toast.error('Erro ao carregar configurações');
@@ -179,11 +179,11 @@ export default function ConfiguracoesPage() {
   const handleSave = async (configType: string) => {
     try {
       setSaving(true);
-      
+
       // In a real implementation, you would save to different API endpoints
       // For now, we'll simulate the API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Here you would make actual API calls based on configType:
       // switch (configType) {
       //   case 'empresa':
@@ -199,7 +199,7 @@ export default function ConfiguracoesPage() {
       //     await api.updateNotificationConfig(notificationConfig);
       //     break;
       // }
-      
+
       toast.success('Configurações salvas com sucesso!');
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -213,7 +213,7 @@ export default function ConfiguracoesPage() {
 
   const workDayLabels = {
     'monday': 'Segunda-feira',
-    'tuesday': 'Terça-feira', 
+    'tuesday': 'Terça-feira',
     'wednesday': 'Quarta-feira',
     'thursday': 'Quinta-feira',
     'friday': 'Sexta-feira',
@@ -285,7 +285,7 @@ export default function ConfiguracoesPage() {
                     />
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="company-phone">Telefone</Label>
                   {loading ? (
@@ -343,8 +343,8 @@ export default function ConfiguracoesPage() {
                 />
               </div>
 
-              <Button 
-                onClick={() => handleSave('empresa')} 
+              <Button
+                onClick={() => handleSave('empresa')}
                 disabled={saving}
                 className="w-full md:w-auto"
               >
@@ -416,7 +416,7 @@ export default function ConfiguracoesPage() {
                   <Zap className="h-5 w-5 mr-2 text-yellow-600" />
                   Configurações de IA
                 </h3>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <Label>IA Habilitada</Label>
@@ -460,8 +460,8 @@ export default function ConfiguracoesPage() {
                 )}
               </div>
 
-              <Button 
-                onClick={() => handleSave('bot')} 
+              <Button
+                onClick={() => handleSave('bot')}
                 disabled={saving}
                 className="w-full md:w-auto"
               >
@@ -554,8 +554,8 @@ export default function ConfiguracoesPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="timezone">Fuso Horário</Label>
-                <Select 
-                  value={scheduleConfig.timezone} 
+                <Select
+                  value={scheduleConfig.timezone}
                   onValueChange={(value) => setScheduleConfig({...scheduleConfig, timezone: value})}
                 >
                   <SelectTrigger>
@@ -569,8 +569,8 @@ export default function ConfiguracoesPage() {
                 </Select>
               </div>
 
-              <Button 
-                onClick={() => handleSave('horarios')} 
+              <Button
+                onClick={() => handleSave('horarios')}
                 disabled={saving}
                 className="w-full md:w-auto"
               >
@@ -648,8 +648,8 @@ export default function ConfiguracoesPage() {
                 </div>
               </div>
 
-              <Button 
-                onClick={() => handleSave('notificacoes')} 
+              <Button
+                onClick={() => handleSave('notificacoes')}
                 disabled={saving}
                 className="w-full md:w-auto"
               >
@@ -707,8 +707,8 @@ export default function ConfiguracoesPage() {
                 </div>
               </div>
 
-              <Button 
-                onClick={() => handleSave('seguranca')} 
+              <Button
+                onClick={() => handleSave('seguranca')}
                 disabled={saving}
                 variant="destructive"
                 className="w-full md:w-auto"

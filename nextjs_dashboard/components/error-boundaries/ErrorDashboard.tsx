@@ -115,16 +115,16 @@ export function ErrorDashboard() {
             </div>
           </CardTitle>
         </CardHeader>
-        
+
         <CardContent className="space-y-3">
           {/* Network Status */}
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">Rede:</span>
             <span className={`capitalize ${
-              networkStatus === 'online' ? 'text-green-600' : 
+              networkStatus === 'online' ? 'text-green-600' :
               networkStatus === 'offline' ? 'text-red-600' : 'text-yellow-600'
             }`}>
-              {networkStatus === 'online' ? 'Online' : 
+              {networkStatus === 'online' ? 'Online' :
                networkStatus === 'offline' ? 'Offline' : 'Lenta'}
             </span>
           </div>
@@ -157,7 +157,7 @@ export function ErrorDashboard() {
                 {recentErrors.slice(0, 3).map((error) => (
                   <Dialog key={error.id}>
                     <DialogTrigger asChild>
-                      <button 
+                      <button
                         className="w-full text-left p-2 text-xs bg-gray-50 hover:bg-gray-100 rounded border text-gray-700 transition-colors"
                         onClick={() => setSelectedError(error)}
                       >
@@ -187,10 +187,10 @@ export function ErrorDashboard() {
                           Detalhes do Erro
                         </DialogTitle>
                       </DialogHeader>
-                      
+
                       {selectedError && (
-                        <ErrorDetails 
-                          error={selectedError} 
+                        <ErrorDetails
+                          error={selectedError}
                           onResolve={() => resolveError(selectedError.id)}
                           onRemove={() => removeError(selectedError.id)}
                         />
@@ -229,14 +229,14 @@ export function ErrorDashboard() {
   );
 }
 
-function ErrorDetails({ 
-  error, 
-  onResolve, 
-  onRemove 
-}: { 
-  error: AppError; 
-  onResolve: () => void; 
-  onRemove: () => void; 
+function ErrorDetails({
+  error,
+  onResolve,
+  onRemove
+}: {
+  error: AppError;
+  onResolve: () => void;
+  onRemove: () => void;
 }) {
   return (
     <div className="space-y-4">

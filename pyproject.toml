@@ -2,7 +2,7 @@
 minversion = "6.0"
 addopts = [
     "-ra",
-    "--strict-markers", 
+    "--strict-markers",
     "--strict-config"
 ]
 testpaths = [
@@ -21,7 +21,7 @@ python_functions = [
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests", 
+    "unit: marks tests as unit tests",
     "api: marks tests as API tests",
     "database: marks tests as database tests",
     "whatsapp: marks tests as WhatsApp related tests",

@@ -27,7 +27,7 @@ export function DashboardErrorBoundary({ children }: { children: React.ReactNode
             <p className="text-red-700 mb-4">
               O dashboard encontrou um problema. Dados podem estar temporariamente indisponíveis.
             </p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
             >
@@ -63,13 +63,13 @@ export function ConversasErrorBoundary({ children }: { children: React.ReactNode
               Não foi possível carregar as conversas. O WhatsApp pode estar temporariamente indisponível.
             </p>
             <div className="space-y-2">
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="block w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
               >
                 Tentar Novamente
               </button>
-              <button 
+              <button
                 onClick={() => window.location.href = '/dashboard'}
                 className="block w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
               >
@@ -101,7 +101,7 @@ export function ClientesErrorBoundary({ children }: { children: React.ReactNode 
             <p className="text-red-700 mb-4">
               Falha ao carregar informações de clientes.
             </p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
             >
@@ -132,7 +132,7 @@ export function AgendamentosErrorBoundary({ children }: { children: React.ReactN
             <p className="text-red-700 mb-4">
               Sistema de agendamento temporariamente indisponível.
             </p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
             >
@@ -148,10 +148,10 @@ export function AgendamentosErrorBoundary({ children }: { children: React.ReactN
 }
 
 // Error Boundary para Componentes pequenos
-export function ComponentErrorBoundary({ 
-  children, 
-  name = 'Component' 
-}: { 
+export function ComponentErrorBoundary({
+  children,
+  name = 'Component'
+}: {
   children: React.ReactNode;
   name?: string;
 }) {
@@ -185,10 +185,10 @@ export function ModalErrorBoundary({ children }: { children: React.ReactNode }) 
 }
 
 // Error Boundary para Formulários
-export function FormErrorBoundary({ 
+export function FormErrorBoundary({
   children,
   formName = 'Formulário'
-}: { 
+}: {
   children: React.ReactNode;
   formName?: string;
 }) {
@@ -201,7 +201,7 @@ export function FormErrorBoundary({
           <p className="text-red-700 text-sm mb-2">
             ⚠️ Erro no {formName.toLowerCase()}
           </p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors"
           >
@@ -216,10 +216,10 @@ export function FormErrorBoundary({
 }
 
 // Error Boundary para Tabelas/Listas
-export function DataTableErrorBoundary({ 
+export function DataTableErrorBoundary({
   children,
   dataType = 'dados'
-}: { 
+}: {
   children: React.ReactNode;
   dataType?: string;
 }) {
@@ -236,7 +236,7 @@ export function DataTableErrorBoundary({
           <p className="text-sm text-red-700 mb-4">
             Falha na comunicação com o servidor
           </p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition-colors"
           >

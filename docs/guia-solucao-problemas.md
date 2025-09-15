@@ -9,12 +9,14 @@
 ### **Categorias de Problemas** 📋
 
 #### **Classificação por Severidade**
+
 - 🚨 **CRÍTICO**: Sistema totalmente indisponível
 - ⚠️ **ALTO**: Funcionalidade principal comprometida  
 - 📝 **MÉDIO**: Funcionalidade secundária afetada
 - 💡 **BAIXO**: Performance degradada ou bugs menores
 
 #### **Tipos de Problemas Comuns**
+
 - 🌐 **API Issues**: Endpoints não responsivos, erros HTTP
 - 🗄️ **Database Problems**: Conexões, queries lentas, locks
 - 💾 **Cache Issues**: Redis indisponível, cache corruption
@@ -29,12 +31,14 @@
 ### **🌐 API Totalmente Indisponível**
 
 #### **Sintomas**
+
 - ❌ Curl/Postman retorna erro de conexão
 - ❌ Health check endpoint não responde
 - ❌ Dashboard mostra API Down
 - ❌ Usuários reportam erro 502/503/504
 
 #### **Diagnóstico Rápido**
+
 ```bash
 # 1. Verificar se container está rodando
 docker ps | grep whatsapp-agent-api
@@ -56,6 +60,7 @@ curl -v http://localhost:8000/health
 #### **Soluções por Ordem de Prioridade**
 
 **🔄 1. Restart Graceful (Primeira Tentativa)**
+
 ```bash
 # Restart do container
 docker restart whatsapp-agent-api
@@ -72,6 +77,7 @@ docker logs whatsapp-agent-api -f
 ```
 
 **🔧 2. Verificar Configuração (Se restart não resolver)**
+
 ```bash
 # Verificar variáveis de ambiente
 docker inspect whatsapp-agent-api | grep -A20 "Env"
@@ -89,6 +95,7 @@ docker exec whatsapp-agent-api cat /app/config/production.env
 ```
 
 **🏗️ 3. Rebuild se Configuração OK**
+
 ```bash
 # Parar serviço
 docker-compose down api
@@ -104,6 +111,7 @@ docker-compose logs -f api
 ```
 
 **🗄️ 4. Verificar Dependências Críticas**
+
 ```bash
 # Database connectivity
 docker exec postgres pg_isready
@@ -119,6 +127,7 @@ docker network inspect whats_agent_default
 ```
 
 #### **Procedimento de Escalation**
+
 ```bash
 # Se nada resolver em 10 minutos:
 # 1. Notificar engineering lead
@@ -137,12 +146,14 @@ free -h && df -h
 ### **🗄️ Database Connection Failed**
 
 #### **Sintomas**
+
 - ❌ API retorna 500 com erro de database
 - ❌ Logs mostram "connection refused" ou "timeout"
 - ❌ Grafana mostra PostgreSQL down
 - ❌ Connection pool esgotado
 
 #### **Diagnóstico Detalhado**
+
 ```bash
 # 1. Verificar se PostgreSQL está rodando
 docker ps | grep postgres
@@ -154,22 +165,22 @@ PGPASSWORD=$DB_PASSWORD psql -h localhost -U whatsapp_agent -d whatsapp_agent -c
 
 # 3. Verificar conexões ativas
 PGPASSWORD=$DB_PASSWORD psql -h localhost -U whatsapp_agent -d whatsapp_agent << EOF
-SELECT 
+SELECT
     count(*) as total_connections,
     count(*) FILTER (WHERE state = 'active') as active_connections,
     count(*) FILTER (WHERE state = 'idle') as idle_connections
-FROM pg_stat_activity 
+FROM pg_stat_activity
 WHERE application_name = 'whatsapp_agent';
 
 -- Verificar locks
 SELECT * FROM pg_locks WHERE NOT granted;
 
 -- Verificar queries longas
-SELECT 
+SELECT
     pid,
     now() - pg_stat_activity.query_start AS duration,
     query
-FROM pg_stat_activity 
+FROM pg_stat_activity
 WHERE (now() - pg_stat_activity.query_start) > interval '5 seconds'
     AND state = 'active'
 ORDER BY duration DESC;
@@ -188,18 +199,19 @@ print(f'Checked in: {engine.pool.checkedin()}')
 #### **Soluções Escalonadas**
 
 **🔄 1. Kill Conexões Problemáticas**
+
 ```sql
 -- Conectar como superuser
 sudo -u postgres psql
 
 -- Identificar conexões problemáticas
-SELECT 
+SELECT
     pid,
     application_name,
     state,
     query_start,
     query
-FROM pg_stat_activity 
+FROM pg_stat_activity
 WHERE application_name = 'whatsapp_agent'
     AND state IN ('idle in transaction', 'active')
     AND (now() - query_start) > interval '2 minutes';
@@ -210,12 +222,13 @@ SELECT pg_terminate_backend(12346);
 
 -- Ou kill todas as conexões da aplicação (CUIDADO!)
 SELECT pg_terminate_backend(pid)
-FROM pg_stat_activity 
+FROM pg_stat_activity
 WHERE application_name = 'whatsapp_agent'
     AND pid <> pg_backend_pid();
 ```
 
 **🔧 2. Restart PostgreSQL (Se necessário)**
+
 ```bash
 # Restart graceful
 docker restart postgres
@@ -232,6 +245,7 @@ PGPASSWORD=$DB_PASSWORD psql -h localhost -U whatsapp_agent -d whatsapp_agent -c
 ```
 
 **⚙️ 3. Ajustar Connection Pool**
+
 ```python
 # Configuração emergencial no app/database.py
 # Reduzir pool size temporariamente
@@ -253,12 +267,14 @@ docker-compose up -d api
 ### **💾 Redis Cache Indisponível**
 
 #### **Sintomas**
+
 - ⚠️ API lenta mas funcional
 - ❌ Cache miss rate 100%
 - ❌ Redis connection errors nos logs
 - 📊 Performance degradada significativamente
 
 #### **Diagnóstico e Solução**
+
 ```bash
 # 1. Verificar Redis container
 docker ps | grep redis
@@ -292,12 +308,14 @@ redis-cli -h localhost flushdb
 ### **📱 WhatsApp Integration Broken**
 
 #### **Sintomas**
+
 - ❌ Mensagens não são enviadas
 - ❌ Webhooks não funcionam
 - ❌ API Meta retorna erros de autenticação
 - ❌ Templates não carregam
 
 #### **Diagnóstico Completo**
+
 ```bash
 # 1. Verificar configuração WhatsApp
 docker exec whatsapp-agent-api python -c "
@@ -332,6 +350,7 @@ curl -X POST "https://graph.facebook.com/v18.0/$WHATSAPP_PHONE_ID/messages" \
 #### **Soluções por Problema Específico**
 
 **🔑 1. Token Expirado/Inválido**
+
 ```bash
 # Verificar validade do token
 curl -H "Authorization: Bearer $WHATSAPP_TOKEN" \
@@ -352,6 +371,7 @@ curl -H "Authorization: Bearer $WHATSAPP_TOKEN" \
 ```
 
 **📞 2. Phone Number Verification Issues**
+
 ```bash
 # Verificar status do número
 curl -H "Authorization: Bearer $WHATSAPP_TOKEN" \
@@ -366,6 +386,7 @@ curl -H "Authorization: Bearer $WHATSAPP_TOKEN" \
 ```
 
 **🌐 3. Webhook Problems**
+
 ```bash
 # Testar webhook localmente
 curl -X POST "https://api.whatsappagent.com/webhooks/whatsapp" \
@@ -407,12 +428,14 @@ curl -X POST "https://graph.facebook.com/v18.0/$WHATSAPP_BUSINESS_ACCOUNT_ID/sub
 ### **🔐 Authentication Problems**
 
 #### **Sintomas**
+
 - ❌ Login retorna 401 Unauthorized
 - ❌ JWT tokens inválidos
 - ❌ Sessões expiram rapidamente
 - ❌ CORS errors no frontend
 
 #### **Diagnóstico JWT**
+
 ```bash
 # 1. Verificar configuração JWT
 docker exec whatsapp-agent-api python -c "
@@ -463,6 +486,7 @@ except Exception as e:
 #### **Soluções de Autenticação**
 
 **🔑 1. JWT Secret Key Problems**
+
 ```bash
 # Verificar se JWT_SECRET_KEY está definida e forte
 if [ ${#JWT_SECRET_KEY} -lt 32 ]; then
@@ -477,6 +501,7 @@ docker-compose restart api
 ```
 
 **⏰ 2. Token Expiration Issues**
+
 ```python
 # Ajustar configuração em app/config.py se tokens expirando muito rápido
 JWT_EXPIRATION_HOURS = 24  # Aumentar de 1 para 24 horas
@@ -491,6 +516,7 @@ def create_refresh_token(data: dict):
 ```
 
 **🌐 3. CORS Configuration**
+
 ```python
 # Verificar configuração CORS em app/cors_config.py
 ALLOWED_ORIGINS = [
@@ -514,12 +540,14 @@ app.add_middleware(
 ### **📊 Performance Degradation**
 
 #### **Sintomas**
+
 - ⏱️ Response times > 1 segundo
 - 📈 CPU usage > 80%
 - 💾 Memory usage crescendo
 - 🗄️ Database queries lentas
 
 #### **Diagnóstico Performance**
+
 ```bash
 # 1. Monitoramento em tempo real
 htop
@@ -541,30 +569,30 @@ print(f'Open files: {process.num_fds()}')
 # 3. Database performance
 PGPASSWORD=$DB_PASSWORD psql -h localhost -U whatsapp_agent -d whatsapp_agent << EOF
 -- Top queries lentas
-SELECT 
+SELECT
     query,
     calls,
     total_exec_time,
     mean_exec_time,
     rows
-FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC 
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
 LIMIT 10;
 
 -- Índices não utilizados
-SELECT 
+SELECT
     schemaname,
     tablename,
     indexname,
     idx_scan
-FROM pg_stat_user_indexes 
+FROM pg_stat_user_indexes
 WHERE idx_scan = 0;
 
 -- Tamanho das tabelas
-SELECT 
+SELECT
     tablename,
     pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-FROM pg_tables 
+FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 EOF
@@ -579,6 +607,7 @@ curl -w "@curl-format.txt" -s -o /dev/null https://api.whatsappagent.com/health
 #### **Otimizações Rápidas**
 
 **🗄️ 1. Database Quick Fixes**
+
 ```sql
 -- Atualizar estatísticas
 ANALYZE;
@@ -592,13 +621,14 @@ VACUUM (ANALYZE, VERBOSE) appointments;
 
 -- Kill queries muito longas
 SELECT pg_terminate_backend(pid)
-FROM pg_stat_activity 
+FROM pg_stat_activity
 WHERE (now() - pg_stat_activity.query_start) > interval '30 seconds'
-    AND state = 'active' 
+    AND state = 'active'
     AND application_name = 'whatsapp_agent';
 ```
 
 **💾 2. Cache Optimization**
+
 ```bash
 # Limpar cache corrompido
 redis-cli flushdb
@@ -613,6 +643,7 @@ redis-cli config set maxmemory-policy allkeys-lru
 ```
 
 **🚀 3. Application Scaling**
+
 ```bash
 # Scale horizontal temporário
 docker-compose up -d --scale api=3
@@ -633,6 +664,7 @@ docker update --memory=2g --cpus=2 whatsapp-agent-api
 ### **📧 Email Notifications Failed**
 
 #### **Diagnóstico**
+
 ```bash
 # 1. Verificar configuração SMTP
 docker exec whatsapp-agent-api python -c "
@@ -666,6 +698,7 @@ print(get_email_queue_status())
 ```
 
 #### **Soluções**
+
 ```python
 # 1. Configurar retry mechanism
 # app/services/email_service.py
@@ -691,12 +724,14 @@ async def send_email_with_retry(to: str, subject: str, body: str, max_retries: i
 ### **📊 Dashboard Data Issues**
 
 #### **Sintomas**
+
 - 📈 Gráficos não carregam
 - 📊 Dados inconsistentes
 - ⏰ Data lag excessivo
 - 🔢 Métricas incorretas
 
 #### **Diagnóstico e Solução**
+
 ```bash
 # 1. Verificar cache de analytics
 redis-cli keys "analytics:*"
@@ -736,12 +771,14 @@ redis-cli del "analytics:monthly:*"
 ### **🎨 Frontend/UI Issues**
 
 #### **Sintomas Comuns**
+
 - 🖼️ Imagens não carregam
 - 🎨 CSS quebrado
 - ⚡ JavaScript errors
 - 📱 Mobile layout issues
 
 #### **Soluções Rápidas**
+
 ```bash
 # 1. Verificar arquivos estáticos
 ls -la app/static/
@@ -766,11 +803,13 @@ nginx -s reload
 ### **📝 Logging Issues**
 
 #### **Problemas**
+
 - 📝 Logs não aparecem
 - 💾 Log files muito grandes
 - 🔍 Formatação incorreta
 
 #### **Soluções**
+
 ```bash
 # 1. Verificar configuração de logging
 docker exec whatsapp-agent-api python -c "
@@ -801,6 +840,7 @@ df -h /var/log/
 ### **Script de Diagnóstico Automático**
 
 #### **Diagnostic Tool - diagnostic.py**
+
 ```python
 #!/usr/bin/env python3
 # scripts/diagnostic.py
@@ -816,18 +856,18 @@ class SystemDiagnostic:
     """
     Ferramenta de diagnóstico automático
     """
-    
+
     def __init__(self):
         self.results = {}
         self.issues = []
-        
+
     async def run_full_diagnostic(self):
         """
         Executar diagnóstico completo do sistema
         """
         print("🔍 Starting WhatsApp Agent System Diagnostic")
         print("=" * 50)
-        
+
         # Executar todos os checks
         await self._check_containers()
         await self._check_api_health()
@@ -837,30 +877,30 @@ class SystemDiagnostic:
         await self._check_performance()
         await self._check_disk_space()
         await self._check_logs()
-        
+
         # Gerar relatório
         self._generate_report()
-        
+
     async def _check_containers(self):
         """
         Verificar status dos containers Docker
         """
         print("\n🐳 Checking Docker Containers...")
-        
+
         try:
             result = subprocess.run(
                 ["docker", "ps", "--format", "{{.Names}}\t{{.Status}}"],
                 capture_output=True, text=True
             )
-            
+
             containers = {}
             expected_containers = [
                 "whatsapp-agent-api",
-                "postgres", 
+                "postgres",
                 "redis",
                 "nginx"
             ]
-            
+
             running_containers = []
             if result.returncode == 0:
                 for line in result.stdout.strip().split('\n'):
@@ -868,7 +908,7 @@ class SystemDiagnostic:
                         name, status = line.split('\t')
                         containers[name] = status
                         running_containers.append(name)
-            
+
             # Verificar containers obrigatórios
             missing_containers = []
             for container in expected_containers:
@@ -877,41 +917,41 @@ class SystemDiagnostic:
                     self.issues.append(f"❌ Container {container} not running")
                 else:
                     print(f"  ✅ {container}: {containers[container]}")
-            
+
             self.results['containers'] = {
                 'running': running_containers,
                 'missing': missing_containers,
                 'status': 'healthy' if not missing_containers else 'unhealthy'
             }
-            
+
         except Exception as e:
             self.results['containers'] = {'status': 'error', 'error': str(e)}
             self.issues.append(f"❌ Docker check failed: {e}")
-    
+
     async def _check_api_health(self):
         """
         Verificar saúde da API
         """
         print("\n🌐 Checking API Health...")
-        
+
         import aiohttp
         import time
-        
+
         endpoints = [
             "/health",
             "/health/deep",
             "/auth/health"
         ]
-        
+
         api_results = {}
-        
+
         async with aiohttp.ClientSession() as session:
             for endpoint in endpoints:
                 try:
                     start_time = time.time()
                     async with session.get(f"http://localhost:8000{endpoint}") as response:
                         response_time = time.time() - start_time
-                        
+
                         if response.status == 200:
                             print(f"  ✅ {endpoint}: {response.status} ({response_time:.3f}s)")
                             api_results[endpoint] = {
@@ -926,7 +966,7 @@ class SystemDiagnostic:
                                 'status_code': response.status
                             }
                             self.issues.append(f"❌ API endpoint {endpoint} returned {response.status}")
-                            
+
                 except Exception as e:
                     print(f"  ❌ {endpoint}: Connection failed - {e}")
                     api_results[endpoint] = {
@@ -934,32 +974,32 @@ class SystemDiagnostic:
                         'error': str(e)
                     }
                     self.issues.append(f"❌ API endpoint {endpoint} connection failed: {e}")
-        
+
         self.results['api'] = api_results
-    
+
     async def _check_database(self):
         """
         Verificar conexão e performance do banco
         """
         print("\n🗄️ Checking Database...")
-        
+
         try:
             # Testar conexão básica
             result = subprocess.run(
                 ["pg_isready", "-h", "localhost", "-p", "5432"],
                 capture_output=True, text=True
             )
-            
+
             if result.returncode == 0:
                 print("  ✅ PostgreSQL connection: OK")
-                
+
                 # Testar query simples
                 db_test = subprocess.run([
-                    "docker", "exec", "postgres", "psql", 
+                    "docker", "exec", "postgres", "psql",
                     "-U", "whatsapp_agent", "-d", "whatsapp_agent",
                     "-c", "SELECT COUNT(*) FROM appointments;"
                 ], capture_output=True, text=True)
-                
+
                 if db_test.returncode == 0:
                     print("  ✅ Database query: OK")
                     self.results['database'] = {'status': 'healthy'}
@@ -971,32 +1011,32 @@ class SystemDiagnostic:
                 print(f"  ❌ PostgreSQL connection failed: {result.stderr}")
                 self.results['database'] = {'status': 'connection_failed', 'error': result.stderr}
                 self.issues.append("❌ Database connection failed")
-                
+
         except Exception as e:
             self.results['database'] = {'status': 'error', 'error': str(e)}
             self.issues.append(f"❌ Database check error: {e}")
-    
+
     async def _check_redis(self):
         """
         Verificar Redis cache
         """
         print("\n💾 Checking Redis Cache...")
-        
+
         try:
             result = subprocess.run(
                 ["redis-cli", "-h", "localhost", "ping"],
                 capture_output=True, text=True
             )
-            
+
             if result.returncode == 0 and "PONG" in result.stdout:
                 print("  ✅ Redis connection: OK")
-                
+
                 # Verificar memória
                 mem_info = subprocess.run(
                     ["redis-cli", "-h", "localhost", "info", "memory"],
                     capture_output=True, text=True
                 )
-                
+
                 if mem_info.returncode == 0:
                     # Parse memory usage
                     for line in mem_info.stdout.split('\n'):
@@ -1004,30 +1044,30 @@ class SystemDiagnostic:
                             memory_used = line.split(':')[1].strip()
                             print(f"  📊 Memory used: {memory_used}")
                             break
-                
+
                 self.results['redis'] = {'status': 'healthy'}
             else:
                 print(f"  ❌ Redis connection failed: {result.stderr}")
                 self.results['redis'] = {'status': 'connection_failed', 'error': result.stderr}
                 self.issues.append("❌ Redis connection failed")
-                
+
         except Exception as e:
             self.results['redis'] = {'status': 'error', 'error': str(e)}
             self.issues.append(f"❌ Redis check error: {e}")
-    
+
     async def _check_whatsapp_integration(self):
         """
         Verificar integração WhatsApp
         """
         print("\n📱 Checking WhatsApp Integration...")
-        
+
         try:
             # Verificar configuração básica
             config_check = subprocess.run([
                 "docker", "exec", "whatsapp-agent-api", "python", "-c",
                 "from app.config import settings; print(f'Phone ID: {settings.WHATSAPP_PHONE_ID}')"
             ], capture_output=True, text=True)
-            
+
             if config_check.returncode == 0:
                 print("  ✅ WhatsApp configuration: OK")
                 self.results['whatsapp'] = {'status': 'healthy'}
@@ -1035,25 +1075,25 @@ class SystemDiagnostic:
                 print(f"  ❌ WhatsApp configuration error: {config_check.stderr}")
                 self.results['whatsapp'] = {'status': 'config_error', 'error': config_check.stderr}
                 self.issues.append("❌ WhatsApp configuration error")
-                
+
         except Exception as e:
             self.results['whatsapp'] = {'status': 'error', 'error': str(e)}
             self.issues.append(f"❌ WhatsApp check error: {e}")
-    
+
     async def _check_performance(self):
         """
         Verificar métricas de performance
         """
         print("\n📊 Checking Performance Metrics...")
-        
+
         try:
             # CPU e Memory usage
             stats = subprocess.run(
-                ["docker", "stats", "--no-stream", "--format", 
+                ["docker", "stats", "--no-stream", "--format",
                  "{{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"],
                 capture_output=True, text=True
             )
-            
+
             if stats.returncode == 0:
                 performance = {}
                 for line in stats.stdout.strip().split('\n'):
@@ -1063,12 +1103,12 @@ class SystemDiagnostic:
                             name = parts[0]
                             cpu = parts[1].replace('%', '')
                             memory = parts[2].split('/')[0].strip()
-                            
+
                             performance[name] = {
                                 'cpu_percent': cpu,
                                 'memory_usage': memory
                             }
-                            
+
                             # Check thresholds
                             try:
                                 cpu_val = float(cpu)
@@ -1079,31 +1119,31 @@ class SystemDiagnostic:
                                     print(f"  ✅ {name} CPU: {cpu}%")
                             except ValueError:
                                 pass
-                
+
                 self.results['performance'] = performance
-            
+
         except Exception as e:
             self.results['performance'] = {'status': 'error', 'error': str(e)}
-    
+
     async def _check_disk_space(self):
         """
         Verificar espaço em disco
         """
         print("\n💽 Checking Disk Space...")
-        
+
         try:
             df_result = subprocess.run(
                 ["df", "-h", "/"],
                 capture_output=True, text=True
             )
-            
+
             if df_result.returncode == 0:
                 lines = df_result.stdout.strip().split('\n')
                 if len(lines) >= 2:
                     parts = lines[1].split()
                     if len(parts) >= 5:
                         usage_percent = parts[4].replace('%', '')
-                        
+
                         try:
                             usage_val = int(usage_percent)
                             if usage_val > 90:
@@ -1114,52 +1154,52 @@ class SystemDiagnostic:
                                 print(f"  ⚠️ Disk usage: {usage_percent}% (HIGH)")
                             else:
                                 print(f"  ✅ Disk usage: {usage_percent}%")
-                            
+
                             self.results['disk'] = {
                                 'usage_percent': usage_percent,
                                 'status': 'critical' if usage_val > 90 else 'warning' if usage_val > 80 else 'healthy'
                             }
                         except ValueError:
                             pass
-                        
+
         except Exception as e:
             self.results['disk'] = {'status': 'error', 'error': str(e)}
-    
+
     async def _check_logs(self):
         """
         Verificar logs para erros recentes
         """
         print("\n📝 Checking Recent Logs...")
-        
+
         try:
             # Verificar logs dos últimos 10 minutos
             logs = subprocess.run([
                 "docker", "logs", "whatsapp-agent-api", "--since", "10m"
             ], capture_output=True, text=True)
-            
+
             if logs.returncode == 0:
                 error_count = logs.stderr.lower().count('error')
                 critical_count = logs.stderr.lower().count('critical')
-                
+
                 print(f"  📊 Errors in last 10min: {error_count}")
                 print(f"  📊 Critical in last 10min: {critical_count}")
-                
+
                 if critical_count > 0:
                     self.issues.append(f"🚨 {critical_count} critical errors in recent logs")
                 elif error_count > 10:
                     self.issues.append(f"⚠️ {error_count} errors in recent logs")
                 else:
                     print("  ✅ Log health: OK")
-                
+
                 self.results['logs'] = {
                     'error_count': error_count,
                     'critical_count': critical_count,
                     'status': 'critical' if critical_count > 0 else 'warning' if error_count > 10 else 'healthy'
                 }
-                
+
         except Exception as e:
             self.results['logs'] = {'status': 'error', 'error': str(e)}
-    
+
     def _generate_report(self):
         """
         Gerar relatório final
@@ -1167,16 +1207,16 @@ class SystemDiagnostic:
         print("\n" + "=" * 50)
         print("📋 DIAGNOSTIC REPORT")
         print("=" * 50)
-        
+
         # Status geral
         total_checks = len(self.results)
-        healthy_checks = sum(1 for r in self.results.values() 
+        healthy_checks = sum(1 for r in self.results.values()
                            if isinstance(r, dict) and r.get('status') == 'healthy')
-        
+
         print(f"🔍 Total checks: {total_checks}")
         print(f"✅ Healthy: {healthy_checks}")
         print(f"❌ Issues found: {len(self.issues)}")
-        
+
         # Listar problemas
         if self.issues:
             print(f"\n🚨 ISSUES FOUND:")
@@ -1184,7 +1224,7 @@ class SystemDiagnostic:
                 print(f"  {issue}")
         else:
             print(f"\n🎉 All systems healthy!")
-        
+
         # Salvar relatório JSON
         report_data = {
             'timestamp': datetime.now().isoformat(),
@@ -1196,10 +1236,10 @@ class SystemDiagnostic:
                 'issues_count': len(self.issues)
             }
         }
-        
+
         with open('/tmp/diagnostic_report.json', 'w') as f:
             json.dump(report_data, f, indent=2)
-        
+
         print(f"\n📄 Full report saved to: /tmp/diagnostic_report.json")
 
 async def main():
@@ -1213,6 +1253,7 @@ if __name__ == "__main__":
 ### **Quick Fix Script**
 
 #### **quick_fix.sh**
+
 ```bash
 #!/bin/bash
 # scripts/quick_fix.sh
@@ -1226,9 +1267,9 @@ echo "==============================="
 run_with_status() {
     local description="$1"
     local command="$2"
-    
+
     echo -n "🔧 $description... "
-    
+
     if eval "$command" &>/dev/null; then
         echo "✅ Done"
         return 0
@@ -1241,7 +1282,7 @@ run_with_status() {
 # Menu de opções
 echo "Select fix option:"
 echo "1. Restart all services"
-echo "2. Fix database connections" 
+echo "2. Fix database connections"
 echo "3. Clear Redis cache"
 echo "4. Fix permissions"
 echo "5. Update containers"
@@ -1258,39 +1299,39 @@ case $option in
         run_with_status "Wait for startup" "sleep 30"
         run_with_status "Verify API" "curl -f http://localhost:8000/health"
         ;;
-    
+
     2)
         echo "🗄️ Fixing database connections..."
         run_with_status "Kill long queries" "docker exec postgres psql -U whatsapp_agent -d whatsapp_agent -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE (now() - pg_stat_activity.query_start) > interval '30 seconds' AND state = 'active' AND application_name = 'whatsapp_agent';\""
         run_with_status "Restart database" "docker restart postgres"
         run_with_status "Restart API" "docker restart whatsapp-agent-api"
         ;;
-    
+
     3)
         echo "💾 Clearing Redis cache..."
         run_with_status "Flush cache" "redis-cli flushdb"
         run_with_status "Restart Redis" "docker restart redis"
         ;;
-    
+
     4)
         echo "🔐 Fixing permissions..."
         run_with_status "Fix log permissions" "sudo chown -R $USER:$USER /var/log/whatsapp-agent/"
         run_with_status "Fix config permissions" "sudo chown -R $USER:$USER ./config/"
         run_with_status "Fix data permissions" "sudo chown -R 999:999 ./data/postgres"
         ;;
-    
+
     5)
         echo "📦 Updating containers..."
         run_with_status "Pull latest images" "docker-compose pull"
         run_with_status "Rebuild services" "docker-compose build --no-cache"
         run_with_status "Restart with new images" "docker-compose up -d"
         ;;
-    
+
     6)
         echo "🔄 Full system reset..."
         echo "⚠️  WARNING: This will reset all data!"
         read -p "Are you sure? [y/N]: " confirm
-        
+
         if [[ $confirm == [yY] ]]; then
             run_with_status "Stop all services" "docker-compose down -v"
             run_with_status "Remove containers" "docker-compose rm -f"
@@ -1303,12 +1344,12 @@ case $option in
             echo "❌ Reset cancelled"
         fi
         ;;
-    
+
     0)
         echo "👋 Exiting..."
         exit 0
         ;;
-    
+
     *)
         echo "❌ Invalid option"
         exit 1
@@ -1328,6 +1369,7 @@ echo "📊 Check status: docker-compose ps"
 ### **Códigos de Erro Comuns**
 
 #### **HTTP Error Codes**
+
 ```
 🔴 500 Internal Server Error
 ├── Causa: Database connection failed
@@ -1356,6 +1398,7 @@ echo "📊 Check status: docker-compose ps"
 ```
 
 #### **WhatsApp API Errors**
+
 ```
 🔴 Error 131000: Generic user error
 ├── Causa: Token inválido ou expirado
@@ -1381,6 +1424,7 @@ echo "📊 Check status: docker-compose ps"
 ### **Performance Thresholds**
 
 #### **Métricas Aceitáveis**
+
 ```
 📊 API Response Time:
 ├── ✅ Excellent: < 100ms

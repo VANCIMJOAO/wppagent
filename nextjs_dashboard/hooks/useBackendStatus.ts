@@ -26,7 +26,7 @@ export function useBackendStatus() {
       const endpointsToCheck = [
         '/api/proxy/dashboard/stats',
         '/api/proxy/clients',
-        '/api/proxy/clients/stats', 
+        '/api/proxy/clients/stats',
         '/api/proxy/conversations',
         '/api/proxy/appointments',
         '/api/proxy/health',
@@ -43,17 +43,17 @@ export function useBackendStatus() {
           try {
             const controller = new AbortController()
             const timeoutId = setTimeout(() => controller.abort(), 5000)
-            
+
             const response = await fetch(endpoint, {
               method: 'GET',
               signal: controller.signal
             })
-            
+
             clearTimeout(timeoutId)
-            
+
             results[endpoint] = response.ok || response.status !== 404
             if (response.ok) connected = true
-            
+
             console.log(`Endpoint ${endpoint}: ${response.status}`)
           } catch (err) {
             results[endpoint] = false
@@ -73,7 +73,7 @@ export function useBackendStatus() {
     }
 
     checkBackendStatus()
-    
+
     // Recheck every 30 seconds
     const interval = setInterval(checkBackendStatus, 30000)
     return () => clearInterval(interval)
@@ -105,12 +105,12 @@ export function useRealDashboardData() {
         ]
 
         let fetchedData = null
-        
+
         for (const endpoint of possibleEndpoints) {
           try {
             console.log(`Tentando endpoint: ${endpoint}`)
             const response = await fetch(endpoint)
-            
+
             if (response.ok) {
               const responseData = await response.json()
               console.log(`Dados encontrados em ${endpoint}:`, responseData)

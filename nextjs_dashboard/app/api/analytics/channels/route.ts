@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Parâmetros de filtro
     const startDate = searchParams.get('start_date') || format(subDays(new Date(), 30), 'yyyy-MM-dd');
     const endDate = searchParams.get('end_date') || format(new Date(), 'yyyy-MM-dd');
@@ -151,8 +151,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Erro ao carregar dados de canais:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Erro interno do servidor',
         message: 'Falha ao carregar dados de canais'
       },

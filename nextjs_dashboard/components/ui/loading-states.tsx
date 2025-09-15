@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button"
 /**
  * 🔄 Estados Loading/Erro Padronizados
  * ===================================
- * 
+ *
  * Componentes reutilizáveis para estados de loading, erro e vazio.
  * Padroniza a UX em todo o dashboard.
- * 
+ *
  * Autor: Claude AI
  * Data: 2025-09-07
  * Status: Componentes base para UX consistente
@@ -18,10 +18,10 @@ import { Button } from "@/components/ui/button"
 export function LoadingSpinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const sizeClasses = {
     sm: "w-4 h-4",
-    md: "w-8 h-8", 
+    md: "w-8 h-8",
     lg: "w-12 h-12"
   }
-  
+
   return (
     <div className="flex items-center justify-center p-4">
       <RefreshCw className={`${sizeClasses[size]} animate-spin text-blue-500`} />
@@ -30,14 +30,14 @@ export function LoadingSpinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 }
 
 // ✅ Error universal
-export function ErrorFallback({ 
-  error, 
-  retry, 
-  title = "Algo deu errado" 
-}: { 
+export function ErrorFallback({
+  error,
+  retry,
+  title = "Algo deu errado"
+}: {
   error: Error | string
   retry?: () => void
-  title?: string 
+  title?: string
 }) {
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -57,14 +57,14 @@ export function ErrorFallback({
 }
 
 // ✅ Empty state universal
-export function EmptyState({ 
-  title, 
-  description, 
-  action 
-}: { 
+export function EmptyState({
+  title,
+  description,
+  action
+}: {
   title: string
   description: string
-  action?: React.ReactNode 
+  action?: React.ReactNode
 }) {
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -94,14 +94,14 @@ export function TableSkeleton({ rows = 5, cols = 4 }: { rows?: number, cols?: nu
 }
 
 // ✅ Skeleton para cards
-export function CardSkeleton({ 
-  showHeader = true, 
+export function CardSkeleton({
+  showHeader = true,
   showFooter = false,
-  lines = 3 
-}: { 
+  lines = 3
+}: {
   showHeader?: boolean
   showFooter?: boolean
-  lines?: number 
+  lines?: number
 }) {
   return (
     <div className="border border-gray-200 rounded-lg p-6 space-y-4">
@@ -111,13 +111,13 @@ export function CardSkeleton({
           <Skeleton className="h-4 w-2/3" />
         </div>
       )}
-      
+
       <div className="space-y-3">
         {Array.from({ length: lines }).map((_, i) => (
           <Skeleton key={i} className="h-4 w-full" />
         ))}
       </div>
-      
+
       {showFooter && (
         <div className="flex space-x-2 pt-4">
           <Skeleton className="h-8 w-20" />
@@ -141,17 +141,17 @@ export function PageLoadingOverlay({ message = "Carregando..." }: { message?: st
 }
 
 // ✅ Inline loading para botões
-export function ButtonLoading({ 
-  children, 
+export function ButtonLoading({
+  children,
   loading = false,
   size = "sm"
-}: { 
+}: {
   children: React.ReactNode
   loading?: boolean
   size?: "sm" | "md"
 }) {
   const iconSize = size === "sm" ? "w-4 h-4" : "w-5 h-5"
-  
+
   return (
     <>
       {loading && <RefreshCw className={`${iconSize} animate-spin mr-2`} />}
@@ -161,12 +161,12 @@ export function ButtonLoading({
 }
 
 // ✅ Loading state para listas
-export function ListSkeleton({ 
+export function ListSkeleton({
   items = 5,
-  showAvatar = false 
-}: { 
+  showAvatar = false
+}: {
   items?: number
-  showAvatar?: boolean 
+  showAvatar?: boolean
 }) {
   return (
     <div className="space-y-4">
@@ -185,12 +185,12 @@ export function ListSkeleton({
 }
 
 // ✅ Error boundary wrapper
-export function ErrorBoundaryFallback({ 
-  error, 
-  resetError 
-}: { 
+export function ErrorBoundaryFallback({
+  error,
+  resetError
+}: {
   error: Error
-  resetError: () => void 
+  resetError: () => void
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -200,7 +200,7 @@ export function ErrorBoundaryFallback({
           retry={resetError}
           title="Ops! Algo deu errado"
         />
-        
+
         {process.env.NODE_ENV === 'development' && (
           <details className="mt-6 p-4 bg-gray-100 rounded-lg">
             <summary className="cursor-pointer text-sm font-medium text-gray-700">
@@ -219,7 +219,7 @@ export function ErrorBoundaryFallback({
 // ✅ Network status indicator
 export function NetworkStatus({ isOnline }: { isOnline: boolean }) {
   if (isOnline) return null
-  
+
   return (
     <div className="fixed top-0 left-0 right-0 bg-red-500 text-white px-4 py-2 text-center text-sm z-50">
       <div className="flex items-center justify-center space-x-2">
@@ -254,12 +254,12 @@ export function DataStateWrapper<T>({
   if (loading) {
     return <LoadingSpinner />
   }
-  
+
   // Estado de erro
   if (error) {
     return <ErrorFallback error={error} retry={retry} />
   }
-  
+
   // Estado vazio
   if (!data || (Array.isArray(data) && data.length === 0)) {
     return (
@@ -270,7 +270,7 @@ export function DataStateWrapper<T>({
       />
     )
   }
-  
+
   // Renderizar dados
   return <>{children(data as NonNullable<T>)}</>
 }

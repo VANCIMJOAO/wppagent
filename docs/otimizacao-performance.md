@@ -9,6 +9,7 @@
 ### **Métricas de Performance Atuais** 📊
 
 #### **Benchmarks de Produção**
+
 - ✅ **Tempo de resposta médio**: 120ms (target: <300ms)
 - ✅ **Throughput**: 500 req/min (peak: 1000 req/min)
 - ✅ **Cache hit rate**: 95.2% (target: >90%)
@@ -17,6 +18,7 @@
 - ✅ **CPU usage**: 25% médio (target: <70%)
 
 #### **Melhorias Implementadas**
+
 - 🚀 **90% redução** no tempo de consultas (N+1 elimination)
 - 🚀 **85% melhoria** na taxa de cache hit
 - 🚀 **70% redução** no uso de memória
@@ -30,6 +32,7 @@
 ### **Eliminação de Consultas N+1**
 
 #### **Problema N+1 Identificado**
+
 ```python
 # ❌ ANTES: Consulta N+1 problemática
 async def get_appointments_slow():
@@ -39,7 +42,7 @@ async def get_appointments_slow():
     """
     appointments = await db.execute(select(Appointment))
     result = []
-    
+
     for appointment in appointments.scalars():
         # ❌ Nova query para cada appointment (N+1 problem)
         user = await db.execute(
@@ -47,12 +50,13 @@ async def get_appointments_slow():
         )
         appointment.user = user.scalar_one_or_none()
         result.append(appointment)
-    
+
     return result
     # Resultado: 1 + N queries (se N=100, são 101 queries!)
 ```
 
 #### **Solução Otimizada com Eager Loading**
+
 ```python
 # ✅ DEPOIS: Consulta otimizada com joinedload
 async def get_appointments_fast():
@@ -71,7 +75,7 @@ async def get_appointments_fast():
         .where(Appointment.deleted_at.is_(None))
         .order_by(Appointment.appointment_date.desc())
     )
-    
+
     return appointments.unique().scalars().all()
     # Resultado: 1 query principal + 1 subquery = máximo 2 queries!
 
@@ -82,6 +86,7 @@ async def get_appointments_fast():
 ```
 
 #### **Estratégias de Loading Otimizadas**
+
 ```python
 # app/services/optimized_queries.py
 from sqlalchemy.orm import joinedload, selectinload, subqueryload
@@ -90,7 +95,7 @@ class QueryOptimizer:
     """
     Estratégias otimizadas para diferentes cenários de carregamento
     """
-    
+
     @staticmethod
     def get_appointments_with_relations():
         """
@@ -103,18 +108,18 @@ class QueryOptimizer:
                 joinedload(Appointment.user),
                 joinedload(Appointment.business),
                 joinedload(Appointment.service),
-                
+
                 # ✅ selectinload: Para relacionamentos 1:N (evita duplicatas)
                 selectinload(Appointment.reminders),
                 selectinload(Appointment.documents),
-                
+
                 # ✅ Nested loading: Para relacionamentos profundos
                 joinedload(Appointment.user).joinedload(User.roles),
                 joinedload(Appointment.business).selectinload(Business.services)
             )
             .where(Appointment.deleted_at.is_(None))
         )
-    
+
     @staticmethod
     def get_users_with_statistics():
         """
@@ -147,7 +152,7 @@ async def get_appointments_optimized(
     query = QueryOptimizer.get_appointments_with_relations()
     result = await db.execute(query)
     appointments = result.unique().scalars().all()
-    
+
     # ✅ Transformar em schema padronizado
     return [
         AppointmentWithRelationsSchema.from_orm(appointment)
@@ -158,12 +163,13 @@ async def get_appointments_optimized(
 ### **Índices de Banco de Dados Otimizados**
 
 #### **Análise de Performance de Queries**
+
 ```sql
 -- Habilitar coleta de estatísticas de query
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 
 -- Verificar queries mais lentas
-SELECT 
+SELECT
     query,
     calls,
     total_exec_time,
@@ -171,58 +177,59 @@ SELECT
     stddev_exec_time,
     rows,
     100.0 * shared_blks_hit / nullif(shared_blks_hit + shared_blks_read, 0) AS hit_percent
-FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC 
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
 LIMIT 20;
 
 -- Verificar uso de índices
-SELECT 
+SELECT
     schemaname,
     tablename,
     indexname,
     idx_scan as index_scans,
     idx_tup_read as tuples_read,
     idx_tup_fetch as tuples_fetched
-FROM pg_stat_user_indexes 
+FROM pg_stat_user_indexes
 ORDER BY idx_scan DESC;
 ```
 
 #### **Índices de Alta Performance**
+
 ```sql
 -- app/migrations/performance_indexes.sql
 
 -- ✅ 1. Índice composto para appointments (query mais comum)
-CREATE INDEX CONCURRENTLY idx_appointments_user_date_status 
-ON appointments (user_id, appointment_date DESC, status) 
+CREATE INDEX CONCURRENTLY idx_appointments_user_date_status
+ON appointments (user_id, appointment_date DESC, status)
 WHERE deleted_at IS NULL;
 
 -- ✅ 2. Índice para busca por telefone (WhatsApp integration)
-CREATE INDEX CONCURRENTLY idx_appointments_phone_date 
-ON appointments (phone_number, appointment_date DESC) 
+CREATE INDEX CONCURRENTLY idx_appointments_phone_date
+ON appointments (phone_number, appointment_date DESC)
 WHERE deleted_at IS NULL;
 
 -- ✅ 3. Índice para dashboard analytics
-CREATE INDEX CONCURRENTLY idx_appointments_business_created_status 
-ON appointments (business_id, created_at DESC, status) 
+CREATE INDEX CONCURRENTLY idx_appointments_business_created_status
+ON appointments (business_id, created_at DESC, status)
 WHERE deleted_at IS NULL;
 
 -- ✅ 4. Índice para busca textual eficiente
-CREATE INDEX CONCURRENTLY idx_appointments_contact_search 
+CREATE INDEX CONCURRENTLY idx_appointments_contact_search
 ON appointments USING gin(to_tsvector('portuguese', contact_name || ' ' || COALESCE(notes, '')))
 WHERE deleted_at IS NULL;
 
 -- ✅ 5. Índice para auth e sessões
-CREATE INDEX CONCURRENTLY idx_users_email_active 
-ON users (email) 
+CREATE INDEX CONCURRENTLY idx_users_email_active
+ON users (email)
 WHERE is_active = true AND deleted_at IS NULL;
 
 -- ✅ 6. Índice para logs de auditoria
-CREATE INDEX CONCURRENTLY idx_audit_logs_user_timestamp 
+CREATE INDEX CONCURRENTLY idx_audit_logs_user_timestamp
 ON audit_logs (user_id, created_at DESC);
 
 -- ✅ 7. Índice para cache invalidation
-CREATE INDEX CONCURRENTLY idx_cache_keys_pattern_expiry 
-ON cache_keys (pattern, expires_at) 
+CREATE INDEX CONCURRENTLY idx_cache_keys_pattern_expiry
+ON cache_keys (pattern, expires_at)
 WHERE expires_at > NOW();
 
 -- 📊 PERFORMANCE IMPACT:
@@ -232,6 +239,7 @@ WHERE expires_at > NOW();
 ```
 
 #### **Particionamento de Tabelas**
+
 ```sql
 -- Particionamento por data para tabelas grandes
 -- app/migrations/table_partitioning.sql
@@ -259,7 +267,7 @@ BEGIN
     start_date := date_trunc('month', CURRENT_DATE);
     end_date := start_date + interval '1 month';
     table_name := 'audit_logs_' || to_char(start_date, 'YYYY_MM');
-    
+
     EXECUTE format('CREATE TABLE IF NOT EXISTS %I PARTITION OF audit_logs_template
                     FOR VALUES FROM (%L) TO (%L)',
                    table_name, start_date, end_date);
@@ -273,6 +281,7 @@ SELECT cron.schedule('create-partitions', '0 0 1 * *', 'SELECT create_monthly_pa
 ### **Connection Pooling Avançado**
 
 #### **Configuração SQLAlchemy Otimizada**
+
 ```python
 # app/database.py
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -282,7 +291,7 @@ from sqlalchemy.pool import QueuePool
 # ✅ Engine otimizado para produção
 engine = create_async_engine(
     settings.DATABASE_URL,
-    
+
     # Pool de conexões otimizado
     poolclass=QueuePool,
     pool_size=10,              # Conexões permanentes
@@ -290,11 +299,11 @@ engine = create_async_engine(
     pool_timeout=30,           # Timeout para obter conexão
     pool_recycle=3600,         # Reciclar conexões a cada hora
     pool_pre_ping=True,        # Verificar conexões antes de usar
-    
+
     # Configurações de performance
     echo=False,                # Não logar queries em produção
     future=True,               # Usar SQLAlchemy 2.0 API
-    
+
     # Configurações específicas PostgreSQL
     connect_args={
         "command_timeout": 60,          # Timeout de comando
@@ -345,6 +354,7 @@ async def get_db_transaction():
 ```
 
 #### **Monitoramento de Connection Pool**
+
 ```python
 # app/monitoring/database_monitoring.py
 import asyncio
@@ -354,23 +364,23 @@ class DatabaseMonitor:
     """
     Monitoramento avançado do pool de conexões
     """
-    
+
     @staticmethod
     async def get_pool_status():
         """
         Obter status detalhado do pool de conexões
         """
         pool = engine.pool
-        
+
         return {
             "pool_size": pool.size(),
             "checked_in": pool.checkedin(),
-            "checked_out": pool.checkedout(), 
+            "checked_out": pool.checkedout(),
             "overflow": pool.overflow(),
             "invalid": pool.invalid(),
             "utilization_percent": (pool.checkedout() / (pool.size() + pool.overflow())) * 100
         }
-    
+
     @staticmethod
     async def get_active_connections():
         """
@@ -378,7 +388,7 @@ class DatabaseMonitor:
         """
         async with AsyncSessionLocal() as session:
             result = await session.execute(text("""
-                SELECT 
+                SELECT
                     state,
                     application_name,
                     client_addr,
@@ -386,14 +396,14 @@ class DatabaseMonitor:
                     query_start,
                     state_change,
                     query
-                FROM pg_stat_activity 
+                FROM pg_stat_activity
                 WHERE application_name = 'whatsapp_agent'
                   AND state IS NOT NULL
                 ORDER BY backend_start DESC
             """))
-            
+
             return [dict(row) for row in result]
-    
+
     @staticmethod
     async def analyze_slow_queries():
         """
@@ -401,19 +411,19 @@ class DatabaseMonitor:
         """
         async with AsyncSessionLocal() as session:
             result = await session.execute(text("""
-                SELECT 
+                SELECT
                     pid,
                     now() - pg_stat_activity.query_start AS duration,
                     query,
                     state,
                     client_addr
-                FROM pg_stat_activity 
+                FROM pg_stat_activity
                 WHERE (now() - pg_stat_activity.query_start) > interval '5 seconds'
                   AND state = 'active'
                   AND application_name = 'whatsapp_agent'
                 ORDER BY duration DESC
             """))
-            
+
             return [dict(row) for row in result]
 
 # Endpoint de monitoramento
@@ -424,7 +434,7 @@ async def database_monitoring():
     Endpoint para monitoramento do banco de dados
     """
     monitor = DatabaseMonitor()
-    
+
     return {
         "pool_status": await monitor.get_pool_status(),
         "active_connections": await monitor.get_active_connections(),
@@ -440,6 +450,7 @@ async def database_monitoring():
 ### **Estratégias de Cache Inteligente**
 
 #### **Cache Manager Otimizado**
+
 ```python
 # app/services/cache_optimized.py
 import json
@@ -452,11 +463,11 @@ class CacheManager:
     """
     Sistema avançado de cache com estratégias inteligentes
     """
-    
+
     def __init__(self):
         self.redis = redis.from_url(settings.REDIS_URL)
         self.default_ttl = 3600  # 1 hora
-        
+
     async def get(self, key: str) -> Optional[Any]:
         """
         Buscar valor do cache com deserialização automática
@@ -474,11 +485,11 @@ class CacheManager:
         except Exception as e:
             logger.error(f"Cache get error for key {key}: {e}")
             return None
-    
+
     async def set(
-        self, 
-        key: str, 
-        value: Any, 
+        self,
+        key: str,
+        value: Any,
         ttl: Optional[int] = None,
         tags: Optional[List[str]] = None
     ):
@@ -488,19 +499,19 @@ class CacheManager:
         try:
             ttl = ttl or self.default_ttl
             serialized_value = json.dumps(value, default=str)
-            
+
             # Pipeline para operações atômicas
             pipeline = self.redis.pipeline()
-            
+
             # Salvar valor principal
             pipeline.setex(key, ttl, serialized_value)
-            
+
             # Salvar tags para invalidação em grupo
             if tags:
                 for tag in tags:
                     pipeline.sadd(f"tag:{tag}", key)
                     pipeline.expire(f"tag:{tag}", ttl + 60)  # TTL um pouco maior
-            
+
             # Salvar metadata
             metadata = {
                 "created_at": datetime.utcnow().isoformat(),
@@ -508,12 +519,12 @@ class CacheManager:
                 "tags": tags or []
             }
             pipeline.setex(f"meta:{key}", ttl, json.dumps(metadata))
-            
+
             await pipeline.execute()
-            
+
         except Exception as e:
             logger.error(f"Cache set error for key {key}: {e}")
-    
+
     async def delete(self, key: str):
         """
         Deletar chave específica
@@ -522,7 +533,7 @@ class CacheManager:
             await self.redis.delete(key, f"meta:{key}")
         except Exception as e:
             logger.error(f"Cache delete error for key {key}: {e}")
-    
+
     async def invalidate_by_tag(self, tag: str):
         """
         Invalidar todas as chaves com uma tag específica
@@ -530,23 +541,23 @@ class CacheManager:
         try:
             # Buscar todas as chaves com a tag
             keys = await self.redis.smembers(f"tag:{tag}")
-            
+
             if keys:
                 # Deletar todas as chaves e metadados
                 all_keys = []
                 for key in keys:
                     all_keys.extend([key, f"meta:{key}"])
-                
+
                 await self.redis.delete(*all_keys)
-                
+
                 # Deletar a tag
                 await self.redis.delete(f"tag:{tag}")
-                
+
                 logger.info(f"Invalidated {len(keys)} cache keys with tag: {tag}")
-                
+
         except Exception as e:
             logger.error(f"Cache invalidation error for tag {tag}: {e}")
-    
+
     async def get_cache_stats(self) -> Dict[str, Any]:
         """
         Obter estatísticas detalhadas do cache
@@ -554,17 +565,17 @@ class CacheManager:
         try:
             # Estatísticas básicas
             info = await self.redis.info("memory")
-            
+
             # Contadores de hit/miss
             hits = await self.redis.get("stats:cache_hits") or 0
             misses = await self.redis.get("stats:cache_misses") or 0
-            
+
             total_requests = int(hits) + int(misses)
             hit_rate = (int(hits) / total_requests * 100) if total_requests > 0 else 0
-            
+
             # Tamanho do cache
             dbsize = await self.redis.dbsize()
-            
+
             return {
                 "memory_usage": {
                     "used_memory": info.get("used_memory_human"),
@@ -583,42 +594,42 @@ class CacheManager:
                     "metadata_keys": await self._count_metadata_keys()
                 }
             }
-            
+
         except Exception as e:
             logger.error(f"Error getting cache stats: {e}")
             return {}
-    
+
     async def _count_data_keys(self) -> int:
         """Contar chaves de dados (excluindo metadata e stats)"""
         cursor = 0
         count = 0
-        
+
         while True:
             cursor, keys = await self.redis.scan(
                 cursor=cursor,
                 match="*",
                 count=1000
             )
-            
+
             # Filtrar chaves de dados
             data_keys = [
-                key for key in keys 
-                if not key.startswith(b"meta:") and 
-                   not key.startswith(b"stats:") and 
+                key for key in keys
+                if not key.startswith(b"meta:") and
+                   not key.startswith(b"stats:") and
                    not key.startswith(b"tag:")
             ]
             count += len(data_keys)
-            
+
             if cursor == 0:
                 break
-        
+
         return count
-    
+
     async def _count_metadata_keys(self) -> int:
         """Contar chaves de metadata"""
         cursor = 0
         count = 0
-        
+
         while True:
             cursor, keys = await self.redis.scan(
                 cursor=cursor,
@@ -626,10 +637,10 @@ class CacheManager:
                 count=1000
             )
             count += len(keys)
-            
+
             if cursor == 0:
                 break
-        
+
         return count
 
 # Instância global
@@ -637,43 +648,44 @@ cache_manager = CacheManager()
 ```
 
 #### **Cache Keys Estratégicos**
+
 ```python
 # app/services/cache_keys.py
 class CacheKeys:
     """
     Chaves de cache padronizadas com TTL otimizado
     """
-    
+
     # ✅ Appointments (TTL: 2 minutos - dados que mudam frequentemente)
     APPOINTMENTS_LIST = "appointments:list:{business_id}:{status}:{page}:{limit}"
     APPOINTMENT_DETAIL = "appointment:{appointment_id}"
     USER_APPOINTMENTS = "user:{user_id}:appointments:{status}"
-    
+
     # ✅ Users (TTL: 10 minutos - dados relativamente estáveis)
     USER_PROFILE = "user:{user_id}:profile"
     USER_PERMISSIONS = "user:{user_id}:permissions"
     USER_ROLES = "user:{user_id}:roles"
-    
+
     # ✅ Analytics (TTL: 30 minutos - dados calculados pesados)
     DASHBOARD_STATS = "analytics:dashboard:{business_id}:{period}"
     MONTHLY_REPORT = "analytics:monthly:{business_id}:{year}:{month}"
     PERFORMANCE_METRICS = "analytics:performance:{period}"
-    
+
     # ✅ Business data (TTL: 60 minutos - dados que mudam raramente)
     BUSINESS_PROFILE = "business:{business_id}:profile"
     BUSINESS_SERVICES = "business:{business_id}:services"
     BUSINESS_SETTINGS = "business:{business_id}:settings"
-    
+
     # ✅ WhatsApp templates (TTL: 24 horas - dados quase estáticos)
     WHATSAPP_TEMPLATES = "whatsapp:templates:{business_id}"
     MESSAGE_TEMPLATES = "messages:templates:{type}"
-    
+
     @classmethod
     def appointments_list(
-        cls, 
-        business_id: int = None, 
-        status: str = None, 
-        page: int = 1, 
+        cls,
+        business_id: int = None,
+        status: str = None,
+        page: int = 1,
         limit: int = 10
     ) -> str:
         """Gerar chave para lista de appointments"""
@@ -683,7 +695,7 @@ class CacheKeys:
             page=page,
             limit=limit
         )
-    
+
     @classmethod
     def get_tags_for_appointment(cls, appointment_id: int, user_id: int, business_id: int) -> List[str]:
         """Gerar tags para invalidação de appointment"""
@@ -696,6 +708,7 @@ class CacheKeys:
 ```
 
 #### **Decorators de Cache Inteligente**
+
 ```python
 # app/decorators/cache_decorators.py
 from functools import wraps
@@ -715,17 +728,17 @@ def cached(
         async def wrapper(*args, **kwargs):
             # Gerar chave baseada nos parâmetros
             cache_key = _generate_cache_key(key_pattern, args, kwargs, vary_by)
-            
+
             # Tentar buscar do cache
             cached_result = await cache_manager.get(cache_key)
             if cached_result is not None:
                 logger.debug(f"Cache hit for key: {cache_key}")
                 return cached_result
-            
+
             # Executar função original
             logger.debug(f"Cache miss for key: {cache_key}")
             result = await func(*args, **kwargs)
-            
+
             # Salvar no cache
             await cache_manager.set(
                 cache_key,
@@ -733,9 +746,9 @@ def cached(
                 ttl=ttl,
                 tags=tags
             )
-            
+
             return result
-        
+
         return wrapper
     return decorator
 
@@ -748,14 +761,14 @@ def cache_invalidate(tags: List[str]):
         async def wrapper(*args, **kwargs):
             # Executar função original
             result = await func(*args, **kwargs)
-            
+
             # Invalidar cache
             for tag in tags:
                 await cache_manager.invalidate_by_tag(tag)
-            
+
             logger.info(f"Cache invalidated for tags: {tags}")
             return result
-        
+
         return wrapper
     return decorator
 
@@ -796,6 +809,7 @@ async def create_appointment(
 ### **Cache Warming Inteligente**
 
 #### **Sistema de Pre-loading**
+
 ```python
 # app/services/cache_warming.py
 import asyncio
@@ -805,24 +819,24 @@ class CacheWarming:
     """
     Sistema de aquecimento inteligente de cache
     """
-    
+
     @staticmethod
     async def warm_popular_data():
         """
         Aquecer dados populares no cache
         """
         logger.info("Starting cache warming process...")
-        
+
         tasks = [
             CacheWarming._warm_dashboard_data(),
             CacheWarming._warm_user_data(),
             CacheWarming._warm_appointment_lists(),
             CacheWarming._warm_business_data()
         ]
-        
+
         await asyncio.gather(*tasks)
         logger.info("Cache warming completed")
-    
+
     @staticmethod
     async def _warm_dashboard_data():
         """
@@ -834,11 +848,11 @@ class CacheWarming:
                 active_businesses = await db.execute(
                     select(Business.id).where(Business.is_active == True)
                 )
-                
+
                 for business_id in active_businesses.scalars():
                     # Gerar dados de dashboard
                     cache_key = f"analytics:dashboard:{business_id}:30d"
-                    
+
                     # Verificar se já existe no cache
                     if not await cache_manager.get(cache_key):
                         # Gerar dados
@@ -849,12 +863,12 @@ class CacheWarming:
                             ttl=1800,  # 30 minutos
                             tags=[f"business:{business_id}:analytics"]
                         )
-                        
+
                         logger.debug(f"Warmed dashboard cache for business {business_id}")
-                        
+
         except Exception as e:
             logger.error(f"Error warming dashboard data: {e}")
-    
+
     @staticmethod
     async def _warm_appointment_lists():
         """
@@ -863,12 +877,12 @@ class CacheWarming:
         try:
             # Appointments dos próximos 7 dias
             popular_statuses = ["confirmed", "pending", "completed"]
-            
+
             async with AsyncSessionLocal() as db:
                 active_businesses = await db.execute(
                     select(Business.id).where(Business.is_active == True)
                 )
-                
+
                 for business_id in active_businesses.scalars():
                     for status in popular_statuses:
                         cache_key = CacheKeys.appointments_list(
@@ -877,7 +891,7 @@ class CacheWarming:
                             page=1,
                             limit=20
                         )
-                        
+
                         if not await cache_manager.get(cache_key):
                             # Buscar appointments
                             appointments = await get_appointments_data(
@@ -885,14 +899,14 @@ class CacheWarming:
                                 status=status,
                                 limit=20
                             )
-                            
+
                             await cache_manager.set(
                                 cache_key,
                                 appointments,
                                 ttl=120,  # 2 minutos
                                 tags=[f"business:{business_id}:appointments", "appointments:list"]
                             )
-                            
+
         except Exception as e:
             logger.error(f"Error warming appointment lists: {e}")
 
@@ -912,6 +926,7 @@ async def scheduled_cache_warming():
 ### **Async/Await Otimizado**
 
 #### **Concorrência Eficiente**
+
 ```python
 # app/services/concurrent_operations.py
 import asyncio
@@ -921,7 +936,7 @@ class ConcurrentOperations:
     """
     Operações concorrentes otimizadas para alta performance
     """
-    
+
     @staticmethod
     async def send_multiple_messages(
         messages: List[Dict[str, Any]],
@@ -931,7 +946,7 @@ class ConcurrentOperations:
         Enviar múltiplas mensagens WhatsApp concorrentemente
         """
         semaphore = asyncio.Semaphore(max_concurrent)
-        
+
         async def send_single_message(message_data):
             async with semaphore:
                 try:
@@ -944,19 +959,19 @@ class ConcurrentOperations:
                 except Exception as e:
                     logger.error(f"Error sending message to {message_data['phone']}: {e}")
                     return {"success": False, "error": str(e), "phone": message_data["phone"]}
-        
+
         # Executar todas as tarefas concorrentemente
         tasks = [send_single_message(msg) for msg in messages]
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Processar resultados
         successful = len([r for r in results if isinstance(r, dict) and r.get("success")])
         failed = len(results) - successful
-        
+
         logger.info(f"Sent {successful} messages successfully, {failed} failed")
-        
+
         return results
-    
+
     @staticmethod
     async def process_appointment_batch(
         appointments: List[Dict[str, Any]],
@@ -966,7 +981,7 @@ class ConcurrentOperations:
         Processar lote de appointments concorrentemente
         """
         semaphore = asyncio.Semaphore(max_concurrent)
-        
+
         async def process_single_appointment(appointment_data):
             async with semaphore:
                 try:
@@ -975,20 +990,20 @@ class ConcurrentOperations:
                         appointment = await create_appointment_service(
                             appointment_data, db
                         )
-                        
+
                         # Enviar confirmação WhatsApp
                         if appointment_data.get("send_confirmation"):
                             await whatsapp_service.send_confirmation(
                                 appointment.phone_number,
                                 appointment
                             )
-                        
+
                         return {
                             "success": True,
                             "appointment_id": appointment.id,
                             "phone": appointment.phone_number
                         }
-                        
+
                 except Exception as e:
                     logger.error(f"Error processing appointment: {e}")
                     return {
@@ -996,12 +1011,12 @@ class ConcurrentOperations:
                         "error": str(e),
                         "phone": appointment_data.get("phone_number")
                     }
-        
+
         tasks = [process_single_appointment(apt) for apt in appointments]
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         return results
-    
+
     @staticmethod
     async def generate_reports_parallel(
         business_ids: List[int],
@@ -1015,16 +1030,16 @@ class ConcurrentOperations:
                 # Verificar cache primeiro
                 cache_key = f"analytics:report:{business_id}:{period}"
                 cached_report = await cache_manager.get(cache_key)
-                
+
                 if cached_report:
                     return business_id, cached_report
-                
+
                 # Gerar relatório
                 async with AsyncSessionLocal() as db:
                     report_data = await analytics_service.generate_business_report(
                         business_id, period, db
                     )
-                    
+
                     # Salvar no cache
                     await cache_manager.set(
                         cache_key,
@@ -1032,22 +1047,23 @@ class ConcurrentOperations:
                         ttl=3600,  # 1 hora
                         tags=[f"business:{business_id}:analytics"]
                     )
-                    
+
                     return business_id, report_data
-                    
+
             except Exception as e:
                 logger.error(f"Error generating report for business {business_id}: {e}")
                 return business_id, {"error": str(e)}
-        
+
         # Executar geração em paralelo
         tasks = [generate_single_report(bid) for bid in business_ids]
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Converter para dicionário
         return dict(results)
 ```
 
 #### **Memory Management Otimizado**
+
 ```python
 # app/utils/memory_optimization.py
 import gc
@@ -1059,7 +1075,7 @@ class MemoryOptimizer:
     """
     Otimização de uso de memória
     """
-    
+
     @staticmethod
     def get_memory_usage() -> Dict[str, Any]:
         """
@@ -1067,14 +1083,14 @@ class MemoryOptimizer:
         """
         process = psutil.Process()
         memory_info = process.memory_info()
-        
+
         return {
             "rss_mb": memory_info.rss / 1024 / 1024,
             "vms_mb": memory_info.vms / 1024 / 1024,
             "percent": process.memory_percent(),
             "available_mb": psutil.virtual_memory().available / 1024 / 1024
         }
-    
+
     @staticmethod
     async def cleanup_memory():
         """
@@ -1082,20 +1098,20 @@ class MemoryOptimizer:
         """
         # Forçar garbage collection
         collected = gc.collect()
-        
+
         # Limpar cache de objetos SQLAlchemy
         if hasattr(engine.pool, '_pool'):
             pool_size_before = engine.pool.size()
             await engine.dispose()
             logger.info(f"Disposed {pool_size_before} database connections")
-        
+
         logger.info(f"Garbage collected {collected} objects")
-        
+
         return {
             "objects_collected": collected,
             "memory_after": MemoryOptimizer.get_memory_usage()
         }
-    
+
     @staticmethod
     @asynccontextmanager
     async def memory_monitor(operation_name: str):
@@ -1104,22 +1120,22 @@ class MemoryOptimizer:
         """
         memory_before = MemoryOptimizer.get_memory_usage()
         start_time = asyncio.get_event_loop().time()
-        
+
         try:
             yield
         finally:
             end_time = asyncio.get_event_loop().time()
             memory_after = MemoryOptimizer.get_memory_usage()
-            
+
             memory_delta = memory_after["rss_mb"] - memory_before["rss_mb"]
             duration = end_time - start_time
-            
+
             logger.info(
                 f"Memory usage for {operation_name}: "
                 f"{memory_delta:+.2f}MB delta, "
                 f"{duration:.2f}s duration"
             )
-            
+
             # Alertar se uso de memória muito alto
             if memory_after["rss_mb"] > 1000:  # > 1GB
                 logger.warning(
@@ -1134,7 +1150,7 @@ async def process_large_dataset():
     async with MemoryOptimizer.memory_monitor("large_dataset_processing"):
         # Processar dados em lotes menores
         batch_size = 100
-        
+
         async with AsyncSessionLocal() as db:
             # Usar cursor ao invés de carregar tudo na memória
             result = await db.stream(
@@ -1142,22 +1158,22 @@ async def process_large_dataset():
                     Appointment.created_at >= datetime.utcnow() - timedelta(days=30)
                 )
             )
-            
+
             batch = []
             async for appointment in result:
                 batch.append(appointment)
-                
+
                 if len(batch) >= batch_size:
                     # Processar lote
                     await process_appointment_batch(batch)
-                    
+
                     # Limpar lote para liberar memória
                     batch.clear()
-                    
+
                     # Garbage collection a cada lote
                     if len(batch) % 10 == 0:
                         gc.collect()
-            
+
             # Processar último lote
             if batch:
                 await process_appointment_batch(batch)
@@ -1170,6 +1186,7 @@ async def process_large_dataset():
 ### **Métricas em Tempo Real**
 
 #### **Performance Middleware**
+
 ```python
 # app/middleware/performance_middleware.py
 import time
@@ -1180,27 +1197,27 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
     """
     Middleware para coleta de métricas de performance
     """
-    
+
     async def dispatch(self, request: Request, call_next):
         # Marcar início da requisição
         start_time = time.time()
-        
+
         # Coletar informações da requisição
         method = request.method
         path = request.url.path
         client_ip = request.client.host if request.client else "unknown"
-        
+
         # Executar requisição
         response = await call_next(request)
-        
+
         # Calcular tempo de resposta
         process_time = time.time() - start_time
         response_time_ms = process_time * 1000
-        
+
         # Adicionar headers de performance
         response.headers["X-Response-Time"] = f"{response_time_ms:.2f}ms"
         response.headers["X-Process-Time"] = f"{process_time:.4f}s"
-        
+
         # Log estruturado de performance
         performance_data = {
             "timestamp": datetime.utcnow().isoformat(),
@@ -1212,7 +1229,7 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
             "client_ip": client_ip,
             "user_agent": request.headers.get("user-agent", "unknown")[:100]
         }
-        
+
         # Log baseado no tempo de resposta
         if response_time_ms > 1000:  # > 1 segundo
             logger.warning("Slow API response", extra=performance_data)
@@ -1220,12 +1237,12 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
             logger.info("Medium API response", extra=performance_data)
         else:
             logger.debug("Fast API response", extra=performance_data)
-        
+
         # Salvar métricas no Redis para agregação
         await self._save_performance_metrics(performance_data)
-        
+
         return response
-    
+
     async def _save_performance_metrics(self, data: Dict[str, Any]):
         """
         Salvar métricas para agregação posterior
@@ -1235,16 +1252,16 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
             minute_key = datetime.utcnow().strftime("%Y-%m-%d:%H:%M")
             endpoint_key = f"{data['method']}:{data['path']}"
             redis_key = f"metrics:{minute_key}:{endpoint_key}"
-            
+
             # Incrementar contadores
             pipeline = cache_manager.redis.pipeline()
             pipeline.hincrby(redis_key, "request_count", 1)
             pipeline.hincrbyfloat(redis_key, "total_response_time", data["response_time_ms"])
             pipeline.hincrby(redis_key, f"status_{data['status_code']}", 1)
             pipeline.expire(redis_key, 3600)  # Manter por 1 hora
-            
+
             await pipeline.execute()
-            
+
         except Exception as e:
             logger.error(f"Error saving performance metrics: {e}")
 
@@ -1253,6 +1270,7 @@ app.add_middleware(PerformanceMiddleware)
 ```
 
 #### **Dashboard de Performance**
+
 ```python
 # app/routes/performance_dashboard.py
 @router.get("/performance/dashboard")
@@ -1268,19 +1286,19 @@ async def performance_dashboard(
         # Calcular período
         end_time = datetime.utcnow()
         start_time = end_time - timedelta(minutes=period_minutes)
-        
+
         # Buscar métricas agregadas
         metrics = await _aggregate_performance_metrics(start_time, end_time)
-        
+
         # Calcular estatísticas
         stats = await _calculate_performance_stats(metrics)
-        
+
         # Identificar endpoints mais lentos
         slow_endpoints = await _identify_slow_endpoints(metrics)
-        
+
         # Obter status do sistema
         system_stats = await _get_system_stats()
-        
+
         return {
             "period_minutes": period_minutes,
             "timestamp": end_time.isoformat(),
@@ -1299,44 +1317,44 @@ async def performance_dashboard(
             "system": system_stats,
             "alerts": await _check_performance_alerts(stats)
         }
-        
+
     except Exception as e:
         logger.error(f"Error generating performance dashboard: {e}")
         raise HTTPException(500, "Error generating performance dashboard")
 
 async def _aggregate_performance_metrics(
-    start_time: datetime, 
+    start_time: datetime,
     end_time: datetime
 ) -> List[Dict[str, Any]]:
     """
     Agregar métricas de performance do Redis
     """
     metrics = []
-    
+
     # Iterar por cada minuto no período
     current_time = start_time
     while current_time <= end_time:
         minute_key = current_time.strftime("%Y-%m-%d:%H:%M")
         pattern = f"metrics:{minute_key}:*"
-        
+
         # Buscar todas as chaves do minuto
         keys = await cache_manager.redis.keys(pattern)
-        
+
         for key in keys:
             # Extrair dados da chave
             _, _, endpoint = key.decode().split(":", 2)
             method, path = endpoint.split(":", 1)
-            
+
             # Buscar métricas
             data = await cache_manager.redis.hgetall(key)
-            
+
             if data:
                 # Decodificar dados
                 decoded_data = {k.decode(): v.decode() for k, v in data.items()}
-                
+
                 request_count = int(decoded_data.get("request_count", 0))
                 total_response_time = float(decoded_data.get("total_response_time", 0))
-                
+
                 if request_count > 0:
                     metrics.append({
                         "timestamp": current_time,
@@ -1345,14 +1363,14 @@ async def _aggregate_performance_metrics(
                         "request_count": request_count,
                         "avg_response_time": total_response_time / request_count,
                         "status_codes": {
-                            k.replace("status_", ""): int(v) 
-                            for k, v in decoded_data.items() 
+                            k.replace("status_", ""): int(v)
+                            for k, v in decoded_data.items()
                             if k.startswith("status_")
                         }
                     })
-        
+
         current_time += timedelta(minutes=1)
-    
+
     return metrics
 
 async def _calculate_performance_stats(metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -1361,44 +1379,44 @@ async def _calculate_performance_stats(metrics: List[Dict[str, Any]]) -> Dict[st
     """
     if not metrics:
         return {}
-    
+
     # Agregar dados
     total_requests = sum(m["request_count"] for m in metrics)
     total_response_time = sum(m["avg_response_time"] * m["request_count"] for m in metrics)
-    
+
     # Calcular médias
     avg_response_time = total_response_time / total_requests if total_requests > 0 else 0
-    
+
     # Calcular P95
     all_response_times = []
     for metric in metrics:
         count = metric["request_count"]
         avg_time = metric["avg_response_time"]
         all_response_times.extend([avg_time] * count)
-    
+
     all_response_times.sort()
     p95_index = int(len(all_response_times) * 0.95)
     p95_response_time = all_response_times[p95_index] if all_response_times else 0
-    
+
     # Calcular error rate
     total_errors = sum(
         sum(v for k, v in m["status_codes"].items() if int(k) >= 400)
         for m in metrics
     )
     error_rate = (total_errors / total_requests * 100) if total_requests > 0 else 0
-    
+
     # Endpoints mais ativos
     endpoint_requests = {}
     for metric in metrics:
         endpoint = f"{metric['method']} {metric['path']}"
         endpoint_requests[endpoint] = endpoint_requests.get(endpoint, 0) + metric["request_count"]
-    
+
     most_active_endpoints = sorted(
         endpoint_requests.items(),
         key=lambda x: x[1],
         reverse=True
     )[:10]
-    
+
     return {
         "total_requests": total_requests,
         "avg_response_time": round(avg_response_time, 2),
@@ -1416,6 +1434,7 @@ async def _calculate_performance_stats(metrics: List[Dict[str, Any]]) -> Dict[st
 ### **Antes vs Depois**
 
 #### **Performance Metrics Comparison**
+
 ```python
 # Benchmarks detalhados das otimizações implementadas
 
@@ -1440,7 +1459,7 @@ PERFORMANCE_BENCHMARKS = {
             "Query result caching"
         ]
     },
-    
+
     "cache_performance": {
         "before": {
             "hit_rate": "65%",
@@ -1459,11 +1478,11 @@ PERFORMANCE_BENCHMARKS = {
             "Pipeline Redis para operações batch"
         ]
     },
-    
+
     "api_performance": {
         "before": {
             "p50_response_time": "280ms",
-            "p95_response_time": "850ms", 
+            "p95_response_time": "850ms",
             "p99_response_time": "1500ms",
             "throughput_rpm": "300"
         },
@@ -1480,7 +1499,7 @@ PERFORMANCE_BENCHMARKS = {
             "Query optimization"
         ]
     },
-    
+
     "memory_usage": {
         "before": {
             "baseline_usage": "850MB",
@@ -1505,6 +1524,7 @@ PERFORMANCE_BENCHMARKS = {
 ### **Load Testing Results**
 
 #### **Resultados de Teste de Carga**
+
 ```bash
 # Teste com Apache Bench
 # 1000 requests, 50 concurrent users
@@ -1541,6 +1561,7 @@ ab -n 5000 -c 100 https://api.whatsappagent.com/health
 ### **Scripts de Performance**
 
 #### **Performance Analysis Script**
+
 ```python
 #!/usr/bin/env python3
 # scripts/performance_analysis.py
@@ -1555,14 +1576,14 @@ class PerformanceAnalyzer:
     """
     Analisador de performance para endpoints da API
     """
-    
+
     def __init__(self, base_url: str):
         self.base_url = base_url
         self.results = []
-    
+
     async def test_endpoint(
-        self, 
-        endpoint: str, 
+        self,
+        endpoint: str,
         method: str = "GET",
         payload: dict = None,
         concurrent_requests: int = 10,
@@ -1573,9 +1594,9 @@ class PerformanceAnalyzer:
         """
         print(f"\n🔍 Testing {method} {endpoint}")
         print(f"   Concurrent: {concurrent_requests}, Total: {total_requests}")
-        
+
         semaphore = asyncio.Semaphore(concurrent_requests)
-        
+
         async def single_request(session):
             async with semaphore:
                 start_time = time.time()
@@ -1590,7 +1611,7 @@ class PerformanceAnalyzer:
                             }
                     elif method == "POST":
                         async with session.post(
-                            f"{self.base_url}{endpoint}", 
+                            f"{self.base_url}{endpoint}",
                             json=payload
                         ) as response:
                             response_time = time.time() - start_time
@@ -1607,16 +1628,16 @@ class PerformanceAnalyzer:
                         "success": False,
                         "error": str(e)
                     }
-        
+
         # Executar requests
         async with aiohttp.ClientSession() as session:
             tasks = [single_request(session) for _ in range(total_requests)]
             results = await asyncio.gather(*tasks)
-        
+
         # Analisar resultados
         response_times = [r["response_time"] for r in results]
         success_count = sum(1 for r in results if r["success"])
-        
+
         analysis = {
             "endpoint": endpoint,
             "method": method,
@@ -1633,12 +1654,12 @@ class PerformanceAnalyzer:
             },
             "requests_per_second": total_requests / max(response_times) * 1000
         }
-        
+
         self.results.append(analysis)
         self._print_analysis(analysis)
-        
+
         return analysis
-    
+
     def _print_analysis(self, analysis):
         """
         Imprimir análise formatada
@@ -1655,7 +1676,7 @@ async def run_performance_tests():
     Executar suite completa de testes de performance
     """
     analyzer = PerformanceAnalyzer("https://api.whatsappagent.com")
-    
+
     # Testes de endpoints críticos
     tests = [
         {"endpoint": "/health", "method": "GET", "concurrent": 20, "total": 200},
@@ -1663,16 +1684,16 @@ async def run_performance_tests():
         {"endpoint": "/auth/login", "method": "POST", "payload": {"username": "test", "password": "test"}},
         {"endpoint": "/analytics/dashboard", "method": "GET", "concurrent": 5, "total": 50}
     ]
-    
+
     print("🚀 Starting Performance Test Suite")
     print("=" * 50)
-    
+
     for test in tests:
         await analyzer.test_endpoint(**test)
-    
+
     print("\n📈 Performance Test Summary")
     print("=" * 50)
-    
+
     for result in analyzer.results:
         print(f"{result['method']} {result['endpoint']}: {result['response_times']['mean']:.1f}ms avg")
 
@@ -1685,12 +1706,14 @@ if __name__ == "__main__":
 ## 📞 **SUPORTE E OTIMIZAÇÃO CONTÍNUA**
 
 ### **Monitoramento Contínuo**
+
 - 📊 **Grafana Dashboard**: Métricas em tempo real
 - 🔔 **Alertas Automáticos**: Degradação de performance
 - 📈 **Trending Analysis**: Identificação de padrões
 - 🔍 **APM Integration**: Application Performance Monitoring
 
 ### **Roadmap de Otimização**
+
 - ⚡ **Database Sharding**: Para escala horizontal
 - 🚀 **CDN Integration**: Cache de assets estáticos
 - 🔄 **Background Jobs**: Processamento assíncrono

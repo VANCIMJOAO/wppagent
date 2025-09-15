@@ -4,11 +4,11 @@ import React from 'react'
 import { useOfflineData } from '@/lib/offline-storage'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  Wifi, 
-  WifiOff, 
-  RefreshCw, 
-  Database, 
+import {
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  Database,
   Clock,
   CheckCircle,
   AlertCircle
@@ -49,8 +49,8 @@ export function OfflineIndicator({ className = '', showDetails = false }: Offlin
     return (
       <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${className}`}>
         <div className={`px-4 py-2 text-center text-sm font-medium ${
-          isOnline 
-            ? 'bg-green-500 text-white' 
+          isOnline
+            ? 'bg-green-500 text-white'
             : 'bg-red-500 text-white'
         }`}>
           <div className="flex items-center justify-center gap-2">
@@ -59,7 +59,7 @@ export function OfflineIndicator({ className = '', showDetails = false }: Offlin
             ) : (
               <WifiOff className="h-4 w-4" />
             )}
-            
+
             {isOnline ? (
               pendingActions > 0 ? (
                 <>
@@ -101,7 +101,7 @@ export function OfflineIndicator({ className = '', showDetails = false }: Offlin
             Status da Conexão
           </h3>
         </div>
-        
+
         <Badge variant={isOnline ? 'default' : 'destructive'}>
           {isOnline ? 'Online' : 'Offline'}
         </Badge>
@@ -116,8 +116,8 @@ export function OfflineIndicator({ className = '', showDetails = false }: Offlin
             <AlertCircle className="h-4 w-4 text-red-500" />
           )}
           <span>
-            {isOnline 
-              ? 'Conectado à internet - Dados em tempo real' 
+            {isOnline
+              ? 'Conectado à internet - Dados em tempo real'
               : 'Sem conexão - Funcionando com dados locais'
             }
           </span>
@@ -136,7 +136,7 @@ export function OfflineIndicator({ className = '', showDetails = false }: Offlin
           <div className="flex items-center gap-2 text-sm text-orange-600">
             <Clock className="h-4 w-4" />
             <span>
-              {pendingActions} {pendingActions === 1 ? 'ação pendente' : 'ações pendentes'} 
+              {pendingActions} {pendingActions === 1 ? 'ação pendente' : 'ações pendentes'}
               {isOnline && (
                 <span className="ml-1">
                   <RefreshCw className="inline h-3 w-3 animate-spin ml-1" />
@@ -158,7 +158,7 @@ export function OfflineIndicator({ className = '', showDetails = false }: Offlin
             <RefreshCw className="h-3 w-3" />
             Atualizar
           </Button>
-          
+
           {(hasOfflineData || pendingActions > 0) && (
             <Button
               size="sm"
@@ -197,9 +197,9 @@ export function useNetworkStatus() {
 // Componente para mostrar status de sync
 export function SyncStatus({ className = '' }: { className?: string }) {
   const { isOnline, pendingActions } = useOfflineData()
-  
+
   if (!isOnline || pendingActions === 0) return null
-  
+
   return (
     <div className={`flex items-center gap-2 text-sm text-blue-600 ${className}`}>
       <RefreshCw className="h-4 w-4 animate-spin" />

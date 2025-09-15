@@ -12,12 +12,12 @@ const conversationsApi = {
     user_id?: number
   }): Promise<{ conversations: Conversation[]; total: number; page: number; per_page: number; has_more: boolean }> {
     const params = new URLSearchParams()
-    
+
     if (filters.limit) params.append('limit', filters.limit.toString())
     if (filters.page) params.append('page', filters.page.toString())
     if (filters.status) params.append('status', filters.status)
     if (filters.user_id) params.append('user_id', filters.user_id.toString())
-    
+
     const response = await fetch(`/api/conversations?${params}`, {
       method: 'GET',
       headers: {
@@ -25,11 +25,11 @@ const conversationsApi = {
         'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao buscar conversas: ${response.statusText}`)
     }
-    
+
     return response.json()
   },
 
@@ -41,11 +41,11 @@ const conversationsApi = {
         'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao buscar conversa: ${response.statusText}`)
     }
-    
+
     return response.json()
   },
 
@@ -54,10 +54,10 @@ const conversationsApi = {
     page?: number
   } = {}): Promise<{ messages: Message[]; total: number; page: number; per_page: number; has_more: boolean }> {
     const params = new URLSearchParams()
-    
+
     if (filters.limit) params.append('limit', filters.limit.toString())
     if (filters.page) params.append('page', filters.page.toString())
-    
+
     const response = await fetch(`/api/conversations/${conversationId}/messages?${params}`, {
       method: 'GET',
       headers: {
@@ -65,11 +65,11 @@ const conversationsApi = {
         'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao buscar mensagens: ${response.statusText}`)
     }
-    
+
     return response.json()
   },
 
@@ -82,12 +82,12 @@ const conversationsApi = {
       },
       body: JSON.stringify(data)
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(errorData.detail || `Erro ao enviar mensagem: ${response.statusText}`)
     }
-    
+
     return response.json()
   }
 }
@@ -142,24 +142,24 @@ export function useMessages(conversationId: number, filters: {
 
 export function useSendMessage() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: ({ conversationId, data }: { 
+    mutationFn: ({ conversationId, data }: {
       conversationId: number
       data: { content: string; message_type?: string }
     }) => conversationsApi.sendMessage(conversationId, data),
-    
+
     onMutate: async ({ conversationId, data }) => {
       // Cancelar queries de mensagens em andamento
-      await queryClient.cancelQueries({ 
-        queryKey: queryKeys.conversations.messages(conversationId) 
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.conversations.messages(conversationId)
       })
-      
+
       // Snapshot dos dados anteriores
       const previousMessages = queryClient.getQueryData(
         queryKeys.conversations.messages(conversationId)
       )
-      
+
       // Optimistic update - adicionar mensagem temporária
       const tempMessage = {
         id: Date.now(), // ID temporário
@@ -172,7 +172,7 @@ export function useSendMessage() {
         whatsapp_id: undefined,
         sender_type: 'admin',
       } as Message
-      
+
       queryClient.setQueryData(
         queryKeys.conversations.messages(conversationId),
         (old: any) => {
@@ -184,35 +184,35 @@ export function useSendMessage() {
           }
         }
       )
-      
+
       return { previousMessages, conversationId, tempMessage }
     },
-    
+
     onSuccess: (newMessage, variables, context) => {
       // Atualizar com a mensagem real do servidor
       queryClient.setQueryData(
         queryKeys.conversations.messages(variables.conversationId),
         (old: any) => {
           if (!old) return { messages: [newMessage], total: 1 }
-          
+
           // Substituir mensagem temporária pela real
-          const updatedMessages = old.messages.map((msg: Message) => 
+          const updatedMessages = old.messages.map((msg: Message) =>
             msg.id === context?.tempMessage.id ? newMessage : msg
           )
-          
+
           return {
             ...old,
             messages: updatedMessages
           }
         }
       )
-      
+
       // Invalidar lista de conversas para atualizar última mensagem
       queryClient.invalidateQueries({ queryKey: queryKeys.conversations.lists() })
-      
+
       toast.success('Mensagem enviada!')
     },
-    
+
     onError: (error: any, variables, context) => {
       // Reverter optimistic update
       if (context?.previousMessages) {
@@ -221,15 +221,15 @@ export function useSendMessage() {
           context.previousMessages
         )
       }
-      
+
       console.error('Erro ao enviar mensagem:', error)
       toast.error(error.message || 'Erro ao enviar mensagem')
     },
-    
+
     onSettled: (data, error, variables) => {
       // Sempre refetch após operação
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.conversations.messages(variables.conversationId) 
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.conversations.messages(variables.conversationId)
       })
     }
   })
@@ -238,9 +238,9 @@ export function useSendMessage() {
 // Hook para marcar mensagens como lidas
 export function useMarkAsRead() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: async ({ conversationId, messageIds }: { 
+    mutationFn: async ({ conversationId, messageIds }: {
       conversationId: number
       messageIds: number[]
     }) => {
@@ -252,36 +252,36 @@ export function useMarkAsRead() {
         },
         body: JSON.stringify({ message_ids: messageIds })
       })
-      
+
       if (!response.ok) {
         throw new Error('Erro ao marcar mensagens como lidas')
       }
-      
+
       return response.json()
     },
-    
+
     onSuccess: (data, variables) => {
       // Atualizar status das mensagens
       queryClient.setQueryData(
         queryKeys.conversations.messages(variables.conversationId),
         (old: any) => {
           if (!old) return old
-          
+
           return {
             ...old,
-            messages: old.messages.map((msg: Message) => 
-              variables.messageIds.includes(msg.id) 
+            messages: old.messages.map((msg: Message) =>
+              variables.messageIds.includes(msg.id)
                 ? { ...msg, status: 'read' }
                 : msg
             )
           }
         }
       )
-      
+
       // Invalidar lista de conversas para atualizar contadores
       queryClient.invalidateQueries({ queryKey: queryKeys.conversations.lists() })
     },
-    
+
     onError: (error: any) => {
       console.error('Erro ao marcar como lida:', error)
       toast.error('Erro ao marcar mensagens como lidas')
@@ -292,11 +292,11 @@ export function useMarkAsRead() {
 // Hook para invalidação manual de conversas
 export function useInvalidateConversations() {
   const queryClient = useQueryClient()
-  
+
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all }),
     invalidateLists: () => queryClient.invalidateQueries({ queryKey: queryKeys.conversations.lists() }),
-    invalidateMessages: (conversationId: number) => 
+    invalidateMessages: (conversationId: number) =>
       queryClient.invalidateQueries({ queryKey: queryKeys.conversations.messages(conversationId) }),
   }
 }

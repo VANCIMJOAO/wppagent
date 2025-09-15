@@ -9,6 +9,7 @@
 ### **Arquitetura de Segurança** 🏗️
 
 #### **Camadas de Proteção**
+
 1. **🌐 Infraestrutura**: HTTPS, firewall, VPN
 2. **🔐 Autenticação**: JWT, 2FA, HttpOnly cookies
 3. **🛡️ Autorização**: RBAC, permissões granulares
@@ -16,6 +17,7 @@
 5. **🔒 Dados**: Criptografia, backup seguro
 
 #### **Princípios de Segurança**
+
 - **Zero Trust**: Nunca confie, sempre verifique
 - **Defesa em Profundidade**: Múltiplas camadas de proteção
 - **Princípio do Menor Privilégio**: Acesso mínimo necessário
@@ -28,6 +30,7 @@
 ### **Sistema JWT com HttpOnly Cookies**
 
 #### **Implementação de Cookies Seguros**
+
 ```python
 # app/auth/jwt_manager.py
 from fastapi import Response
@@ -52,8 +55,8 @@ def set_auth_cookies(response: Response, tokens: dict):
         **COOKIE_CONFIG,
         max_age=3600  # 1 hora
     )
-    
-    # Refresh token (longa duração) 
+
+    # Refresh token (longa duração)
     response.set_cookie(
         key="refresh_token",
         value=tokens["refresh_token"],
@@ -70,6 +73,7 @@ def clear_auth_cookies(response: Response):
 ```
 
 #### **Validação de Token Robusta**
+
 ```python
 # app/auth/middleware.py
 import jwt
@@ -92,21 +96,21 @@ async def validate_token(token: str) -> dict:
                 "verify_nbf": True
             }
         )
-        
+
         # Verificar blacklist de tokens
         if await is_token_blacklisted(token):
             raise HTTPException(401, "Token foi revogado")
-        
+
         # Verificar se usuário ainda está ativo
         user = await get_user_by_id(payload["sub"])
         if not user or not user.is_active:
             raise HTTPException(401, "Usuário inativo")
-        
+
         # Log de acesso para auditoria
         await log_token_access(user.id, payload)
-        
+
         return payload
-        
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(401, "Token expirado")
     except jwt.InvalidTokenError:
@@ -116,6 +120,7 @@ async def validate_token(token: str) -> dict:
 ### **Autenticação de Dois Fatores (2FA)**
 
 #### **TOTP (Time-based One-Time Password)**
+
 ```python
 # app/auth/two_factor.py
 import pyotp
@@ -127,12 +132,12 @@ class TwoFactorAuth:
     """
     Sistema de autenticação de dois fatores com TOTP
     """
-    
+
     @staticmethod
     def generate_secret() -> str:
         """Gerar chave secreta para 2FA"""
         return pyotp.random_base32()
-    
+
     @staticmethod
     def generate_qr_code(user_email: str, secret: str) -> str:
         """
@@ -142,17 +147,17 @@ class TwoFactorAuth:
             name=user_email,
             issuer_name="WhatsApp Agent"
         )
-        
+
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
         qr.add_data(totp_uri)
         qr.make(fit=True)
-        
+
         img = qr.make_image(fill_color="black", back_color="white")
         buffer = BytesIO()
         img.save(buffer, format='PNG')
-        
+
         return base64.b64encode(buffer.getvalue()).decode()
-    
+
     @staticmethod
     def verify_code(secret: str, code: str) -> bool:
         """
@@ -160,7 +165,7 @@ class TwoFactorAuth:
         """
         totp = pyotp.TOTP(secret)
         return totp.verify(code, valid_window=1)  # Permite 30s de tolerância
-    
+
     @staticmethod
     def generate_backup_codes() -> list:
         """
@@ -171,6 +176,7 @@ class TwoFactorAuth:
 ```
 
 #### **Configuração 2FA no Endpoint**
+
 ```python
 # app/routes/auth.py
 @router.post("/2fa/setup")
@@ -184,10 +190,10 @@ async def setup_2fa(
     # Gerar chave secreta
     secret = TwoFactorAuth.generate_secret()
     backup_codes = TwoFactorAuth.generate_backup_codes()
-    
+
     # Gerar QR code
     qr_code = TwoFactorAuth.generate_qr_code(current_user.email, secret)
-    
+
     # Salvar no banco (temporário, aguardando confirmação)
     await db.execute(
         update(User)
@@ -198,7 +204,7 @@ async def setup_2fa(
         )
     )
     await db.commit()
-    
+
     return {
         "secret": secret,
         "qr_code": qr_code,
@@ -217,11 +223,11 @@ async def verify_2fa_setup(
     """
     if not current_user.two_factor_secret_temp:
         raise HTTPException(400, "Configuração 2FA não iniciada")
-    
+
     # Verificar código
     if not TwoFactorAuth.verify_code(current_user.two_factor_secret_temp, request.code):
         raise HTTPException(400, "Código 2FA inválido")
-    
+
     # Ativar 2FA definitivamente
     await db.execute(
         update(User)
@@ -233,14 +239,14 @@ async def verify_2fa_setup(
         )
     )
     await db.commit()
-    
+
     # Log de segurança
     await log_security_event(
         user_id=current_user.id,
         event_type="2fa_enabled",
         metadata={"method": "totp"}
     )
-    
+
     return {"message": "2FA ativado com sucesso"}
 ```
 
@@ -251,6 +257,7 @@ async def verify_2fa_setup(
 ### **Sistema de Roles e Permissões**
 
 #### **Modelo de Dados RBAC**
+
 ```python
 # app/models/rbac.py
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Table
@@ -265,7 +272,7 @@ user_roles = Table(
 )
 
 role_permissions = Table(
-    'role_permissions', 
+    'role_permissions',
     Base.metadata,
     Column('role_id', Integer, ForeignKey('roles.id')),
     Column('permission_id', Integer, ForeignKey('permissions.id'))
@@ -273,33 +280,34 @@ role_permissions = Table(
 
 class Permission(Base):
     __tablename__ = "permissions"
-    
+
     id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True, nullable=False)
     description = Column(String(255))
     resource = Column(String(100), nullable=False)  # appointments, users, analytics
     action = Column(String(50), nullable=False)     # create, read, update, delete
-    
+
 class Role(Base):
     __tablename__ = "roles"
-    
+
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True, nullable=False)
     description = Column(String(255))
     is_default = Column(Boolean, default=False)
-    
+
     permissions = relationship("Permission", secondary=role_permissions, back_populates="roles")
     users = relationship("User", secondary=user_roles, back_populates="roles")
 
 class User(Base):
     # ... campos existentes ...
-    
+
     roles = relationship("Role", secondary=user_roles, back_populates="users")
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
 ```
 
 #### **Decoradores de Autorização**
+
 ```python
 # app/auth/rbac_decorators.py
 from functools import wraps
@@ -314,17 +322,17 @@ def require_permission(resource: str, action: str):
         async def wrapper(*args, **kwargs):
             # Extrair usuário atual dos argumentos
             current_user = kwargs.get('current_user') or args[-1]
-            
+
             if not current_user:
                 raise HTTPException(401, "Usuário não autenticado")
-            
+
             # Verificar se usuário tem permissão
             if not await has_permission(current_user, resource, action):
                 raise HTTPException(
-                    403, 
+                    403,
                     f"Permissão negada: {action} em {resource}"
                 )
-            
+
             return await func(*args, **kwargs)
         return wrapper
     return decorator
@@ -337,17 +345,17 @@ def require_role(role_name: str):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             current_user = kwargs.get('current_user') or args[-1]
-            
+
             if not current_user:
                 raise HTTPException(401, "Usuário não autenticado")
-            
+
             user_roles = [role.name for role in current_user.roles]
             if role_name not in user_roles and not current_user.is_admin:
                 raise HTTPException(
                     403,
                     f"Role necessária: {role_name}"
                 )
-            
+
             return await func(*args, **kwargs)
         return wrapper
     return decorator
@@ -359,18 +367,19 @@ async def has_permission(user: User, resource: str, action: str) -> bool:
     # Admin tem todas as permissões
     if user.is_admin:
         return True
-    
+
     # Verificar permissões através das roles
     for role in user.roles:
         for permission in role.permissions:
-            if (permission.resource == resource and 
+            if (permission.resource == resource and
                 permission.action == action):
                 return True
-    
+
     return False
 ```
 
 #### **Uso em Endpoints**
+
 ```python
 # app/routes/appointments.py
 @router.post("/")
@@ -386,7 +395,7 @@ async def create_appointment(
     # Verificar se pode agendar para este business
     if not await can_access_business(current_user, request.business_id):
         raise HTTPException(403, "Acesso negado ao business")
-    
+
     # ... lógica de criação ...
 
 @router.get("/analytics")
@@ -407,6 +416,7 @@ async def get_analytics(
 ### **Criptografia de Dados Sensíveis**
 
 #### **Criptografia de Campos no Banco**
+
 ```python
 # app/utils/encryption.py
 from cryptography.fernet import Fernet
@@ -417,18 +427,18 @@ class FieldEncryption:
     """
     Sistema de criptografia para campos sensíveis
     """
-    
+
     def __init__(self):
         # Chave de criptografia do .env
         key = base64.urlsafe_b64decode(settings.ENCRYPTION_KEY)
         self.cipher = Fernet(key)
-    
+
     def encrypt(self, data: str) -> str:
         """Criptografar dados"""
         if not data:
             return data
         return self.cipher.encrypt(data.encode()).decode()
-    
+
     def decrypt(self, encrypted_data: str) -> str:
         """Descriptografar dados"""
         if not encrypted_data:
@@ -438,18 +448,18 @@ class FieldEncryption:
 # Usar em modelos sensíveis
 class User(Base):
     __tablename__ = "users"
-    
+
     # ... outros campos ...
-    
+
     _phone_encrypted = Column("phone", String(255))
     _document_encrypted = Column("document", String(255))
-    
+
     @hybrid_property
     def phone(self):
         if self._phone_encrypted:
             return field_encryption.decrypt(self._phone_encrypted)
         return None
-    
+
     @phone.setter
     def phone(self, value):
         if value:
@@ -459,6 +469,7 @@ class User(Base):
 ```
 
 #### **Hashing de Senhas**
+
 ```python
 # app/auth/password_manager.py
 import bcrypt
@@ -471,21 +482,21 @@ class PasswordManager:
     """
     Gerenciamento seguro de senhas
     """
-    
+
     @staticmethod
     def hash_password(password: str) -> str:
         """
         Hash seguro da senha com salt aleatório
         """
         return pwd_context.hash(password)
-    
+
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         """
         Verificar senha contra hash
         """
         return pwd_context.verify(plain_password, hashed_password)
-    
+
     @staticmethod
     def generate_secure_password(length: int = 16) -> str:
         """
@@ -494,14 +505,14 @@ class PasswordManager:
         import string
         alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
         return ''.join(secrets.choice(alphabet) for _ in range(length))
-    
+
     @staticmethod
     def check_password_strength(password: str) -> dict:
         """
         Verificar força da senha
         """
         import re
-        
+
         strength = {
             "length": len(password) >= 8,
             "uppercase": bool(re.search(r'[A-Z]', password)),
@@ -512,9 +523,9 @@ class PasswordManager:
                 'password', '123456', 'admin', 'user', 'root'
             ]
         }
-        
+
         score = sum(strength.values())
-        
+
         return {
             "score": score,
             "level": "weak" if score < 4 else "medium" if score < 6 else "strong",
@@ -525,6 +536,7 @@ class PasswordManager:
 ### **Proteção contra Ataques**
 
 #### **Rate Limiting Avançado**
+
 ```python
 # app/middleware/rate_limiting.py
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -538,10 +550,10 @@ class AdvancedRateLimiter:
     """
     Sistema avançado de rate limiting com diferentes níveis
     """
-    
+
     def __init__(self):
         self.redis = redis.from_url(settings.REDIS_URL)
-    
+
     async def check_rate_limit(
         self,
         identifier: str,
@@ -553,33 +565,33 @@ class AdvancedRateLimiter:
         Verificar rate limit personalizado
         """
         key = f"rate_limit:{action}:{identifier}"
-        
+
         # Usar sliding window
         now = time.time()
         pipeline = self.redis.pipeline()
-        
+
         # Remover requests antigas
         pipeline.zremrangebyscore(key, 0, now - window)
-        
+
         # Contar requests atuais
         pipeline.zcard(key)
-        
+
         # Adicionar request atual
         pipeline.zadd(key, {str(uuid.uuid4()): now})
-        
+
         # Definir expiração
         pipeline.expire(key, window)
-        
+
         results = await pipeline.execute()
         current_requests = results[1]
-        
+
         if current_requests >= limit:
             # Log tentativa de rate limit
             await self.log_rate_limit_violation(identifier, action)
             return False
-        
+
         return True
-    
+
     async def log_rate_limit_violation(self, identifier: str, action: str):
         """
         Log violações de rate limit para análise
@@ -604,28 +616,29 @@ def rate_limit_by_user(limit: str):
                 # Fallback para IP
                 request = kwargs.get('request')
                 identifier = f"ip:{get_remote_address(request)}"
-            
+
             # Parse limit (ex: "100/hour")
             rate, period = limit.split("/")
             rate = int(rate)
-            
+
             window_map = {
                 "minute": 60,
                 "hour": 3600,
                 "day": 86400
             }
             window = window_map.get(period, 60)
-            
+
             rate_limiter = AdvancedRateLimiter()
             if not await rate_limiter.check_rate_limit(identifier, rate, window):
                 raise HTTPException(429, "Rate limit exceeded")
-            
+
             return await func(*args, **kwargs)
         return wrapper
     return decorator
 ```
 
 #### **Proteção CSRF**
+
 ```python
 # app/middleware/csrf_protection.py
 import hmac
@@ -637,25 +650,25 @@ class CSRFProtection:
     """
     Proteção contra ataques CSRF
     """
-    
+
     def __init__(self, secret_key: str):
         self.secret_key = secret_key
-        
+
     def generate_token(self, session_id: str) -> str:
         """
         Gerar token CSRF para sessão
         """
         timestamp = str(int(datetime.utcnow().timestamp()))
         data = f"{session_id}:{timestamp}"
-        
+
         signature = hmac.new(
             self.secret_key.encode(),
             data.encode(),
             hashlib.sha256
         ).hexdigest()
-        
+
         return f"{data}:{signature}"
-    
+
     def validate_token(self, token: str, session_id: str, max_age: int = 3600) -> bool:
         """
         Validar token CSRF
@@ -664,18 +677,18 @@ class CSRFProtection:
             parts = token.split(":")
             if len(parts) != 3:
                 return False
-            
+
             token_session, timestamp, signature = parts
-            
+
             # Verificar se é para a sessão correta
             if token_session != session_id:
                 return False
-            
+
             # Verificar idade do token
             token_time = datetime.fromtimestamp(int(timestamp))
             if datetime.utcnow() - token_time > timedelta(seconds=max_age):
                 return False
-            
+
             # Verificar assinatura
             data = f"{token_session}:{timestamp}"
             expected_signature = hmac.new(
@@ -683,9 +696,9 @@ class CSRFProtection:
                 data.encode(),
                 hashlib.sha256
             ).hexdigest()
-            
+
             return hmac.compare_digest(signature, expected_signature)
-            
+
         except (ValueError, TypeError):
             return False
 
@@ -697,28 +710,28 @@ async def csrf_middleware(request: Request, call_next):
     """
     # Apenas para métodos que modificam dados
     if request.method in ["POST", "PUT", "PATCH", "DELETE"]:
-        
+
         # Pular rotas que não precisam de CSRF (APIs com auth token)
         if request.url.path.startswith("/api/v1/"):
             return await call_next(request)
-        
+
         # Verificar token CSRF
         csrf_token = request.headers.get("X-CSRF-Token")
         session_id = request.cookies.get("session_id")
-        
+
         if not csrf_token or not session_id:
             return JSONResponse(
                 status_code=403,
                 content={"error": "CSRF token missing"}
             )
-        
+
         csrf_protection = CSRFProtection(settings.SECRET_KEY)
         if not csrf_protection.validate_token(csrf_token, session_id):
             return JSONResponse(
                 status_code=403,
                 content={"error": "Invalid CSRF token"}
             )
-    
+
     return await call_next(request)
 ```
 
@@ -729,6 +742,7 @@ async def csrf_middleware(request: Request, call_next):
 ### **Sistema de Logs Estruturados**
 
 #### **Logger de Segurança**
+
 ```python
 # app/utils/security_logger.py
 import json
@@ -739,7 +753,7 @@ class SecurityLogger:
     """
     Logger especializado para eventos de segurança
     """
-    
+
     @staticmethod
     async def log_authentication_event(
         user_id: Optional[int],
@@ -762,12 +776,12 @@ class SecurityLogger:
             "user_agent": user_agent,
             "metadata": metadata or {}
         }
-        
+
         logger.info(json.dumps(event))
-        
+
         # Salvar também no banco para consultas
         await save_security_event(event)
-    
+
     @staticmethod
     async def log_authorization_event(
         user_id: int,
@@ -788,10 +802,10 @@ class SecurityLogger:
             "allowed": allowed,
             "reason": reason
         }
-        
+
         logger.info(json.dumps(event))
         await save_security_event(event)
-    
+
     @staticmethod
     async def log_data_access(
         user_id: int,
@@ -812,7 +826,7 @@ class SecurityLogger:
             "operation": operation,
             "sensitive_fields": sensitive_fields or []
         }
-        
+
         logger.info(json.dumps(event))
         await save_security_event(event)
 
@@ -826,10 +840,10 @@ def audit_data_access(table_name: str, operation: str):
         async def wrapper(*args, **kwargs):
             # Extrair informações do contexto
             current_user = kwargs.get('current_user')
-            
+
             # Executar função original
             result = await func(*args, **kwargs)
-            
+
             # Log do acesso
             if current_user:
                 await SecurityLogger.log_data_access(
@@ -838,13 +852,14 @@ def audit_data_access(table_name: str, operation: str):
                     operation=operation,
                     record_id=getattr(result, 'id', None) if hasattr(result, 'id') else None
                 )
-            
+
             return result
         return wrapper
     return decorator
 ```
 
 #### **Monitoramento de Tentativas de Invasão**
+
 ```python
 # app/security/intrusion_detection.py
 from collections import defaultdict
@@ -854,45 +869,45 @@ class IntrusionDetection:
     """
     Sistema de detecção de tentativas de invasão
     """
-    
+
     def __init__(self):
         self.failed_attempts = defaultdict(list)
         self.blocked_ips = set()
-    
+
     async def record_failed_login(self, ip_address: str, username: str):
         """
         Registrar tentativa de login falhada
         """
         now = datetime.utcnow()
-        
+
         # Limpar tentativas antigas (últimas 24h)
         cutoff = now - timedelta(hours=24)
         self.failed_attempts[ip_address] = [
             attempt for attempt in self.failed_attempts[ip_address]
             if attempt['timestamp'] > cutoff
         ]
-        
+
         # Adicionar nova tentativa
         self.failed_attempts[ip_address].append({
             'timestamp': now,
             'username': username
         })
-        
+
         # Verificar se deve bloquear IP
         recent_failures = len([
             attempt for attempt in self.failed_attempts[ip_address]
             if attempt['timestamp'] > now - timedelta(minutes=15)
         ])
-        
+
         if recent_failures >= 5:  # 5 tentativas em 15 minutos
             await self.block_ip(ip_address, reason="multiple_failed_logins")
-    
+
     async def block_ip(self, ip_address: str, reason: str, duration_hours: int = 24):
         """
         Bloquear IP suspeito
         """
         self.blocked_ips.add(ip_address)
-        
+
         # Log do bloqueio
         await SecurityLogger.log_security_event(
             event_type="ip_blocked",
@@ -900,7 +915,7 @@ class IntrusionDetection:
             reason=reason,
             duration_hours=duration_hours
         )
-        
+
         # Enviar alerta para admins
         await send_security_alert(
             level="high",
@@ -911,7 +926,7 @@ class IntrusionDetection:
                 "failed_attempts": len(self.failed_attempts[ip_address])
             }
         )
-    
+
     def is_ip_blocked(self, ip_address: str) -> bool:
         """
         Verificar se IP está bloqueado
@@ -925,7 +940,7 @@ async def intrusion_protection_middleware(request: Request, call_next):
     Middleware de proteção contra intrusões
     """
     ip_address = get_client_ip(request)
-    
+
     # Verificar se IP está bloqueado
     intrusion_detector = IntrusionDetection()
     if intrusion_detector.is_ip_blocked(ip_address):
@@ -934,18 +949,19 @@ async def intrusion_protection_middleware(request: Request, call_next):
             ip_address=ip_address,
             path=request.url.path
         )
-        
+
         return JSONResponse(
             status_code=403,
             content={"error": "Access denied"}
         )
-    
+
     return await call_next(request)
 ```
 
 ### **Relatórios de Segurança**
 
 #### **Dashboard de Segurança**
+
 ```python
 # app/routes/security_dashboard.py
 @router.get("/security/dashboard")
@@ -959,39 +975,39 @@ async def security_dashboard(
     Dashboard de segurança para admins
     """
     cutoff = datetime.utcnow() - timedelta(days=period_days)
-    
+
     # Estatísticas de autenticação
     auth_stats = await db.execute(text("""
-        SELECT 
+        SELECT
             event_type,
             success,
             COUNT(*) as count
-        FROM security_events 
-        WHERE category = 'authentication' 
+        FROM security_events
+        WHERE category = 'authentication'
           AND timestamp >= :cutoff
         GROUP BY event_type, success
     """), {"cutoff": cutoff})
-    
+
     # Top IPs com mais tentativas falhadas
     failed_ips = await db.execute(text("""
-        SELECT 
+        SELECT
             ip_address,
             COUNT(*) as failed_attempts
-        FROM security_events 
-        WHERE category = 'authentication' 
+        FROM security_events
+        WHERE category = 'authentication'
           AND success = false
           AND timestamp >= :cutoff
         GROUP BY ip_address
         ORDER BY failed_attempts DESC
         LIMIT 10
     """), {"cutoff": cutoff})
-    
+
     # Usuários com mais atividade suspeita
     suspicious_users = await db.execute(text("""
-        SELECT 
+        SELECT
             user_id,
             COUNT(*) as events
-        FROM security_events 
+        FROM security_events
         WHERE (category = 'authorization' AND allowed = false)
            OR (category = 'authentication' AND success = false)
            AND timestamp >= :cutoff
@@ -999,7 +1015,7 @@ async def security_dashboard(
         ORDER BY events DESC
         LIMIT 10
     """), {"cutoff": cutoff})
-    
+
     return {
         "period_days": period_days,
         "authentication_stats": [dict(row) for row in auth_stats],
@@ -1017,6 +1033,7 @@ async def security_dashboard(
 ### **Sistema de Alertas de Segurança**
 
 #### **Configuração de Alertas**
+
 ```python
 # app/security/alerts.py
 from enum import Enum
@@ -1032,7 +1049,7 @@ class SecurityAlerts:
     """
     Sistema de alertas de segurança
     """
-    
+
     ALERT_RULES = {
         "multiple_failed_logins": {
             "threshold": 5,
@@ -1055,7 +1072,7 @@ class SecurityAlerts:
             "level": AlertLevel.CRITICAL
         }
     }
-    
+
     @classmethod
     async def check_alert_conditions(cls, event: Dict[str, Any]):
         """
@@ -1064,12 +1081,12 @@ class SecurityAlerts:
         for rule_name, rule_config in cls.ALERT_RULES.items():
             if await cls._should_trigger_alert(event, rule_name, rule_config):
                 await cls._send_alert(rule_name, rule_config, event)
-    
+
     @classmethod
     async def _should_trigger_alert(
-        cls, 
-        event: Dict[str, Any], 
-        rule_name: str, 
+        cls,
+        event: Dict[str, Any],
+        rule_name: str,
         rule_config: Dict[str, Any]
     ) -> bool:
         """
@@ -1086,15 +1103,15 @@ class SecurityAlerts:
                     rule_config["window_minutes"]
                 ) >= rule_config["threshold"]
             )
-        
+
         # Adicionar outras regras conforme necessário
         return False
-    
+
     @classmethod
     async def _send_alert(
-        cls, 
-        rule_name: str, 
-        rule_config: Dict[str, Any], 
+        cls,
+        rule_name: str,
+        rule_config: Dict[str, Any],
         event: Dict[str, Any]
     ):
         """
@@ -1108,18 +1125,18 @@ class SecurityAlerts:
             "event": event,
             "message": cls._generate_alert_message(rule_name, event)
         }
-        
+
         # Enviar por diferentes canais baseado no nível
         if rule_config["level"] in [AlertLevel.HIGH, AlertLevel.CRITICAL]:
             await cls._send_email_alert(alert)
             await cls._send_slack_alert(alert)
-        
+
         if rule_config["level"] == AlertLevel.CRITICAL:
             await cls._send_sms_alert(alert)
-        
+
         # Sempre salvar no banco
         await cls._save_alert(alert)
-    
+
     @staticmethod
     async def _send_email_alert(alert: Dict[str, Any]):
         """
@@ -1127,7 +1144,7 @@ class SecurityAlerts:
         """
         # Implementar envio de email
         pass
-    
+
     @staticmethod
     async def _send_slack_alert(alert: Dict[str, Any]):
         """
@@ -1144,11 +1161,12 @@ class SecurityAlerts:
 ### **LGPD (Lei Geral de Proteção de Dados)**
 
 #### **Gestão de Consentimento**
+
 ```python
 # app/models/consent.py
 class DataConsent(Base):
     __tablename__ = "data_consents"
-    
+
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     consent_type = Column(String(100))  # marketing, analytics, etc.
@@ -1157,7 +1175,7 @@ class DataConsent(Base):
     revoked_at = Column(DateTime, nullable=True)
     ip_address = Column(String(45))
     user_agent = Column(Text)
-    
+
     user = relationship("User", back_populates="consents")
 
 # Serviço de consentimento
@@ -1165,7 +1183,7 @@ class ConsentService:
     """
     Gerenciamento de consentimento LGPD
     """
-    
+
     @staticmethod
     async def grant_consent(
         user_id: int,
@@ -1185,10 +1203,10 @@ class ConsentService:
             ip_address=ip_address,
             user_agent=user_agent
         )
-        
+
         db.add(consent)
         await db.commit()
-        
+
         # Log para auditoria
         await SecurityLogger.log_data_access(
             user_id=user_id,
@@ -1196,7 +1214,7 @@ class ConsentService:
             operation="insert",
             sensitive_fields=["consent_type", "granted"]
         )
-    
+
     @staticmethod
     async def revoke_consent(
         user_id: int,
@@ -1225,13 +1243,14 @@ class ConsentService:
 ```
 
 #### **Direito ao Esquecimento**
+
 ```python
 # app/services/data_deletion.py
 class DataDeletionService:
     """
     Serviço para direito ao esquecimento (LGPD)
     """
-    
+
     @staticmethod
     async def request_data_deletion(user_id: int, db: AsyncSession):
         """
@@ -1239,11 +1258,11 @@ class DataDeletionService:
         """
         # Anonimizar dados sensíveis ao invés de deletar completamente
         # (preservar integridade referencial)
-        
+
         user = await db.get(User, user_id)
         if not user:
             raise HTTPException(404, "Usuário não encontrado")
-        
+
         # Anonimizar dados pessoais
         anonymized_data = {
             "name": f"Usuario_Anonimo_{user_id}",
@@ -1253,18 +1272,18 @@ class DataDeletionService:
             "is_active": False,
             "deleted_at": datetime.utcnow()
         }
-        
+
         await db.execute(
             update(User)
             .where(User.id == user_id)
             .values(**anonymized_data)
         )
-        
+
         # Deletar dados de sessões e tokens
         await db.execute(
             delete(UserSession).where(UserSession.user_id == user_id)
         )
-        
+
         # Anonimizar appointments mas manter para histórico do business
         await db.execute(
             update(Appointment)
@@ -1275,9 +1294,9 @@ class DataDeletionService:
                 notes="Dados removidos a pedido do usuário"
             )
         )
-        
+
         await db.commit()
-        
+
         # Log da exclusão
         await SecurityLogger.log_data_access(
             user_id=user_id,
@@ -1285,7 +1304,7 @@ class DataDeletionService:
             operation="anonymize",
             sensitive_fields=["name", "email", "phone", "document"]
         )
-    
+
     @staticmethod
     async def export_user_data(user_id: int, db: AsyncSession) -> dict:
         """
@@ -1296,22 +1315,22 @@ class DataDeletionService:
             select(User).where(User.id == user_id)
         )
         user = user_data.scalar_one_or_none()
-        
+
         if not user:
             raise HTTPException(404, "Usuário não encontrado")
-        
+
         # Buscar appointments
         appointments_data = await db.execute(
             select(Appointment).where(Appointment.user_id == user_id)
         )
         appointments = appointments_data.scalars().all()
-        
+
         # Buscar consentimentos
         consents_data = await db.execute(
             select(DataConsent).where(DataConsent.user_id == user_id)
         )
         consents = consents_data.scalars().all()
-        
+
         export_data = {
             "user": {
                 "id": user.id,
@@ -1344,7 +1363,7 @@ class DataDeletionService:
             "export_timestamp": datetime.utcnow().isoformat(),
             "format_version": "1.0"
         }
-        
+
         # Log da exportação
         await SecurityLogger.log_data_access(
             user_id=user_id,
@@ -1352,7 +1371,7 @@ class DataDeletionService:
             operation="select",
             sensitive_fields=["all_personal_data"]
         )
-        
+
         return export_data
 ```
 
@@ -1361,6 +1380,7 @@ class DataDeletionService:
 ## 🔧 **CONFIGURAÇÕES DE PRODUÇÃO**
 
 ### **Variáveis de Ambiente Seguras**
+
 ```bash
 # .env.production
 # === CONFIGURAÇÕES CRÍTICAS DE SEGURANÇA ===
@@ -1400,6 +1420,7 @@ ANONYMIZATION_ENABLED=true
 ### **Checklist de Segurança**
 
 #### **✅ Checklist de Deploy Seguro**
+
 ```bash
 #!/bin/bash
 # security_checklist.sh
@@ -1463,12 +1484,14 @@ echo "🔍 Verificação completa!"
 ## 📞 **SUPORTE DE SEGURANÇA**
 
 ### **Contatos de Emergência**
-- 🚨 **Incidentes Críticos**: security-emergency@whatsappagent.com
-- 🔒 **Vulnerabilidades**: security@whatsappagent.com
-- 📋 **Compliance LGPD**: privacy@whatsappagent.com
+
+- 🚨 **Incidentes Críticos**: <security-emergency@whatsappagent.com>
+- 🔒 **Vulnerabilidades**: <security@whatsappagent.com>
+- 📋 **Compliance LGPD**: <privacy@whatsappagent.com>
 - 📞 **Suporte 24/7**: +55 11 99999-9999
 
 ### **Processo de Resposta a Incidentes**
+
 1. **🚨 Detecção**: Alertas automáticos ou report manual
 2. **🔍 Avaliação**: Classificar severidade e impacto
 3. **🛡️ Contenção**: Isolar ameaça e minimizar danos

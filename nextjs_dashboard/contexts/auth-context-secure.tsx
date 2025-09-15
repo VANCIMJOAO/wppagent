@@ -1,17 +1,17 @@
 /**
  * 🔐 Auth Context with Thread-Safe Token Management
  * ===============================================
- * 
+ *
  * Contexto de autenticação integrado com TokenManager para resolver
  * problemas de race condition em JWT tokens.
- * 
+ *
  * Funcionalidades:
  * - Login/logout thread-safe
  * - Token refresh automático
  * - Estado de autenticação consistente
  * - Error boundaries para auth failures
  * - Integration com TokenManager
- * 
+ *
  * Autor: Claude AI
  * Status: Solução para JWT Race Condition
  */
@@ -131,13 +131,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     } catch (error: any) {
       console.error('❌ Login failed:', error);
-      
+
       const errorMessage = error.message || 'Login failed. Please check your credentials.';
       setError(errorMessage);
-      
+
       // Clear any partial auth state
       handleAuthError('Login failed');
-      
+
       throw error;
     } finally {
       setIsLoading(false);
@@ -149,18 +149,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const logout = (): void => {
     console.log('🚪 Logging out user');
-    
+
     try {
       // Clear tokens using TokenManager
       tokenManager.clearTokens();
-      
+
       // Clear auth state
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
-      
+
       console.log('✅ Logout completed');
-      
+
       // Redirect to login page
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
@@ -179,17 +179,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const refreshToken = async (): Promise<void> => {
     try {
       setError(null);
-      
+
       console.log('🔄 Manual token refresh requested');
-      
+
       // Use TokenManager for thread-safe refresh
       await tokenManager.forceRefresh();
-      
+
       // Fetch updated user profile
       await fetchUserProfile();
-      
+
       console.log('✅ Token refresh completed');
-      
+
     } catch (error: any) {
       console.error('❌ Token refresh failed:', error);
       handleAuthError('Token refresh failed');
@@ -213,12 +213,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       const userData: User = await response.json();
-      
+
       setUser(userData);
       setIsAuthenticated(true);
-      
+
       console.log('✅ User profile fetched:', userData.email);
-      
+
     } catch (error: any) {
       console.error('❌ Failed to fetch user profile:', error);
       throw error;
@@ -230,11 +230,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const handleAuthError = (message: string): void => {
     console.error('🚨 Auth error:', message);
-    
+
     setError(message);
     setUser(null);
     setIsAuthenticated(false);
-    
+
     // Clear tokens on auth error
     tokenManager.clearTokens();
   };
@@ -272,11 +272,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
  */
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
 }
 
@@ -286,7 +286,7 @@ export function useAuth(): AuthContextType {
 export function withAuth<P extends object>(Component: React.ComponentType<P>) {
   return function AuthenticatedComponent(props: P) {
     const { isAuthenticated, isLoading } = useAuth();
-    
+
     // Show loading while checking auth
     if (isLoading) {
       return (
@@ -295,7 +295,7 @@ export function withAuth<P extends object>(Component: React.ComponentType<P>) {
         </div>
       );
     }
-    
+
     // Redirect to login if not authenticated
     if (!isAuthenticated) {
       if (typeof window !== 'undefined') {
@@ -303,7 +303,7 @@ export function withAuth<P extends object>(Component: React.ComponentType<P>) {
       }
       return null;
     }
-    
+
     return <Component {...props} />;
   };
 }
@@ -313,7 +313,7 @@ export function withAuth<P extends object>(Component: React.ComponentType<P>) {
  */
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -321,14 +321,14 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
       </div>
     );
   }
-  
+
   if (!isAuthenticated) {
     if (typeof window !== 'undefined') {
       window.location.href = '/login';
     }
     return null;
   }
-  
+
   return <>{children}</>;
 }
 

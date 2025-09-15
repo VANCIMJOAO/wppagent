@@ -23,7 +23,7 @@ removed_count=0
 deprecate_file() {
     local file=$1
     local reason=$2
-    
+
     if [ -f "$file" ]; then
         mv "$file" "${file}.deprecated"
         echo -e "${YELLOW}📦 Depreciado: ${file} → ${file}.deprecated${NC}"
@@ -36,7 +36,7 @@ deprecate_file() {
 remove_file() {
     local file=$1
     local reason=$2
-    
+
     if [ -f "$file" ]; then
         rm -f "$file"
         echo -e "${RED}🗑️  Removido: ${file} - ${reason}${NC}"
@@ -49,7 +49,7 @@ echo -e "${BLUE}🔍 Identificando arquivos legados...${NC}"
 # 1. Arquivos de API service antigos com tokens inseguros
 echo -e "\n${YELLOW}📁 LIMPANDO SERVIÇOS DE API LEGADOS${NC}"
 deprecate_file "lib/api-service.backup.ts" "Token inseguro em memória JS"
-deprecate_file "lib/api-service-robust-clean.ts" "Token inseguro em memória JS"  
+deprecate_file "lib/api-service-robust-clean.ts" "Token inseguro em memória JS"
 deprecate_file "lib/api-service-fixed.ts" "Token inseguro em localStorage"
 deprecate_file "lib/api-config.ts" "Token inseguro com localStorage"
 
@@ -84,7 +84,7 @@ if [ -f "components/push/PushNotificationTest.tsx" ]; then
     sed -i "s/'Authorization': \`Bearer \${[^}]*}\`/'X-Auth-Required': 'true'/g" "components/push/PushNotificationTest.tsx"
 fi
 
-# Corrigir sidebar.tsx 
+# Corrigir sidebar.tsx
 if [ -f "components/layout/sidebar.tsx" ]; then
     echo -e "${BLUE}🔧 Corrigindo sidebar.tsx${NC}"
     sed -i "s/localStorage.getItem('user')/await getUserData()/g" "components/layout/sidebar.tsx"

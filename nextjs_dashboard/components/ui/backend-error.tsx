@@ -24,7 +24,7 @@ export default function BackendError({ error, onRetry, showRetry = true }: Backe
             Não foi possível conectar com o servidor
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           <Alert className="text-left">
             <AlertTriangle className="h-4 w-4" />
@@ -32,7 +32,7 @@ export default function BackendError({ error, onRetry, showRetry = true }: Backe
               {error}
             </AlertDescription>
           </Alert>
-          
+
           <div className="text-sm text-gray-600 space-y-2">
             <p>Possíveis causas:</p>
             <ul className="list-disc list-inside space-y-1 text-left">
@@ -41,10 +41,10 @@ export default function BackendError({ error, onRetry, showRetry = true }: Backe
               <li>Erro interno do servidor</li>
             </ul>
           </div>
-          
+
           {showRetry && onRetry && (
-            <Button 
-              onClick={onRetry} 
+            <Button
+              onClick={onRetry}
               className="w-full"
               variant="outline"
             >
@@ -52,7 +52,7 @@ export default function BackendError({ error, onRetry, showRetry = true }: Backe
               Tentar Novamente
             </Button>
           )}
-          
+
           <p className="text-xs text-gray-500">
             Se o problema persistir, entre em contato com o suporte
           </p>

@@ -19,7 +19,7 @@ interface DialogProps {
 
 export function Dialog({ children, open: controlledOpen, onOpenChange }: DialogProps) {
   const [internalOpen, setInternalOpen] = useState(false);
-  
+
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = (open: boolean) => {
     if (onOpenChange) {
@@ -36,7 +36,7 @@ export function Dialog({ children, open: controlledOpen, onOpenChange }: DialogP
         {isOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Backdrop */}
-            <div 
+            <div
               className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
               onClick={() => setOpen(false)}
             />
@@ -63,7 +63,7 @@ interface DialogTriggerProps {
 
 export function DialogTrigger({ children, asChild }: DialogTriggerProps) {
   const context = useContext(DialogContext);
-  
+
   if (!context) {
     throw new Error('DialogTrigger must be used within Dialog');
   }
@@ -90,7 +90,7 @@ interface DialogContentProps {
 
 export function DialogContent({ children, className = '' }: DialogContentProps) {
   const context = useContext(DialogContext);
-  
+
   if (!context) {
     throw new Error('DialogContent must be used within Dialog');
   }

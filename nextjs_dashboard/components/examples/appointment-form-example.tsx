@@ -1,10 +1,10 @@
 /**
  * 📝 Exemplo de Uso - Formulário de Agendamento com Validação
  * ==========================================================
- * 
+ *
  * Demonstra como usar os schemas Zod e hook de validação
  * em um formulário real de agendamento.
- * 
+ *
  * Autor: Desenvolvedor
  * Data: 2025-09-08
  */
@@ -67,7 +67,7 @@ export function AppointmentForm() {
   const updateField = (fieldName: keyof AppointmentFormData, value: any) => {
     const newFormData = { ...formData, [fieldName]: value }
     setFormData(newFormData)
-    
+
     // Validação em tempo real para o campo específico
     validateField(fieldName, value)
   }
@@ -75,25 +75,25 @@ export function AppointmentForm() {
   // ✅ Submit do formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validação completa antes do submit
     if (!validate(formData)) {
       return
     }
 
     setLoading(true)
-    
+
     try {
       // Simulação de API call
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
       // Simular erro ocasional
       if (Math.random() < 0.3) {
         throw new Error('Erro ao salvar agendamento')
       }
-      
+
       setData(formData)
-      
+
       // Reset do formulário
       setFormData({
         cliente_nome: '',
@@ -104,21 +104,21 @@ export function AppointmentForm() {
         servico_id: undefined,
         observacoes: ''
       })
-      
+
       alert('Agendamento criado com sucesso!')
-      
+
     } catch (error) {
       setError(error as Error)
     }
   }
 
   // ✅ Componente de campo com erro
-  const FormField = ({ 
-    name, 
-    label, 
-    type = 'text', 
-    children 
-  }: { 
+  const FormField = ({
+    name,
+    label,
+    type = 'text',
+    children
+  }: {
     name: keyof AppointmentFormData
     label: string
     type?: string
@@ -153,13 +153,13 @@ export function AppointmentForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          
+
           {/* ✅ Dados do Cliente */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Dados do Cliente</h3>
-            
+
             <FormField name="cliente_nome" label="Nome Completo" />
-            
+
             <FormField name="cliente_telefone" label="Telefone">
               <Input
                 id="cliente_telefone"
@@ -171,17 +171,17 @@ export function AppointmentForm() {
                 className={hasError('cliente_telefone') ? 'border-red-500' : ''}
               />
             </FormField>
-            
+
             <FormField name="cliente_email" label="Email (opcional)" type="email" />
           </div>
 
           {/* ✅ Dados do Agendamento */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Agendamento</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField name="data_agendamento" label="Data" type="date" />
-              
+
               <FormField name="horario" label="Horário">
                 <Input
                   id="horario"
@@ -193,7 +193,7 @@ export function AppointmentForm() {
                 />
               </FormField>
             </div>
-            
+
             <FormField name="servico_id" label="Serviço">
               <Select
                 value={formData.servico_id?.toString() || ''}
@@ -211,7 +211,7 @@ export function AppointmentForm() {
                 </SelectContent>
               </Select>
             </FormField>
-            
+
             <FormField name="observacoes" label="Observações (opcional)">
               <Textarea
                 id="observacoes"
@@ -241,7 +241,7 @@ export function AppointmentForm() {
             >
               {loading ? 'Salvando...' : 'Salvar Agendamento'}
             </Button>
-            
+
             <Button
               type="button"
               variant="outline"

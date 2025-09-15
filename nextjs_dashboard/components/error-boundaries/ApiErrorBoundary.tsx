@@ -45,8 +45,8 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { 
-      hasError: false, 
+    this.state = {
+      hasError: false,
       isRetrying: false,
       retryCount: 0,
       isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true
@@ -57,18 +57,18 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     const apiError = error as ApiError;
-    
+
     // Categorize API errors
     if (error.message.includes('fetch')) {
       apiError.isNetworkError = true;
     }
-    
+
     if (error.message.includes('timeout')) {
       apiError.isTimeoutError = true;
     }
 
-    return { 
-      hasError: true, 
+    return {
+      hasError: true,
       error: apiError,
       isRetrying: false
     };
@@ -76,12 +76,12 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const apiError = error as ApiError;
-    
+
     // Enrich error with API context
     if (this.props.endpoint) {
       apiError.endpoint = this.props.endpoint;
     }
-    
+
     if (this.props.method) {
       apiError.method = this.props.method;
     }
@@ -94,20 +94,20 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
     console.groupEnd();
 
     this.setState({ errorInfo });
-    
+
     // Report error to monitoring
     this.reportApiError(apiError, errorInfo);
-    
+
     // Show toast notification if enabled
     if (this.props.showToast) {
       this.showErrorToast(apiError);
     }
-    
+
     // Auto-retry for network errors if enabled
     if (this.props.enableRetry && this.isRetryableError(apiError)) {
       this.scheduleRetry();
     }
-    
+
     // Custom error handler
     if (this.props.onError) {
       this.props.onError(apiError, errorInfo);
@@ -126,7 +126,7 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
     if (this.retryTimeout) {
       clearTimeout(this.retryTimeout);
     }
-    
+
     if (typeof window !== 'undefined') {
       window.removeEventListener('online', this.handleOnline);
       window.removeEventListener('offline', this.handleOffline);
@@ -135,7 +135,7 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
 
   private handleOnline = () => {
     this.setState({ isOnline: true });
-    
+
     // Auto-retry when coming back online
     if (this.state.hasError && this.state.error?.isNetworkError) {
       this.handleRetry();
@@ -151,29 +151,29 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
     if (error.isNetworkError || error.isTimeoutError) {
       return true;
     }
-    
+
     // Retry 5xx server errors
     if (error.status && error.status >= 500) {
       return true;
     }
-    
+
     // Retry specific status codes
     if (error.status && [408, 429, 503, 504].includes(error.status)) {
       return true;
     }
-    
+
     return false;
   };
 
   private scheduleRetry = () => {
     const { retryDelay = 1000, maxRetries = 3 } = this.props;
-    
+
     if (this.state.retryCount >= maxRetries) {
       return;
     }
 
     const delay = this.calculateRetryDelay();
-    
+
     this.retryTimeout = setTimeout(() => {
       this.handleRetry();
     }, delay);
@@ -182,12 +182,12 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
   private calculateRetryDelay = (): number => {
     const { retryDelay = 1000 } = this.props;
     const { retryCount, error } = this.state;
-    
+
     // Check for Retry-After header
     if (error?.retryAfter) {
       return error.retryAfter * 1000;
     }
-    
+
     // Exponential backoff
     return retryDelay * Math.pow(2, retryCount) + Math.random() * 1000;
   };
@@ -240,15 +240,15 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
     if (!this.state.isOnline) {
       return 'Sem conexão com a internet. Verifique sua rede.';
     }
-    
+
     if (error.isNetworkError) {
       return 'Problema de conexão. Tentando novamente...';
     }
-    
+
     if (error.isTimeoutError) {
       return 'Tempo limite esgotado. Tentando novamente...';
     }
-    
+
     if (error.status) {
       switch (error.status) {
         case 400:
@@ -271,29 +271,29 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
           return `Erro do servidor (${error.status}): ${error.statusText || 'Erro desconhecido'}`;
       }
     }
-    
+
     return error.message || 'Erro desconhecido na API.';
   };
 
   private handleRetry = () => {
     const { maxRetries = 3 } = this.props;
-    
+
     if (this.state.retryCount >= maxRetries) {
       return;
     }
 
-    this.setState(prevState => ({ 
+    this.setState(prevState => ({
       isRetrying: true,
       retryCount: prevState.retryCount + 1
     }));
 
     // Clear error state to trigger re-render
     setTimeout(() => {
-      this.setState({ 
-        hasError: false, 
-        error: undefined, 
-        errorInfo: undefined, 
-        isRetrying: false 
+      this.setState({
+        hasError: false,
+        error: undefined,
+        errorInfo: undefined,
+        isRetrying: false
       });
     }, 100);
   };
@@ -314,7 +314,7 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
 
       // Different UI based on error level
       if (level === 'critical') {
-        return <CriticalApiErrorFallback 
+        return <CriticalApiErrorFallback
           error={error!}
           errorId={this.errorId}
           isRetrying={isRetrying}
@@ -327,7 +327,7 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
       }
 
       if (level === 'optional') {
-        return <OptionalApiErrorFallback 
+        return <OptionalApiErrorFallback
           error={error!}
           errorId={this.errorId}
           isRetrying={isRetrying}
@@ -340,7 +340,7 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
       }
 
       // Important level (default)
-      return <ImportantApiErrorFallback 
+      return <ImportantApiErrorFallback
         error={error!}
         errorId={this.errorId}
         isRetrying={isRetrying}
@@ -357,11 +357,11 @@ export class ApiErrorBoundary extends React.Component<Props, State> {
 }
 
 // Critical API Error - Blocks entire section
-function CriticalApiErrorFallback({ 
-  error, 
-  errorId, 
-  isRetrying, 
-  retryCount, 
+function CriticalApiErrorFallback({
+  error,
+  errorId,
+  isRetrying,
+  retryCount,
   maxRetries,
   isOnline,
   onRetry,
@@ -385,10 +385,10 @@ function CriticalApiErrorFallback({
             Serviço Indisponível
           </h3>
           <p className="text-red-700 mb-4">
-            Um serviço crítico está temporariamente indisponível. 
+            Um serviço crítico está temporariamente indisponível.
             {!isOnline && ' Verifique sua conexão com a internet.'}
           </p>
-          
+
           <div className="flex items-center gap-2 mb-4">
             {!isOnline ? (
               <WifiOff className="w-4 h-4 text-red-500" />
@@ -402,8 +402,8 @@ function CriticalApiErrorFallback({
 
           <div className="flex gap-2">
             {onRetry && retryCount < maxRetries && (
-              <Button 
-                onClick={onRetry} 
+              <Button
+                onClick={onRetry}
                 disabled={isRetrying}
                 variant="outline"
                 className="border-red-300 text-red-700 hover:bg-red-100"
@@ -421,8 +421,8 @@ function CriticalApiErrorFallback({
                 )}
               </Button>
             )}
-            
-            <Button 
+
+            <Button
               onClick={onRefresh}
               variant="outline"
               className="border-red-300 text-red-700 hover:bg-red-100"
@@ -441,11 +441,11 @@ function CriticalApiErrorFallback({
 }
 
 // Important API Error - Shows error but allows partial functionality
-function ImportantApiErrorFallback({ 
-  error, 
-  errorId, 
-  isRetrying, 
-  retryCount, 
+function ImportantApiErrorFallback({
+  error,
+  errorId,
+  isRetrying,
+  retryCount,
   maxRetries,
   isOnline,
   onRetry,
@@ -473,8 +473,8 @@ function ImportantApiErrorFallback({
               {!isOnline ? 'Sem conexão com a internet.' : 'Problema temporário no servidor.'}
             </p>
             {onRetry && retryCount < maxRetries && (
-              <Button 
-                onClick={onRetry} 
+              <Button
+                onClick={onRetry}
                 disabled={isRetrying}
                 size="sm"
                 variant="outline"
@@ -504,11 +504,11 @@ function ImportantApiErrorFallback({
 }
 
 // Optional API Error - Minimal error display, doesn't block UI
-function OptionalApiErrorFallback({ 
-  error, 
-  errorId, 
-  isRetrying, 
-  retryCount, 
+function OptionalApiErrorFallback({
+  error,
+  errorId,
+  isRetrying,
+  retryCount,
   maxRetries,
   isOnline,
   onRetry,
@@ -546,7 +546,7 @@ function OptionalApiErrorFallback({
         )}
       </p>
       {onRetry && retryCount < maxRetries && !isRetrying && (
-        <button 
+        <button
           onClick={onRetry}
           className="text-xs text-blue-600 hover:text-blue-800 mt-1 underline"
         >

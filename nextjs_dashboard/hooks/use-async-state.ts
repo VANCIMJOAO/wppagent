@@ -3,10 +3,10 @@ import { useState, useCallback } from 'react'
 /**
  * 🎯 Hook para Estados Loading/Erro
  * ===============================
- * 
+ *
  * Hook customizado para gerenciar estados de loading, erro e dados
  * de forma consistente em todo o dashboard.
- * 
+ *
  * Autor: Claude AI
  * Data: 2025-09-07
  */
@@ -73,10 +73,10 @@ export function useAsyncList<T>(fetchFn?: (filters?: any) => Promise<T[]>) {
 
   const refresh = useCallback(async (newFilters?: any) => {
     if (!fetchFn) return
-    
+
     const currentFilters = newFilters || filters
     setFilters(currentFilters)
-    
+
     return asyncState.execute(() => fetchFn(currentFilters))
   }, [fetchFn, filters, asyncState])
 
@@ -182,7 +182,7 @@ export function useRetry(maxRetries: number = 3, delay: number = 1000) {
       if (retryCount > 0) {
         await new Promise(resolve => setTimeout(resolve, delay * retryCount))
       }
-      
+
       const result = await operation()
       setRetryCount(0) // Reset on success
       return result
@@ -271,7 +271,7 @@ export function useLocalStorageState<T>(
 ): [T, (value: T) => void] {
   const [state, setState] = useState<T>(() => {
     if (typeof window === 'undefined') return initialValue
-    
+
     try {
       const item = window.localStorage.getItem(key)
       return item ? JSON.parse(item) : initialValue

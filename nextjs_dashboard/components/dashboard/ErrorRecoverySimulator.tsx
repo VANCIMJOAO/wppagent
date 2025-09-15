@@ -120,7 +120,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
   const [networkThrottling, setNetworkThrottling] = useState(false)
   const [cacheCorruption, setCacheCorruption] = useState(false)
   const [simultaneousErrors, setSimultaneousErrors] = useState(false)
-  
+
   // Estado de monitoramento
   const [recoveryAttempts, setRecoveryAttempts] = useState(0)
   const [totalFailures, setTotalFailures] = useState(0)
@@ -140,7 +140,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
     setTotalFailures(0)
 
     const startTime = Date.now()
-    
+
     // Simular o erro baseado no cenário
     const simulateError = () => {
       switch (scenario.type) {
@@ -173,12 +173,12 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
     const recoveryInterval = setInterval(() => {
       setRecoveryAttempts(prev => {
         const newAttempts = prev + 1
-        
+
         // Log das tentativas
         console.log(`Recovery attempt ${newAttempts} for scenario: ${scenario.name}`)
-        
+
         // Simular sucesso gradual baseado na severidade
-        const successChance = scenario.severity === 'critical' ? 0.1 : 
+        const successChance = scenario.severity === 'critical' ? 0.1 :
                              scenario.severity === 'high' ? 0.25 :
                              scenario.severity === 'medium' ? 0.4 : 0.6
 
@@ -188,7 +188,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
           setAverageRecoveryTime(recoveryTime / 1000)
           setCurrentMode('normal')
           toast.success(`✅ Recovery bem-sucedido! Tempo: ${(recoveryTime / 1000).toFixed(1)}s`)
-          
+
           if (autoRecover) {
             setTimeout(() => {
               setIsSimulating(false)
@@ -199,7 +199,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
           setTotalFailures(prev => prev + 1)
           toast.warning(`🔄 Tentativa ${newAttempts} falhou - Retry em ${2 ** newAttempts}s`)
         }
-        
+
         return newAttempts
       })
     }, 3000) // Tentativa a cada 3 segundos
@@ -301,7 +301,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
                   ))}
                 </SelectContent>
               </Select>
-              
+
               {selectedScenarioId && (
                 <p className="text-xs text-gray-600 mt-2">
                   {ERROR_SCENARIOS.find(s => s.id === selectedScenarioId)?.description}
@@ -334,7 +334,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
                   onCheckedChange={setAutoRecover}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <span className="text-sm">Network Throttling</span>
                 <Switch
@@ -342,7 +342,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
                   onCheckedChange={setNetworkThrottling}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <span className="text-sm">Cache Corruption</span>
                 <Switch
@@ -350,7 +350,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
                   onCheckedChange={setCacheCorruption}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <span className="text-sm">Simultaneous Errors</span>
                 <Switch
@@ -370,7 +370,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
                 <Play className="w-4 h-4 mr-2" />
                 Iniciar Simulação
               </Button>
-              
+
               {isSimulating && (
                 <Button
                   onClick={stopSimulation}
@@ -397,7 +397,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
                 <div className={`w-3 h-3 rounded-full ${getModeColor(currentMode)} animate-pulse`}></div>
                 <span className="font-medium capitalize">{currentMode} Mode</span>
               </div>
-              
+
               {isSimulating && (
                 <Badge variant="outline">
                   {activeScenario?.name}
@@ -413,7 +413,7 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
                 </div>
                 <div className="text-sm text-gray-600">Tentativas</div>
               </div>
-              
+
               <div className="text-center p-3 bg-red-50 rounded-lg">
                 <div className="text-2xl font-bold text-red-600">
                   {totalFailures}
@@ -457,8 +457,8 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
               <div
                 key={scenario.id}
                 className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                  selectedScenarioId === scenario.id 
-                    ? 'border-blue-500 bg-blue-50' 
+                  selectedScenarioId === scenario.id
+                    ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
                 onClick={() => setSelectedScenarioId(scenario.id)}
@@ -472,11 +472,11 @@ export const ErrorRecoverySimulator: React.FC<ErrorRecoverySimulatorProps> = ({
                     {scenario.severity}
                   </Badge>
                 </div>
-                
+
                 <p className="text-sm text-gray-600 mb-2">
                   {scenario.description}
                 </p>
-                
+
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <span>Tipo: {scenario.type}</span>
                   <span>Duração: {scenario.duration}s</span>

@@ -25,9 +25,9 @@ kept_count=0
 remove_files() {
     local pattern=$1
     local description=$2
-    
+
     echo -e "\n${YELLOW}📂 ${description}${NC}"
-    
+
     for file in lib/${pattern}; do
         if [ -f "$file" ]; then
             rm -f "$file"
@@ -41,12 +41,12 @@ remove_files() {
 move_to_archive() {
     local pattern=$1
     local description=$2
-    
+
     echo -e "\n${YELLOW}📦 ${description}${NC}"
-    
+
     # Criar pasta archive se não existir
     mkdir -p lib/archive
-    
+
     for file in lib/${pattern}; do
         if [ -f "$file" ]; then
             mv "$file" "lib/archive/"
@@ -151,7 +151,7 @@ cat > lib/README.md << 'EOF'
 lib/
 ├── 🔐 Principais (usar estes)
 │   ├── api-service-robust.ts     # ⭐ API service seguro
-│   ├── secure-auth-manager.ts    # ⭐ Autenticação segura  
+│   ├── secure-auth-manager.ts    # ⭐ Autenticação segura
 │   ├── environment-config.ts     # ⭐ Configuração ambiente
 │   └── debug.ts                  # ⭐ Sistema de logging
 │
@@ -205,7 +205,7 @@ echo -e "${GREEN}📝 Criado: lib/README.md${NC}"
 echo -e "\n${GREEN}✅ LIMPEZA CONCLUÍDA!${NC}"
 echo "========================="
 echo -e "🗑️  Arquivos removidos: ${RED}${removed_count}${NC}"
-echo -e "📦 Arquivos arquivados: ${CYAN}${moved_count}${NC}"  
+echo -e "📦 Arquivos arquivados: ${CYAN}${moved_count}${NC}"
 echo -e "✅ Arquivos mantidos: ${GREEN}${kept_count}${NC}"
 
 echo -e "\n${GREEN}🎯 PRÓXIMOS PASSOS:${NC}"

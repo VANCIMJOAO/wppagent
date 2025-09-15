@@ -112,10 +112,10 @@ export function PWAWrapper({ children }: { children: React.ReactNode }) {
     <>
       {/* Indicador de status offline/online */}
       <OfflineIndicator />
-      
+
       {/* Prompt de instalação PWA */}
       <PWAPrompt variant="banner" autoShow={true} />
-      
+
       {/* Conteúdo principal */}
       {children}
     </>
@@ -134,10 +134,10 @@ export function usePWAStatus() {
       const isIOSPWA = (window.navigator as any).standalone === true
       // Verificar Android PWA
       const isAndroidPWA = window.matchMedia('(display-mode: standalone)').matches
-      
+
       const pwaMode = isStandalone || isIOSPWA || isAndroidPWA
       setIsPWA(pwaMode)
-      
+
       // Adicionar classe CSS para PWA
       if (pwaMode) {
         document.body.classList.add('pwa-mode')
@@ -168,10 +168,10 @@ export function PWAInstallDetector() {
     // Detectar quando o app é instalado
     window.addEventListener('appinstalled', () => {
       console.log('🎉 PWA: App installed successfully')
-      
+
       // Opcional: Analytics ou feedback
       // gtag('event', 'pwa_installed')
-      
+
       // Mostrar mensagem de sucesso
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(registration => {

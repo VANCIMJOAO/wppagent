@@ -1,17 +1,17 @@
 /**
  * 🔗 WebSocket Provider para Cache Synchronization
  * ==============================================
- * 
+ *
  * Provider React que gerencia conexão WebSocket global e
  * sincronização automática de cache em tempo real.
- * 
+ *
  * Funcionalidades:
  * - Conexão WebSocket global
  * - Auto-reconnection
  * - Cache invalidation automática
  * - Status monitoring
  * - Error handling
- * 
+ *
  * Autor: Claude AI
  * Status: Infraestrutura crítica para real-time updates
  */
@@ -65,13 +65,13 @@ export function WebSocketCacheSyncProvider({
   const [lastMessage, setLastMessage] = useState<any | null>(null)
   const [reconnectCount, setReconnectCount] = useState(0)
   const [shouldConnect, setShouldConnect] = useState(autoConnect)
-  
+
   // Usar o hook de WebSocket
   const { isConnected, connect, disconnect } = useWebSocketCacheSync(
     shouldConnect,
     wsUrl
   )
-  
+
   // Monitorar status da conexão
   useEffect(() => {
     if (isConnected) {
@@ -88,7 +88,7 @@ export function WebSocketCacheSyncProvider({
       setConnectionStatus('disconnected')
     }
   }, [isConnected, shouldConnect, reconnectCount, maxReconnectAttempts])
-  
+
   // Auto-reconnect logic
   useEffect(() => {
     if (!isConnected && shouldConnect && reconnectCount < maxReconnectAttempts) {
@@ -97,23 +97,23 @@ export function WebSocketCacheSyncProvider({
         setReconnectCount(prev => prev + 1)
         connect()
       }, reconnectInterval)
-      
+
       return () => clearTimeout(timer)
     }
   }, [isConnected, shouldConnect, reconnectCount, maxReconnectAttempts, reconnectInterval, connect])
-  
+
   // Funções de controle
   const handleConnect = () => {
     setShouldConnect(true)
     setReconnectCount(0)
     connect()
   }
-  
+
   const handleDisconnect = () => {
     setShouldConnect(false)
     disconnect()
   }
-  
+
   // Context value
   const contextValue: WebSocketContextType = {
     isConnected,
@@ -123,7 +123,7 @@ export function WebSocketCacheSyncProvider({
     connect: handleConnect,
     disconnect: handleDisconnect
   }
-  
+
   return (
     <WebSocketContext.Provider value={contextValue}>
       {children}
@@ -138,7 +138,7 @@ export function WebSocketCacheSyncProvider({
  */
 export function WebSocketStatus({ className = '' }: { className?: string }) {
   const { isConnected, connectionStatus, reconnectCount } = useWebSocket()
-  
+
   const getStatusColor = () => {
     switch (connectionStatus) {
       case 'connected':
@@ -153,7 +153,7 @@ export function WebSocketStatus({ className = '' }: { className?: string }) {
         return 'text-gray-500'
     }
   }
-  
+
   const getStatusIcon = () => {
     switch (connectionStatus) {
       case 'connected':
@@ -168,7 +168,7 @@ export function WebSocketStatus({ className = '' }: { className?: string }) {
         return '⚪'
     }
   }
-  
+
   const getStatusText = () => {
     switch (connectionStatus) {
       case 'connected':
@@ -183,7 +183,7 @@ export function WebSocketStatus({ className = '' }: { className?: string }) {
         return 'Desconhecido'
     }
   }
-  
+
   return (
     <div className={`flex items-center gap-2 text-sm ${className}`}>
       <span>{getStatusIcon()}</span>
@@ -201,7 +201,7 @@ export function WebSocketStatus({ className = '' }: { className?: string }) {
  */
 export function useWebSocketControl() {
   const { connect, disconnect, isConnected, connectionStatus } = useWebSocket()
-  
+
   const toggleConnection = () => {
     if (isConnected) {
       disconnect()
@@ -209,7 +209,7 @@ export function useWebSocketControl() {
       connect()
     }
   }
-  
+
   return {
     connect,
     disconnect,
@@ -226,7 +226,7 @@ export function useWebSocketActivity() {
   const { isConnected, connectionStatus, reconnectCount, lastMessage } = useWebSocket()
   const [messageCount, setMessageCount] = useState(0)
   const [lastActivity, setLastActivity] = useState<Date | null>(null)
-  
+
   // Contar mensagens recebidas
   useEffect(() => {
     if (lastMessage) {
@@ -234,14 +234,14 @@ export function useWebSocketActivity() {
       setLastActivity(new Date())
     }
   }, [lastMessage])
-  
+
   // Reset contador quando conectar
   useEffect(() => {
     if (isConnected) {
       setMessageCount(0)
     }
   }, [isConnected])
-  
+
   return {
     messageCount,
     lastActivity,
@@ -258,11 +258,11 @@ export function useWebSocketActivity() {
 export function WebSocketDebugPanel({ className = '' }: { className?: string }) {
   const { isConnected, connectionStatus, reconnectCount } = useWebSocket()
   const { messageCount, lastActivity } = useWebSocketActivity()
-  
+
   if (process.env.NODE_ENV !== 'development') {
     return null
   }
-  
+
   return (
     <div className={`bg-gray-100 p-4 rounded-lg text-xs ${className}`}>
       <h3 className="font-bold mb-2">🐛 WebSocket Debug</h3>

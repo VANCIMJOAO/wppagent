@@ -229,11 +229,11 @@
             .grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .header h1 {
                 font-size: 2em;
             }
-            
+
             .status-bar {
                 gap: 15px;
             }
@@ -382,7 +382,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             initializeCharts();
             loadAllData();
-            
+
             // Auto-refresh a cada 30 segundos
             updateInterval = setInterval(loadAllData, 30000);
         });
@@ -456,7 +456,7 @@
                     loadPerformanceData(),
                     loadActiveAlerts()
                 ]);
-                
+
                 updateLastUpdateTime();
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
@@ -468,7 +468,7 @@
             try {
                 const response = await fetch(`${API_BASE}/production/system/status`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     updateStatusBar(data.data.health_checks);
                     updateHealthChecks(data.data.health_checks);
@@ -484,7 +484,7 @@
             try {
                 const response = await fetch(`${API_BASE}/production/metrics/business`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     updateBusinessMetrics(data.data);
                 }
@@ -498,7 +498,7 @@
             try {
                 const response = await fetch(`${API_BASE}/production/performance/current`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     updateChartsData(data.data);
                 }
@@ -512,7 +512,7 @@
             try {
                 const response = await fetch(`${API_BASE}/production/alerts/active`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     updateActiveAlerts(data.data);
                 }
@@ -525,7 +525,7 @@
         function updateStatusBar(healthChecks) {
             const statusBar = document.getElementById('statusBar');
             const statuses = [];
-            
+
             for (const [service, check] of Object.entries(healthChecks)) {
                 const icon = getServiceIcon(service);
                 const statusClass = check.status === 'healthy' ? 'status-healthy' : 'status-unhealthy';
@@ -536,7 +536,7 @@
                     </div>
                 `);
             }
-            
+
             statusBar.innerHTML = statuses.join('');
         }
 
@@ -544,11 +544,11 @@
         function updateHealthChecks(healthChecks) {
             const container = document.getElementById('healthChecks');
             const rows = [];
-            
+
             for (const [service, check] of Object.entries(healthChecks)) {
                 const valueClass = check.status === 'healthy' ? 'good' : 'danger';
                 const icon = check.status === 'healthy' ? '✅' : '❌';
-                
+
                 rows.push(`
                     <div class="metric-row">
                         <div class="metric-label">${icon} ${getServiceName(service)}</div>
@@ -556,7 +556,7 @@
                     </div>
                 `);
             }
-            
+
             container.innerHTML = rows.join('');
         }
 
@@ -564,7 +564,7 @@
         function updateSystemPerformance(performance) {
             const container = document.getElementById('systemPerformance');
             const rows = [];
-            
+
             if (performance.cpu_usage) {
                 const cpu = performance.cpu_usage.value;
                 const cpuClass = cpu > 80 ? 'danger' : cpu > 60 ? 'warning' : 'good';
@@ -578,7 +578,7 @@
                     </div>
                 `);
             }
-            
+
             if (performance.memory_usage) {
                 const memory = performance.memory_usage.value;
                 const memoryClass = memory > 85 ? 'danger' : memory > 70 ? 'warning' : 'good';
@@ -592,7 +592,7 @@
                     </div>
                 `);
             }
-            
+
             if (performance.disk_usage) {
                 const disk = performance.disk_usage.value;
                 const diskClass = disk > 85 ? 'danger' : disk > 70 ? 'warning' : 'good';
@@ -606,7 +606,7 @@
                     </div>
                 `);
             }
-            
+
             container.innerHTML = rows.join('');
         }
 
@@ -614,7 +614,7 @@
         function updateBusinessMetrics(metrics) {
             const container = document.getElementById('businessMetrics');
             const rows = [];
-            
+
             if (metrics.conversations) {
                 rows.push(`
                     <div class="metric-row">
@@ -627,7 +627,7 @@
                     </div>
                 `);
             }
-            
+
             if (metrics.performance) {
                 rows.push(`
                     <div class="metric-row">
@@ -636,7 +636,7 @@
                     </div>
                 `);
             }
-            
+
             if (metrics.business) {
                 rows.push(`
                     <div class="metric-row">
@@ -645,14 +645,14 @@
                     </div>
                 `);
             }
-            
+
             container.innerHTML = rows.join('');
         }
 
         // Atualizar alertas ativos
         function updateActiveAlerts(alerts) {
             const container = document.getElementById('activeAlerts');
-            
+
             if (alerts.total === 0) {
                 container.innerHTML = `
                     <div class="metric-row">
@@ -670,7 +670,7 @@
                         </small>
                     </div>
                 `).join('');
-                
+
                 container.innerHTML = `
                     <div class="metric-row">
                         <div class="metric-label">🚨 Alertas Ativos</div>
@@ -685,22 +685,22 @@
         function updateChartsData(performance) {
             const now = new Date();
             const timeLabel = now.toLocaleTimeString('pt-BR');
-            
+
             // Adicionar novos dados
             historicalData.timestamps.push(timeLabel);
-            
+
             if (performance.cpu_usage) {
                 historicalData.cpu.push(performance.cpu_usage.value);
             }
-            
+
             if (performance.memory_usage) {
                 historicalData.memory.push(performance.memory_usage.value);
             }
-            
+
             if (performance.api_health_check_response_time) {
                 historicalData.responseTime.push(performance.api_health_check_response_time.value);
             }
-            
+
             // Manter apenas os últimos 20 pontos
             const maxPoints = 20;
             if (historicalData.timestamps.length > maxPoints) {
@@ -709,7 +709,7 @@
                 historicalData.memory = historicalData.memory.slice(-maxPoints);
                 historicalData.responseTime = historicalData.responseTime.slice(-maxPoints);
             }
-            
+
             // Atualizar gráficos
             if (charts.cpuMemory) {
                 charts.cpuMemory.data.labels = historicalData.timestamps;
@@ -717,7 +717,7 @@
                 charts.cpuMemory.data.datasets[1].data = historicalData.memory;
                 charts.cpuMemory.update('none');
             }
-            
+
             if (charts.responseTime) {
                 charts.responseTime.data.labels = historicalData.timestamps;
                 charts.responseTime.data.datasets[0].data = historicalData.responseTime;
@@ -728,7 +728,7 @@
         // Atualizar timestamp da última atualização
         function updateLastUpdateTime() {
             const now = new Date();
-            document.getElementById('lastUpdate').textContent = 
+            document.getElementById('lastUpdate').textContent =
                 `Última atualização: ${now.toLocaleString('pt-BR')}`;
         }
 

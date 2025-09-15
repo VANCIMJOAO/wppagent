@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { 
-  Clock, 
-  Calendar, 
-  Ban, 
+import {
+  Clock,
+  Calendar,
+  Ban,
   Search,
   Filter,
   UserX,
@@ -36,13 +36,13 @@ export default function BloqueadosPage() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      
+
       // Dados simulados baseados no banco PostgreSQL
       const mockData: BlockedTime[] = [
         {
           id: 1,
           start_time: "2025-09-05T09:00:00Z",
-          end_time: "2025-09-05T10:00:00Z", 
+          end_time: "2025-09-05T10:00:00Z",
           reason: "Reunião administrativa",
           notes: "Reunião semanal de equipe",
           is_recurring: true,
@@ -99,11 +99,11 @@ export default function BloqueadosPage() {
   const filteredData = blockedTimes.filter(item => {
     const matchesSearch = item.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.notes.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesFilter = filterType === "all" ||
                          (filterType === "recurring" && item.is_recurring) ||
                          (filterType === "one-time" && !item.is_recurring);
-    
+
     return matchesSearch && matchesFilter;
   });
 
@@ -111,7 +111,7 @@ export default function BloqueadosPage() {
   const totalBlocked = blockedTimes.length;
   const recurring = blockedTimes.filter(item => item.is_recurring).length;
   const oneTime = totalBlocked - recurring;
-  
+
   // Próximos 7 dias
   const nextWeek = new Date();
   nextWeek.setDate(nextWeek.getDate() + 7);
@@ -315,7 +315,7 @@ export default function BloqueadosPage() {
                 </thead>
                 <tbody>
                   {filteredData.map((item, index) => (
-                    <tr 
+                    <tr
                       key={item.id}
                       className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
                         index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
@@ -349,8 +349,8 @@ export default function BloqueadosPage() {
                       </td>
                       <td className="py-4 px-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          item.is_recurring 
-                            ? 'bg-blue-100 text-blue-800' 
+                          item.is_recurring
+                            ? 'bg-blue-100 text-blue-800'
                             : 'bg-yellow-100 text-yellow-800'
                         }`}>
                           {item.is_recurring ? (

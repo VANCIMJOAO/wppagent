@@ -87,11 +87,11 @@ export const RequirePermission: React.FC<RequirePermissionProps> = ({
     if (fallback) {
       return <>{fallback}</>;
     }
-    
+
     if (showFallback) {
       return <AccessDeniedFallback type="permission" requirement={permission} />;
     }
-    
+
     return null;
   }
 
@@ -115,11 +115,11 @@ export const RequireRole: React.FC<RequireRoleProps> = ({
     if (fallback) {
       return <>{fallback}</>;
     }
-    
+
     if (showFallback) {
       return <AccessDeniedFallback type="role" requirement={role} />;
     }
-    
+
     return null;
   }
 
@@ -143,11 +143,11 @@ export const RequireAnyPermission: React.FC<RequireAnyPermissionProps> = ({
     if (fallback) {
       return <>{fallback}</>;
     }
-    
+
     if (showFallback) {
       return <AccessDeniedFallback type="permission" requirement={permissions.join(' ou ')} />;
     }
-    
+
     return null;
   }
 
@@ -170,11 +170,11 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({
     if (fallback) {
       return <>{fallback}</>;
     }
-    
+
     if (showFallback) {
       return <AccessDeniedFallback type="auth" />;
     }
-    
+
     return null;
   }
 
@@ -201,9 +201,9 @@ export const RequireAdmin: React.FC<ProtectedComponentProps> = ({
   showFallback = true
 }) => {
   return (
-    <RequireAnyPermission 
-      permissions={['SYSTEM_ADMIN', 'SYSTEM_MANAGE']} 
-      fallback={fallback} 
+    <RequireAnyPermission
+      permissions={['SYSTEM_ADMIN', 'SYSTEM_MANAGE']}
+      fallback={fallback}
       showFallback={showFallback}
     >
       {children}
@@ -240,7 +240,7 @@ export const UserProfileDisplay: React.FC<{
           <p className="text-sm text-gray-600">@{user.username}</p>
         </div>
       </div>
-      
+
       {showRoles && roles.length > 0 && (
         <div className="mt-4">
           <h4 className="text-sm font-medium text-gray-700 mb-2">Roles:</h4>
@@ -256,7 +256,7 @@ export const UserProfileDisplay: React.FC<{
           </div>
         </div>
       )}
-      
+
       {showPermissions && permissions.length > 0 && (
         <div className="mt-4">
           <h4 className="text-sm font-medium text-gray-700 mb-2">
@@ -298,8 +298,8 @@ export const PermissionDebugger: React.FC<{
       <Eye className="w-3 h-3" />
       <span className="font-mono">{permission}</span>
       <span className={`px-2 py-1 rounded-full font-medium ${
-        hasAccess 
-          ? 'bg-green-100 text-green-800' 
+        hasAccess
+          ? 'bg-green-100 text-green-800'
           : 'bg-red-100 text-red-800'
       }`}>
         {hasAccess ? 'ALLOW' : 'DENY'}

@@ -1,10 +1,10 @@
 /**
  * 📋 Tipos TypeScript Unificados - API Contracts
  * =============================================
- * 
+ *
  * Tipos padronizados que correspondem exatamente aos schemas do backend.
  * Elimina divergências entre frontend e backend.
- * 
+ *
  * Autor: Claude AI
  * Data: 2025-09-07
  * Status: Unificação crítica de contratos API
@@ -47,7 +47,7 @@ export interface Appointment {
   user_id: number;
   business_id: number;
   service_id?: number;
-  
+
   // ✅ C002: Campos principais em camelCase (API padrão)
   dateTime: string; // ISO 8601 datetime (API principal)
   timeSlot?: string; // HH:MM format
@@ -55,7 +55,7 @@ export interface Appointment {
   price: number; // Valor do serviço
   status: AppointmentStatus;
   notes?: string; // Observações
-  
+
   // ✅ Backward compatibility - campos em português/snake_case
   data_agendamento?: string; // Alias para dateTime
   horario?: string; // Alias para timeSlot
@@ -64,7 +64,7 @@ export interface Appointment {
   observacoes?: string; // Alias para notes
   date_time?: string; // Alias antigo para dateTime
   duration_minutes?: number; // Alias antigo para durationMinutes
-  
+
   // ✅ Dados relacionados padronizados
   cliente_nome: string;
   cliente_telefone: string;
@@ -72,7 +72,7 @@ export interface Appointment {
   servico_nome: string;
   servico_descricao?: string;
   business_name: string;
-  
+
   // ✅ Timestamps padronizados
   created_at: string; // ISO 8601
   updated_at?: string; // ISO 8601
@@ -89,7 +89,7 @@ export interface Conversation {
   last_message_at?: string; // ISO 8601
   created_at: string; // ISO 8601
   updated_at?: string; // ISO 8601
-  
+
   // ✅ Dados relacionados padronizados
   user_name: string;
   user_phone?: string;
@@ -110,7 +110,7 @@ export interface Message {
   direction: MessageDirection; // ✅ Padronizado: 'in' | 'out'
   created_at: string; // ISO 8601
   whatsapp_id?: string;
-  
+
   // ✅ Campos adicionais
   is_read: boolean;
 }
@@ -194,7 +194,7 @@ export interface MessageCreateRequest {
 // ✅ TIPOS LEGADOS (para compatibilidade temporária)
 
 /**
- * 👤 Cliente 
+ * 👤 Cliente
  * Mantido para compatibilidade com api-service.ts existente
  */
 export interface Client {
@@ -205,7 +205,7 @@ export interface Client {
   email?: string;
   created_at: string;
   updated_at?: string;
-  
+
   // Campos calculados
   total_conversations: number;
   total_messages: number;

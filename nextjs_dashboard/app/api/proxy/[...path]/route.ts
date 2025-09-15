@@ -45,35 +45,35 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     // Construir URL do backend
     const backendUrl = `${BACKEND_URL}${endpoint}${queryString}`;
     if (isDev) console.log(`[Proxy] ${method} request to:`, backendUrl);
-    
+
     // Extrair Authorization header
     const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
     if (isDev) console.log('[Proxy] Authorization header presente:', !!authHeader);
-    
+
     // Extrair cookies do frontend
     const cookieHeader = request.headers.get('Cookie');
     if (isDev) console.log('[Proxy] Cookies present:', !!cookieHeader);
-    
+
     if (authHeader && isDev) {
       console.log('[Proxy] Authorization header preview:', authHeader.substring(0, 10) + '...');
     }
-    
+
     // Preparar headers para o backend
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
-    
+
     // IMPORTANTE: Adicionar Authorization header se existir
     if (authHeader) {
       headers['Authorization'] = authHeader;
     }
-    
+
     // IMPORTANTE: Repassar cookies para o backend
     if (cookieHeader) {
       headers['Cookie'] = cookieHeader;
     }
-    
+
     // Preparar body para métodos que precisam
     let body: string | undefined = undefined;
     if (method !== 'GET' && method !== 'HEAD') {
@@ -84,9 +84,9 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
         console.log('[Proxy] No body or error reading body');
       }
     }
-    
+
     console.log('[Proxy] Sending request with headers:', Object.keys(headers));
-    
+
     // Fazer requisição para o backend
     const response = await fetch(backendUrl, {
       method,
@@ -103,17 +103,17 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
       const locationHeader = response.headers.get('location');
       if (locationHeader) {
         console.log(`[Proxy] Following redirect to:`, locationHeader);
-        
+
         // Refazer requisição com mesmos headers
         const redirectResponse = await fetch(locationHeader, {
           method,
           headers, // Manter os mesmos headers incluindo Authorization
           body,
         });
-        
+
         const contentType = redirectResponse.headers.get('content-type');
         let data;
-        
+
         try {
           if (contentType && contentType.includes('application/json')) {
             data = await redirectResponse.json();
@@ -126,7 +126,7 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
         }
 
         console.log(`[Proxy] Redirect response status:`, redirectResponse.status);
-        
+
         // Extrair cookies Set-Cookie do redirect também
         const redirectSetCookie = redirectResponse.headers.get('set-cookie');
         const redirectHeaders: HeadersInit = {
@@ -134,12 +134,12 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         };
-        
+
         if (redirectSetCookie) {
           redirectHeaders['Set-Cookie'] = redirectSetCookie;
         }
-        
-        return NextResponse.json(data, { 
+
+        return NextResponse.json(data, {
           status: redirectResponse.status,
           headers: redirectHeaders
         });
@@ -149,7 +149,7 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     // Processar resposta normal
     const contentType = response.headers.get('content-type');
     let data;
-    
+
     try {
       if (contentType && contentType.includes('application/json')) {
         data = await response.json();
@@ -179,25 +179,25 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
-    
+
     // Repassar cookies Set-Cookie se existirem
     if (setCookieHeader) {
       responseHeaders['Set-Cookie'] = setCookieHeader;
       if (isDev) console.log('[Proxy] Repassing Set-Cookie to frontend');
     }
 
-    return NextResponse.json(data, { 
+    return NextResponse.json(data, {
       status: response.status,
       headers: responseHeaders
     });
 
   } catch (error) {
     console.error('[Proxy] Fatal error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Proxy error',
       message: error instanceof Error ? error.message : 'Unknown error',
       details: `Failed to fetch data from backend`
-    }, { 
+    }, {
       status: 500,
       headers: {
         'Access-Control-Allow-Origin': '*',

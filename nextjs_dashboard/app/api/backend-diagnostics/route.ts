@@ -36,7 +36,7 @@ async function getAuthToken(): Promise<string> {
 export async function GET() {
   try {
     console.log('🔍 Starting comprehensive backend diagnostics...');
-    
+
     // Get auth token
     const token = await getAuthToken();
     console.log('✅ Authentication successful');
@@ -48,7 +48,7 @@ export async function GET() {
       { path: '/admin/dashboard', method: 'GET' },
       { path: '/admin/metrics', method: 'GET' },
       { path: '/admin/health', method: 'GET' },
-      
+
       // API endpoints - GET
       { path: '/api/status', method: 'GET' },
       { path: '/api/health', method: 'GET' },
@@ -56,17 +56,17 @@ export async function GET() {
       { path: '/api/leads', method: 'GET' },
       { path: '/api/appointments', method: 'GET' },
       { path: '/api/messages', method: 'GET' },
-      
+
       // Direct resource endpoints - GET
       { path: '/customers', method: 'GET' },
       { path: '/leads', method: 'GET' },
       { path: '/appointments', method: 'GET' },
       { path: '/messages', method: 'GET' },
-      
+
       // Try with query parameters
       { path: '/customers?limit=1', method: 'GET' },
       { path: '/leads?limit=1', method: 'GET' },
-      
+
       // POST attempts
       { path: '/api/customers/search', method: 'POST', body: { limit: 1 } },
       { path: '/api/leads/search', method: 'POST', body: { limit: 1 } },
@@ -79,7 +79,7 @@ export async function GET() {
     for (const endpoint of endpointsToTest) {
       try {
         console.log(`🧪 Testing ${endpoint.method} ${endpoint.path}`);
-        
+
         const options: RequestInit = {
           method: endpoint.method,
           headers: {
@@ -94,7 +94,7 @@ export async function GET() {
         }
 
         const response = await fetch(`${BACKEND_URL}${endpoint.path}`, options);
-        
+
         const result = {
           endpoint: `${endpoint.method} ${endpoint.path}`,
           status: response.status,
@@ -122,7 +122,7 @@ export async function GET() {
 
         const resultWithBody = { ...result, body };
         results.push(resultWithBody);
-        
+
         if (response.ok) {
           successful.push(resultWithBody);
           console.log(`✅ SUCCESS: ${endpoint.method} ${endpoint.path} -> ${response.status}`);
@@ -130,14 +130,14 @@ export async function GET() {
           errors.push(resultWithBody);
           console.log(`❌ FAILED: ${endpoint.method} ${endpoint.path} -> ${response.status} ${response.statusText}`);
         }
-        
+
       } catch (error: any) {
         const errorResult = {
           endpoint: `${endpoint.method} ${endpoint.path}`,
           error: error.message,
           success: false
         };
-        
+
         results.push(errorResult);
         errors.push(errorResult);
         console.log(`💥 ERROR: ${endpoint.method} ${endpoint.path} -> ${error.message}`);
@@ -168,8 +168,8 @@ export async function GET() {
   } catch (error: any) {
     console.error('❌ Diagnostics failed:', error.message);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: error.message,
         authentication_status: error.message.includes('Login failed') ? 'FAILED' : 'SUCCESS',
         backend_url: BACKEND_URL
@@ -181,7 +181,7 @@ export async function GET() {
 
 function generateRecommendations(successful: any[], errors: any[]): string[] {
   const recommendations: string[] = [];
-  
+
   if (successful.length === 0) {
     recommendations.push('❌ CRITICAL: No endpoints are working. Backend may be down or misconfigured.');
     recommendations.push('🔧 Check Railway service logs and deployment status');
@@ -192,23 +192,23 @@ function generateRecommendations(successful: any[], errors: any[]): string[] {
   } else {
     recommendations.push('✅ GOOD: Multiple endpoints working. Use these for data integration.');
   }
-  
+
   // Analyze error patterns
   const status500Count = errors.filter(e => e.status === 500).length;
   const status405Count = errors.filter(e => e.status === 405).length;
   const status404Count = errors.filter(e => e.status === 404).length;
-  
+
   if (status500Count > 0) {
     recommendations.push(`🔧 ${status500Count} endpoints return 500 errors - Backend internal issues`);
   }
-  
+
   if (status405Count > 0) {
     recommendations.push(`🔧 ${status405Count} endpoints return 405 - Wrong HTTP method, try different methods`);
   }
-  
+
   if (status404Count > 0) {
     recommendations.push(`🔧 ${status404Count} endpoints return 404 - Endpoints don't exist, check API documentation`);
   }
-  
+
   return recommendations;
 }

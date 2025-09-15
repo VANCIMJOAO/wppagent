@@ -14,14 +14,14 @@ interface ErrorFallbackProps {
   compact?: boolean;
 }
 
-export function ErrorFallback({ 
-  error, 
-  retry, 
+export function ErrorFallback({
+  error,
+  retry,
   title = "Erro ao carregar dados",
-  compact = false 
+  compact = false
 }: ErrorFallbackProps) {
   const errorMessage = typeof error === 'string' ? error : error?.message || 'Erro desconhecido';
-  
+
   if (compact) {
     return (
       <Card>
@@ -40,7 +40,7 @@ export function ErrorFallback({
       </Card>
     );
   }
-  
+
   return (
     <div className="flex items-center justify-center min-h-[200px]">
       <Card className="w-full max-w-md">

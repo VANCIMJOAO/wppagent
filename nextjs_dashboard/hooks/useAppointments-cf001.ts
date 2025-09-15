@@ -1,7 +1,7 @@
 /**
- * 🚀 CF-001: Updated useAppointments Hook 
+ * 🚀 CF-001: Updated useAppointments Hook
  * ========================================
- * 
+ *
  * ✅ Uses auto-generated types from export function useAppointments(filters: {
   limit?: number
   page?: number
@@ -26,11 +26,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '../lib/react-query'
 import { toast } from 'sonner'
 // ✅ CF-001: Using auto-generated types from OpenAPI
-import type { 
-  Appointment, 
-  AppointmentCreateRequest, 
+import type {
+  Appointment,
+  AppointmentCreateRequest,
   AppointmentUpdateRequest,
-  AppointmentsListResponse 
+  AppointmentsListResponse
 } from '../types/api-cf001'
 
 // ===============================================
@@ -51,14 +51,14 @@ const appointmentApi = {
     user_id?: number
   }): Promise<AppointmentsListResponse> {
     const params = new URLSearchParams()
-    
+
     if (filters.limit) params.append('limit', filters.limit.toString())
     if (filters.page) params.append('page', filters.page.toString())
     if (filters.status) params.append('status', filters.status)
     if (filters.date_from) params.append('date_from', filters.date_from)
     if (filters.date_to) params.append('date_to', filters.date_to)
     if (filters.user_id) params.append('user_id', filters.user_id.toString())
-    
+
     const response = await fetch(`/api/appointments?${params}`, {
       method: 'GET',
       headers: {
@@ -67,16 +67,16 @@ const appointmentApi = {
       },
       credentials: 'include' // ✅ Include cookies for auth
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao buscar agendamentos: ${response.statusText}`)
     }
-    
+
     return response.json()
   },
 
   /**
-   * 📅 Create Appointment  
+   * 📅 Create Appointment
    * ✅ CF-001: Uses generated AppointmentCreateRequest type
    */
   async createAppointment(data: AppointmentCreateRequest): Promise<Appointment> {
@@ -88,12 +88,12 @@ const appointmentApi = {
       credentials: 'include', // ✅ Include cookies for auth
       body: JSON.stringify(data)
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(errorData.detail || `Erro ao criar agendamento: ${response.statusText}`)
     }
-    
+
     return response.json()
   },
 
@@ -110,12 +110,12 @@ const appointmentApi = {
       credentials: 'include', // ✅ Include cookies for auth
       body: JSON.stringify(data)
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(errorData.detail || `Erro ao atualizar agendamento: ${response.statusText}`)
     }
-    
+
     return response.json()
   },
 
@@ -127,11 +127,11 @@ const appointmentApi = {
       method: 'DELETE',
       credentials: 'include' // ✅ Include cookies for auth
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao deletar agendamento: ${response.statusText}`)
     }
-    
+
     return response.json()
   }
 }
@@ -167,7 +167,7 @@ export function useAppointments(filters: {
  */
 export function useCreateAppointment() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: (data: AppointmentCreateRequest) => appointmentApi.createAppointment(data),
     onSuccess: (data: Appointment) => {
@@ -187,12 +187,12 @@ export function useCreateAppointment() {
  */
 export function useUpdateAppointment() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: AppointmentUpdateRequest }) => 
+    mutationFn: ({ id, data }: { id: number; data: AppointmentUpdateRequest }) =>
       appointmentApi.updateAppointment(id, data),
     onSuccess: (data: Appointment) => {
-      // ✅ CF-001: data is properly typed with camelCase fields  
+      // ✅ CF-001: data is properly typed with camelCase fields
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.lists() })
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.detail(data.id) })
       toast.success(`Agendamento atualizado: ${data.clientName || 'Cliente'}`)
@@ -208,7 +208,7 @@ export function useUpdateAppointment() {
  */
 export function useDeleteAppointment() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: (id: number) => appointmentApi.deleteAppointment(id),
     onSuccess: () => {
@@ -233,7 +233,7 @@ export function validateCF001Types() {
   const sampleAppointment: Appointment = {
     id: 1,
     userId: 1, // ✅ camelCase from backend user_id
-    businessId: 1, // ✅ camelCase from backend business_id  
+    businessId: 1, // ✅ camelCase from backend business_id
     serviceId: 1, // ✅ camelCase from backend service_id
     dateTime: '2025-09-15T10:00:00Z', // ✅ camelCase from backend date_time
     durationMinutes: 60, // ✅ camelCase from backend duration_minutes
@@ -242,7 +242,7 @@ export function validateCF001Types() {
     clientName: 'João Silva', // ✅ camelCase from backend client_name
     serviceName: 'Corte de Cabelo' // ✅ camelCase from backend service_name
   }
-  
+
   console.log('✅ CF-001 Types validated:', sampleAppointment)
   return sampleAppointment
 }
@@ -252,7 +252,7 @@ export function validateCF001Types() {
  */
 export const CF001_MIGRATION_STATUS = {
   types_generated: '✅ Complete',
-  hooks_updated: '✅ Complete', 
+  hooks_updated: '✅ Complete',
   camelCase_fields: '✅ Complete',
   api_calls: '✅ Complete',
   auth_cookies: '✅ Complete',

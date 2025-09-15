@@ -85,7 +85,7 @@ class ApiCache {
 
     const regex = new RegExp(pattern);
     const keysToDelete: string[] = [];
-    
+
     this.cache.forEach((value, key) => {
       if (regex.test(key) || regex.test(value.endpoint)) {
         keysToDelete.push(key);
@@ -125,7 +125,7 @@ function useNetworkStatus() {
     if (typeof window !== 'undefined') {
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
-      
+
       const connection = (navigator as any).connection;
       if (connection) {
         connection.addEventListener('change', handleConnectionChange);
@@ -247,10 +247,10 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
       debounceMs,
       ...fetchOptions
     } = { ...defaultOptions, ...options };
-    
+
     // For caching, we need to extract method from the actual request
     const method = (fetchOptions && 'method' in fetchOptions ? fetchOptions.method : undefined) || 'GET';
-    
+
     // Check cache first
     if (useCache && method !== 'POST' && method !== 'PUT' && method !== 'DELETE') {
       const cacheKey = `${endpoint}_${JSON.stringify(fetchOptions)}`;
@@ -268,11 +268,11 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
     abortControllerRef.current = new AbortController();
 
     // Set loading state
-    setState(prev => ({ 
-      ...prev, 
-      loading: true, 
-      error: null, 
-      success: false 
+    setState(prev => ({
+      ...prev,
+      loading: true,
+      error: null,
+      success: false
     }));
 
     // Show loading toast
@@ -378,14 +378,14 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
         return data;
 
       } catch (error: any) {
-        lastError = error.name === 'AbortError' ? 
+        lastError = error.name === 'AbortError' ?
           createApiError('Operação cancelada', 0, endpoint) :
           error instanceof Error ?
             createApiError(error.message, (error as ApiError).status, endpoint, (error as ApiError).data) :
             createApiError('Erro desconhecido', 0, endpoint);
 
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           retryCount: attempt,
           error: lastError
         }));
@@ -393,7 +393,7 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
         // Check if should retry
         if (shouldRetry(lastError, attempt, retryAttempts)) {
           const delay = calculateRetryDelay(attempt, retryDelay);
-          
+
           if (showToasts) {
             toastError(
               'Tentando novamente...',
@@ -412,11 +412,11 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
     }
 
     // Handle final error
-    setState(prev => ({ 
-      ...prev, 
-      loading: false, 
-      error: lastError, 
-      success: false 
+    setState(prev => ({
+      ...prev,
+      loading: false,
+      error: lastError,
+      success: false
     }));
 
     // Remove loading toast
@@ -428,10 +428,10 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
     // Show error feedback
     if (showToasts && lastError) {
       if (lastError.status) {
-        addApiError(lastError.message, { 
-          endpoint, 
-          status: lastError.status, 
-          context: lastError.data 
+        addApiError(lastError.message, {
+          endpoint,
+          status: lastError.status,
+          context: lastError.data
         });
       } else {
         addNetworkError(lastError.message);
@@ -483,8 +483,8 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
   }, [debouncedExecute]);
 
   const post = useCallback((endpoint: string, data?: any, options?: ApiCallOptions) => {
-    const { method, body, ...requestOptions } = { 
-      method: 'POST', 
+    const { method, body, ...requestOptions } = {
+      method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
       ...options
     };
@@ -492,8 +492,8 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
   }, [debouncedExecute]);
 
   const put = useCallback((endpoint: string, data?: any, options?: ApiCallOptions) => {
-    const { method, body, ...requestOptions } = { 
-      method: 'PUT', 
+    const { method, body, ...requestOptions } = {
+      method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
       ...options
     };
@@ -506,8 +506,8 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
   }, [debouncedExecute]);
 
   const patch = useCallback((endpoint: string, data?: any, options?: ApiCallOptions) => {
-    const { method, body, ...requestOptions } = { 
-      method: 'PATCH', 
+    const { method, body, ...requestOptions } = {
+      method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
       ...options
     };
@@ -570,7 +570,7 @@ export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
 
 // Specialized hooks
 export function useQuery<T = any>(
-  endpoint: string, 
+  endpoint: string,
   options: ApiCallOptions & { enabled?: boolean; refetchInterval?: number } = {}
 ) {
   const { enabled = true, refetchInterval, ...apiOptions } = options;

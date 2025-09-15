@@ -104,28 +104,28 @@ export const useAnalytics = (
   // Função para construir query string
   const buildQueryString = useCallback((filters: AnalyticsFilters): string => {
     const params = new URLSearchParams();
-    
+
     if (filters.timeRange) {
       params.append('start_date', format(filters.timeRange.startDate, 'yyyy-MM-dd'));
       params.append('end_date', format(filters.timeRange.endDate, 'yyyy-MM-dd'));
     }
-    
+
     if (filters.channels?.length) {
       params.append('channels', filters.channels.join(','));
     }
-    
+
     if (filters.agents?.length) {
       params.append('agents', filters.agents.join(','));
     }
-    
+
     if (filters.status?.length) {
       params.append('status', filters.status.join(','));
     }
-    
+
     if (filters.tags?.length) {
       params.append('tags', filters.tags.join(','));
     }
-    
+
     return params.toString();
   }, []);
 
@@ -137,7 +137,7 @@ export const useAnalytics = (
 
       const queryString = buildQueryString(memoizedFilters);
       const url = `/api/analytics/${endpoint}${queryString ? `?${queryString}` : ''}`;
-      
+
       const token = null // ✅ REMOVIDO: Token inseguro;
       const response = await fetch(url, {
         headers: {
@@ -151,11 +151,11 @@ export const useAnalytics = (
       }
 
       const result = await response.json();
-      
+
       // Usar dados diretamente do campo 'data' da resposta
       setData(result.data);
       setLastUpdate(new Date());
-      
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       console.error('Erro ao carregar analytics:', err);

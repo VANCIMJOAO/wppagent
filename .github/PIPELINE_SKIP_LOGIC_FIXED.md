@@ -5,6 +5,7 @@
 Várias etapas estavam sendo **skipadas** devido a uma **lógica condicional inconsistente**:
 
 ### **Dependências Problemáticas:**
+
 ```
 Deploy Staging → Health Check → Deploy Production → Release
      ↓              ↓               ↓             ↓
@@ -12,6 +13,7 @@ Deploy Staging → Health Check → Deploy Production → Release
 ```
 
 ### **O Conflito:**
+
 - **Deploy Staging**: `if: github.ref == 'refs/heads/develop'` (só develop)
 - **Health Check**: `needs: [deploy-staging]` + `if: github.ref == 'refs/heads/main'` (só main)
 
@@ -46,6 +48,7 @@ Build → Deploy Staging
    - Executa em paralelo com health check
 
 3. **Health Check Inteligente:**
+
    ```bash
    if [ "${{ github.ref }}" == "refs/heads/main" ]; then
      APP_URL="${{ vars.PRODUCTION_URL }}"  # Produção
@@ -57,9 +60,11 @@ Build → Deploy Staging
 ## 🎯 **Resultado**
 
 ### **Branch Main (Produção):**
+
 ✅ Tests & Code Quality → ✅ Security Scan → ✅ Build Docker → ✅ Health Check + ✅ Deploy Production → ✅ Release
 
 ### **Branch Develop (Staging):**
+
 ✅ Tests & Code Quality → ✅ Security Scan → ✅ Build Docker → ✅ Deploy Staging
 
 ## 📊 **Comparação**
@@ -82,6 +87,7 @@ Build → Deploy Staging
 ## 📋 **Próximo Teste**
 
 No próximo push para `main`:
+
 - ✅ Todas as etapas devem executar
 - ✅ Health Check deve funcionar
 - ✅ Deploy Production deve funcionar

@@ -15,7 +15,7 @@ interface CollapsibleProps {
 
 function Collapsible({ children }: CollapsibleProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  
+
   return (
     <div>
       {React.Children.map(children, child => {
@@ -33,10 +33,10 @@ function Collapsible({ children }: CollapsibleProps) {
   );
 }
 
-function CollapsibleTrigger({ children, className, onClick }: { 
-  children: ReactNode; 
-  className?: string; 
-  onClick?: () => void; 
+function CollapsibleTrigger({ children, className, onClick }: {
+  children: ReactNode;
+  className?: string;
+  onClick?: () => void;
 }) {
   return (
     <button className={className} onClick={onClick}>
@@ -45,9 +45,9 @@ function CollapsibleTrigger({ children, className, onClick }: {
   );
 }
 
-function CollapsibleContent({ children, className }: { 
-  children: ReactNode; 
-  className?: string; 
+function CollapsibleContent({ children, className }: {
+  children: ReactNode;
+  className?: string;
 }) {
   return <div className={className}>{children}</div>;
 }
@@ -192,7 +192,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
     if (stack.includes('api') || stack.includes('axios') || stack.includes('fetch')) {
       return 'api';
     }
-    
+
     return 'unknown';
   }
 
@@ -236,7 +236,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
 
   private queueErrorForReporting(error: AppError) {
     this.errorReportingQueue.push(error);
-    
+
     // Process queue asynchronously
     setTimeout(() => this.processErrorQueue(), 100);
   }
@@ -259,7 +259,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
 
   private async reportErrors(errors: AppError[]) {
     const batchReportUrl = '/api/errors/batch-report';
-    
+
     await fetch(batchReportUrl, {
       method: 'POST',
       headers: {
@@ -283,7 +283,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
 
   private shouldAutoRetry(error: Error): boolean {
     const message = error.message.toLowerCase();
-    
+
     // Auto-retry for network and temporary errors
     return (
       message.includes('network') ||
@@ -297,7 +297,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
 
   private scheduleRetry() {
     const retryDelay = Math.min(1000 * Math.pow(2, this.state.retryCount), 10000); // Exponential backoff, max 10s
-    
+
     this.setState({ isRetrying: true });
 
     this.retryTimer = setTimeout(() => {
@@ -338,7 +338,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
   private handleReportIssue = () => {
     const error = this.state.error;
     const errorInfo = this.state.errorInfo;
-    
+
     if (!error) return;
 
     const issueData = {
@@ -388,7 +388,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
   private renderErrorUI() {
     const { error, errorInfo, errorId, retryCount, errorHistory } = this.state;
     const { level = 'component', context, retryAttempts = 3, showErrorDetails = true, allowReset = true } = this.props;
-    
+
     const canRetry = retryCount < retryAttempts;
     const severity = error ? this.calculateSeverity(error) : 'medium';
 
@@ -399,25 +399,25 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className={`h-5 w-5 ${
-                  severity === 'critical' ? 'text-destructive' : 
+                  severity === 'critical' ? 'text-destructive' :
                   severity === 'high' ? 'text-orange-500' : 'text-yellow-500'
                 }`} />
                 <CardTitle className="text-lg">
-                  {level === 'page' ? 'Erro na Página' : 
+                  {level === 'page' ? 'Erro na Página' :
                    level === 'section' ? 'Erro na Seção' : 'Erro no Componente'}
                 </CardTitle>
                 <Badge variant={severity === 'critical' ? 'destructive' : 'secondary'}>
                   {severity}
                 </Badge>
               </div>
-              
+
               {errorId && (
                 <Badge variant="outline" className="font-mono text-xs">
                   {errorId}
                 </Badge>
               )}
             </div>
-            
+
             <CardDescription>
               {context && (
                 <span className="font-medium">{context}: </span>
@@ -430,7 +430,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
             {/* Error Actions */}
             <div className="flex flex-wrap gap-2">
               {canRetry && (
-                <Button 
+                <Button
                   onClick={this.handleManualRetry}
                   variant="default"
                   size="sm"
@@ -445,7 +445,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
               )}
 
               {allowReset && (
-                <Button 
+                <Button
                   onClick={this.handleResetState}
                   variant="outline"
                   size="sm"
@@ -456,7 +456,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
                 </Button>
               )}
 
-              <Button 
+              <Button
                 onClick={() => window.location.reload()}
                 variant="outline"
                 size="sm"
@@ -466,7 +466,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
                 <span>Recarregar Página</span>
               </Button>
 
-              <Button 
+              <Button
                 onClick={this.handleReportIssue}
                 variant="outline"
                 size="sm"
@@ -476,7 +476,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
                 <span>Reportar Problema</span>
               </Button>
 
-              <Button 
+              <Button
                 onClick={() => window.history.back()}
                 variant="ghost"
                 size="sm"
@@ -589,11 +589,11 @@ export function useErrorBoundary() {
       // This will trigger the error boundary
       throw new Error(`${context ? `${context}: ` : ''}${error.message}`);
     },
-    
+
     captureError: (error: Error, context?: any) => {
       // Report error without triggering boundary
       console.error('Captured Error:', error, context);
-      
+
       // Could send to error reporting service
       fetch('/api/errors/capture', {
         method: 'POST',

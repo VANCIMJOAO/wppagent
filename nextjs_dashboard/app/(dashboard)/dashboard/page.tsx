@@ -9,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRealAnalytics } from '@/hooks/use-real-analytics';
 import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary';
-import { 
-  Users, 
-  MessageSquare, 
+import {
+  Users,
+  MessageSquare,
   Clock,
   TrendingUp,
   Calendar,
@@ -31,7 +31,7 @@ export default function DashboardPage() {
     dashboardError,
     refreshDashboard
   } = useRealAnalytics();
-  
+
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   if (loadingDashboard && !dashboardSummary) {
@@ -70,10 +70,10 @@ export default function DashboardPage() {
               </p>
             )}
           </div>
-          
+
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => {
                 refreshDashboard(30);
@@ -84,7 +84,7 @@ export default function DashboardPage() {
               <RefreshCw className={`w-4 h-4 mr-2 ${loadingDashboard ? 'animate-spin' : ''}`} />
               Atualizar
             </Button>
-            
+
             <Link href="/analytics">
               <Button size="sm">
                 <TrendingUp className="w-4 h-4 mr-2" />
@@ -177,17 +177,17 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600">
                 Tempo médio para primeira resposta
               </p>
-              
+
               {dashboardSummary?.trends && (
                 <div className="mt-4 flex items-center gap-2">
                   <TrendingUp className={`h-4 w-4 ${
-                    (dashboardSummary.trends.responseTime || 0) >= 0 
-                      ? 'text-red-500' 
+                    (dashboardSummary.trends.responseTime || 0) >= 0
+                      ? 'text-red-500'
                       : 'text-green-500'
                   }`} />
                   <span className={`text-sm ${
-                    (dashboardSummary.trends.responseTime || 0) >= 0 
-                      ? 'text-red-600' 
+                    (dashboardSummary.trends.responseTime || 0) >= 0
+                      ? 'text-red-600'
                       : 'text-green-600'
                   }`}>
                     {Math.abs(dashboardSummary.trends.responseTime || 0).toFixed(1)}% vs período anterior
@@ -212,17 +212,17 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600">
                 Score médio de satisfação
               </p>
-              
+
               {dashboardSummary?.trends && (
                 <div className="mt-4 flex items-center gap-2">
                   <TrendingUp className={`h-4 w-4 ${
-                    (dashboardSummary.trends.satisfaction || 0) >= 0 
-                      ? 'text-green-500' 
+                    (dashboardSummary.trends.satisfaction || 0) >= 0
+                      ? 'text-green-500'
                       : 'text-red-500'
                   }`} />
                   <span className={`text-sm ${
-                    (dashboardSummary.trends.satisfaction || 0) >= 0 
-                      ? 'text-green-600' 
+                    (dashboardSummary.trends.satisfaction || 0) >= 0
+                      ? 'text-green-600'
                       : 'text-red-600'
                   }`}>
                     {Math.abs(dashboardSummary.trends.satisfaction || 0).toFixed(1)}% vs período anterior
@@ -251,14 +251,14 @@ export default function DashboardPage() {
                   {dashboardSummary ? 'Conectado ao backend' : 'Backend desconectado'}
                 </span>
               </div>
-              
+
               {dashboardError && (
                 <div className="text-sm text-red-600 bg-red-50 px-3 py-1 rounded">
                   Erro: {dashboardError}
                 </div>
               )}
             </div>
-            
+
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               <div>
                 <strong>Mensagens processadas:</strong> {dashboardSummary?.key_metrics.total_messages?.toLocaleString() || '0'}

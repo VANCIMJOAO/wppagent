@@ -51,42 +51,42 @@ async def lifespan(app: FastAPI):
     """Gerenciamento do ciclo de vida da aplicação"""
     # Startup
     logger.info("Iniciando WhatsApp Agent API...")
-    
+
     try:
         # Inicializar banco de dados
         await init_db()
         logger.info("Banco de dados inicializado")
-        
+
         # Inicializar cache service
         await cache_service.initialize()
         logger.info("Cache service inicializado")
-        
+
         # 🚀 Inicializar sistemas de performance
         db_optimizer = DatabaseOptimizer()
         await db_optimizer.initialize()
         logger.info("🚀 Database Optimizer ativado")
-        
+
         optimized_cache = OptimizedCacheService()
         await optimized_cache.initialize()
         logger.info("🚀 Cache Optimized ativado")
-        
+
         cdn_manager = CDNManager()
         await cdn_manager.initialize()
         logger.info("🚀 CDN Manager ativado")
-        
+
         logger.info("✅ WhatsApp Agent API iniciado com sucesso!")
         logger.info(f"📱 Webhook URL: {settings.webhook_url}")
-        
+
     except Exception as e:
         logger.error(f"❌ Erro na inicialização: {e}")
         raise
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Encerrando WhatsApp Agent API...")
     await cache_service.close()
-    
+
     # Shutdown
     logger.info("Finalizando WhatsApp Agent API...")
 
@@ -137,7 +137,7 @@ app.include_router(webhook_router, tags=["webhook"])
 from app.routes.auth import router as auth_router
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 
-from app.routes.secrets import router as secrets_router  
+from app.routes.secrets import router as secrets_router
 app.include_router(secrets_router, prefix="/secrets", tags=["Secrets Management"])
 
 # 🔐 Incluir rotas de segurança e criptografia
@@ -177,7 +177,7 @@ async def detailed_health_check():
     try:
         checks = await health_checker.run_all_checks()
         overall_status = health_checker.get_overall_status(checks)
-        
+
         # Converter para formato serializável
         serialized_checks = {}
         for name, check in checks.items():
@@ -188,13 +188,13 @@ async def detailed_health_check():
                 "response_time": check.response_time,
                 "details": check.details
             }
-        
+
         response_data = {
             "overall_status": overall_status.value,
             "checks": serialized_checks,
             "timestamp": datetime.now().isoformat()
         }
-        
+
         # Retornar status HTTP apropriado
         if overall_status == HealthStatus.HEALTHY:
             return JSONResponse(content=response_data, status_code=200)
@@ -202,7 +202,7 @@ async def detailed_health_check():
             return JSONResponse(content=response_data, status_code=200)  # Still operational
         else:
             return JSONResponse(content=response_data, status_code=503)  # Service Unavailable
-            
+
     except Exception as e:
         logger.error(f"Erro no health check detalhado: {e}")
         return JSONResponse(
@@ -221,11 +221,11 @@ async def get_metrics():
     try:
         # Executar health checks para obter métricas atuais
         checks = await health_checker.run_all_checks()
-        
+
         # Coletar métricas adicionais
         from app.services.retry_handler import retry_handler
         circuit_breaker_stats = retry_handler.get_circuit_breaker_status("whatsapp_api")
-        
+
         metrics = {
             "system": {
                 "uptime": datetime.now().isoformat(),
@@ -244,9 +244,9 @@ async def get_metrics():
                 "whatsapp_api": circuit_breaker_stats
             }
         }
-        
+
         return metrics
-        
+
     except Exception as e:
         logger.error(f"Erro ao coletar métricas: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -278,10 +278,10 @@ async def get_client_rate_limit_info(client_id: str):
     try:
         from app.services.rate_limiter import rate_limiter
         stats = rate_limiter.get_client_stats(client_id)
-        
+
         if "error" in stats:
             raise HTTPException(status_code=404, detail="Cliente não encontrado")
-        
+
         return stats
     except HTTPException:
         raise
@@ -458,7 +458,7 @@ async def test_llm_processing():
             conversation_id="test_conversation",
             message="Olá, gostaria de agendar um corte de cabelo para amanhã às 14h"
         )
-        
+
         return {
             "test_successful": True,
             "response": {
@@ -492,17 +492,17 @@ async def test_hybrid_system(request: dict):
     try:
         message = request.get("message", "")
         phone = request.get("phone", "test_user")
-        
+
         if not message:
             raise HTTPException(status_code=400, detail="Mensagem é obrigatória")
-        
+
         result = await hybrid_service.process_message(
             user_id=phone,
             conversation_id=f"test_{datetime.now().timestamp()}",
             message=message,
             message_type="test"
         )
-        
+
         return {
             "test_successful": True,
             "result": result
@@ -545,7 +545,7 @@ async def set_hybrid_strategy(strategy: str):
         valid_strategies = ["llm_only", "crew_only", "hybrid", "auto"]
         if strategy not in valid_strategies:
             raise HTTPException(status_code=400, detail=f"Estratégia deve ser uma de: {valid_strategies}")
-        
+
         # Implementar lógica de configuração da estratégia
         return {"success": True, "strategy_set": strategy, "message": f"Estratégia definida para {strategy}"}
     except Exception as e:
@@ -564,17 +564,17 @@ async def score_lead(request: dict):
         phone = request.get("phone", "")
         customer_data = request.get("customer_data", {})
         context = request.get("context", {})
-        
+
         if not message or not phone:
             raise HTTPException(status_code=400, detail="Message e phone são obrigatórios")
-        
+
         lead_score = lead_scoring_service.score_lead(
             message=message,
             phone=phone,
             customer_data=customer_data,
             context=context
         )
-        
+
         return {
             "success": True,
             "lead_score": {
@@ -615,7 +615,7 @@ async def get_top_leads(limit: int = 10):
     try:
         if limit < 1 or limit > 100:
             raise HTTPException(status_code=400, detail="Limit deve estar entre 1 e 100")
-        
+
         top_leads = lead_scoring_service.get_top_leads(limit)
         return {
             "success": True,
@@ -654,7 +654,7 @@ async def test_lead_scoring():
                 "customer_data": {"total_spent": 500, "total_interactions": 10, "complaints": 1}
             }
         ]
-        
+
         results = []
         for case in test_cases:
             lead_score = lead_scoring_service.score_lead(
@@ -662,7 +662,7 @@ async def test_lead_scoring():
                 phone=case["phone"],
                 customer_data=case["customer_data"]
             )
-            
+
             results.append({
                 "message": case["message"],
                 "phone": case["phone"],
@@ -673,7 +673,7 @@ async def test_lead_scoring():
                 "conversion_probability": lead_score.conversion_probability,
                 "recommendations": lead_score.recommendations[:3]  # Apenas 3 primeiras
             })
-        
+
         return {
             "success": True,
             "test_results": results,
@@ -743,17 +743,17 @@ async def get_conversation_analytics():
         all_conversations = {}
         for phone, memory in conversation_flow_service.conversation_memories.items():
             all_conversations[phone] = conversation_flow_service.get_conversation_summary(phone)
-        
+
         # Calcular métricas
         total_conversations = len(all_conversations)
         active_conversations = len([c for c in all_conversations.values() if c.get("status") != "no_conversation"])
-        
+
         # Estados mais comuns
         states = [c.get("current_state") for c in all_conversations.values() if c.get("current_state")]
         state_distribution = {}
         for state in set(states):
             state_distribution[state] = states.count(state)
-        
+
         # Tópicos mais frequentes
         all_topics = {}
         for conv in all_conversations.values():
@@ -763,11 +763,11 @@ async def get_conversation_analytics():
                         all_topics[topic_id] = {"count": 0, "total_mentions": 0}
                     all_topics[topic_id]["count"] += 1
                     all_topics[topic_id]["total_mentions"] += topic_data.get("mentions", 0)
-        
+
         # Switches de contexto
         context_switches = [c.get("context_switches", 0) for c in all_conversations.values()]
         avg_context_switches = sum(context_switches) / len(context_switches) if context_switches else 0
-        
+
         return {
             "status": "success",
             "total_conversations": total_conversations,
@@ -778,7 +778,7 @@ async def get_conversation_analytics():
             "high_switch_conversations": len([s for s in context_switches if s > 5]),
             "conversation_details": all_conversations
         }
-        
+
     except Exception as e:
         logger.error(f"Erro ao gerar analytics conversacionais: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -793,13 +793,13 @@ async def test_conversation_flow():
                 "messages": [
                     "Oi, bom dia!",
                     "Gostaria de saber sobre seus serviços",
-                    "Aliás, quanto custa um corte?", 
+                    "Aliás, quanto custa um corte?",
                     "Mas voltando aos serviços, vocês fazem barba também?",
                     "Perfeito! Posso agendar para amanhã?"
                 ]
             },
             {
-                "phone": "11999999002", 
+                "phone": "11999999002",
                 "messages": [
                     "Preciso cancelar meu agendamento",
                     "Na verdade, posso reagendar?",
@@ -811,28 +811,28 @@ async def test_conversation_flow():
                 "phone": "11999999003",
                 "messages": [
                     "Olá! Quero saber preços",
-                    "E onde vocês ficam?", 
+                    "E onde vocês ficam?",
                     "Tem estacionamento?",
                     "Voltando aos preços, fazem promoção?",
                     "E sobre horários, funcionam sábado?"
                 ]
             }
         ]
-        
+
         results = []
-        
+
         for scenario in test_scenarios:
             phone = scenario["phone"]
             # Reset conversa para teste limpo
             conversation_flow_service.reset_conversation(phone)
-            
+
             scenario_results = []
             for i, message in enumerate(scenario["messages"]):
                 # Processar mensagem
                 flow_decision = conversation_flow_service.process_message_flow(
                     message, phone, {"test": True}
                 )
-                
+
                 scenario_results.append({
                     "step": i + 1,
                     "message": message,
@@ -842,10 +842,10 @@ async def test_conversation_flow():
                     "topics_detected": flow_decision.topics_to_activate,
                     "reasoning": flow_decision.reasoning
                 })
-            
+
             # Obter resumo final
             final_summary = conversation_flow_service.get_conversation_summary(phone)
-            
+
             results.append({
                 "scenario": f"Teste {phone[-3:]}",
                 "phone": phone,
@@ -853,14 +853,14 @@ async def test_conversation_flow():
                 "steps": scenario_results,
                 "final_summary": final_summary
             })
-        
+
         return {
             "status": "success",
             "message": "Testes de fluxo conversacional executados",
             "scenarios_tested": len(test_scenarios),
             "results": results
         }
-        
+
     except Exception as e:
         logger.error(f"Erro no teste de fluxo conversacional: {e}")
         return {

@@ -24,6 +24,7 @@
 ## 🔍 **N+1 QUERIES ELIMINATION**
 
 ### **Problema Original**
+
 ```python
 # ❌ ANTES: N+1 Query Problem
 async def get_appointments_old():
@@ -34,29 +35,30 @@ async def get_appointments_old():
     appointments = await db.execute(
         select(Appointment).limit(10)
     )
-    
+
     # ❌ This creates N additional queries!
     for appointment in appointments:
         # Query 1: Get user
         user = await db.execute(
             select(User).where(User.id == appointment.user_id)
         )
-        
+
         # Query 2: Get business
         business = await db.execute(
             select(Business).where(Business.id == appointment.business_id)
         )
-        
+
         # Query 3: Get service
         service = await db.execute(
             select(Service).where(Service.id == appointment.service_id)
         )
-    
+
     # Total: 1 + (3 * N) queries = 31 queries for 10 appointments!
     return appointments
 ```
 
 ### **Solução Implementada**
+
 ```python
 # ✅ DEPOIS: Eager Loading com Joins
 async def get_appointments_optimized():
@@ -78,10 +80,10 @@ async def get_appointments_optimized():
         .order_by(Appointment.created_at.desc())
         .limit(10)
     )
-    
+
     result = await db.execute(query)
     appointments = result.unique().scalars().all()
-    
+
     # Total: 1 query for everything!
     return appointments
 
@@ -95,7 +97,7 @@ async def get_appointments_with_pagination():
         Appointment.deleted_at.is_(None)
     )
     total_count = await db.scalar(count_query)
-    
+
     # Query 2: Get data with relationships
     data_query = (
         select(Appointment)
@@ -109,9 +111,9 @@ async def get_appointments_with_pagination():
         .offset(offset)
         .limit(limit)
     )
-    
+
     appointments = await db.execute(data_query)
-    
+
     # Total: 2 queries maximum, regardless of data size!
     return {
         "data": appointments.unique().scalars().all(),
@@ -121,13 +123,14 @@ async def get_appointments_with_pagination():
 ```
 
 ### **Implementação Completa**
+
 ```python
 # app/services/appointment_service.py
 class AppointmentService:
     """
     Optimized appointment service with performance best practices
     """
-    
+
     @staticmethod
     async def get_appointments_for_business(
         business_id: int,
@@ -140,7 +143,7 @@ class AppointmentService:
         """
         # ✅ Calculate offset once
         offset = (page - 1) * per_page
-        
+
         # ✅ Build base query with optimizations
         base_query = (
             select(Appointment)
@@ -162,11 +165,11 @@ class AppointmentService:
                 Appointment.deleted_at.is_(None)
             )
         )
-        
+
         # ✅ Add status filter if provided
         if status:
             base_query = base_query.where(Appointment.status == status)
-        
+
         # ✅ Count query (optimized, no joins needed)
         count_query = (
             select(func.count(Appointment.id))
@@ -175,22 +178,22 @@ class AppointmentService:
                 Appointment.deleted_at.is_(None)
             )
         )
-        
+
         if status:
             count_query = count_query.where(Appointment.status == status)
-        
+
         # ✅ Execute both queries
         total_count = await db.scalar(count_query)
-        
+
         appointments_result = await db.execute(
             base_query
             .order_by(Appointment.scheduled_at.desc())
             .offset(offset)
             .limit(per_page)
         )
-        
+
         appointments = appointments_result.unique().scalars().all()
-        
+
         # ✅ Return optimized response
         return {
             "appointments": appointments,
@@ -206,6 +209,7 @@ class AppointmentService:
 ```
 
 ### **Metrics Comparison**
+
 ```python
 # Performance monitoring implementation
 import time
@@ -217,12 +221,12 @@ async def get_appointments_metrics():
     Track performance metrics for appointments endpoint
     """
     start_time = time.time()
-    
+
     # Execute optimized query
     appointments = await AppointmentService.get_appointments_for_business(1)
-    
+
     execution_time = time.time() - start_time
-    
+
     # Log performance metrics
     await performance_logger.log({
         "endpoint": "get_appointments",
@@ -231,7 +235,7 @@ async def get_appointments_metrics():
         "memory_usage_mb": psutil.Process().memory_info().rss / 1024 / 1024,
         "result_count": len(appointments["appointments"])
     })
-    
+
     return appointments
 
 # Results:
@@ -244,46 +248,48 @@ async def get_appointments_metrics():
 ## 🗃️ **DATABASE OPTIMIZATION**
 
 ### **Índices Compostos Implementados**
+
 ```sql
 -- ✅ 1. Appointments performance index
-CREATE INDEX CONCURRENTLY idx_appointments_business_status_date 
-ON appointments (business_id, status, scheduled_at DESC) 
+CREATE INDEX CONCURRENTLY idx_appointments_business_status_date
+ON appointments (business_id, status, scheduled_at DESC)
 WHERE deleted_at IS NULL;
 
 -- ✅ 2. Conversations optimization
-CREATE INDEX CONCURRENTLY idx_conversations_phone_date 
-ON conversations (phone_number, created_at DESC) 
+CREATE INDEX CONCURRENTLY idx_conversations_phone_date
+ON conversations (phone_number, created_at DESC)
 WHERE deleted_at IS NULL;
 
 -- ✅ 3. Messages query optimization
-CREATE INDEX CONCURRENTLY idx_messages_conversation_timestamp 
+CREATE INDEX CONCURRENTLY idx_messages_conversation_timestamp
 ON messages (conversation_id, timestamp DESC);
 
 -- ✅ 4. User authentication optimization
-CREATE INDEX CONCURRENTLY idx_users_email_active 
-ON users (email) 
+CREATE INDEX CONCURRENTLY idx_users_email_active
+ON users (email)
 WHERE deleted_at IS NULL AND is_active = true;
 
 -- ✅ 5. Business queries optimization
-CREATE INDEX CONCURRENTLY idx_businesses_active_created 
-ON businesses (is_active, created_at DESC) 
+CREATE INDEX CONCURRENTLY idx_businesses_active_created
+ON businesses (is_active, created_at DESC)
 WHERE deleted_at IS NULL;
 
 -- ✅ 6. Webhook processing optimization
-CREATE INDEX CONCURRENTLY idx_webhooks_status_timestamp 
+CREATE INDEX CONCURRENTLY idx_webhooks_status_timestamp
 ON webhook_events (status, created_at DESC);
 ```
 
 ### **Query Performance Analysis**
+
 ```sql
 -- ✅ Before optimization analysis
-EXPLAIN (ANALYZE, BUFFERS) 
-SELECT a.*, u.name, u.email, s.name as service_name 
-FROM appointments a 
-JOIN users u ON a.user_id = u.id 
-JOIN services s ON a.service_id = s.id 
-WHERE a.business_id = 1 
-ORDER BY a.scheduled_at DESC 
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT a.*, u.name, u.email, s.name as service_name
+FROM appointments a
+JOIN users u ON a.user_id = u.id
+JOIN services s ON a.service_id = s.id
+WHERE a.business_id = 1
+ORDER BY a.scheduled_at DESC
 LIMIT 20;
 
 /*
@@ -294,13 +300,13 @@ Buffers: shared hit=12543 read=8976
 */
 
 -- ✅ After optimization analysis
-EXPLAIN (ANALYZE, BUFFERS) 
-SELECT a.*, u.name, u.email, s.name as service_name 
-FROM appointments a 
-JOIN users u ON a.user_id = u.id 
-JOIN services s ON a.service_id = s.id 
-WHERE a.business_id = 1 
-ORDER BY a.scheduled_at DESC 
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT a.*, u.name, u.email, s.name as service_name
+FROM appointments a
+JOIN users u ON a.user_id = u.id
+JOIN services s ON a.service_id = s.id
+WHERE a.business_id = 1
+ORDER BY a.scheduled_at DESC
 LIMIT 20;
 
 /*
@@ -312,6 +318,7 @@ Buffers: shared hit=156 read=0
 ```
 
 ### **Connection Pool Optimization**
+
 ```python
 # app/database.py
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -321,7 +328,7 @@ from sqlalchemy.pool import QueuePool
 # ✅ Optimized engine configuration
 engine = create_async_engine(
     settings.DATABASE_URL,
-    
+
     # ✅ Connection pool optimization
     poolclass=QueuePool,
     pool_size=20,                    # Core connections
@@ -329,11 +336,11 @@ engine = create_async_engine(
     pool_timeout=30,                 # Connection timeout
     pool_recycle=3600,              # Recycle connections hourly
     pool_pre_ping=True,             # Validate connections
-    
+
     # ✅ Performance optimization
     echo=False,                     # Disable SQL logging in production
     query_cache_size=1200,          # Cache compiled queries
-    
+
     # ✅ Connection optimization
     connect_args={
         "server_settings": {
@@ -362,7 +369,7 @@ async def get_db():
             # ✅ Set session-level optimizations
             await session.execute(text("SET LOCAL work_mem = '4MB'"))
             await session.execute(text("SET LOCAL random_page_cost = 1.1"))
-            
+
             yield session
         except Exception:
             await session.rollback()
@@ -372,6 +379,7 @@ async def get_db():
 ```
 
 ### **Database Performance Monitoring**
+
 ```python
 # app/utils/db_performance.py
 import time
@@ -382,22 +390,22 @@ class DatabasePerformanceMonitor:
     """
     Monitor database query performance
     """
-    
+
     def __init__(self):
         self.query_times = []
         self.slow_query_threshold = 0.5  # 500ms
-    
+
     def track_query_performance(self, conn, cursor, statement, parameters, context, executemany):
         """
         Track individual query performance
         """
         start_time = time.time()
-        
+
         @event.listens_for(conn, "after_cursor_execute")
         def after_execute(conn, cursor, statement, parameters, context, executemany):
             execution_time = time.time() - start_time
             self.query_times.append(execution_time)
-            
+
             # Log slow queries
             if execution_time > self.slow_query_threshold:
                 slow_query_logger.warning(
@@ -408,14 +416,14 @@ class DatabasePerformanceMonitor:
                         "parameters": str(parameters)[:100]
                     }
                 )
-    
+
     def get_performance_stats(self) -> Dict[str, float]:
         """
         Get performance statistics
         """
         if not self.query_times:
             return {}
-        
+
         return {
             "avg_query_time": sum(self.query_times) / len(self.query_times),
             "max_query_time": max(self.query_times),
@@ -434,6 +442,7 @@ event.listen(engine.sync_engine, "before_cursor_execute", db_monitor.track_query
 ## 🚀 **REDIS CACHING STRATEGY**
 
 ### **Cache Implementation**
+
 ```python
 # app/utils/cache_manager.py
 import json
@@ -446,11 +455,11 @@ class CacheManager:
     """
     Advanced Redis cache manager with TTL and invalidation
     """
-    
+
     def __init__(self, redis_client: Redis):
         self.redis = redis_client
         self.default_ttl = 3600  # 1 hour
-        
+
     async def get_or_set(
         self,
         key: str,
@@ -465,12 +474,12 @@ class CacheManager:
             cached_value = await self.get(key)
             if cached_value is not None:
                 return cached_value
-        
+
         # Execute function and cache result
         value = await fetch_function()
         await self.set(key, value, ttl or self.default_ttl)
         return value
-    
+
     async def get(self, key: str) -> Optional[Any]:
         """
         Get value from cache with deserialization
@@ -483,7 +492,7 @@ class CacheManager:
             # Log cache error and continue without cache
             cache_logger.warning(f"Cache get error for key {key}: {e}")
         return None
-    
+
     async def set(self, key: str, value: Any, ttl: int = None) -> bool:
         """
         Set value in cache with serialization and TTL
@@ -495,7 +504,7 @@ class CacheManager:
         except Exception as e:
             cache_logger.warning(f"Cache set error for key {key}: {e}")
             return False
-    
+
     async def delete(self, key: str) -> bool:
         """
         Delete specific cache key
@@ -506,7 +515,7 @@ class CacheManager:
         except Exception as e:
             cache_logger.warning(f"Cache delete error for key {key}: {e}")
             return False
-    
+
     async def delete_pattern(self, pattern: str) -> int:
         """
         Delete multiple keys matching pattern
@@ -519,7 +528,7 @@ class CacheManager:
         except Exception as e:
             cache_logger.warning(f"Cache pattern delete error for {pattern}: {e}")
             return 0
-    
+
     def generate_cache_key(self, prefix: str, **kwargs) -> str:
         """
         Generate consistent cache key from parameters
@@ -527,12 +536,12 @@ class CacheManager:
         # Sort parameters for consistent key generation
         sorted_params = sorted(kwargs.items())
         params_str = "&".join([f"{k}={v}" for k, v in sorted_params])
-        
+
         # Create hash for long parameter strings
         if len(params_str) > 100:
             params_hash = hashlib.md5(params_str.encode()).hexdigest()
             return f"{prefix}:{params_hash}"
-        
+
         return f"{prefix}:{params_str}"
 
 # Global cache manager
@@ -540,13 +549,14 @@ cache_manager = CacheManager(redis_client)
 ```
 
 ### **Smart Caching Implementation**
+
 ```python
 # app/services/cached_appointment_service.py
 class CachedAppointmentService:
     """
     Appointment service with intelligent caching
     """
-    
+
     @staticmethod
     async def get_appointments_cached(
         business_id: int,
@@ -565,22 +575,22 @@ class CachedAppointmentService:
             per_page=per_page,
             status=status or "all"
         )
-        
+
         # ✅ Try to get from cache first
         async def fetch_appointments():
             return await AppointmentService.get_appointments_for_business(
                 business_id, page, per_page, status
             )
-        
+
         # ✅ Get or set with appropriate TTL
         result = await cache_manager.get_or_set(
             cache_key,
             fetch_appointments,
             ttl=1800  # 30 minutes for appointments
         )
-        
+
         return result
-    
+
     @staticmethod
     async def invalidate_appointments_cache(business_id: int):
         """
@@ -588,11 +598,11 @@ class CachedAppointmentService:
         """
         pattern = f"appointments:*business_id={business_id}*"
         deleted_count = await cache_manager.delete_pattern(pattern)
-        
+
         cache_logger.info(
             f"Invalidated {deleted_count} appointment cache entries for business {business_id}"
         )
-        
+
         return deleted_count
 
 # ✅ Cache invalidation on data changes
@@ -610,40 +620,41 @@ def invalidate_appointment_cache(mapper, connection, target):
 ```
 
 ### **Cache Performance Metrics**
+
 ```python
 # app/utils/cache_metrics.py
 class CacheMetrics:
     """
     Track cache performance metrics
     """
-    
+
     def __init__(self):
         self.hits = 0
         self.misses = 0
         self.sets = 0
         self.deletes = 0
         self.errors = 0
-    
+
     def record_hit(self):
         self.hits += 1
-    
+
     def record_miss(self):
         self.misses += 1
-    
+
     def record_set(self):
         self.sets += 1
-    
+
     def record_delete(self):
         self.deletes += 1
-    
+
     def record_error(self):
         self.errors += 1
-    
+
     @property
     def hit_rate(self) -> float:
         total = self.hits + self.misses
         return (self.hits / total * 100) if total > 0 else 0
-    
+
     def get_stats(self) -> Dict[str, Any]:
         return {
             "cache_hits": self.hits,
@@ -669,6 +680,7 @@ cache_metrics = CacheMetrics()
 ## 🔧 **APPLICATION OPTIMIZATION**
 
 ### **Async/Await Best Practices**
+
 ```python
 # app/services/optimized_service.py
 import asyncio
@@ -678,7 +690,7 @@ class OptimizedService:
     """
     Service with async/await optimizations
     """
-    
+
     @staticmethod
     async def process_multiple_appointments(appointment_ids: List[int]) -> List[Dict[str, Any]]:
         """
@@ -689,24 +701,24 @@ class OptimizedService:
             appointment = await AppointmentService.get_appointment(appointment_id)
             processed_data = await AppointmentService.process_appointment_data(appointment)
             return processed_data
-        
+
         # ✅ Process all appointments concurrently
         tasks = [
-            process_single_appointment(appointment_id) 
+            process_single_appointment(appointment_id)
             for appointment_id in appointment_ids
         ]
-        
+
         # ✅ Wait for all tasks to complete
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # ✅ Filter out exceptions and return successful results
         successful_results = [
-            result for result in results 
+            result for result in results
             if not isinstance(result, Exception)
         ]
-        
+
         return successful_results
-    
+
     @staticmethod
     async def bulk_update_with_batch(updates: List[Dict[str, Any]]) -> int:
         """
@@ -714,11 +726,11 @@ class OptimizedService:
         """
         batch_size = 100
         total_updated = 0
-        
+
         # ✅ Process in batches to avoid memory issues
         for i in range(0, len(updates), batch_size):
             batch = updates[i:i + batch_size]
-            
+
             # ✅ Use bulk operations
             async with AsyncSessionLocal() as session:
                 try:
@@ -727,21 +739,22 @@ class OptimizedService:
                         update(Appointment)
                         .where(Appointment.id == bindparam('appointment_id'))
                     )
-                    
+
                     # Execute batch update
                     result = await session.execute(update_stmt, batch)
                     await session.commit()
-                    
+
                     total_updated += result.rowcount
-                    
+
                 except Exception as e:
                     await session.rollback()
                     logger.error(f"Batch update error: {e}")
-        
+
         return total_updated
 ```
 
 ### **Memory Optimization**
+
 ```python
 # app/utils/memory_optimizer.py
 import gc
@@ -752,7 +765,7 @@ class MemoryOptimizer:
     """
     Memory optimization utilities
     """
-    
+
     @staticmethod
     def get_memory_usage() -> Dict[str, float]:
         """
@@ -760,14 +773,14 @@ class MemoryOptimizer:
         """
         process = psutil.Process()
         memory_info = process.memory_info()
-        
+
         return {
             "rss_mb": memory_info.rss / 1024 / 1024,      # Resident Set Size
             "vms_mb": memory_info.vms / 1024 / 1024,      # Virtual Memory Size
             "percent": process.memory_percent(),           # Memory percentage
             "available_gb": psutil.virtual_memory().available / 1024 / 1024 / 1024
         }
-    
+
     @staticmethod
     async def process_large_dataset_streaming(query) -> Iterator[Any]:
         """
@@ -776,14 +789,14 @@ class MemoryOptimizer:
         async with AsyncSessionLocal() as session:
             # ✅ Use streaming to process large datasets
             result = await session.stream(query)
-            
+
             async for row in result:
                 yield row
-                
+
                 # ✅ Periodically clean up memory
                 if row.id % 1000 == 0:
                     gc.collect()
-    
+
     @staticmethod
     def optimize_for_production():
         """
@@ -791,7 +804,7 @@ class MemoryOptimizer:
         """
         # ✅ Set garbage collection thresholds
         gc.set_threshold(700, 10, 10)
-        
+
         # ✅ Force initial cleanup
         gc.collect()
 
@@ -800,6 +813,7 @@ MemoryOptimizer.optimize_for_production()
 ```
 
 ### **Response Compression**
+
 ```python
 # app/middleware/compression.py
 from fastapi import Request, Response
@@ -811,27 +825,27 @@ class CompressionMiddleware(BaseHTTPMiddleware):
     """
     Compress responses to reduce bandwidth and improve performance
     """
-    
+
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
-        
+
         # ✅ Check if client accepts gzip
         accept_encoding = request.headers.get("accept-encoding", "")
         if "gzip" not in accept_encoding:
             return response
-        
+
         # ✅ Only compress responses larger than 1KB
         if hasattr(response, 'body') and len(response.body) > 1024:
             # ✅ Compress response body
             compressed_body = gzip.compress(response.body)
-            
+
             # ✅ Update headers
             response.headers["content-encoding"] = "gzip"
             response.headers["content-length"] = str(len(compressed_body))
-            
+
             # ✅ Replace body with compressed version
             response.body = compressed_body
-        
+
         return response
 
 # Apply compression middleware
@@ -843,6 +857,7 @@ app.add_middleware(CompressionMiddleware)
 ## 📊 **PERFORMANCE MONITORING**
 
 ### **Real-time Performance Metrics**
+
 ```python
 # app/monitoring/performance_metrics.py
 from prometheus_client import Counter, Histogram, Gauge, Summary
@@ -886,31 +901,32 @@ class PerformanceMonitoringMiddleware(BaseHTTPMiddleware):
     """
     Monitor request performance in real-time
     """
-    
+
     async def dispatch(self, request: Request, call_next):
         start_time = time.time()
-        
+
         # ✅ Track request
         response = await call_next(request)
-        
+
         # ✅ Calculate duration
         duration = time.time() - start_time
-        
+
         # ✅ Record metrics
         response_time.labels(
             method=request.method,
             endpoint=request.url.path
         ).observe(duration)
-        
+
         # ✅ Add performance headers
         response.headers["X-Response-Time"] = f"{duration:.3f}s"
-        
+
         return response
 
 app.add_middleware(PerformanceMonitoringMiddleware)
 ```
 
 ### **Performance Dashboard Queries**
+
 ```promql
 # Average response time by endpoint
 rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])
@@ -932,6 +948,7 @@ active_database_connections
 ```
 
 ### **Performance Alerts**
+
 ```yaml
 # prometheus/alerts.yml
 groups:
@@ -946,7 +963,7 @@ groups:
         annotations:
           summary: "High response time detected"
           description: "95th percentile response time is {{ $value }}s"
-      
+
       # ✅ Low cache hit rate alert
       - alert: LowCacheHitRate
         expr: rate(cache_operations_total{result="hit"}[5m]) / rate(cache_operations_total[5m]) * 100 < 80
@@ -956,7 +973,7 @@ groups:
         annotations:
           summary: "Low cache hit rate"
           description: "Cache hit rate is {{ $value }}%"
-      
+
       # ✅ High memory usage alert
       - alert: HighMemoryUsage
         expr: memory_usage_bytes > 1073741824  # 1GB
@@ -973,6 +990,7 @@ groups:
 ## 🎯 **PERFORMANCE BEST PRACTICES**
 
 ### **Development Guidelines**
+
 ```python
 # ✅ DO: Use async/await properly
 async def good_async_function():
@@ -1011,6 +1029,7 @@ async def get_all_users():
 ```
 
 ### **Production Optimizations**
+
 ```bash
 # ✅ PostgreSQL optimizations
 # /etc/postgresql/16/main/postgresql.conf
@@ -1043,16 +1062,17 @@ gzip_types text/plain application/json;
 ## 📈 **SCALABILITY ROADMAP**
 
 ### **Horizontal Scaling**
+
 ```python
 # ✅ Database read replicas
 class DatabaseManager:
     def __init__(self):
         self.write_engine = create_async_engine(settings.DATABASE_WRITE_URL)
         self.read_engine = create_async_engine(settings.DATABASE_READ_URL)
-    
+
     async def get_write_session(self):
         return AsyncSession(self.write_engine)
-    
+
     async def get_read_session(self):
         return AsyncSession(self.read_engine)
 
@@ -1078,6 +1098,7 @@ app.add_middleware(
 ```
 
 ### **Performance Targets**
+
 - ✅ **Response Time P95**: < 500ms (achieved)
 - ✅ **Throughput**: 1000 req/s (achieved)
 - ✅ **Cache Hit Rate**: > 95% (achieved)

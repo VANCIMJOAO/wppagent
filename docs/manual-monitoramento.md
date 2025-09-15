@@ -9,6 +9,7 @@
 ### **Stack de Monitoramento** 🔧
 
 #### **Componentes Principais**
+
 - 📈 **Grafana**: Dashboards e visualizações avançadas
 - 🔔 **Prometheus**: Coleta de métricas e alertas
 - 📝 **Loki**: Agregação e análise de logs
@@ -19,6 +20,7 @@
 - 🐘 **PostgreSQL Exporter**: Métricas do banco
 
 #### **Métricas de SLA** 📋
+
 - ✅ **Uptime**: 99.9% (target: >99.5%)
 - ✅ **Response Time**: 120ms médio (target: <300ms)
 - ✅ **Error Rate**: 0.1% (target: <1%)
@@ -32,6 +34,7 @@
 ### **Configuração do Prometheus**
 
 #### **Prometheus Configuration**
+
 ```yaml
 # prometheus/prometheus.yml
 global:
@@ -58,31 +61,31 @@ scrape_configs:
     metrics_path: '/metrics'
     scrape_interval: 10s
     scrape_timeout: 5s
-    
+
   # ✅ 2. PostgreSQL Database Metrics  
   - job_name: 'postgresql'
     static_configs:
       - targets: ['postgres-exporter:9187']
     scrape_interval: 30s
-    
+
   # ✅ 3. Redis Cache Metrics
   - job_name: 'redis'
     static_configs:
       - targets: ['redis-exporter:9121']
     scrape_interval: 15s
-    
+
   # ✅ 4. System Metrics (Node Exporter)
   - job_name: 'node-exporter'
     static_configs:
       - targets: ['node-exporter:9100']
     scrape_interval: 15s
-    
+
   # ✅ 5. Container Metrics (cAdvisor)
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['cadvisor:8080']
     scrape_interval: 15s
-    
+
   # ✅ 6. WhatsApp Business API Health
   - job_name: 'whatsapp-api-health'
     static_configs:
@@ -92,6 +95,7 @@ scrape_configs:
 ```
 
 #### **Alert Rules Críticas**
+
 ```yaml
 # prometheus/rules/critical_alerts.yml
 groups:
@@ -109,7 +113,7 @@ groups:
           summary: "WhatsApp Agent API is down"
           description: "API has been down for more than 1 minute. Instance: {{ $labels.instance }}"
           runbook_url: "https://docs.whatsappagent.com/runbooks/api-down"
-          
+
       # 🚨 2. High Response Time Alert
       - alert: HighResponseTime
         expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="whatsapp-agent-api"}[5m])) > 0.5
@@ -122,7 +126,7 @@ groups:
           summary: "High API response time detected"
           description: "95th percentile response time is {{ $value }}s for 5 minutes"
           runbook_url: "https://docs.whatsappagent.com/runbooks/high-response-time"
-          
+
       # 🚨 3. High Error Rate Alert
       - alert: HighErrorRate
         expr: rate(http_requests_total{job="whatsapp-agent-api", status=~"5.."}[5m]) / rate(http_requests_total{job="whatsapp-agent-api"}[5m]) > 0.05
@@ -135,7 +139,7 @@ groups:
           summary: "High error rate detected"
           description: "Error rate is {{ $value | humanizePercentage }} for 3 minutes"
           runbook_url: "https://docs.whatsappagent.com/runbooks/high-error-rate"
-          
+
       # 🚨 4. Database Connection Issues
       - alert: DatabaseConnectionHigh
         expr: postgresql_connections_active / postgresql_connections_max > 0.8
@@ -148,7 +152,7 @@ groups:
           summary: "High database connection usage"
           description: "Database connection usage is {{ $value | humanizePercentage }}"
           runbook_url: "https://docs.whatsappagent.com/runbooks/database-connections"
-          
+
       # 🚨 5. Redis Memory Usage High
       - alert: RedisMemoryHigh
         expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
@@ -161,7 +165,7 @@ groups:
           summary: "Redis memory usage high"
           description: "Redis memory usage is {{ $value | humanizePercentage }}"
           runbook_url: "https://docs.whatsappagent.com/runbooks/redis-memory"
-          
+
       # 🚨 6. Disk Space Critical
       - alert: DiskSpaceCritical
         expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
@@ -174,7 +178,7 @@ groups:
           summary: "Critical disk space usage"
           description: "Disk space usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
           runbook_url: "https://docs.whatsappagent.com/runbooks/disk-space"
-          
+
       # 🚨 7. WhatsApp API Integration Down
       - alert: WhatsAppAPIDown
         expr: whatsapp_api_health_status == 0
@@ -192,6 +196,7 @@ groups:
 ### **AlertManager Configuration**
 
 #### **Alert Routing e Notifications**
+
 ```yaml
 # alertmanager/alertmanager.yml
 global:
@@ -213,14 +218,14 @@ route:
       receiver: 'critical-alerts'
       group_wait: 10s
       repeat_interval: 5m
-      
+
     # ⚠️ Warning alerts - delayed notification
     - match:
         severity: warning
       receiver: 'warning-alerts'
       group_wait: 2m
       repeat_interval: 1h
-      
+
     # 📱 WhatsApp specific alerts
     - match:
         service: whatsapp
@@ -234,11 +239,11 @@ receivers:
         subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }} - WhatsApp Agent'
         body: |
           🚨 **CRITICAL ALERT** 🚨
-          
+
           **Alert:** {{ .GroupLabels.alertname }}
           **Service:** {{ .GroupLabels.service }}
           **Severity:** {{ .CommonLabels.severity }}
-          
+
           **Firing Alerts:**
           {{ range .Alerts }}
           - **{{ .Annotations.summary }}**
@@ -246,34 +251,34 @@ receivers:
             Runbook: {{ .Annotations.runbook_url }}
             Started: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
           {{ end }}
-          
+
           **Dashboard:** https://grafana.whatsappagent.com/d/overview
           **Logs:** https://grafana.whatsappagent.com/explore
         html: |
           <h2 style="color: #d32f2f;">🚨 CRITICAL ALERT</h2>
           <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
           <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
-          
+
     slack_configs:
       - api_url: '{{ .slack_webhook_url }}'
         channel: '#alerts-critical'
         title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
         text: |
           🚨 **CRITICAL ALERT**
-          
+
           **Service:** {{ .GroupLabels.service }}
           {{ range .Alerts }}
           **{{ .Annotations.summary }}**
           {{ .Annotations.description }}
           <{{ .Annotations.runbook_url }}|Runbook>
           {{ end }}
-        
+
     webhook_configs:
       - url: 'https://api.whatsappagent.com/webhooks/alerts'
         send_resolved: true
         http_config:
           bearer_token: '{{ .webhook_token }}'
-        
+
   # ⚠️ Warning alerts receiver
   - name: 'warning-alerts'
     email_configs:
@@ -281,30 +286,30 @@ receivers:
         subject: '⚠️ WARNING: {{ .GroupLabels.alertname }} - WhatsApp Agent'
         body: |
           ⚠️ **WARNING ALERT**
-          
+
           **Alert:** {{ .GroupLabels.alertname }}
           **Service:** {{ .GroupLabels.service }}
-          
+
           {{ range .Alerts }}
           - {{ .Annotations.summary }}
             {{ .Annotations.description }}
           {{ end }}
-          
+
     slack_configs:
       - api_url: '{{ .slack_webhook_url }}'
         channel: '#alerts-warning'
         title: '⚠️ WARNING: {{ .GroupLabels.alertname }}'
-        
+
   # 📱 WhatsApp specific alerts
   - name: 'whatsapp-alerts'
     email_configs:
       - to: 'whatsapp-team@whatsappagent.com'
         subject: '📱 WhatsApp Alert: {{ .GroupLabels.alertname }}'
-    
+
     slack_configs:
       - api_url: '{{ .slack_webhook_url }}'
         channel: '#whatsapp-integration'
-        
+
   # 🔄 Default receiver
   - name: 'default'
     email_configs:
@@ -327,6 +332,7 @@ inhibit_rules:
 ### **Dashboard Principal - System Overview**
 
 #### **JSON Configuration**
+
 ```json
 {
   "dashboard": {
@@ -555,6 +561,7 @@ inhibit_rules:
 ### **Dashboard de Business Analytics**
 
 #### **WhatsApp Agent Business Metrics**
+
 ```python
 # app/monitoring/business_metrics.py
 from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry
@@ -642,7 +649,7 @@ class BusinessMetricsCollector:
     """
     Coletor de métricas de negócio customizadas
     """
-    
+
     @staticmethod
     async def update_appointment_metrics():
         """
@@ -659,13 +666,13 @@ class BusinessMetricsCollector:
                 .where(Appointment.deleted_at.is_(None))
                 .group_by(Appointment.business_id, Appointment.status)
             )
-            
+
             for business_id, status, count in result:
                 appointments_active.labels(
                     business_id=business_id,
                     status=status
                 ).set(count)
-    
+
     @staticmethod
     async def update_whatsapp_health():
         """
@@ -675,11 +682,11 @@ class BusinessMetricsCollector:
             # Fazer health check da API WhatsApp
             health_status = await whatsapp_service.health_check()
             whatsapp_api_health.set(1 if health_status else 0)
-            
+
         except Exception as e:
             logger.error(f"WhatsApp health check failed: {e}")
             whatsapp_api_health.set(0)
-    
+
     @staticmethod
     async def collect_cache_metrics():
         """
@@ -688,18 +695,18 @@ class BusinessMetricsCollector:
         try:
             # Obter estatísticas do cache
             cache_stats = await cache_manager.get_cache_stats()
-            
+
             # Atualizar métricas
             cache_operations.labels(
                 operation='hit',
                 result='success'
             )._value._value = cache_stats['performance']['hits']
-            
+
             cache_operations.labels(
                 operation='miss',
                 result='success'  
             )._value._value = cache_stats['performance']['misses']
-            
+
         except Exception as e:
             logger.error(f"Error collecting cache metrics: {e}")
 
@@ -714,10 +721,10 @@ async def business_metrics():
     await collector.update_appointment_metrics()
     await collector.update_whatsapp_health()
     await collector.collect_cache_metrics()
-    
+
     # Gerar métricas no formato Prometheus
     from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
-    
+
     return Response(
         generate_latest(business_registry),
         media_type=CONTENT_TYPE_LATEST
@@ -731,6 +738,7 @@ async def business_metrics():
 ### **Configuração do Loki**
 
 #### **Loki Configuration**
+
 ```yaml
 # loki/loki.yml
 auth_enabled: false
@@ -806,6 +814,7 @@ ruler:
 ```
 
 #### **Promtail Configuration**
+
 ```yaml
 # promtail/promtail.yml
 server:
@@ -840,17 +849,17 @@ scrape_configs:
             user_id: user_id
             business_id: business_id
             trace_id: trace_id
-      
+
       # Convert timestamp
       - timestamp:
           source: timestamp
           format: RFC3339
-      
+
       # Set log level
       - labels:
           level: level
           module: module
-      
+
       # Extract metrics from logs
       - metrics:
           error_total:
@@ -862,12 +871,12 @@ scrape_configs:
               action: inc
               match_all: true
               drop_label: level
-      
+
       # Filter sensitive information
       - replace:
           expression: '(password|token|secret)": "[^"]*"'
           replace: '$1": "[REDACTED]"'
-  
+
   # ✅ 2. Nginx Access Logs
   - job_name: nginx-access
     static_configs:
@@ -881,17 +890,17 @@ scrape_configs:
       # Parse nginx log format
       - regex:
           expression: '^(?P<remote_addr>\S+) - (?P<remote_user>\S+) \[(?P<time_local>[^\]]+)\] "(?P<method>\S+) (?P<request_uri>\S+) (?P<protocol>\S+)" (?P<status>\d+) (?P<body_bytes_sent>\d+) "(?P<http_referer>[^"]*)" "(?P<http_user_agent>[^"]*)" "(?P<http_x_forwarded_for>[^"]*)" (?P<request_time>\S+)'
-      
+
       # Convert timestamp
       - timestamp:
           source: time_local
           format: '02/Jan/2006:15:04:05 -0700'
-      
+
       # Set labels
       - labels:
           method: method
           status: status
-      
+
       # Extract metrics
       - metrics:
           nginx_requests_total:
@@ -900,14 +909,14 @@ scrape_configs:
             config:
               value: "1"
               action: inc
-              
+
           nginx_request_duration:
             type: Histogram
             description: "Nginx request duration"
             source: request_time
             config:
               buckets: [0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
-  
+
   # ✅ 3. System Logs
   - job_name: system
     static_configs:
@@ -919,11 +928,11 @@ scrape_configs:
     pipeline_stages:
       - regex:
           expression: '^(?P<timestamp>\w+\s+\d+\s+\d+:\d+:\d+) (?P<hostname>\S+) (?P<process>[^:]+): (?P<message>.*)'
-      
+
       - timestamp:
           source: timestamp
           format: 'Jan 02 15:04:05'
-      
+
       - labels:
           hostname: hostname
           process: process
@@ -932,6 +941,7 @@ scrape_configs:
 ### **Structured Logging**
 
 #### **Python Logging Configuration**
+
 ```python
 # app/utils/logging_config.py
 import logging
@@ -950,7 +960,7 @@ class StructuredFormatter(logging.Formatter):
     """
     Formatador para logs estruturados em JSON
     """
-    
+
     def format(self, record: logging.LogRecord) -> str:
         """
         Formatar log record em JSON estruturado
@@ -965,28 +975,28 @@ class StructuredFormatter(logging.Formatter):
             "lineno": record.lineno,
             "funcName": record.funcName
         }
-        
+
         # Adicionar contexto da requisição
         if trace_id := trace_id_var.get():
             log_data["trace_id"] = trace_id
-            
+
         if user_id := user_id_var.get():
             log_data["user_id"] = user_id
-            
+
         if business_id := business_id_var.get():
             log_data["business_id"] = business_id
-        
+
         # Adicionar dados extras do record
         if hasattr(record, '__dict__'):
             for key, value in record.__dict__.items():
-                if key not in ['name', 'msg', 'args', 'levelname', 'levelno', 
-                              'pathname', 'filename', 'module', 'lineno', 
+                if key not in ['name', 'msg', 'args', 'levelname', 'levelno',
+                              'pathname', 'filename', 'module', 'lineno',
                               'funcName', 'created', 'msecs', 'relativeCreated',
                               'thread', 'threadName', 'processName', 'process',
                               'getMessage', 'exc_info', 'exc_text', 'stack_info']:
                     if isinstance(value, (str, int, float, bool, dict, list)):
                         log_data[key] = value
-        
+
         # Adicionar informações de exceção
         if record.exc_info:
             log_data["exception"] = {
@@ -994,7 +1004,7 @@ class StructuredFormatter(logging.Formatter):
                 "message": str(record.exc_info[1]),
                 "traceback": traceback.format_exception(*record.exc_info)
             }
-        
+
         return json.dumps(log_data, ensure_ascii=False)
 
 def setup_logging():
@@ -1004,32 +1014,32 @@ def setup_logging():
     # Configuração do logger principal
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    
+
     # Handler para arquivo
     file_handler = logging.FileHandler('/var/log/whatsapp-agent/app.log')
     file_handler.setFormatter(StructuredFormatter())
     file_handler.setLevel(logging.INFO)
-    
+
     # Handler para console (desenvolvimento)
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(StructuredFormatter())
     console_handler.setLevel(logging.DEBUG)
-    
+
     # Adicionar handlers
     logger.addHandler(file_handler)
-    
+
     if settings.ENVIRONMENT == "development":
         logger.addHandler(console_handler)
-    
+
     # Configurar loggers específicos
     # SQLAlchemy
     sqlalchemy_logger = logging.getLogger('sqlalchemy.engine')
     sqlalchemy_logger.setLevel(logging.WARNING)
-    
+
     # FastAPI
     fastapi_logger = logging.getLogger('uvicorn')
     fastapi_logger.setLevel(logging.INFO)
-    
+
     # Requests
     requests_logger = logging.getLogger('requests')
     requests_logger.setLevel(logging.WARNING)
@@ -1038,10 +1048,10 @@ class ContextLogger:
     """
     Logger com contexto automático de requisição
     """
-    
+
     def __init__(self, name: str):
         self.logger = logging.getLogger(name)
-    
+
     def _log_with_context(self, level: int, message: str, **kwargs):
         """
         Log com contexto da requisição
@@ -1050,21 +1060,21 @@ class ContextLogger:
         extra = {}
         for key, value in kwargs.items():
             extra[key] = value
-        
+
         self.logger.log(level, message, extra=extra)
-    
+
     def debug(self, message: str, **kwargs):
         self._log_with_context(logging.DEBUG, message, **kwargs)
-    
+
     def info(self, message: str, **kwargs):
         self._log_with_context(logging.INFO, message, **kwargs)
-    
+
     def warning(self, message: str, **kwargs):
         self._log_with_context(logging.WARNING, message, **kwargs)
-    
+
     def error(self, message: str, **kwargs):
         self._log_with_context(logging.ERROR, message, **kwargs)
-    
+
     def critical(self, message: str, **kwargs):
         self._log_with_context(logging.CRITICAL, message, **kwargs)
 
@@ -1076,17 +1086,17 @@ class LoggingContextMiddleware(BaseHTTPMiddleware):
     """
     Middleware para adicionar contexto às requisições
     """
-    
+
     async def dispatch(self, request: Request, call_next):
         # Gerar trace ID único
         import uuid
         trace_id = str(uuid.uuid4())
         trace_id_var.set(trace_id)
-        
+
         # Adicionar trace ID no header da resposta
         response = await call_next(request)
         response.headers["X-Trace-ID"] = trace_id
-        
+
         return response
 
 # Adicionar middleware na aplicação
@@ -1100,6 +1110,7 @@ app.add_middleware(LoggingContextMiddleware)
 ### **Runbook: API Down**
 
 #### **Procedimento de Resposta**
+
 ```markdown
 # 🚨 RUNBOOK: API Down
 
@@ -1126,6 +1137,7 @@ docker stats whatsapp-agent-api
 ```
 
 ### **1.2 Verificar Dependências**
+
 ```bash
 # Database
 pg_isready -h postgres -p 5432
@@ -1140,6 +1152,7 @@ curl -f https://api.whatsapp.com/health
 ## **2. DIAGNÓSTICO RÁPIDO** (2-3 minutos)
 
 ### **2.1 Logs de Erro**
+
 ```bash
 # Buscar erros críticos nos últimos 10 minutos
 docker logs whatsapp-agent-api --since 10m | grep -E "(ERROR|CRITICAL|FATAL)"
@@ -1149,6 +1162,7 @@ journalctl -u docker --since "10 minutes ago" | grep -E "(error|failed)"
 ```
 
 ### **2.2 Métricas do Sistema**
+
 ```bash
 # CPU e Memória
 top -p $(docker inspect -f '{{.State.Pid}}' whatsapp-agent-api)
@@ -1163,6 +1177,7 @@ df -h
 ## **3. AÇÕES CORRETIVAS** (2-3 minutos)
 
 ### **3.1 Restart do Serviço**
+
 ```bash
 # Restart graceful
 docker restart whatsapp-agent-api
@@ -1173,6 +1188,7 @@ curl -f https://api.whatsappagent.com/health
 ```
 
 ### **3.2 Se Restart Não Resolver**
+
 ```bash
 # Verificar imagem e configuração
 docker inspect whatsapp-agent-api
@@ -1188,6 +1204,7 @@ docker logs whatsapp-agent-api -f
 ## **4. VERIFICAÇÃO E MONITORAMENTO**
 
 ### **4.1 Testes de Funcionalidade**
+
 ```bash
 # Teste de endpoints críticos
 curl -X POST https://api.whatsappagent.com/auth/login \
@@ -1198,6 +1215,7 @@ curl -f https://api.whatsappagent.com/appointments
 ```
 
 ### **4.2 Monitoramento Contínuo**
+
 - Verificar dashboard Grafana por 15 minutos
 - Confirmar que alertas pararam de disparar
 - Monitorar response times e error rates
@@ -1205,6 +1223,7 @@ curl -f https://api.whatsappagent.com/appointments
 ## **5. COMUNICAÇÃO**
 
 ### **5.1 Updates de Status**
+
 ```
 INÍCIO: "🚨 API Down detectado. Investigando... ETA: 5min"
 PROGRESSO: "🔧 Restart em andamento. ETA: 2min"  
@@ -1212,6 +1231,7 @@ RESOLUÇÃO: "✅ API restaurada. Monitorando estabilidade."
 ```
 
 ### **5.2 Post-Mortem**
+
 - Documentar causa raiz identificada
 - Agendar post-mortem meeting em 24h
 - Atualizar runbook com lições aprendidas
@@ -1219,8 +1239,11 @@ RESOLUÇÃO: "✅ API restaurada. Monitorando estabilidade."
 ## **6. ESCALATION**
 
 ### **Level 1** (0-5min): Oncall Engineer
+
 ### **Level 2** (5-15min): Engineering Lead
+
 ### **Level 3** (15min+): Engineering Manager + CTO
+
 ```
 
 ### **Runbook: High Response Time**
@@ -1247,6 +1270,7 @@ open https://grafana.whatsappagent.com/d/api-performance
 ```
 
 ### **1.2 Identificar Endpoints Afetados**
+
 ```bash
 # Logs com response times altos
 docker logs whatsapp-agent-api --since 10m | grep -E "response_time.*[5-9][0-9][0-9]ms"
@@ -1259,13 +1283,14 @@ grep "response_time" /var/log/whatsapp-agent/app.log | \
 ## **2. ANÁLISE DE CAUSA** (5-7 minutos)
 
 ### **2.1 Database Performance**
+
 ```sql
 -- Queries ativas mais lentas
-SELECT 
+SELECT
   pid,
   now() - pg_stat_activity.query_start AS duration,
   query
-FROM pg_stat_activity 
+FROM pg_stat_activity
 WHERE (now() - pg_stat_activity.query_start) > interval '5 seconds'
   AND state = 'active'
 ORDER BY duration DESC;
@@ -1278,6 +1303,7 @@ SELECT count(*) FROM pg_stat_activity WHERE state = 'active';
 ```
 
 ### **2.2 Cache Performance**
+
 ```bash
 # Redis stats
 redis-cli info stats | grep -E "(hit|miss|ops)"
@@ -1287,6 +1313,7 @@ redis-cli info stats | grep keyspace_hits
 ```
 
 ### **2.3 System Resources**
+
 ```bash
 # CPU usage
 top -p $(docker inspect -f '{{.State.Pid}}' whatsapp-agent-api)
@@ -1301,9 +1328,10 @@ iostat -x 1 5
 ## **3. AÇÕES CORRETIVAS**
 
 ### **3.1 Database Optimization**
+
 ```sql
 -- Kill queries lentas se necessário
-SELECT pg_cancel_backend(pid) FROM pg_stat_activity 
+SELECT pg_cancel_backend(pid) FROM pg_stat_activity
 WHERE (now() - pg_stat_activity.query_start) > interval '30 seconds'
   AND state = 'active' AND query NOT LIKE '%pg_stat_activity%';
 
@@ -1312,6 +1340,7 @@ ANALYZE;
 ```
 
 ### **3.2 Cache Optimization**
+
 ```bash
 # Flush cache se necessário
 redis-cli flushdb
@@ -1321,6 +1350,7 @@ docker restart redis
 ```
 
 ### **3.3 Application Scaling**
+
 ```bash
 # Scale up se necessário
 docker-compose up -d --scale api=3
@@ -1330,9 +1360,11 @@ curl -I https://api.whatsappagent.com/health
 ```
 
 ## **4. MONITORAMENTO**
+
 - Verificar response times voltaram ao normal
 - Confirmar que métricas de performance melhoraram
 - Monitorar por 30 minutos para confirmar estabilidade
+
 ```
 
 ---
@@ -1362,9 +1394,9 @@ check_service() {
     local service_name="$1"
     local check_command="$2"
     local expected_status="$3"
-    
+
     echo -n "🔍 Checking $service_name... "
-    
+
     if eval "$check_command" &>/dev/null; then
         echo -e "${GREEN}✅ HEALTHY${NC}"
         return 0
@@ -1451,6 +1483,7 @@ echo "🚨 For alerts: https://alertmanager.whatsappagent.com"
 ```
 
 #### **Performance Diagnostics**
+
 ```bash
 #!/bin/bash
 # scripts/performance_diagnostics.sh
@@ -1462,12 +1495,12 @@ echo "==========================================="
 measure_time() {
     local label="$1"
     local command="$2"
-    
+
     echo -n "⏱️  $label: "
     start_time=$(date +%s.%N)
     eval "$command" &>/dev/null
     end_time=$(date +%s.%N)
-    
+
     duration=$(echo "$end_time - $start_time" | bc)
     echo "${duration}s"
 }
@@ -1506,7 +1539,7 @@ GROUP BY u.id, u.name
 LIMIT 10;
 
 -- Index usage analysis
-SELECT 
+SELECT
     schemaname,
     tablename,
     attname,
@@ -1576,6 +1609,7 @@ echo "  - CPU usage >70% consistently indicates scaling needed"
 ### **Weekly Performance Report**
 
 #### **Automated Report Generation**
+
 ```python
 # scripts/weekly_report.py
 import asyncio
@@ -1586,18 +1620,18 @@ class WeeklyReportGenerator:
     """
     Gerador de relatório semanal de performance
     """
-    
+
     async def generate_report(self, week_start: datetime):
         """
         Gerar relatório completo da semana
         """
         week_end = week_start + timedelta(days=7)
-        
+
         # Coletar dados
         metrics = await self._collect_metrics(week_start, week_end)
         incidents = await self._collect_incidents(week_start, week_end)
         performance = await self._analyze_performance(week_start, week_end)
-        
+
         # Gerar relatório
         report = {
             "period": {
@@ -1609,12 +1643,12 @@ class WeeklyReportGenerator:
             "incidents": incidents,
             "recommendations": await self._generate_recommendations(metrics, incidents)
         }
-        
+
         # Renderizar template
         html_report = await self._render_html_report(report)
-        
+
         return html_report
-    
+
     async def _collect_metrics(self, start: datetime, end: datetime):
         """
         Coletar métricas do período
@@ -1628,7 +1662,7 @@ class WeeklyReportGenerator:
             "error_rate": 0.08,
             "cache_hit_rate": 94.2
         }
-    
+
     async def _collect_incidents(self, start: datetime, end: datetime):
         """
         Coletar incidentes do período
@@ -1642,7 +1676,7 @@ class WeeklyReportGenerator:
                 "resolution": "Database query optimization applied"
             }
         ]
-    
+
     REPORT_TEMPLATE = """
     <!DOCTYPE html>
     <html>
@@ -1664,39 +1698,39 @@ class WeeklyReportGenerator:
             <h1>📊 WhatsApp Agent - Performance Report</h1>
             <p>Period: {{ period.start }} to {{ period.end }}</p>
         </div>
-        
+
         <div class="metrics">
             <div class="metric-card">
                 <h3>🔄 Uptime</h3>
                 <div class="metric-value status-ok">{{ performance.uptime_percentage }}%</div>
                 <small>Target: >99.5%</small>
             </div>
-            
+
             <div class="metric-card">
                 <h3>⚡ Avg Response Time</h3>
                 <div class="metric-value status-ok">{{ performance.avg_response_time }}ms</div>
                 <small>Target: <300ms</small>
             </div>
-            
+
             <div class="metric-card">
                 <h3>📈 Total Requests</h3>
                 <div class="metric-value">{{ performance.total_requests | number_format }}</div>
                 <small>Weekly volume</small>
             </div>
-            
+
             <div class="metric-card">
                 <h3>❌ Error Rate</h3>
                 <div class="metric-value status-ok">{{ performance.error_rate }}%</div>
                 <small>Target: <1%</small>
             </div>
         </div>
-        
+
         <h2>🚨 Incidents Summary</h2>
         {% if incidents %}
             <ul>
             {% for incident in incidents %}
                 <li>
-                    <strong>{{ incident.date }}</strong> - 
+                    <strong>{{ incident.date }}</strong> -
                     <span class="status-{{ incident.severity }}">{{ incident.title }}</span>
                     ({{ incident.duration }})
                 </li>
@@ -1705,7 +1739,7 @@ class WeeklyReportGenerator:
         {% else %}
             <p class="status-ok">✅ No incidents reported this week!</p>
         {% endif %}
-        
+
         <h2>💡 Recommendations</h2>
         <ul>
         {% for rec in recommendations %}
@@ -1721,12 +1755,12 @@ async def generate_weekly_report():
     generator = WeeklyReportGenerator()
     week_start = datetime.now() - timedelta(days=7)
     report = await generator.generate_report(week_start)
-    
+
     # Salvar relatório
     filename = f"weekly_report_{week_start.strftime('%Y_%m_%d')}.html"
     with open(f"/var/reports/{filename}", "w") as f:
         f.write(report)
-    
+
     print(f"✅ Weekly report generated: {filename}")
 
 if __name__ == "__main__":

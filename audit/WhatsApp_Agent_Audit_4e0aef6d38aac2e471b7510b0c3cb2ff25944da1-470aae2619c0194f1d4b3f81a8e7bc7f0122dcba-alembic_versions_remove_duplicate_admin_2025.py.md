@@ -18,6 +18,7 @@
 **Estado Geral**: Sistema em conformidade total. Sem pendências. Auditoria encerrada.
 
 **Contadores de Achados**:
+
 - CRÍTICO: 0
 - MÉDIO: 0  
 - BAIXO: 0
@@ -45,16 +46,19 @@ Esta versão é conclusiva; alterações futuras exigem novo snapshot.
 ## 4. Correções aplicadas
 
 ### SEC-001: CORS dinâmico por ambiente
+
 - **Correção**: Implementada validação dinâmica baseada em variáveis de ambiente, eliminando origens hardcodadas
 - **Evidência**: app/cors_config.py linhas 17-45 - função get_allowed_origins() com detecção automática de ambiente
 - **Check**: Validação de origens não autorizadas rejeitadas corretamente
 
 ### COH-001: Sistema de configuração unificado
+
 - **Correção**: Eliminado sistema de compatibilidade frágil, implementada classe UnifiedConfigSettings
 - **Evidência**: app/config.py linhas 10-95 - acesso consistente a secrets via propriedades
 - **Check**: Todas as configurações acessíveis sem mapeamentos manuais complexos
 
 ### DB-001: Migração Alembic aplicada
+
 - **Correção**: Migração Alembic sincronizada e aplicada com sucesso no ambiente
 - **Evidência**: alembic/versions/remove_duplicate_admin_2025.py aplicada ao banco
 - **Check**: Schema em sincronia com HEAD, sem drift detectado
@@ -72,17 +76,20 @@ Esta versão é conclusiva; alterações futuras exigem novo snapshot.
 ## 6. Observabilidade e SLOs
 
 ### Health Checks Existentes
+
 - `/health` - Status básico da aplicação
 - `/health/detailed` - Verificação completa de componentes
 - `/health/v2` - Health check com padrão ApiResponse
 
 ### Métricas Recomendadas
+
 - `webhook_fail_rate` - Taxa de falha de webhooks (alerta: >5%)
 - `messages_sent` - Mensagens enviadas por minuto
 - `appointments_created` - Agendamentos criados por hora
 - `database_connection_time` - Tempo de conexão com BD
 
 ### Alertas Mínimos Sugeridos
+
 Configurar monitoramento para webhook_fail_rate >5% em janela de 5 minutos para detecção rápida de problemas de integração.
 
 ## 7. Contratos de API BE↔FE
@@ -136,6 +143,7 @@ erDiagram
 ## 9. Runbooks (operacionais)
 
 ### Deploy
+
 1. Executar testes automatizados: `pytest tests/`
 2. Backup do banco de dados: `pg_dump whatsapp_agent > backup.sql`
 3. Deploy da aplicação: `docker-compose up -d --build`
@@ -143,6 +151,7 @@ erDiagram
 5. Verificar health checks: `curl /health/detailed`
 
 ### Rollback
+
 1. Identificar versão anterior estável
 2. Rollback migrações: `alembic downgrade -1`
 3. Deploy versão anterior: `docker-compose up -d app:previous`
@@ -150,12 +159,14 @@ erDiagram
 5. Verificar funcionalidade: testes manuais críticos
 
 ### Health Check Manual
+
 ```bash
 curl -X GET https://wppagent-production.up.railway.app/health/detailed \
   -H "Accept: application/json" | jq '.overall_status'
 ```
 
 ### Plano de Incidente
+
 1. **Detecção**: Monitorar alertas de health check e métricas de performance
 2. **Contenção**: Avaliar impacto e isolar componente afetado se necessário  
 3. **Resolução**: Aplicar correção ou executar rollback conforme severidade

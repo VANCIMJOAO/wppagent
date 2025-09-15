@@ -13,10 +13,10 @@ BEGIN
     -- Usar chave do ambiente ou chave padrão
     RETURN encode(
         pgp_sym_encrypt(
-            data, 
+            data,
             COALESCE(current_setting('app.encryption_key', true), 'default_key_change_me'),
             'compress-algo=1, cipher-algo=aes256'
-        ), 
+        ),
         'base64'
     );
 END;
@@ -29,7 +29,7 @@ BEGIN
     IF encrypted_data IS NULL OR encrypted_data = '' THEN
         RETURN NULL;
     END IF;
-    
+
     RETURN pgp_sym_decrypt(
         decode(encrypted_data, 'base64'),
         COALESCE(current_setting('app.encryption_key', true), 'default_key_change_me')
@@ -47,7 +47,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- View para usuários com dados criptografados
 CREATE OR REPLACE VIEW users_encrypted AS
-SELECT 
+SELECT
     id,
     wa_id,
     nome,
@@ -60,7 +60,7 @@ FROM users;
 
 -- View para descriptografia (apenas para aplicação)
 CREATE OR REPLACE VIEW users_decrypted AS
-SELECT 
+SELECT
     id,
     wa_id,
     nome,
@@ -83,11 +83,11 @@ BEGIN
     IF NEW.telefone IS NOT NULL AND NEW.telefone NOT LIKE 'gAAAAAB%' THEN
         NEW.telefone := encrypt_sensitive_data(NEW.telefone);
     END IF;
-    
+
     IF NEW.email IS NOT NULL AND NEW.email NOT LIKE 'gAAAAAB%' THEN
         NEW.email := encrypt_sensitive_data(NEW.email);
     END IF;
-    
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -115,9 +115,9 @@ CREATE TABLE IF NOT EXISTS data_access_audit (
 );
 
 -- Índices para performance
-CREATE INDEX IF NOT EXISTS idx_data_access_audit_table_record 
+CREATE INDEX IF NOT EXISTS idx_data_access_audit_table_record
     ON data_access_audit(table_name, record_id);
-CREATE INDEX IF NOT EXISTS idx_data_access_audit_accessed_at 
+CREATE INDEX IF NOT EXISTS idx_data_access_audit_accessed_at
     ON data_access_audit(accessed_at);
 
 -- Função para registrar acesso a dados sensíveis

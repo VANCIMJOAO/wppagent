@@ -32,11 +32,11 @@ const dashboardApi = {
         'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao buscar estatísticas: ${response.statusText}`)
     }
-    
+
     return response.json()
   },
 
@@ -46,11 +46,11 @@ const dashboardApi = {
     metric_type?: string
   } = {}): Promise<DashboardAnalytics> {
     const params = new URLSearchParams()
-    
+
     if (filters.start_date) params.append('start_date', filters.start_date)
     if (filters.end_date) params.append('end_date', filters.end_date)
     if (filters.metric_type) params.append('metric_type', filters.metric_type)
-    
+
     const response = await fetch(`/api/dashboard/analytics?${params}`, {
       method: 'GET',
       headers: {
@@ -58,11 +58,11 @@ const dashboardApi = {
         'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao buscar analytics: ${response.statusText}`)
     }
-    
+
     return response.json()
   },
 
@@ -80,11 +80,11 @@ const dashboardApi = {
         'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao buscar relatório de performance: ${response.statusText}`)
     }
-    
+
     return response.json()
   }
 }
@@ -134,7 +134,7 @@ export function usePerformanceReport(period: string = '30d') {
 // Hook para forçar refresh do dashboard
 export function useRefreshDashboard() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: async () => {
       // Simular refresh forçado
@@ -144,11 +144,11 @@ export function useRefreshDashboard() {
     onSuccess: () => {
       // Invalidar todas as queries do dashboard
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
-      
+
       // Invalidar também dados relacionados
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.lists() })
       queryClient.invalidateQueries({ queryKey: queryKeys.conversations.lists() })
-      
+
       toast.success('Dashboard atualizado!')
     },
     onError: (error: any) => {
@@ -161,7 +161,7 @@ export function useRefreshDashboard() {
 // Hook para invalidação seletiva do dashboard
 export function useInvalidateDashboard() {
   const queryClient = useQueryClient()
-  
+
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all }),
     invalidateStats: () => queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.stats() }),
@@ -173,7 +173,7 @@ export function useInvalidateDashboard() {
 // Hook para prefetch de dados do dashboard
 export function usePrefetchDashboard() {
   const queryClient = useQueryClient()
-  
+
   return {
     prefetchStats: (period: string = '7d') => {
       queryClient.prefetchQuery({
@@ -182,7 +182,7 @@ export function usePrefetchDashboard() {
         staleTime: 3 * 60 * 1000,
       })
     },
-    
+
     prefetchAnalytics: (filters: any = {}) => {
       queryClient.prefetchQuery({
         queryKey: [...queryKeys.dashboard.analytics(), filters] as const,
@@ -233,12 +233,12 @@ export function useDashboard(options: {
     performance,
     refresh: refreshDashboard.mutate,
     isRefreshing: refreshDashboard.isPending,
-    
+
     // Estados combinados
     isLoading: stats.isLoading || analytics.isLoading || performance.isLoading,
     isError: stats.isError || analytics.isError || performance.isError,
     error: stats.error || analytics.error || performance.error,
-    
+
     // Dados combinados
     data: {
       stats: stats.data,

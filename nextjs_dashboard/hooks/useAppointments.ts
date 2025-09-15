@@ -2,11 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/react-query'
 import { toast } from 'sonner'
 // ✅ CF-001: Using auto-generated types from OpenAPI
-import type { 
-  Appointment, 
-  AppointmentCreateRequest, 
+import type {
+  Appointment,
+  AppointmentCreateRequest,
   AppointmentUpdateRequest,
-  AppointmentsListResponse 
+  AppointmentsListResponse
 } from '@/types/api-cf001'
 // TODO: CF-001 - Remove normalizers after full migration
 import { normalizeAppointment, normalizeAppointments, toAppointmentCreateData, toAppointmentUpdateData } from '@/lib/appointment-normalizer'
@@ -22,14 +22,14 @@ const api = {
     user_id?: number
   }): Promise<AppointmentsListResponse> {
     const params = new URLSearchParams()
-    
+
     if (filters.limit) params.append('limit', filters.limit.toString())
     if (filters.page) params.append('page', filters.page.toString())
     if (filters.status) params.append('status', filters.status)
     if (filters.date_from) params.append('date_from', filters.date_from)
     if (filters.date_to) params.append('date_to', filters.date_to)
     if (filters.user_id) params.append('user_id', filters.user_id.toString())
-    
+
     const response = await fetch(`/api/appointments?${params}`, {
       method: 'GET',
       headers: {
@@ -37,17 +37,17 @@ const api = {
         // ✅ CF-001: HttpOnly cookies used instead of Authorization header
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`Erro ao buscar agendamentos: ${response.statusText}`)
     }
-    
+
     const data = await response.json()
     // ✅ Normalizar dados para garantir compatibilidade
     if (data.items) {
       data.items = normalizeAppointments(data.items)
     }
-    
+
     return data
   },
 
@@ -58,11 +58,11 @@ const api = {
         'Content-Type': 'application/json'
       }
     })
-    
+
     if (!response.ok) {
       throw new Error('Erro ao buscar agendamento: ' + response.statusText)
     }
-    
+
     const data = await response.json()
     // ✅ Normalizar dados para garantir compatibilidade
     const normalized = normalizeAppointment(data)
@@ -81,7 +81,7 @@ const api = {
       service_id: data.service_id == null ? undefined : data.service_id,
       notes: data.notes == null ? undefined : data.notes
     })
-    
+
     try {
       const response = await fetch('/api/appointments', {
         method: 'POST',
@@ -90,12 +90,12 @@ const api = {
         },
         body: JSON.stringify(normalizedData)
       })
-      
+
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.detail || `Erro ao criar agendamento: ${response.statusText}`)
       }
-      
+
       const result = await response.json()
       // ✅ Normalizar resposta
       const normalized = normalizeAppointment(result)
@@ -122,7 +122,7 @@ const api = {
       notes: data.notes == null ? undefined : data.notes,
     }
     const normalizedData = toAppointmentUpdateData(sanitizedData)
-    
+
     const response = await fetch(`/api/appointments/${id}`, {
       method: 'PUT',
       headers: {
@@ -130,12 +130,12 @@ const api = {
       },
       body: JSON.stringify(normalizedData)
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(errorData.detail || `Erro ao atualizar agendamento: ${response.statusText}`)
     }
-    
+
     const result = await response.json()
     // ✅ Normalizar resposta
     const normalized = normalizeAppointment(result)
@@ -155,12 +155,12 @@ const api = {
         // ✅ REMOVIDO: Authorization header inseguro
       }
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(errorData.detail || `Erro ao excluir agendamento: ${response.statusText}`)
     }
-    
+
     return response.json()
   }
 }
@@ -202,29 +202,29 @@ export function useAppointment(id: number, enabled: boolean = true) {
 
 export function useCreateAppointment() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: api.createAppointment,
     onMutate: async (newAppointment) => {
       // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: queryKeys.appointments.lists() })
-      
+
       // Optimistic update seria implementado aqui se necessário
       return { newAppointment }
     },
     onSuccess: (data) => {
       // Invalidar listas de agendamentos
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.lists() })
-      
+
       // Adicionar aos dados existentes
       queryClient.setQueryData(
         queryKeys.appointments.detail(data.id),
         data
       )
-      
+
       // Invalidar dashboard stats se existir
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.stats() })
-      
+
       toast.success('Agendamento criado com sucesso!')
     },
     onError: (error: any, variables, context) => {
@@ -241,24 +241,24 @@ export function useCreateAppointment() {
 
 export function useUpdateAppointment() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: number, data: AppointmentUpdateRequest }) => 
+    mutationFn: ({ id, data }: { id: number, data: AppointmentUpdateRequest }) =>
       api.updateAppointment(id, data),
     onMutate: async ({ id, data }) => {
       // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: queryKeys.appointments.detail(id) })
-      
+
       // Snapshot do valor anterior
       const previousAppointment = queryClient.getQueryData(queryKeys.appointments.detail(id))
-      
+
       // Optimistic update
       queryClient.setQueryData(queryKeys.appointments.detail(id), (old: any) => ({
         ...old,
         ...data,
         updated_at: new Date().toISOString()
       }))
-      
+
       return { previousAppointment, id }
     },
     onSuccess: (data, variables) => {
@@ -267,15 +267,15 @@ export function useUpdateAppointment() {
         queryKeys.appointments.detail(variables.id),
         data
       )
-      
+
       // Invalidar listas para refletir mudanças
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.lists() })
-      
+
       // Invalidar dashboard se status mudou
       if (variables.data.status) {
         queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.stats() })
       }
-      
+
       toast.success('Agendamento atualizado!')
     },
     onError: (error: any, variables, context) => {
@@ -286,7 +286,7 @@ export function useUpdateAppointment() {
           context.previousAppointment
         )
       }
-      
+
       console.error('Erro ao atualizar agendamento:', error)
       toast.error(error.message || 'Erro ao atualizar agendamento')
     },
@@ -299,17 +299,17 @@ export function useUpdateAppointment() {
 
 export function useDeleteAppointment() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: api.deleteAppointment,
     onMutate: async (id) => {
       // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: queryKeys.appointments.detail(id) })
       await queryClient.cancelQueries({ queryKey: queryKeys.appointments.lists() })
-      
+
       // Snapshot dos dados para rollback
       const previousAppointment = queryClient.getQueryData(queryKeys.appointments.detail(id))
-      
+
       // Optimistic update - remover das listas
       queryClient.setQueriesData(
         { queryKey: queryKeys.appointments.lists() },
@@ -322,19 +322,19 @@ export function useDeleteAppointment() {
           }
         }
       )
-      
+
       return { previousAppointment, id }
     },
     onSuccess: (data, id) => {
       // Remover do cache individual
       queryClient.removeQueries({ queryKey: queryKeys.appointments.detail(id) })
-      
+
       // Invalidar listas para garantir consistência
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.lists() })
-      
+
       // Invalidar dashboard stats
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.stats() })
-      
+
       toast.success('Agendamento excluído com sucesso!')
     },
     onError: (error: any, id, context) => {
@@ -345,10 +345,10 @@ export function useDeleteAppointment() {
           context.previousAppointment
         )
       }
-      
+
       // Invalidar listas para reverter mudanças
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.lists() })
-      
+
       console.error('Erro ao excluir agendamento:', error)
       toast.error(error.message || 'Erro ao excluir agendamento')
     }
@@ -358,7 +358,7 @@ export function useDeleteAppointment() {
 // Hook para prefetch de agendamentos
 export function usePrefetchAppointment() {
   const queryClient = useQueryClient()
-  
+
   return (id: number) => {
     queryClient.prefetchQuery({
       queryKey: queryKeys.appointments.detail(id),
@@ -371,7 +371,7 @@ export function usePrefetchAppointment() {
 // Hook para invalidação manual
 export function useInvalidateAppointments() {
   const queryClient = useQueryClient()
-  
+
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: queryKeys.appointments.all }),
     invalidateLists: () => queryClient.invalidateQueries({ queryKey: queryKeys.appointments.lists() }),

@@ -17,17 +17,17 @@ export interface DashboardStats {
   messages_today: number
   appointments_today: number
   new_clients_today: number
-  
+
   // Totais gerais
   total_conversations: number
   total_messages: number
   total_appointments: number
   total_clients: number
-  
+
   // Stats de clientes
   active_clients?: number
   avg_messages?: number
-  
+
   // Calculados no frontend
   conversion_rate?: number
   growth_rate?: number
@@ -90,7 +90,7 @@ export function useDashboardStats() {
           ...clientStats,
           // Calcular métricas derivadas
           conversion_rate: dailyData.total_appointments > 0 && dailyData.total_conversations > 0
-            ? (dailyData.total_appointments / dailyData.total_conversations) * 100 
+            ? (dailyData.total_appointments / dailyData.total_conversations) * 100
             : 0,
           growth_rate: dailyData.new_clients_today > 0 && dailyData.total_clients > dailyData.new_clients_today
             ? (dailyData.new_clients_today / (dailyData.total_clients - dailyData.new_clients_today)) * 100
@@ -102,7 +102,7 @@ export function useDashboardStats() {
       } catch (err) {
         console.error('Erro ao buscar estatísticas:', err)
         setError(err instanceof Error ? err.message : 'Erro desconhecido')
-        
+
         // Fallback com zeros em caso de erro
         setStats({
           conversations_today: 0,
@@ -130,7 +130,7 @@ export function useDashboardStats() {
 // Hook para estatísticas semanais - dados reais
 export function useDashboardStatsWeekly() {
   const { data, loading, error, get } = useApiGet<any>('/api/proxy/dashboard/stats/weekly')
-  
+
   const transformedStats: DashboardStatsComplete | null = data ? {
     // Mesma transformação para dados semanais
     metrics: {
@@ -171,7 +171,7 @@ export function useDashboardStatsWeekly() {
     },
     recentActivity: data.recent_activity || []
   } : null
-  
+
   return {
     stats: transformedStats,
     loading,
@@ -183,7 +183,7 @@ export function useDashboardStatsWeekly() {
 // Hook para estatísticas mensais - dados reais
 export function useDashboardStatsMonthly() {
   const { data, loading, error, get } = useApiGet<any>('/api/proxy/dashboard/stats/monthly')
-  
+
   const transformedStats: DashboardStatsComplete | null = data ? {
     metrics: {
       total_clients: data.total_clients || 0,
@@ -223,7 +223,7 @@ export function useDashboardStatsMonthly() {
     },
     recentActivity: data.recent_activity || []
   } : null
-  
+
   return {
     stats: transformedStats,
     loading,
@@ -234,13 +234,13 @@ export function useDashboardStatsMonthly() {
 
 // Hook com período customizado - dados reais
 export function useDashboardStatsCustom(period: 'daily' | 'weekly' | 'monthly' | 'yearly' = 'daily') {
-  const endpoint = period === 'daily' ? '/api/proxy/dashboard/stats' : 
+  const endpoint = period === 'daily' ? '/api/proxy/dashboard/stats' :
                   period === 'weekly' ? '/api/proxy/dashboard/stats/weekly' :
                   period === 'monthly' ? '/api/proxy/dashboard/stats/monthly' :
                   '/api/proxy/dashboard/stats/yearly'
-                  
+
   const { data, loading, error, get } = useApiGet<any>(endpoint)
-  
+
   const transformedStats: DashboardStatsComplete | null = data ? {
     metrics: {
       total_clients: data.total_clients || 0,
@@ -280,7 +280,7 @@ export function useDashboardStatsCustom(period: 'daily' | 'weekly' | 'monthly' |
     },
     recentActivity: data.recent_activity || []
   } : null
-  
+
   return {
     stats: transformedStats,
     loading,

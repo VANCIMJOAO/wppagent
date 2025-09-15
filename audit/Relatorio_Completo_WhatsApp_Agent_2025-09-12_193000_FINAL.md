@@ -5,24 +5,25 @@
         error_message TEXT,
         timestamp TIMESTAMP NOT NULL DEFAULT NOW()
     );
-    
+
     -- Add indexes for performance
-    CREATE INDEX IF NOT EXISTS idx_rbac_audit_user_id 
+    CREATE INDEX IF NOT EXISTS idx_rbac_audit_user_id
         ON rbac_audit_logs(user_id);
-    CREATE INDEX IF NOT EXISTS idx_rbac_audit_timestamp 
+    CREATE INDEX IF NOT EXISTS idx_rbac_audit_timestamp
         ON rbac_audit_logs(timestamp DESC);
-    CREATE INDEX IF NOT EXISTS idx_rbac_audit_action 
+    CREATE INDEX IF NOT EXISTS idx_rbac_audit_action
         ON rbac_audit_logs(action, resource_type);
     """)
-    
+
     # Fix orphaned foreign keys
     op.execute("""
-    DELETE FROM user_roles 
+    DELETE FROM user_roles
     WHERE role_id NOT IN (SELECT id FROM rbac_roles);
-    
-    DELETE FROM role_permissions 
+
+    DELETE FROM role_permissions
     WHERE permission_id NOT IN (SELECT id FROM rbac_permissions);
     """)
+
 ```
 
 ### A11. Frontend Authentication Hook
@@ -32,12 +33,12 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Check authentication status on mount
   useEffect(() => {
     checkAuthStatus();
   }, []);
-  
+
   const checkAuthStatus = async () => {
     try {
       const token = localStorage.getItem('access_token');
@@ -45,14 +46,14 @@ export function useAuth() {
         setLoading(false);
         return;
       }
-      
+
       // Validate token with backend
       const response = await fetch('/api/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData.data);
@@ -67,12 +68,12 @@ export function useAuth() {
       setLoading(false);
     }
   };
-  
+
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -80,9 +81,9 @@ export function useAuth() {
         },
         body: JSON.stringify({ email, password })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         localStorage.setItem('access_token', data.data.access_token);
         localStorage.setItem('refresh_token', data.data.refresh_token);
@@ -100,7 +101,7 @@ export function useAuth() {
       setLoading(false);
     }
   };
-  
+
   return {
     user,
     loading,
@@ -117,11 +118,13 @@ export function useAuth() {
 ```
 
 ### A12. Performance Monitoring Query
+
 **Referência:** `scripts/performance_monitor.sql`
+
 ```sql
 -- Query performance monitoring (executada a cada 5 minutos)
 WITH query_stats AS (
-  SELECT 
+  SELECT
     query,
     calls,
     total_time,
@@ -130,13 +133,13 @@ WITH query_stats AS (
     stddev_time,
     rows,
     100.0 * shared_blks_hit / nullif(shared_blks_hit + shared_blks_read, 0) AS hit_percent
-  FROM pg_stat_statements 
+  FROM pg_stat_statements
   WHERE calls > 10
   ORDER BY total_time DESC
   LIMIT 20
 ),
 connection_stats AS (
-  SELECT 
+  SELECT
     count(*) as total_connections,
     count(*) FILTER (WHERE state = 'active') as active_connections,
     count(*) FILTER (WHERE state = 'idle') as idle_connections,
@@ -145,7 +148,7 @@ connection_stats AS (
   WHERE datname = current_database()
 ),
 table_stats AS (
-  SELECT 
+  SELECT
     schemaname,
     tablename,
     n_tup_ins + n_tup_upd + n_tup_del as total_writes,
@@ -158,7 +161,7 @@ table_stats AS (
   ORDER BY total_writes DESC
   LIMIT 10
 )
-SELECT 
+SELECT
   'query_performance' as metric_type,
   json_build_object(
     'timestamp', NOW(),
@@ -188,9 +191,9 @@ FROM query_stats, table_stats;
 
 ```sql
 -- 1. Schema completo do banco
-SELECT table_name, column_name, data_type, is_nullable, column_default 
-FROM information_schema.columns 
-WHERE table_schema = 'public' 
+SELECT table_name, column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_schema = 'public'
 ORDER BY table_name, ordinal_position;
 
 -- 2. Contagem de registros por tabela principal
@@ -230,6 +233,7 @@ SELECT COUNT(*) as row_count, 'services' as table_name FROM services;
 ### Status Geral do Sistema
 
 **🟢 PONTOS FORTES:**
+
 - Arquitetura sólida e bem estruturada
 - Stack tecnológica moderna e apropriada
 - Sistema de segurança robusto (RBAC + JWT + 2FA)
@@ -239,6 +243,7 @@ SELECT COUNT(*) as row_count, 'services' as table_name FROM services;
 - Backup automatizado configurado
 
 **🟡 PONTOS DE ATENÇÃO:**
+
 - Alguns endpoints ainda sem padronização C002
 - Testes E2E com coverage limitado
 - Webhook replay attack protection pendente
@@ -246,6 +251,7 @@ SELECT COUNT(*) as row_count, 'services' as table_name FROM services;
 - Disaster recovery não testado
 
 **🔴 RISCOS CRÍTICOS:**
+
 - Dependência de instância compartilhada Railway
 - Limite de conexões PostgreSQL pode ser atingido
 - OpenAI API quota sem fallback

@@ -1,4 +1,4 @@
-/* 
+/*
 ===============================================
 ESTILOS PARA SISTEMA DE RATE LIMITING
 ===============================================
@@ -390,20 +390,20 @@ e controle do sistema de rate limiting
     .rate-limit-stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .action-buttons {
         flex-direction: column;
     }
-    
+
     .action-button {
         width: 100%;
         text-align: center;
     }
-    
+
     .rate-limit-header h1 {
         font-size: 2rem;
     }
-    
+
     .stat-number {
         font-size: 2rem;
     }
@@ -413,15 +413,15 @@ e controle do sistema de rate limiting
     .rate-limit-container {
         padding: 1rem;
     }
-    
+
     .rate-limit-header {
         padding: 1.5rem;
     }
-    
+
     .stat-card {
         padding: 1rem;
     }
-    
+
     .stat-content {
         flex-direction: column;
         text-align: center;
@@ -480,27 +480,27 @@ e controle do sistema de rate limiting
         background: linear-gradient(135deg, #212529 0%, #343a40 100%);
         color: #fff;
     }
-    
+
     .stat-card {
         background: #2b3035;
         color: #fff;
     }
-    
+
     .rate-limit-table {
         background: #2b3035;
         color: #fff;
     }
-    
+
     .rate-limit-table tbody tr:hover {
         background-color: #343a40;
     }
-    
+
     .blocked-ip-item {
         background: linear-gradient(135deg, #2b3035 0%, #343a40 100%);
         border-color: #495057;
         color: #fff;
     }
-    
+
     .blocked-ip-item code {
         background: #495057;
         color: #fff;

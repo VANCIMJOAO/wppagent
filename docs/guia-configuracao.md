@@ -9,6 +9,7 @@
 ### **Pré-requisitos do Sistema** 📋
 
 #### **Requisitos Mínimos**
+
 - **Sistema Operacional**: Ubuntu 20.04+ / CentOS 8+ / macOS 12+ / Windows 11 WSL2
 - **Docker**: 20.10+ com Docker Compose 2.0+
 - **Python**: 3.11+ (se instalação manual)
@@ -18,6 +19,7 @@
 - **Rede**: HTTPS obrigatório em produção
 
 #### **Contas e APIs Necessárias**
+
 - ✅ **Meta for Developers** - Conta verificada para WhatsApp Business API
 - ✅ **PostgreSQL** - Banco de dados (local ou cloud)
 - ✅ **Redis** - Cache (local ou cloud)
@@ -30,6 +32,7 @@
 ### **Método 1: Deploy Rápido**
 
 #### **1. Clone do Repositório**
+
 ```bash
 # Clone do projeto
 git clone https://github.com/VANCIMJOAO/wppagent.git
@@ -40,6 +43,7 @@ ls -la docker-compose.yml Dockerfile .env.example
 ```
 
 #### **2. Configuração de Ambiente**
+
 ```bash
 # Copiar arquivo de exemplo
 cp .env.example .env
@@ -49,6 +53,7 @@ nano .env
 ```
 
 **Configuração `.env` essencial:**
+
 ```env
 # === CONFIGURAÇÃO DO BANCO DE DADOS ===
 DATABASE_URL=postgresql://postgres:senha_segura@db:5432/whatsapp_agent
@@ -86,6 +91,7 @@ NEXTAUTH_URL=https://seu-dominio.com
 ```
 
 #### **3. Deploy com Docker Compose**
+
 ```bash
 # Iniciar todos os serviços
 docker-compose up -d
@@ -98,6 +104,7 @@ docker-compose logs -f whatsapp-backend
 ```
 
 #### **4. Verificação da Instalação**
+
 ```bash
 # Teste de saúde da API
 curl http://localhost:8000/health
@@ -115,6 +122,7 @@ docker-compose logs whatsapp-backend | tail -20
 ### **Método 2: Configuração Avançada**
 
 #### **Docker Compose Customizado**
+
 ```yaml
 # docker-compose.production.yml
 version: '3.8'
@@ -166,6 +174,7 @@ services:
 ### **1. Preparação do Ambiente**
 
 #### **Ubuntu/Debian**
+
 ```bash
 # Atualizar sistema
 sudo apt update && sudo apt upgrade -y
@@ -178,6 +187,7 @@ sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 
 ```
 
 #### **CentOS/RHEL**
+
 ```bash
 # Instalar EPEL repository
 sudo dnf install -y epel-release
@@ -194,6 +204,7 @@ sudo systemctl start postgresql redis
 ### **2. Configuração do Banco de Dados**
 
 #### **PostgreSQL Setup**
+
 ```bash
 # Conectar como usuário postgres
 sudo -u postgres psql
@@ -212,6 +223,7 @@ CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
 ```
 
 #### **Configuração PostgreSQL**
+
 ```bash
 # Editar postgresql.conf
 sudo nano /etc/postgresql/14/main/postgresql.conf
@@ -230,6 +242,7 @@ default_statistics_target = 100
 ### **3. Instalação da Aplicação**
 
 #### **Backend (FastAPI)**
+
 ```bash
 # Clone e setup
 git clone https://github.com/VANCIMJOAO/wppagent.git
@@ -255,6 +268,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 #### **Frontend (Next.js)**
+
 ```bash
 # Navegar para pasta do frontend
 cd nextjs_dashboard
@@ -283,11 +297,13 @@ npm run start
 ### **1. Configuração no Meta for Developers**
 
 #### **Criar Aplicação WhatsApp Business**
+
 1. Acesse [Meta for Developers](https://developers.facebook.com)
 2. Criar nova aplicação → **Business** → **WhatsApp Business Platform**
 3. Adicionar produto **WhatsApp** à aplicação
 
 #### **Configurar Webhook**
+
 ```
 URL do Webhook: https://seu-dominio.com/webhook
 Token de Verificação: seu_token_verificacao_webhook
@@ -295,6 +311,7 @@ Campos de Assinatura: messages, message_deliveries, message_reads
 ```
 
 #### **Obter Credenciais**
+
 ```bash
 # Necessário configurar no .env:
 META_ACCESS_TOKEN=EAAxxxxxxxxxxxxx
@@ -306,6 +323,7 @@ WEBHOOK_SECRET=minha_chave_secreta_webhook
 ```
 
 ### **2. Teste da Integração**
+
 ```bash
 # Testar webhook
 curl -X GET "https://seu-dominio.com/webhook?hub.mode=subscribe&hub.challenge=123456&hub.verify_token=seu_token"
@@ -329,6 +347,7 @@ curl -X POST "https://graph.facebook.com/v18.0/SEU_PHONE_NUMBER_ID/messages" \
 ### **1. Railway (Recomendado)**
 
 #### **Deploy Automático**
+
 ```bash
 # Instalar Railway CLI
 npm install -g @railway/cli
@@ -347,6 +366,7 @@ railway variables set META_ACCESS_TOKEN=...
 ```
 
 #### **Configuração Railway**
+
 ```json
 {
   "build": {
@@ -363,6 +383,7 @@ railway variables set META_ACCESS_TOKEN=...
 ### **2. AWS/DigitalOcean**
 
 #### **Servidor VPS Setup**
+
 ```bash
 # Conectar ao servidor
 ssh root@seu-servidor
@@ -386,6 +407,7 @@ docker-compose -f docker-compose.production.yml up -d
 ### **3. Nginx Reverse Proxy**
 
 #### **Configuração Nginx**
+
 ```nginx
 # /etc/nginx/sites-available/whatsapp-agent
 server {
@@ -439,6 +461,7 @@ server {
 ## 🔍 **VERIFICAÇÃO E TESTES**
 
 ### **1. Health Checks**
+
 ```bash
 # API Health
 curl https://seu-dominio.com/health
@@ -460,6 +483,7 @@ curl -X GET https://seu-dominio.com/health/detailed \
 ```
 
 ### **2. Testes de Funcionalidade**
+
 ```bash
 # Teste de autenticação
 curl -X POST https://seu-dominio.com/auth/login \
@@ -485,6 +509,7 @@ curl -X POST https://seu-dominio.com/webhook \
 ```
 
 ### **3. Performance Tests**
+
 ```bash
 # Teste de carga com Apache Bench
 ab -n 1000 -c 10 https://seu-dominio.com/health
@@ -510,6 +535,7 @@ curl -w "@curl-format.txt" -o /dev/null -s https://seu-dominio.com/health
 ### **Problemas Comuns**
 
 #### **Erro de Conexão com Banco**
+
 ```bash
 # Verificar se PostgreSQL está rodando
 sudo systemctl status postgresql
@@ -522,6 +548,7 @@ sudo tail -f /var/log/postgresql/postgresql-14-main.log
 ```
 
 #### **Erro de Webhook**
+
 ```bash
 # Verificar certificado SSL
 curl -I https://seu-dominio.com/webhook
@@ -532,6 +559,7 @@ ngrok http 8000
 ```
 
 #### **Performance Issues**
+
 ```bash
 # Verificar recursos do sistema
 htop
@@ -550,6 +578,7 @@ redis-cli -u $REDIS_URL info stats
 ## 🛡️ **CONFIGURAÇÕES DE SEGURANÇA**
 
 ### **1. Firewall**
+
 ```bash
 # UFW (Ubuntu)
 sudo ufw allow 22/tcp    # SSH
@@ -563,6 +592,7 @@ sudo ufw deny 3000
 ```
 
 ### **2. SSL/TLS**
+
 ```bash
 # Instalar Certbot (Let's Encrypt)
 sudo apt install certbot python3-certbot-nginx
@@ -577,6 +607,7 @@ sudo crontab -e
 ```
 
 ### **3. Backup Automático**
+
 ```bash
 # Script de backup do banco
 #!/bin/bash
@@ -594,15 +625,17 @@ aws s3 cp backup_$DATE.sql s3://seu-bucket/backups/
 ## 📞 **SUPORTE**
 
 ### **Recursos de Ajuda**
+
 - 📖 **Documentação Completa**: `docs/`
 - 🔧 **Troubleshooting**: `docs/troubleshooting.md`
 - 🛡️ **Segurança**: `docs/security-practices.md`
 - ⚡ **Performance**: `docs/performance-optimization.md`
 
 ### **Contatos**
-- 📧 **Suporte Técnico**: suporte@whatsappagent.com
-- 💬 **Chat de Suporte**: https://whatsappagent.com/chat
-- 🐛 **Report de Bugs**: https://github.com/VANCIMJOAO/wppagent/issues
+
+- 📧 **Suporte Técnico**: <suporte@whatsappagent.com>
+- 💬 **Chat de Suporte**: <https://whatsappagent.com/chat>
+- 🐛 **Report de Bugs**: <https://github.com/VANCIMJOAO/wppagent/issues>
 
 ---
 

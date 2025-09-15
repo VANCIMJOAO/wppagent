@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     // Simulando dados para desenvolvimento com loading state
     await new Promise(resolve => setTimeout(resolve, 600)); // Simular delay
-    
+
     const mockStats: DashboardStatsComplete = {
       metrics: {
         total_clients: 280,
@@ -81,9 +81,9 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Erro ao buscar estatísticas semanais:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Erro interno do servidor ao buscar estatísticas semanais',
-        success: false 
+        success: false
       },
       { status: 500 }
     );

@@ -36,17 +36,17 @@ const addToast = (toast: Omit<Toast, 'id'>) => {
     duration: toast.duration ?? 5000,
     variant: toast.variant ?? 'default'
   };
-  
+
   toasts.push(newToast);
   listeners.forEach((listener) => listener([...toasts]));
-  
+
   // Auto dismiss after duration
   if (newToast.duration && newToast.duration > 0) {
     setTimeout(() => {
       dismissToast(id);
     }, newToast.duration);
   }
-  
+
   return id;
 };
 

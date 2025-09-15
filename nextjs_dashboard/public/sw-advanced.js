@@ -52,9 +52,9 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames
-          .filter(cacheName => 
-            cacheName !== CACHE_NAME && 
-            cacheName !== API_CACHE && 
+          .filter(cacheName =>
+            cacheName !== CACHE_NAME &&
+            cacheName !== API_CACHE &&
             cacheName !== STATIC_CACHE
           )
           .map(cacheName => {
@@ -78,18 +78,18 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request
   const url = new URL(request.url)
-  
+
   // Ignorar requests externos ou chrome-extension
   if (!url.origin.includes('localhost') && !url.origin.includes('127.0.0.1') && !url.origin.includes(self.location.origin)) {
     return
   }
-  
+
   // Estratégia para APIs
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkFirstStrategy(request))
   }
   // Estratégia para recursos estáticos
-  else if (request.destination === 'script' || 
+  else if (request.destination === 'script' ||
            request.destination === 'style' ||
            request.destination === 'image' ||
            url.pathname.includes('_next/static')) {
@@ -106,7 +106,7 @@ async function networkFirstStrategy(request) {
   try {
     console.log('🌐 SW: Network first for', request.url)
     const response = await fetch(request)
-    
+
     // Se sucesso E método GET, atualizar cache (não cachear POST/PUT/DELETE)
     if (response.status === 200 && request.method === 'GET') {
       const cache = await caches.open(API_CACHE)
@@ -115,7 +115,7 @@ async function networkFirstStrategy(request) {
     } else if (request.method !== 'GET') {
       console.log('🚫 SW: Skipping cache for', request.method, request.url)
     }
-    
+
     return response
   } catch (error) {
     console.log('📴 SW: Network failed, trying cache for', request.url)
@@ -126,7 +126,7 @@ async function networkFirstStrategy(request) {
       const headers = new Headers(cachedResponse.headers)
       headers.set('X-Served-From', 'cache')
       headers.set('X-Cache-Date', new Date().toISOString())
-      
+
       console.log('📋 SW: Serving from cache', request.url)
       return new Response(cachedResponse.body, {
         status: cachedResponse.status,
@@ -134,24 +134,24 @@ async function networkFirstStrategy(request) {
         headers: headers
       })
     }
-    
+
     // Se não tem cache, retornar resposta de erro ou página offline
     if (request.mode === 'navigate') {
       return caches.match('/offline') || new Response('Offline', { status: 503 })
     }
-    
+
     // Para APIs, retornar dados offline padrão
     if (request.url.includes('/api/')) {
-      return new Response(JSON.stringify({ 
-        error: 'offline', 
+      return new Response(JSON.stringify({
+        error: 'offline',
         message: 'Dados não disponíveis offline',
-        cached: false 
+        cached: false
       }), {
         status: 503,
         headers: { 'Content-Type': 'application/json' }
       })
     }
-    
+
     throw error
   }
 }
@@ -163,7 +163,7 @@ async function cacheFirstStrategy(request) {
     console.log('⚡ SW: Cache hit for', request.url)
     return cachedResponse
   }
-  
+
   try {
     console.log('🌐 SW: Fetching and caching', request.url)
     const response = await fetch(request)
@@ -177,7 +177,7 @@ async function cacheFirstStrategy(request) {
       return new Response(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
         <rect width="100" height="100" fill="#f3f4f6"/>
         <text x="50" y="50" text-anchor="middle" dy="0.3em" font-family="Arial" font-size="12" fill="#6b7280">Offline</text>
-      </svg>`, { 
+      </svg>`, {
         headers: { 'Content-Type': 'image/svg+xml' }
       })
     }
@@ -188,11 +188,11 @@ async function cacheFirstStrategy(request) {
 // Stale While Revalidate - para páginas
 async function staleWhileRevalidateStrategy(request) {
   const cachedResponse = await caches.match(request)
-  
+
   // Retornar cache imediatamente se disponível
   if (cachedResponse) {
     console.log('📋 SW: Serving stale content for', request.url)
-    
+
     // Atualizar cache em background (sem waitUntil - execução assíncrona)
     fetch(request).then(response => {
       if (response.status === 200) {
@@ -205,10 +205,10 @@ async function staleWhileRevalidateStrategy(request) {
       // Ignorar erros de rede em background
       console.log('📴 SW: Background update failed for', request.url)
     })
-    
+
     return cachedResponse
   }
-  
+
   // Se não tem cache, buscar da rede
   try {
     console.log('🌐 SW: Fresh fetch for', request.url)
@@ -245,7 +245,7 @@ async function staleWhileRevalidateStrategy(request) {
           </div>
         </body>
       </html>
-    `, { 
+    `, {
       headers: { 'Content-Type': 'text/html' },
       status: 503
     })
@@ -266,7 +266,7 @@ async function syncOfflineActions() {
     // Buscar ações pendentes do IndexedDB
     const pendingActions = await getStoredActions()
     console.log(`📊 SW: Found ${pendingActions.length} pending actions`)
-    
+
     for (const action of pendingActions) {
       try {
         console.log('🔄 SW: Syncing action', action.id, action.url)
@@ -275,7 +275,7 @@ async function syncOfflineActions() {
           headers: action.headers,
           body: action.body
         })
-        
+
         if (response.ok) {
           // Remover ação sincronizada
           await removeStoredAction(action.id)
@@ -302,11 +302,11 @@ async function getStoredActions() {
         resolve([])
         return
       }
-      
+
       const transaction = db.transaction(['pending_actions'], 'readonly')
       const store = transaction.objectStore('pending_actions')
       const getRequest = store.getAll()
-      
+
       getRequest.onsuccess = () => resolve(getRequest.result || [])
       getRequest.onerror = () => resolve([])
     }
@@ -323,11 +323,11 @@ async function removeStoredAction(id) {
         resolve()
         return
       }
-      
+
       const transaction = db.transaction(['pending_actions'], 'readwrite')
       const store = transaction.objectStore('pending_actions')
       const deleteRequest = store.delete(id)
-      
+
       deleteRequest.onsuccess = () => resolve()
       deleteRequest.onerror = () => resolve()
     }
@@ -338,15 +338,15 @@ async function removeStoredAction(id) {
 // Message handling para comunicação com o app
 self.addEventListener('message', event => {
   console.log('💬 SW: Message received', event.data)
-  
+
   if (event.data.type === 'SKIP_WAITING') {
     self.skipWaiting()
   }
-  
+
   if (event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({ version: CACHE_NAME })
   }
-  
+
   if (event.data.type === 'CLEAR_CACHE') {
     event.waitUntil(
       caches.keys().then(cacheNames => {

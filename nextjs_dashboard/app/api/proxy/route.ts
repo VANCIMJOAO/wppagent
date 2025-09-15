@@ -22,11 +22,11 @@ export async function DELETE(request: Request) {
 
 async function handleProxyRequest(request: Request, method: string) {
   const url = new URL(request.url);
-  
+
   // Extract the endpoint path after /api/proxy
   const endpoint = url.pathname.replace('/api/proxy', '');
   const queryString = url.search;
-  
+
   if (!endpoint || endpoint === '/') {
     return NextResponse.json({ error: 'Missing endpoint path' }, { status: 400 });
   }
@@ -34,9 +34,9 @@ async function handleProxyRequest(request: Request, method: string) {
   try {
     const backendUrl = `https://wppagent-production.up.railway.app${endpoint}${queryString}`;
     console.log('Proxy request to:', backendUrl);
-    
+
     const requestBody = method !== 'GET' ? await request.text() : undefined;
-    
+
     const response = await fetch(backendUrl, {
       method,
       headers: {
@@ -48,14 +48,14 @@ async function handleProxyRequest(request: Request, method: string) {
 
     const contentType = response.headers.get('content-type');
     let data;
-    
+
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
     } else {
       data = await response.text();
     }
 
-    return NextResponse.json(data, { 
+    return NextResponse.json(data, {
       status: response.status,
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -66,8 +66,8 @@ async function handleProxyRequest(request: Request, method: string) {
 
   } catch (error) {
     console.error('Proxy error:', error);
-    return NextResponse.json({ 
-      error: `Failed to fetch data from backend: ${error}` 
+    return NextResponse.json({
+      error: `Failed to fetch data from backend: ${error}`
     }, { status: 500 });
   }
 }

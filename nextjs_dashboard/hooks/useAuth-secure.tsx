@@ -1,7 +1,7 @@
 /**
  * 🪝 Hook de Autenticação com Cookies Seguros
  * ==========================================
- * 
+ *
  * Hook customizado que integra SecureAuthManager com React:
  * - Estado de autenticação reativo
  * - Métodos para login/logout seguros
@@ -50,15 +50,15 @@ const AuthContext = createContext<UseAuthReturn | null>(null);
 /**
  * 🪝 Hook de Autenticação Segura
  * =============================
- * 
+ *
  * Fornece estado e métodos de autenticação usando cookies HttpOnly
- * 
+ *
  * @returns {UseAuthReturn} Estado e ações de autenticação
- * 
+ *
  * @example
  * ```typescript
  * const { login, logout, isAuthenticated, user, isLoading } = useAuth();
- * 
+ *
  * // Fazer login
  * const handleLogin = async (credentials) => {
  *   const result = await login(credentials);
@@ -83,7 +83,7 @@ export function useAuth(): UseAuthReturn {
       try {
         const isAuth = await secureAuth.isAuthenticated();
         const currentUser = isAuth ? await secureAuth.getCurrentUser() : null;
-        
+
         setAuthState({
           isAuthenticated: isAuth,
           user: currentUser,
@@ -110,10 +110,10 @@ export function useAuth(): UseAuthReturn {
    */
   const login = useCallback(async (credentials: LoginCredentials): Promise<AuthResponse> => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
-    
+
     try {
       const response = await secureAuth.login(credentials);
-      
+
       if (response.success && response.user) {
         // Sucesso - atualizar estado
         setAuthState({
@@ -131,9 +131,9 @@ export function useAuth(): UseAuthReturn {
           error: response.error || 'Credenciais inválidas',
         });
       }
-      
+
       return response;
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro no login';
       setAuthState({
@@ -142,7 +142,7 @@ export function useAuth(): UseAuthReturn {
         isLoading: false,
         error: errorMessage,
       });
-      
+
       return {
         success: false,
         error: errorMessage,
@@ -155,10 +155,10 @@ export function useAuth(): UseAuthReturn {
    */
   const logout = useCallback(async (): Promise<void> => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
-    
+
     try {
       await secureAuth.logout();
-      
+
       // Sempre limpar estado após logout
       setAuthState({
         isAuthenticated: false,
@@ -166,7 +166,7 @@ export function useAuth(): UseAuthReturn {
         isLoading: false,
         error: null,
       });
-      
+
     } catch (error) {
       console.error('🔴 Erro no logout:', error);
       // Mesmo com erro, limpar estado local
@@ -185,7 +185,7 @@ export function useAuth(): UseAuthReturn {
   const refreshUser = useCallback(async (): Promise<void> => {
     try {
       const isAuth = await secureAuth.isAuthenticated();
-      
+
       if (isAuth) {
         const currentUser = await secureAuth.getCurrentUser();
         setAuthState(prev => ({
@@ -201,7 +201,7 @@ export function useAuth(): UseAuthReturn {
           user: null,
         }));
       }
-      
+
     } catch (error) {
       console.error('🔴 Erro ao atualizar usuário:', error);
       setAuthState(prev => ({
@@ -230,13 +230,13 @@ export function useAuth(): UseAuthReturn {
 /**
  * 🌍 Provider de Contexto de Auth
  * ===============================
- * 
+ *
  * Permite compartilhar estado de auth entre múltiplos componentes
  * sem re-renderizações desnecessárias.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
-  
+
   return (
     <AuthContext.Provider value={auth}>
       {children}
@@ -247,16 +247,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 /**
  * 🪝 Hook para usar Auth Context
  * =============================
- * 
+ *
  * Use este hook quando quiser compartilhar estado entre componentes.
- * 
+ *
  * @example
  * ```typescript
  * // No App.tsx
  * <AuthProvider>
  *   <Dashboard />
  * </AuthProvider>
- * 
+ *
  * // Em qualquer componente
  * const auth = useAuthContext();
  * if (auth.isAuthenticated) { ... }
@@ -264,11 +264,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
  */
 export function useAuthContext(): UseAuthReturn {
   const context = useContext(AuthContext);
-  
+
   if (!context) {
     throw new Error('useAuthContext deve ser usado dentro de AuthProvider');
   }
-  
+
   return context;
 }
 

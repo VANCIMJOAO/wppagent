@@ -1,10 +1,10 @@
 /**
  * 📅 Exemplo de Uso - Loading States em Appointments
  * ================================================
- * 
+ *
  * Demonstra como usar os componentes de loading states padronizados
  * em um componente real de agendamentos.
- * 
+ *
  * Autor: Claude AI
  * Data: 2025-09-07
  */
@@ -13,7 +13,7 @@
 
 import { useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { 
+import {
   DataStateWrapper,
   LoadingSpinner,
   ErrorFallback,
@@ -30,17 +30,17 @@ const appointmentsAPI = {
   async getAppointments(filters?: any): Promise<Appointment[]> {
     // Simular delay de rede
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     // Simular erro ocasional
     if (Math.random() < 0.1) {
       throw new Error('Erro de conexão com o servidor')
     }
-    
+
     // Simular dados vazios ocasionalmente
     if (Math.random() < 0.2) {
       return []
     }
-    
+
     // Retornar dados simulados
     return [
       {
@@ -92,12 +92,12 @@ export function AppointmentsListExample() {
     <div className="space-y-6">
       {/* ✅ Network status indicator */}
       <NetworkStatus isOnline={isOnline} />
-      
+
       {/* ✅ Header com loading state */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Agendamentos</h1>
-        <Button 
-          onClick={() => refresh()} 
+        <Button
+          onClick={() => refresh()}
           disabled={loading}
           variant="outline"
         >
@@ -238,14 +238,14 @@ export function AppointmentsTableSkeleton() {
           <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
           <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
         </div>
-        
+
         {/* Filter skeleton */}
         <div className="flex space-x-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-10 w-20 bg-gray-200 rounded animate-pulse" />
           ))}
         </div>
-        
+
         {/* Table skeleton */}
         <TableSkeleton rows={5} cols={6} />
       </div>
@@ -254,12 +254,12 @@ export function AppointmentsTableSkeleton() {
 }
 
 // ✅ Componente de erro específico para appointments
-export function AppointmentsErrorFallback({ 
-  error, 
-  retry 
-}: { 
+export function AppointmentsErrorFallback({
+  error,
+  retry
+}: {
   error: Error | string
-  retry: () => void 
+  retry: () => void
 }) {
   return (
     <ErrorFallback
@@ -271,10 +271,10 @@ export function AppointmentsErrorFallback({
 }
 
 // ✅ Estado vazio específico para appointments
-export function AppointmentsEmptyState({ 
-  onCreateNew 
-}: { 
-  onCreateNew?: () => void 
+export function AppointmentsEmptyState({
+  onCreateNew
+}: {
+  onCreateNew?: () => void
 }) {
   return (
     <EmptyState

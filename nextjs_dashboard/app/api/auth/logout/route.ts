@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('🚨 Erro no logout:', error);
-    
+
     // Mesmo com erro, limpar cookies locais
     const response = NextResponse.json(
       { success: true, message: 'Logout local realizado' }

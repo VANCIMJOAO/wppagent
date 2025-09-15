@@ -144,7 +144,7 @@ export const DashboardWithRecovery: React.FC<DashboardRecoveryProps> = ({
                 <span>Dashboard - Error Recovery System</span>
               </CardTitle>
             </div>
-            
+
             {/* Status Badge */}
             <div className="flex items-center space-x-2">
               <div className={`w-3 h-3 rounded-full ${statusInfo.color} animate-pulse`}></div>
@@ -154,7 +154,7 @@ export const DashboardWithRecovery: React.FC<DashboardRecoveryProps> = ({
               </Badge>
             </div>
           </div>
-          
+
           {/* Descrição do Status */}
           <p className="text-sm text-gray-600">
             {statusInfo.description}
@@ -248,7 +248,7 @@ export const DashboardWithRecovery: React.FC<DashboardRecoveryProps> = ({
                 </span>
               </div>
               <p className="text-xs text-yellow-700 mt-1">
-                Última atualização: {stats?.last_updated 
+                Última atualização: {stats?.last_updated
                   ? new Date(stats.last_updated).toLocaleString('pt-BR')
                   : 'Desconhecido'
                 }
@@ -285,13 +285,13 @@ export const DashboardWithRecovery: React.FC<DashboardRecoveryProps> = ({
                   <p className="text-2xl font-bold text-gray-900">
                     {isLoading ? '...' : metric.value.toLocaleString()}
                   </p>
-                  
+
                   {isDegraded && (
                     <p className="text-xs text-orange-600 mt-1">
                       Dados limitados
                     </p>
                   )}
-                  
+
                   {isUsingCache && !isDegraded && (
                     <p className="text-xs text-yellow-600 mt-1">
                       Cache
@@ -318,21 +318,21 @@ export const DashboardWithRecovery: React.FC<DashboardRecoveryProps> = ({
               </div>
               <div className="text-sm text-gray-600">Total Conversas</div>
             </div>
-            
+
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-2xl font-bold text-green-600">
                 {(stats?.total_messages || 0).toLocaleString()}
               </div>
               <div className="text-sm text-gray-600">Total Mensagens</div>
             </div>
-            
+
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">
                 {(stats?.conversion_rate || 0).toFixed(1)}%
               </div>
               <div className="text-sm text-gray-600">Taxa Conversão</div>
             </div>
-            
+
             <div className="text-center p-4 bg-orange-50 rounded-lg">
               <div className="text-2xl font-bold text-orange-600">
                 {(stats?.growth_rate || 0) > 0 ? '+' : ''}{(stats?.growth_rate || 0).toFixed(1)}%

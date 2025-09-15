@@ -6,11 +6,11 @@ import { useOfflineData } from '@/lib/offline-storage'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Wifi, 
-  WifiOff, 
-  RefreshCw, 
-  Database, 
+import {
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  Database,
   Calendar,
   MessageCircle,
   BarChart3,
@@ -21,15 +21,15 @@ import {
 
 export default function OfflinePage() {
   const { isOnline, hasOfflineData, pendingActions, storageStats } = useOfflineData()
-  
+
   // H005: Detectar se está offline por questões de autenticação
   const [isAuthRequired, setIsAuthRequired] = useState(false)
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
       setIsAuthRequired(urlParams.get('auth') === 'required')
-      
+
       // H005: Log para debug do auth bypass
       if (urlParams.get('auth') === 'required') {
         console.log('H005: Offline page - auth=required bypass detected')
@@ -59,7 +59,7 @@ export default function OfflinePage() {
       }, 1000)
     }
   }, [isOnline])
-  
+
   // H005: Função para ir para login
   const handleGoToLogin = () => {
     window.location.href = '/login'
@@ -73,16 +73,16 @@ export default function OfflinePage() {
           <div className="mb-6">
             <LogIn className="mx-auto h-16 w-16 text-yellow-500" />
           </div>
-          
+
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Login Necessário
           </h1>
-          
+
           <p className="text-gray-600 mb-6">
             Para acessar esta funcionalidade, você precisa estar logado e conectado à internet.
             O PWA funciona offline, mas o login requer conexão.
           </p>
-          
+
           <div className="space-y-3">
             <Button
               onClick={handleRetry}
@@ -91,7 +91,7 @@ export default function OfflinePage() {
               <RefreshCw className="h-4 w-4" />
               Tentar Novamente
             </Button>
-            
+
             <Button
               onClick={handleGoToLogin}
               variant="outline"
@@ -101,7 +101,7 @@ export default function OfflinePage() {
               Ir para Login
             </Button>
           </div>
-          
+
           <div className="mt-6 text-sm text-gray-500">
             <p>H005: PWA com bypass de autenticação</p>
             <p className="mt-1">
@@ -116,7 +116,7 @@ export default function OfflinePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full space-y-6">
-        
+
         {/* Header Card */}
         <Card className="text-center">
           <CardHeader className="pb-4">
@@ -127,11 +127,11 @@ export default function OfflinePage() {
                 <WifiOff className="h-8 w-8 text-red-500" />
               )}
             </div>
-            
+
             <CardTitle className="text-2xl">
               {isOnline ? 'Reconectando...' : 'Você está offline'}
             </CardTitle>
-            
+
             <CardDescription className="text-base">
               {isOnline ? (
                 <span className="text-green-600">
@@ -142,7 +142,7 @@ export default function OfflinePage() {
               )}
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             {/* Status da conexão */}
             <div className="flex justify-center">
@@ -167,7 +167,7 @@ export default function OfflinePage() {
                 <div className="flex items-center justify-center gap-2 text-orange-700">
                   <RefreshCw className={`h-4 w-4 ${isOnline ? 'animate-spin' : ''}`} />
                   <span className="text-sm font-medium">
-                    {pendingActions} {pendingActions === 1 ? 'ação será sincronizada' : 'ações serão sincronizadas'} 
+                    {pendingActions} {pendingActions === 1 ? 'ação será sincronizada' : 'ações serão sincronizadas'}
                     quando reconectar
                   </span>
                 </div>
@@ -180,7 +180,7 @@ export default function OfflinePage() {
                 <RefreshCw className="h-4 w-4" />
                 Tentar Reconectar
               </Button>
-              
+
               <Button variant="outline" onClick={handleRefresh}>
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Recarregar Página
@@ -311,7 +311,7 @@ export default function OfflinePage() {
                   <li>• Dashboard com dados cached</li>
                 </ul>
               </div>
-              
+
               <div>
                 <h4 className="font-medium text-red-700 mb-2 flex items-center gap-2">
                   ❌ Requer Conexão
@@ -334,7 +334,7 @@ export default function OfflinePage() {
                 <div className="text-sm">
                   <div className="font-medium text-blue-800 mb-1">Dica:</div>
                   <div className="text-blue-700">
-                    Suas ações serão automaticamente sincronizadas quando a conexão for restaurada. 
+                    Suas ações serão automaticamente sincronizadas quando a conexão for restaurada.
                     O app continuará funcionando normalmente com os dados já carregados.
                   </div>
                 </div>

@@ -56,7 +56,7 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
 
     abortControllerRef.current = new AbortController();
     const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), timeout);
-    
+
     setLoading(true);
     setError(null);
 
@@ -86,7 +86,7 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
 
       } catch (err) {
         clearTimeout(timeoutId);
-        
+
         if (err instanceof Error && err.name === 'AbortError') {
           return; // Request was cancelled
         }
@@ -145,7 +145,7 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
 // Specialized hooks for common HTTP methods
 export function useApiGet<T>(endpoint: string, options?: UseApiOptions) {
   const api = useApi<T>(options);
-  
+
   const get = useCallback(() => {
     return api.request(endpoint, { method: 'GET' });
   }, [api.request, endpoint]);
@@ -155,7 +155,7 @@ export function useApiGet<T>(endpoint: string, options?: UseApiOptions) {
 
 export function useApiPost<T>(options?: UseApiOptions) {
   const api = useApi<T>(options);
-  
+
   const post = useCallback((endpoint: string, body: unknown) => {
     return api.request(endpoint, {
       method: 'POST',
@@ -168,7 +168,7 @@ export function useApiPost<T>(options?: UseApiOptions) {
 
 export function useApiPut<T>(options?: UseApiOptions) {
   const api = useApi<T>(options);
-  
+
   const put = useCallback((endpoint: string, body: unknown) => {
     return api.request(endpoint, {
       method: 'PUT',
@@ -181,7 +181,7 @@ export function useApiPut<T>(options?: UseApiOptions) {
 
 export function useApiDelete<T>(options?: UseApiOptions) {
   const api = useApi<T>(options);
-  
+
   const del = useCallback((endpoint: string) => {
     return api.request(endpoint, { method: 'DELETE' });
   }, [api.request]);
@@ -194,7 +194,7 @@ export function useDashboardData() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -229,7 +229,7 @@ export function useDashboardData() {
           }
         ]
       };
-      
+
       setData(mockData);
       return mockData;
     } catch (err) {
@@ -240,16 +240,16 @@ export function useDashboardData() {
       setLoading(false);
     }
   }, []);
-  
+
   const refetch = useCallback(() => {
     return fetchDashboardData();
   }, [fetchDashboardData]);
-  
+
   // Extrair dados para compatibilidade
   const kpis = data?.kpis;
   const charts = data?.charts;
   const recentActivity = data?.recentActivity;
-  
+
   return {
     kpis,
     charts,

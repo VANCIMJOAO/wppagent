@@ -28,7 +28,7 @@ interface KPICardProps {
 const KPICard = ({ title, value, subtitle, icon, gradient, growth }: KPICardProps) => {
   const growthColor = growth && growth > 0 ? 'text-green-600' : 'text-red-600';
   const growthIcon = growth && growth > 0 ? '↗' : '↘';
-  
+
   return (
     <Card className="overflow-hidden animate-fadeInUp">
       <CardHeader className={`${gradient} text-white pb-2`}>
@@ -89,7 +89,7 @@ export const KPIGrid = ({ data }: KPIGridProps) => {
       growth: kpiData.growth_conversations
     },
     {
-      title: "Clientes Únicos", 
+      title: "Clientes Únicos",
       value: kpiData.unique_users,
       subtitle: "Base de clientes",
       icon: <Users size={24} />,
@@ -97,7 +97,7 @@ export const KPIGrid = ({ data }: KPIGridProps) => {
     },
     {
       title: "Agendamentos",
-      value: kpiData.total_appointments, 
+      value: kpiData.total_appointments,
       subtitle: `+${kpiData.appointments_today} hoje`,
       icon: <Calendar size={24} />,
       gradient: "bg-gradient-to-r from-orange-500 to-orange-600",
@@ -116,8 +116,8 @@ export const KPIGrid = ({ data }: KPIGridProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {kpis.map((kpi, index) => (
-        <KPICard 
-          key={index} 
+        <KPICard
+          key={index}
           title={kpi.title}
           value={kpi.value}
           subtitle={kpi.subtitle}

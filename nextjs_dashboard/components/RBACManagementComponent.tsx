@@ -5,10 +5,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Users, 
-  Shield, 
-  Key, 
+import {
+  Users,
+  Shield,
+  Key,
   UserPlus,
   Settings,
   Eye,
@@ -81,7 +81,7 @@ const RBACManagementComponent: React.FC = () => {
   const [stats, setStats] = useState<RBACStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Estados para modais
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showCreateRole, setShowCreateRole] = useState(false);
@@ -96,7 +96,7 @@ const RBACManagementComponent: React.FC = () => {
           'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setUsers(data);
@@ -113,7 +113,7 @@ const RBACManagementComponent: React.FC = () => {
           'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setRoles(data);
@@ -130,7 +130,7 @@ const RBACManagementComponent: React.FC = () => {
           'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setPermissions(data.permissions || []);
@@ -147,7 +147,7 @@ const RBACManagementComponent: React.FC = () => {
           'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setStats(data);
@@ -159,7 +159,7 @@ const RBACManagementComponent: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    
+
     Promise.all([
       activeTab === 'users' && loadUsers(),
       activeTab === 'roles' && loadRoles(),
@@ -174,7 +174,7 @@ const RBACManagementComponent: React.FC = () => {
   const renderStats = () => (
     <div className="space-y-6">
       <h3 className="text-xl font-semibold">Estatísticas do Sistema RBAC</h3>
-      
+
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Usuários */}
@@ -271,7 +271,7 @@ const RBACManagementComponent: React.FC = () => {
                     <p className="text-sm text-gray-500">@{user.username} • {user.email}</p>
                     <div className="flex items-center space-x-2 mt-1">
                       {user.roles.map((role, index) => (
-                        <span 
+                        <span
                           key={index}
                           className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                         >
@@ -281,7 +281,7 @@ const RBACManagementComponent: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setSelectedUser(user)}
@@ -340,7 +340,7 @@ const RBACManagementComponent: React.FC = () => {
                   )}
                 </div>
                 <p className="text-sm text-gray-600 mt-1">{role.description}</p>
-                
+
                 <div className="mt-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Permissões:</span>
@@ -352,7 +352,7 @@ const RBACManagementComponent: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-2 ml-4">
                 <button
                   onClick={() => setSelectedRole(role)}
@@ -389,7 +389,7 @@ const RBACManagementComponent: React.FC = () => {
     return (
       <div className="space-y-6">
         <h3 className="text-xl font-semibold">Permissões do Sistema</h3>
-        
+
         {Object.entries(categorizedPermissions).map(([category, categoryPerms]) => (
           <div key={category} className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">

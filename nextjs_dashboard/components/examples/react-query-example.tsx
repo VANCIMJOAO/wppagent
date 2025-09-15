@@ -17,33 +17,33 @@ export function ReactQueryExample() {
   const [status, setStatus] = useState<AppointmentStatus | undefined>()
 
   // Usando hooks do React Query
-  const { 
-    data: appointmentsData, 
-    isLoading: appointmentsLoading, 
+  const {
+    data: appointmentsData,
+    isLoading: appointmentsLoading,
     error: appointmentsError,
-    refetch: refetchAppointments 
-  } = useAppointments({ 
-    page, 
-    limit: 10, 
-    status 
+    refetch: refetchAppointments
+  } = useAppointments({
+    page,
+    limit: 10,
+    status
   })
 
-  const { 
-    data: conversationsData, 
-    isLoading: conversationsLoading 
-  } = useConversations({ 
-    page: 1, 
-    limit: 5 
+  const {
+    data: conversationsData,
+    isLoading: conversationsLoading
+  } = useConversations({
+    page: 1,
+    limit: 5
   })
 
-  const { 
-    data: dashboardData, 
+  const {
+    data: dashboardData,
     isLoading: dashboardLoading,
     refresh: refreshDashboard,
-    isRefreshing 
-  } = useDashboard({ 
+    isRefreshing
+  } = useDashboard({
     period: '7d',
-    autoRefresh: true 
+    autoRefresh: true
   })
 
   // Mutations
@@ -81,7 +81,7 @@ export function ReactQueryExample() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">React Query Example</h1>
-        <Button 
+        <Button
           onClick={() => refreshDashboard()}
           disabled={isRefreshing}
           className="flex items-center gap-2"
@@ -143,8 +143,8 @@ export function ReactQueryExample() {
           <CardTitle>Filtros de Agendamentos</CardTitle>
         </CardHeader>
         <CardContent className="flex gap-4 items-center">
-          <select 
-            value={status || ''} 
+          <select
+            value={status || ''}
             onChange={(e) => setStatus(e.target.value as AppointmentStatus || undefined)}
             className="border rounded px-3 py-2"
           >
@@ -155,8 +155,8 @@ export function ReactQueryExample() {
             <option value="cancelado">Cancelado</option>
           </select>
 
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => refetchAppointments()}
             disabled={appointmentsLoading}
           >
@@ -164,7 +164,7 @@ export function ReactQueryExample() {
             Atualizar
           </Button>
 
-          <Button 
+          <Button
             onClick={handleCreateAppointment}
             disabled={createAppointment.isPending}
           >
@@ -179,8 +179,8 @@ export function ReactQueryExample() {
         <CardHeader>
           <CardTitle>Agendamentos</CardTitle>
           <CardDescription>
-            {appointmentsData ? 
-              `${appointmentsData.total} agendamentos encontrados` : 
+            {appointmentsData ?
+              `${appointmentsData.total} agendamentos encontrados` :
               'Carregando agendamentos...'
             }
           </CardDescription>
@@ -199,8 +199,8 @@ export function ReactQueryExample() {
           ) : appointmentsData?.appointments.length ? (
             <div className="space-y-4">
               {appointmentsData.appointments.map((appointment) => (
-                <div 
-                  key={appointment.id} 
+                <div
+                  key={appointment.id}
                   className="border rounded-lg p-4 flex items-center justify-between"
                 >
                   <div>
@@ -220,8 +220,8 @@ export function ReactQueryExample() {
                     }>
                       {appointment.status}
                     </Badge>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
                       onClick={() => handleUpdateAppointment(appointment)}
                       disabled={updateAppointment.isPending}
@@ -229,8 +229,8 @@ export function ReactQueryExample() {
                       {updateAppointment.isPending && <LoadingSpinner size="sm" />}
                       Atualizar
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="destructive"
                       onClick={() => handleDeleteAppointment(appointment.id)}
                       disabled={deleteAppointment.isPending}
@@ -251,7 +251,7 @@ export function ReactQueryExample() {
           {/* Paginação */}
           {appointmentsData && appointmentsData.has_more && (
             <div className="flex justify-center mt-6">
-              <Button 
+              <Button
                 onClick={() => setPage(p => p + 1)}
                 disabled={appointmentsLoading}
               >
@@ -277,8 +277,8 @@ export function ReactQueryExample() {
           ) : conversationsData?.conversations.length ? (
             <div className="space-y-3">
               {conversationsData.conversations.map((conversation) => (
-                <div 
-                  key={conversation.id} 
+                <div
+                  key={conversation.id}
                   className="border rounded p-3 flex items-center justify-between"
                 >
                   <div>
@@ -292,7 +292,7 @@ export function ReactQueryExample() {
                       {conversation.unread_messages} não lidas
                     </Badge>
                     <div className="text-xs text-gray-500 mt-1">
-                      {conversation.last_message_at && 
+                      {conversation.last_message_at &&
                         new Date(conversation.last_message_at).toLocaleString()
                       }
                     </div>

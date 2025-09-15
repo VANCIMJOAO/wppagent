@@ -34,7 +34,7 @@ interface ErrorState {
   };
 }
 
-type ErrorAction = 
+type ErrorAction =
   | { type: 'ADD_ERROR'; error: AppError }
   | { type: 'REMOVE_ERROR'; id: string }
   | { type: 'RESOLVE_ERROR'; id: string }
@@ -77,7 +77,7 @@ function errorReducer(state: ErrorState, action: ErrorAction): ErrorState {
     case 'REMOVE_ERROR': {
       const errorToRemove = state.errors.find(e => e.id === action.id);
       const filteredErrors = state.errors.filter(e => e.id !== action.id);
-      
+
       let updatedCounts = state.errorCounts;
       if (errorToRemove) {
         updatedCounts = {
@@ -98,11 +98,11 @@ function errorReducer(state: ErrorState, action: ErrorAction): ErrorState {
       return {
         ...state,
         errors: state.errors.map(error =>
-          error.id === action.id 
+          error.id === action.id
             ? { ...error, resolved: true }
             : error
         ),
-        globalError: state.globalError?.id === action.id 
+        globalError: state.globalError?.id === action.id
           ? { ...state.globalError, resolved: true }
           : state.globalError
       };
@@ -141,11 +141,11 @@ function errorReducer(state: ErrorState, action: ErrorAction): ErrorState {
       return {
         ...state,
         errors: state.errors.map(error =>
-          error.id === action.id 
+          error.id === action.id
             ? { ...error, retryCount: (error.retryCount || 0) + 1 }
             : error
         ),
-        globalError: state.globalError?.id === action.id 
+        globalError: state.globalError?.id === action.id
           ? { ...state.globalError, retryCount: (state.globalError.retryCount || 0) + 1 }
           : state.globalError
       };
@@ -162,7 +162,7 @@ interface ErrorContextType {
   globalError: AppError | null;
   networkStatus: 'online' | 'offline' | 'slow';
   errorCounts: ErrorState['errorCounts'];
-  
+
   // Actions
   addError: (error: Omit<AppError, 'id' | 'timestamp'>) => string;
   removeError: (id: string) => void;
@@ -176,7 +176,7 @@ interface ErrorContextType {
   addNetworkError: (message: string) => string;
   addValidationError: (message: string, context?: any) => string;
   addAuthError: (message: string) => string;
-  
+
   // Helpers
   hasErrors: () => boolean;
   hasCriticalErrors: () => boolean;
@@ -214,7 +214,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
-      
+
       // Check initial status
       if (!navigator.onLine) {
         dispatch({ type: 'SET_NETWORK_STATUS', status: 'offline' });
@@ -346,7 +346,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
     globalError: state.globalError,
     networkStatus: state.networkStatus,
     errorCounts: state.errorCounts,
-    
+
     // Actions
     addError,
     removeError,
@@ -354,13 +354,13 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
     clearErrors,
     setGlobalError,
     incrementRetry,
-    
+
     // Convenience methods
     addApiError,
     addNetworkError,
     addValidationError,
     addAuthError,
-    
+
     // Helpers
     hasErrors,
     hasCriticalErrors,

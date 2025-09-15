@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -22,7 +22,7 @@ import {
   Area,
   AreaChart
 } from 'recharts'
-import { 
+import {
   Calendar,
   Download,
   RefreshCw,
@@ -43,20 +43,20 @@ import {
 } from 'lucide-react'
 
 // Import API service methods
-import { 
-  getBusinessOverview, 
-  getConversationFunnel, 
-  getPerformanceMetrics, 
-  getTimeSeriesData, 
-  exportAnalytics 
+import {
+  getBusinessOverview,
+  getConversationFunnel,
+  getPerformanceMetrics,
+  getTimeSeriesData,
+  exportAnalytics
 } from '@/lib/api-service'
 
 // Import types
-import type { 
-  BusinessOverview, 
-  ConversationFunnel, 
-  PerformanceMetrics, 
-  TimeSeriesData 
+import type {
+  BusinessOverview,
+  ConversationFunnel,
+  PerformanceMetrics,
+  TimeSeriesData
 } from '@/types/analytics'
 
 // Color palette for charts
@@ -142,7 +142,7 @@ export default function RelatoriosPage() {
 
       const exportResponse = await exportAnalytics('full', format, startDate, endDate)
       const blob = exportResponse.data
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -198,7 +198,7 @@ export default function RelatoriosPage() {
             Relatórios abrangentes e insights de negócio
           </p>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-2">
           <Button
             onClick={loadAllData}
@@ -395,16 +395,16 @@ export default function RelatoriosPage() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="stage" />
                       <YAxis />
-                      <Tooltip 
+                      <Tooltip
                         formatter={(value, name) => [
                           formatNumber(value as number),
                           name === 'count' ? 'Quantidade' : name
                         ]}
                       />
-                      <Area 
-                        type="monotone" 
-                        dataKey="count" 
-                        stroke={CHART_COLORS.primary} 
+                      <Area
+                        type="monotone"
+                        dataKey="count"
+                        stroke={CHART_COLORS.primary}
                         fill={CHART_COLORS.primary}
                         fillOpacity={0.3}
                       />
@@ -549,7 +549,7 @@ export default function RelatoriosPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="flex-1">
                   <label className="text-sm font-medium mb-2 block">Granularidade</label>
                   <Select value={granularity} onValueChange={(value: any) => setGranularity(value)}>
@@ -584,21 +584,21 @@ export default function RelatoriosPage() {
                   <LineChart data={timeSeriesData.data}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="timestamp" />
-                    <YAxis 
-                      tickFormatter={(value) => 
+                    <YAxis
+                      tickFormatter={(value) =>
                         timeSeriesMetric === 'revenue' ? formatCurrency(value) : formatNumber(value)
                       }
                     />
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value) => [
                         timeSeriesMetric === 'revenue' ? formatCurrency(value as number) : formatNumber(value as number),
                         timeSeriesData.metric_type
                       ]}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke={CHART_COLORS.primary} 
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke={CHART_COLORS.primary}
                       strokeWidth={2}
                       dot={{ fill: CHART_COLORS.primary, strokeWidth: 2, r: 4 }}
                       activeDot={{ r: 6, stroke: CHART_COLORS.primary, strokeWidth: 2 }}

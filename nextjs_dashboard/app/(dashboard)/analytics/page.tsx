@@ -17,10 +17,10 @@ import { AlertsSystem } from '@/components/analytics/AlertsSystem';
 import { CustomDashboard } from '@/components/analytics/CustomDashboard';
 import { AutomatedReports } from '@/components/analytics/AutomatedReports';
 import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary';
-import { 
-  TrendingUp, 
-  Users, 
-  MessageSquare, 
+import {
+  TrendingUp,
+  Users,
+  MessageSquare,
   Clock,
   BarChart3,
   Search,
@@ -69,13 +69,13 @@ export default function AdvancedAnalyticsPage() {
             </div>
             <div className="h-10 bg-gray-200 rounded w-32"></div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="h-32 bg-gray-200 rounded"></div>
             ))}
           </div>
-          
+
           <div className="h-12 bg-gray-200 rounded mb-4"></div>
           <div className="h-96 bg-gray-200 rounded"></div>
         </div>
@@ -126,7 +126,7 @@ export default function AdvancedAnalyticsPage() {
       change: '+8.2%',
       changeType: 'positive',
       icon: MessageSquare,
-      color: 'text-green-600', 
+      color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
     {
@@ -201,7 +201,7 @@ export default function AdvancedAnalyticsPage() {
             Última atualização: {format(lastUpdate, "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}
           </p>
         </div>
-        
+
         <div className="flex items-center space-x-3">
           <Button
             variant="outline"
@@ -212,7 +212,7 @@ export default function AdvancedAnalyticsPage() {
             <RefreshCw className={`w-4 h-4 mr-2 ${currentLoading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
-          
+
           {dashboardSummary && (
             <div className="flex items-center text-sm text-green-600 bg-green-50 px-3 py-1 rounded">
               <Activity className="w-3 h-3 mr-1" />
@@ -391,7 +391,7 @@ export default function AdvancedAnalyticsPage() {
                   Dados Reais Ativados
                 </div>
               </div>
-              
+
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between">
                   <div>

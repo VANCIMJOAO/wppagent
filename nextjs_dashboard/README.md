@@ -5,17 +5,20 @@ Dashboard completo para gerenciamento de conversas WhatsApp, desenvolvido com **
 ## ✨ Funcionalidades Implementadas
 
 ### 🔐 Sistema de Autenticação
+
 - Login seguro com validação
 - Proteção de rotas
 - Gerenciamento de sessões
 
 ### 📊 Dashboard Principal
+
 - Métricas em tempo real
 - KPIs visuais (Conversas, Clientes, Agendamentos, Mensagens)
 - Gráficos interativos
 - Widgets de performance
 
 ### 💬 Sistema de Conversas
+
 - Interface similar ao WhatsApp
 - Lista de contatos com status (online/offline/digitando)
 - Chat em tempo real
@@ -25,6 +28,7 @@ Dashboard completo para gerenciamento de conversas WhatsApp, desenvolvido com **
 - Indicadores de leitura
 
 ### 👤 Perfil do Usuário
+
 - Informações pessoais editáveis
 - Upload de avatar
 - Estatísticas pessoais
@@ -33,6 +37,7 @@ Dashboard completo para gerenciamento de conversas WhatsApp, desenvolvido com **
 - Alteração de senha
 
 ### 📈 Relatórios e Analytics
+
 - Dashboards interativos
 - Gráficos de performance
 - Análise de canais
@@ -53,22 +58,26 @@ Dashboard completo para gerenciamento de conversas WhatsApp, desenvolvido com **
 ## 🚀 Como Executar
 
 ### 1. Navegue para o diretório
+
 ```bash
 cd /home/vancim/whats_agent/dashboard/nextjs_dashboard
 ```
 
 ### 2. Execute o setup
+
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
 ### 3. Inicie o desenvolvimento
+
 ```bash
 npm run dev
 ```
 
 ### 4. Acesse no navegador
+
 ```
 http://localhost:3000
 ```
@@ -111,23 +120,27 @@ nextjs_dashboard/
 ## 🎯 Principais Componentes
 
 ### Dashboard Principal
+
 - **KPI Cards**: Métricas principais com indicadores visuais
 - **Gráficos**: Performance em tempo real com Recharts
 - **Quick Actions**: Botões de ações rápidas
 
 ### Sistema de Conversas
+
 - **Lista de Contatos**: Com busca e filtros
 - **Chat Interface**: Mensagens em tempo real
 - **Status Indicators**: Online/offline/digitando
 - **Sistema de Tags**: Categorização de contatos
 
 ### Perfil do Usuário
+
 - **Informações Pessoais**: Editáveis com validação
 - **Configurações**: Notificações e preferências
 - **Segurança**: Alteração de senha
 - **Estatísticas**: Performance pessoal
 
 ### Relatórios
+
 - **Gráficos Interativos**: Barras, linhas, pizza
 - **Múltiplas Visualizações**: Tabs organizadas
 - **Exportação**: PDF, Excel, CSV
@@ -136,7 +149,9 @@ nextjs_dashboard/
 ## 🔧 Personalização
 
 ### Cores e Tema
+
 Edite `tailwind.config.js` para personalizar cores:
+
 ```js
 theme: {
   colors: {
@@ -147,10 +162,13 @@ theme: {
 ```
 
 ### Componentes
+
 Todos os componentes estão em `components/ui/` e podem ser personalizados.
 
 ### API Integration
+
 Para conectar com seu backend Python, edite os arquivos de página e adicione chamadas para sua API:
+
 ```typescript
 const response = await fetch('http://localhost:8000/api/conversations')
 const data = await response.json()
@@ -158,7 +176,8 @@ const data = await response.json()
 
 ## 🚨 Diferenças do Dash
 
-### Vantagens sobre Dash:
+### Vantagens sobre Dash
+
 - ❌ **Zero erros JavaScript**
 - ❌ **Sem conflitos de componentes**
 - ❌ **Sem problemas de callback**

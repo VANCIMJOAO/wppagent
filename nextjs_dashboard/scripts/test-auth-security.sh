@@ -19,35 +19,35 @@ NC='\033[0m' # No Color
 check_file_security() {
     local file=$1
     local issues=0
-    
+
     echo -e "\n📁 Analisando: ${BLUE}${file}${NC}"
-    
+
     # Verificar tokens JWT em JavaScript
     if grep -n "let.*token\|const.*token\|var.*token" "$file" | grep -v "// ❌\|// ✅" | grep -q "token"; then
         echo -e "${RED}❌ Variáveis de token encontradas${NC}"
         grep -n "let.*token\|const.*token\|var.*token" "$file" | head -3
         issues=$((issues + 1))
     fi
-    
+
     # Verificar localStorage/sessionStorage
     if grep -qn "localStorage\|sessionStorage" "$file"; then
         echo -e "${YELLOW}⚠️  Uso de localStorage/sessionStorage detectado${NC}"
         grep -n "localStorage\|sessionStorage" "$file" | head -2
         issues=$((issues + 1))
     fi
-    
+
     # Verificar headers Authorization hardcoded
     if grep -qn "Authorization.*Bearer\|authorization.*bearer" "$file"; then
         echo -e "${RED}❌ Headers Authorization hardcoded${NC}"
         grep -n "Authorization.*Bearer\|authorization.*bearer" "$file" | head -2
         issues=$((issues + 1))
     fi
-    
+
     # Verificar imports seguros
     if grep -qn "secure-auth-manager\|HttpOnly\|credentials.*include" "$file"; then
         echo -e "${GREEN}✅ Imports seguros detectados${NC}"
     fi
-    
+
     return $issues
 }
 
@@ -81,7 +81,7 @@ secure_routes=("app/api/auth/login/route.ts" "app/api/auth/logout/route.ts" "app
 for route in "${secure_routes[@]}"; do
     if [[ -f "$route" ]]; then
         echo -e "${GREEN}✅ $route${NC}"
-        
+
         # Verificar HttpOnly
         if grep -q "httpOnly.*true" "$route"; then
             echo -e "    ${GREEN}→ HttpOnly ativado${NC}"

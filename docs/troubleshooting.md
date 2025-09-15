@@ -15,6 +15,7 @@
 5. **🛡️ Prevenção**: Medidas preventivas
 
 ### **Categorias de Problemas**
+
 - 🌐 **Application Issues**: FastAPI/Next.js
 - 🗄️ **Database Problems**: PostgreSQL
 - 🚀 **Cache Issues**: Redis
@@ -29,11 +30,13 @@
 ### **🚨 Service Not Responding**
 
 #### **Symptoms**
+
 - Health check endpoint returns 500/timeout
 - Application completely unreachable
 - Load balancer shows service as down
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ 1. Check service status
 systemctl status whatsapp-backend
@@ -59,6 +62,7 @@ free -h
 #### **Common Causes & Solutions**
 
 **🔧 Memory Exhaustion**
+
 ```bash
 # Diagnosis
 free -h
@@ -73,6 +77,7 @@ systemctl restart whatsapp-backend
 ```
 
 **🔧 Port Already in Use**
+
 ```bash
 # Diagnosis
 lsof -i :8000
@@ -85,6 +90,7 @@ systemctl restart whatsapp-backend
 ```
 
 **🔧 File Descriptor Limit**
+
 ```bash
 # Diagnosis
 ulimit -n
@@ -101,6 +107,7 @@ systemctl restart whatsapp-backend
 ### **🐛 Application Errors (500 Internal Server Error)**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ 1. Check error logs
 grep '"level":"ERROR"' logs/security_audit.log | tail -20
@@ -134,6 +141,7 @@ redis-cli -u $REDIS_URL ping
 #### **Common Causes & Solutions**
 
 **🔧 Configuration Errors**
+
 ```bash
 # Diagnosis
 python -c "from app.config import settings; print('✅ Config loaded')"
@@ -149,6 +157,7 @@ systemctl restart whatsapp-backend
 ```
 
 **🔧 Import/Module Errors**
+
 ```bash
 # Diagnosis
 python -c "import app.main"
@@ -163,6 +172,7 @@ pip install -r requirements.txt
 ### **⚡ Slow Response Times**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ 1. Check response times from logs
 grep '"category":"api"' logs/security_audit.log | \
@@ -176,9 +186,9 @@ head -10
 
 # ✅ 3. Check database slow queries
 psql $DATABASE_URL -c "
-SELECT query, mean_exec_time, calls 
-FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC 
+SELECT query, mean_exec_time, calls
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
 LIMIT 10;"
 
 # ✅ 4. Check system load
@@ -190,31 +200,33 @@ sar -u 1 5
 #### **Solutions**
 
 **🔧 Database Performance**
+
 ```sql
 -- Check for missing indexes
-SELECT schemaname, tablename, attname, n_distinct, correlation 
-FROM pg_stats 
-WHERE schemaname = 'public' 
+SELECT schemaname, tablename, attname, n_distinct, correlation
+FROM pg_stats
+WHERE schemaname = 'public'
 ORDER BY n_distinct DESC;
 
 -- Check slow queries
 SELECT query, mean_exec_time, calls, total_exec_time
-FROM pg_stat_statements 
-WHERE mean_exec_time > 100 
+FROM pg_stat_statements
+WHERE mean_exec_time > 100
 ORDER BY mean_exec_time DESC;
 
 -- Analyze table statistics
 ANALYZE;
 
 -- Check for bloated tables
-SELECT schemaname, tablename, 
+SELECT schemaname, tablename,
        pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-FROM pg_tables 
-WHERE schemaname = 'public' 
+FROM pg_tables
+WHERE schemaname = 'public'
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 ```
 
 **🔧 Cache Optimization**
+
 ```bash
 # Check cache hit rate
 redis-cli -u $REDIS_URL info stats | grep keyspace
@@ -233,11 +245,13 @@ redis-cli -u $REDIS_URL monitor | grep -E "(GET|SET|DEL)"
 ### **🚨 Database Connection Errors**
 
 #### **Symptoms**
+
 - "Connection refused" errors
 - "Too many connections" errors
 - Health check database status: unhealthy
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ 1. Check PostgreSQL status
 systemctl status postgresql
@@ -248,8 +262,8 @@ psql $DATABASE_URL -c "
 SELECT count(*) as active_connections,
        state,
        application_name
-FROM pg_stat_activity 
-GROUP BY state, application_name 
+FROM pg_stat_activity
+GROUP BY state, application_name
 ORDER BY active_connections DESC;"
 
 # ✅ 3. Check connection limits
@@ -258,20 +272,21 @@ psql $DATABASE_URL -c "SELECT setting FROM pg_settings WHERE name='max_connectio
 
 # ✅ 4. Check for blocking queries
 psql $DATABASE_URL -c "
-SELECT pid, now() - pg_stat_activity.query_start AS duration, query 
-FROM pg_stat_activity 
+SELECT pid, now() - pg_stat_activity.query_start AS duration, query
+FROM pg_stat_activity
 WHERE (now() - pg_stat_activity.query_start) > interval '5 minutes';"
 ```
 
 #### **Solutions**
 
 **🔧 Too Many Connections**
+
 ```bash
 # Immediate fix: kill idle connections
 psql $DATABASE_URL -c "
 SELECT pg_terminate_backend(pid)
-FROM pg_stat_activity 
-WHERE state = 'idle' 
+FROM pg_stat_activity
+WHERE state = 'idle'
   AND state_change < current_timestamp - INTERVAL '30 minutes';"
 
 # Long-term fix: adjust connection pool
@@ -280,6 +295,7 @@ WHERE state = 'idle'
 ```
 
 **🔧 Database Not Starting**
+
 ```bash
 # Check PostgreSQL logs
 tail -50 /var/log/postgresql/postgresql-16-main.log
@@ -297,50 +313,53 @@ pg_restore --clean --if-exists -d whatsapp_agent backup.sql
 ### **🐌 Slow Database Queries**
 
 #### **Diagnostic Commands**
+
 ```sql
 -- Enable query statistics (if not enabled)
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 
 -- Find slowest queries
-SELECT query, 
+SELECT query,
        calls,
        total_exec_time,
        mean_exec_time,
        stddev_exec_time,
        rows
-FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC 
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
 LIMIT 10;
 
 -- Check for missing indexes
 SELECT schemaname, tablename, attname, n_distinct, correlation
-FROM pg_stats 
-WHERE schemaname = 'public' 
+FROM pg_stats
+WHERE schemaname = 'public'
   AND n_distinct > 100
 ORDER BY n_distinct DESC;
 
 -- Check index usage
 SELECT schemaname, tablename, indexname, idx_scan, idx_tup_read, idx_tup_fetch
-FROM pg_stat_user_indexes 
+FROM pg_stat_user_indexes
 ORDER BY idx_scan ASC;
 ```
 
 #### **Solutions**
 
 **🔧 Add Missing Indexes**
+
 ```sql
 -- Example: Add index for frequently queried columns
-CREATE INDEX CONCURRENTLY idx_appointments_user_status 
-ON appointments (user_id, status) 
+CREATE INDEX CONCURRENTLY idx_appointments_user_status
+ON appointments (user_id, status)
 WHERE deleted_at IS NULL;
 
 -- Composite index for complex queries
-CREATE INDEX CONCURRENTLY idx_conversations_phone_date_status 
-ON conversations (phone_number, created_at DESC, status) 
+CREATE INDEX CONCURRENTLY idx_conversations_phone_date_status
+ON conversations (phone_number, created_at DESC, status)
 WHERE deleted_at IS NULL;
 ```
 
 **🔧 Query Optimization**
+
 ```python
 # Before: N+1 query problem
 async def get_appointments_slow():
@@ -360,6 +379,7 @@ async def get_appointments_fast():
 ### **🔄 Migration Issues**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ Check current migration status
 alembic current
@@ -376,6 +396,7 @@ psql $DATABASE_URL -c "\di"  # List indexes
 #### **Solutions**
 
 **🔧 Multiple Heads (Merge Conflict)**
+
 ```bash
 # Diagnosis
 alembic heads
@@ -388,6 +409,7 @@ alembic upgrade head
 ```
 
 **🔧 Failed Migration**
+
 ```bash
 # Check failed migration
 alembic history
@@ -406,6 +428,7 @@ alembic upgrade head
 ### **🚨 Redis Connection Errors**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ 1. Check Redis status
 systemctl status redis-server
@@ -427,6 +450,7 @@ redis-cli -u $REDIS_URL info clients
 #### **Solutions**
 
 **🔧 Redis Out of Memory**
+
 ```bash
 # Diagnosis
 redis-cli -u $REDIS_URL info memory | grep used_memory_human
@@ -440,6 +464,7 @@ redis-cli -u $REDIS_URL config set maxmemory-policy allkeys-lru
 ```
 
 **🔧 Redis Connection Refused**
+
 ```bash
 # Check if Redis is running
 systemctl start redis-server
@@ -454,6 +479,7 @@ redis-cli -h localhost -p 6379 -a password ping
 ### **📉 Low Cache Hit Rate**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ Check cache statistics
 redis-cli -u $REDIS_URL info stats | grep -E "(hits|misses)"
@@ -470,6 +496,7 @@ done
 #### **Solutions**
 
 **🔧 Optimize Cache Strategy**
+
 ```python
 # Identify cache misses in logs
 grep '"operation":"get"' logs/security_audit.log | \
@@ -493,6 +520,7 @@ async def warm_cache():
 ### **🚨 Meta API Connection Errors**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ 1. Test Meta API directly
 curl -X GET "https://graph.facebook.com/v18.0/me" \
@@ -516,6 +544,7 @@ curl -X POST "https://yourdomain.com/webhook" \
 #### **Common Issues & Solutions**
 
 **🔧 Invalid Access Token**
+
 ```bash
 # Diagnosis
 curl -X GET "https://graph.facebook.com/v18.0/me" \
@@ -530,6 +559,7 @@ systemctl restart whatsapp-backend
 ```
 
 **🔧 Rate Limiting from Meta**
+
 ```bash
 # Diagnosis: Check rate limit headers in logs
 grep "x-business-use-case-usage" logs/security_audit.log
@@ -548,6 +578,7 @@ async def send_message_with_retry(phone, message, max_retries=3):
 ### **🔧 Webhook Validation Errors**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ Check webhook verification
 grep "webhook_verification" logs/security_audit.log | tail -10
@@ -565,6 +596,7 @@ curl -X GET "https://yourdomain.com/webhook" \
 #### **Solutions**
 
 **🔧 Signature Validation Failing**
+
 ```python
 # Debug signature validation
 import hmac
@@ -576,7 +608,7 @@ def debug_webhook_signature(payload: str, received_signature: str):
         payload.encode(),
         hashlib.sha256
     ).hexdigest()
-    
+
     print(f"Expected: {expected}")
     print(f"Received: {received_signature}")
     print(f"Match: {hmac.compare_digest(expected, received_signature)}")
@@ -592,6 +624,7 @@ echo $WEBHOOK_SECRET
 ### **🚨 Authentication Failures**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ Check failed authentication attempts
 grep '"event_type":"login_failed"' logs/security_audit.log | tail -20
@@ -607,6 +640,7 @@ grep '"event_type":"rate_limit_exceeded"' logs/security_audit.log | tail -10
 #### **Solutions**
 
 **🔧 Brute Force Attack**
+
 ```bash
 # Identify attacking IPs
 grep '"event_type":"login_failed"' logs/security_audit.log | \
@@ -621,6 +655,7 @@ iptables -A INPUT -s 192.168.1.200 -j DROP
 ```
 
 **🔧 JWT Token Issues**
+
 ```python
 # Test JWT token validation
 import jwt
@@ -629,8 +664,8 @@ from app.config import settings
 def debug_jwt_token(token: str):
     try:
         payload = jwt.decode(
-            token, 
-            settings.JWT_SECRET_KEY, 
+            token,
+            settings.JWT_SECRET_KEY,
             algorithms=[settings.JWT_ALGORITHM]
         )
         print(f"✅ Token valid: {payload}")
@@ -646,6 +681,7 @@ echo $JWT_SECRET_KEY | wc -c  # Should be >= 32 characters
 ### **🛡️ CORS Errors**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ Test CORS preflight
 curl -X OPTIONS "https://yourdomain.com/api/health" \
@@ -660,6 +696,7 @@ grep -A 10 "CORSMiddleware" app/cors_config.py
 #### **Solutions**
 
 **🔧 CORS Origin Not Allowed**
+
 ```python
 # Check current CORS origins
 from app.cors_config import allowed_origins
@@ -681,6 +718,7 @@ allowed_origins = [
 ### **🐌 High Memory Usage**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ Check overall memory usage
 free -h
@@ -702,6 +740,7 @@ print(f'Objects: {len(gc.get_objects())}')
 #### **Solutions**
 
 **🔧 Memory Leak Detection**
+
 ```python
 # Add memory profiling
 import tracemalloc
@@ -720,6 +759,7 @@ gc.collect()
 ```
 
 **🔧 Optimize Database Sessions**
+
 ```python
 # Ensure sessions are properly closed
 async def get_db():
@@ -738,6 +778,7 @@ async with AsyncSessionLocal() as session:
 ### **🔥 High CPU Usage**
 
 #### **Diagnostic Commands**
+
 ```bash
 # ✅ Check CPU usage
 top -p $(pgrep -f uvicorn)
@@ -753,11 +794,12 @@ strace -p $(pgrep -f uvicorn) -e trace=epoll_wait
 #### **Solutions**
 
 **🔧 Optimize Async Operations**
+
 ```python
 # Bad: Blocking operations in async function
 async def bad_async():
     time.sleep(1)  # Blocks event loop!
-    
+
 # Good: Use async alternatives
 async def good_async():
     await asyncio.sleep(1)  # Non-blocking
@@ -782,6 +824,7 @@ async def good_concurrent():
 ## 🔍 **DIAGNOSTIC TOOLS**
 
 ### **System Health Script**
+
 ```bash
 #!/bin/bash
 # scripts/health_diagnostic.sh
@@ -832,6 +875,7 @@ echo -e "\n✅ Diagnostic completed at $(date)"
 ```
 
 ### **Performance Diagnostic Script**
+
 ```python
 #!/usr/bin/env python3
 # scripts/performance_diagnostic.py
@@ -848,7 +892,7 @@ async def performance_diagnostic():
     """
     print("⚡ Performance Diagnostic Report")
     print("=" * 40)
-    
+
     # ✅ System metrics
     process = psutil.Process()
     print(f"1. System Performance:")
@@ -856,90 +900,90 @@ async def performance_diagnostic():
     print(f"   Memory Usage: {process.memory_info().rss / 1024 / 1024:.1f} MB")
     print(f"   Open Files: {len(process.open_files())}")
     print(f"   Connections: {len(process.connections())}")
-    
+
     # ✅ Database performance
     print(f"\n2. Database Performance:")
     try:
         from app.database import AsyncSessionLocal
         from sqlalchemy import text
-        
+
         start_time = time.time()
         async with AsyncSessionLocal() as session:
             result = await session.execute(text("SELECT 1"))
             db_response_time = (time.time() - start_time) * 1000
-            
+
         print(f"   Response Time: {db_response_time:.2f}ms")
-        
+
         # Check slow queries
         async with AsyncSessionLocal() as session:
             slow_queries = await session.execute(text("""
-                SELECT query, mean_exec_time, calls 
-                FROM pg_stat_statements 
-                WHERE mean_exec_time > 100 
-                ORDER BY mean_exec_time DESC 
+                SELECT query, mean_exec_time, calls
+                FROM pg_stat_statements
+                WHERE mean_exec_time > 100
+                ORDER BY mean_exec_time DESC
                 LIMIT 5
             """))
-            
+
         print(f"   Slow Queries: {slow_queries.rowcount}")
-        
+
     except Exception as e:
         print(f"   Database Error: {e}")
-    
+
     # ✅ Cache performance
     print(f"\n3. Cache Performance:")
     try:
         import redis.asyncio as redis
         from app.config import settings
-        
+
         redis_client = redis.from_url(settings.REDIS_URL)
-        
+
         start_time = time.time()
         await redis_client.ping()
         redis_response_time = (time.time() - start_time) * 1000
-        
+
         info = await redis_client.info()
         hit_rate = (info['keyspace_hits'] / (info['keyspace_hits'] + info['keyspace_misses']) * 100) if info['keyspace_misses'] > 0 else 100
-        
+
         print(f"   Response Time: {redis_response_time:.2f}ms")
         print(f"   Hit Rate: {hit_rate:.1f}%")
         print(f"   Memory Used: {info['used_memory_human']}")
-        
+
     except Exception as e:
         print(f"   Cache Error: {e}")
-    
+
     # ✅ API performance
     print(f"\n4. API Performance (last hour):")
     try:
         # Analyze logs for performance metrics
         cutoff = datetime.now() - timedelta(hours=1)
-        
+
         with open("logs/security_audit.log", "r") as f:
             api_logs = []
             for line in f:
                 try:
                     log = json.loads(line)
-                    if (log.get('category') == 'api' and 
+                    if (log.get('category') == 'api' and
                         datetime.fromisoformat(log['timestamp'].replace('Z', '+00:00')) > cutoff):
                         api_logs.append(log)
                 except:
                     continue
-        
+
         if api_logs:
             durations = [log.get('performance_metrics', {}).get('duration_ms', 0) for log in api_logs]
             avg_response = sum(durations) / len(durations)
             max_response = max(durations)
             slow_requests = len([d for d in durations if d > 1000])
-            
+
             print(f"   Total Requests: {len(api_logs)}")
             print(f"   Avg Response: {avg_response:.2f}ms")
             print(f"   Max Response: {max_response:.2f}ms")
             print(f"   Slow Requests: {slow_requests}")
         else:
             print("   No API logs found")
-            
+
     except Exception as e:
         print(f"   Log Analysis Error: {e}")
-    
+
     print(f"\n✅ Diagnostic completed at {datetime.now()}")
 
 if __name__ == "__main__":
@@ -1006,14 +1050,16 @@ echo "🔧 Emergency recovery completed"
 ## 📞 **SUPPORT CONTACTS**
 
 ### **Escalation Matrix**
-- 🔧 **Level 1 - Operations**: ops@whatsappagent.com
-- 👨‍💻 **Level 2 - Development**: dev@whatsappagent.com  
-- 🛡️ **Level 3 - Security**: security@whatsappagent.com
-- 📊 **Level 4 - Management**: management@whatsappagent.com
+
+- 🔧 **Level 1 - Operations**: <ops@whatsappagent.com>
+- 👨‍💻 **Level 2 - Development**: <dev@whatsappagent.com>  
+- 🛡️ **Level 3 - Security**: <security@whatsappagent.com>
+- 📊 **Level 4 - Management**: <management@whatsappagent.com>
 
 ### **Emergency Contacts**
+
 - 🚨 **Critical Issues**: +55 11 99999-9999
-- 📧 **Emergency Email**: emergency@whatsappagent.com
+- 📧 **Emergency Email**: <emergency@whatsappagent.com>
 - 💬 **Slack Channel**: #whatsapp-agent-alerts
 
 ---

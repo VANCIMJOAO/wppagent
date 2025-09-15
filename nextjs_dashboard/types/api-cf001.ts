@@ -1,16 +1,16 @@
 /**
  * 🚀 CF-001: Schema Synchronization - GENERATED TYPES
  * ===================================================
- * 
+ *
  * This file imports auto-generated types from OpenAPI spec and creates
  * clean, consistent interfaces for frontend usage.
- * 
+ *
  * ✅ BENEFITS:
  * - Single source of truth from backend
  * - Automatic camelCase/snake_case conversion
  * - Type safety guaranteed
  * - Zero manual maintenance needed
- * 
+ *
  * 🔄 REGENERATION:
  * Run: npx openapi-typescript ../openapi.json -o types/api-generated.ts
  */
@@ -33,7 +33,7 @@ export type Appointment = components['schemas']['UnifiedAppointmentResponse']
 export type AppointmentCreateRequest = components['schemas']['AppointmentCreateRequest']
 
 /**
- * 📅 Appointment Update Request - Generated from Backend  
+ * 📅 Appointment Update Request - Generated from Backend
  */
 export type AppointmentUpdateRequest = components['schemas']['AppointmentUpdateRequest']
 
@@ -48,7 +48,7 @@ export type AppointmentStatus = components['schemas']['AppointmentStatus']
 export type AppointmentsListResponse = components['schemas']['AppointmentsListResponseUnified']
 
 // ===============================================
-// 💬 CONVERSATION TYPES - CF001 UNIFIED  
+// 💬 CONVERSATION TYPES - CF001 UNIFIED
 // ===============================================
 
 /**
@@ -75,7 +75,7 @@ export type ApiPaths = paths
  */
 export type AppointmentEndpoints = {
   list: paths['/appointments/']['get']
-  create: paths['/appointments/']['post'] 
+  create: paths['/appointments/']['post']
   get: paths['/appointments/{appointment_id}']['get']
   update: paths['/appointments/{appointment_id}']['put']
   delete: paths['/appointments/{appointment_id}']['delete']
@@ -88,15 +88,15 @@ export type AppointmentEndpoints = {
 /**
  * 🔄 Extract Response Type from API Endpoint
  */
-export type ExtractResponseType<T> = T extends { responses: { 200: { content: { 'application/json': infer R } } } } 
-  ? R 
+export type ExtractResponseType<T> = T extends { responses: { 200: { content: { 'application/json': infer R } } } }
+  ? R
   : never
 
 /**
- * 🔄 Extract Request Type from API Endpoint  
+ * 🔄 Extract Request Type from API Endpoint
  */
-export type ExtractRequestType<T> = T extends { requestBody: { content: { 'application/json': infer R } } } 
-  ? R 
+export type ExtractRequestType<T> = T extends { requestBody: { content: { 'application/json': infer R } } }
+  ? R
   : never
 
 // ===============================================
@@ -114,10 +114,10 @@ type CF001Validation = {
   appointment_has_dateTime: Appointment['dateTime']
   appointment_has_durationMinutes: Appointment['durationMinutes']
   appointment_has_createdAt: Appointment['createdAt']
-  
+
   // Verify AppointmentStatus enum exists
   status_is_enum: AppointmentStatus
-  
+
   // Verify list response structure
   list_has_appointments: AppointmentsListResponse['appointments']
   list_has_total: AppointmentsListResponse['total']
@@ -132,7 +132,7 @@ export const CF001_METADATA = {
   version: '1.0.0',
   schemas_included: [
     'UnifiedAppointmentResponse',
-    'AppointmentCreateRequest', 
+    'AppointmentCreateRequest',
     'AppointmentUpdateRequest',
     'AppointmentsListResponseUnified',
     'ConversationResponseUnified',
@@ -140,7 +140,7 @@ export const CF001_METADATA = {
   ],
   field_mappings: {
     'user_id → userId': '✅',
-    'business_id → businessId': '✅', 
+    'business_id → businessId': '✅',
     'service_id → serviceId': '✅',
     'date_time → dateTime': '✅',
     'duration_minutes → durationMinutes': '✅',
@@ -164,7 +164,7 @@ export const CF001_METADATA = {
 export type LegacyAppointmentResponse = Appointment
 
 /**
- * @deprecated Use AppointmentCreateRequest instead  
+ * @deprecated Use AppointmentCreateRequest instead
  * Kept for backward compatibility during migration
  */
 export type LegacyAppointmentCreateData = AppointmentCreateRequest

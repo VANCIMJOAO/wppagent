@@ -68,13 +68,13 @@ export function useApiEnhanced<T>(options: UseApiOptions = {}): UseApiResult<T> 
     error.data = data;
     error.endpoint = endpoint;
     error.method = method;
-    
+
     // Categorize error types
     error.isNetworkError = !status || status === 0;
     error.isTimeoutError = message.includes('timeout') || message.includes('aborted');
-    error.isRetryable = error.isNetworkError || error.isTimeoutError || 
+    error.isRetryable = error.isNetworkError || error.isTimeoutError ||
                        (status !== undefined && [408, 429, 500, 502, 503, 504].includes(status));
-    
+
     return error;
   };
 
@@ -88,7 +88,7 @@ export function useApiEnhanced<T>(options: UseApiOptions = {}): UseApiResult<T> 
     }
 
     abortControllerRef.current = new AbortController();
-    
+
     setLoading(true);
     setError(null);
 
@@ -243,11 +243,11 @@ export function useApiEnhanced<T>(options: UseApiOptions = {}): UseApiResult<T> 
     };
   }, []);
 
-  return { 
-    data, 
-    loading, 
-    error, 
-    request, 
+  return {
+    data,
+    loading,
+    error,
+    request,
     reset,
     refetch,
     abort
@@ -285,7 +285,7 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
 
     abortControllerRef.current = new AbortController();
     const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), timeout);
-    
+
     setLoading(true);
     setError(null);
 
@@ -315,15 +315,15 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
 
       } catch (err) {
         clearTimeout(timeoutId);
-        
+
         if (err instanceof Error && err.name === 'AbortError') {
           return; // Request was cancelled
         }
 
         if (attempt === retries) {
           // Last attempt failed
-          const apiError = err instanceof Error 
-            ? createApiError(err.message) 
+          const apiError = err instanceof Error
+            ? createApiError(err.message)
             : createApiError('Request failed');
           setError(apiError);
           setLoading(false);
@@ -373,7 +373,7 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
 // Specialized hooks for common HTTP methods
 export function useApiGet<T>(endpoint: string, options?: UseApiOptions) {
   const api = useApi<T>(options);
-  
+
   const get = useCallback(() => {
     return api.request(endpoint, { method: 'GET' });
   }, [api.request, endpoint]);
@@ -383,7 +383,7 @@ export function useApiGet<T>(endpoint: string, options?: UseApiOptions) {
 
 export function useApiPost<T>(options?: UseApiOptions) {
   const api = useApi<T>(options);
-  
+
   const post = useCallback((endpoint: string, body: unknown) => {
     return api.request(endpoint, {
       method: 'POST',
@@ -396,7 +396,7 @@ export function useApiPost<T>(options?: UseApiOptions) {
 
 export function useApiPut<T>(options?: UseApiOptions) {
   const api = useApi<T>(options);
-  
+
   const put = useCallback((endpoint: string, body: unknown) => {
     return api.request(endpoint, {
       method: 'PUT',
@@ -409,7 +409,7 @@ export function useApiPut<T>(options?: UseApiOptions) {
 
 export function useApiDelete<T>(options?: UseApiOptions) {
   const api = useApi<T>(options);
-  
+
   const del = useCallback((endpoint: string) => {
     return api.request(endpoint, { method: 'DELETE' });
   }, [api.request]);
@@ -422,7 +422,7 @@ export function useDashboardData() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
-  
+
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -457,11 +457,11 @@ export function useDashboardData() {
           }
         ]
       };
-      
+
       setData(mockData);
       return mockData;
     } catch (err) {
-      const apiError = err instanceof Error 
+      const apiError = err instanceof Error
         ? err as ApiError
         : new Error('Erro desconhecido') as ApiError;
       setError(apiError);
@@ -470,16 +470,16 @@ export function useDashboardData() {
       setLoading(false);
     }
   }, []);
-  
+
   const refetch = useCallback(() => {
     return fetchDashboardData();
   }, [fetchDashboardData]);
-  
+
   // Extrair dados para compatibilidade
   const kpis = data?.kpis;
   const charts = data?.charts;
   const recentActivity = data?.recentActivity;
-  
+
   return {
     data,
     kpis,

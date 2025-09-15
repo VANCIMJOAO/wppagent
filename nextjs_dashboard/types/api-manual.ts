@@ -1,10 +1,10 @@
 /**
  * 📋 Tipos TypeScript Unificados - API Contracts
  * =============================================
- * 
+ *
  * Tipos padronizados que correspondem exatamente aos schemas do backend.
  * Elimina divergências entre frontend e backend.
- * 
+ *
  * Autor: Claude AI
  * Data: 2025-09-07
  * Status: Unificação crítica de contratos API
@@ -47,7 +47,7 @@ export interface Appointment {
   user_id: number;
   business_id: number;
   service_id?: number;
-  
+
   // ✅ Formato brasileiro (principal - usado no frontend)
   data_agendamento: string; // ISO 8601 datetime
   horario: string; // HH:MM format
@@ -55,14 +55,14 @@ export interface Appointment {
   valor: number;
   status: AppointmentStatus;
   observacoes?: string;
-  
+
   // ✅ Formato inglês (aliases - compatibilidade com backend)
   date_time?: string; // Alias para data_agendamento
   time_slot?: string; // Alias para horario
   duration_minutes?: number; // Alias para duracao_minutos
   price?: number; // Alias para valor
   notes?: string; // Alias para observacoes
-  
+
   // ✅ Dados relacionados padronizados
   cliente_nome: string;
   cliente_telefone: string;
@@ -70,7 +70,7 @@ export interface Appointment {
   servico_nome: string;
   servico_descricao?: string;
   business_name: string;
-  
+
   // ✅ Timestamps padronizados
   created_at: string; // ISO 8601
   updated_at?: string; // ISO 8601
@@ -87,7 +87,7 @@ export interface Conversation {
   last_message_at?: string; // ISO 8601
   created_at: string; // ISO 8601
   updated_at?: string; // ISO 8601
-  
+
   // ✅ Dados relacionados padronizados
   user_name: string;
   user_phone?: string;
@@ -108,7 +108,7 @@ export interface Message {
   direction: MessageDirection; // ✅ Padronizado: 'in' | 'out'
   created_at: string; // ISO 8601
   whatsapp_id?: string;
-  
+
   // ✅ Campos adicionais
   is_read: boolean;
 }
@@ -192,7 +192,7 @@ export interface MessageCreateRequest {
 // ✅ TIPOS LEGADOS (para compatibilidade temporária)
 
 /**
- * 👤 Cliente 
+ * 👤 Cliente
  * Mantido para compatibilidade com api-service.ts existente
  */
 export interface Client {
@@ -203,7 +203,7 @@ export interface Client {
   email?: string;
   created_at: string;
   updated_at?: string;
-  
+
   // Campos calculados
   total_conversations: number;
   total_messages: number;

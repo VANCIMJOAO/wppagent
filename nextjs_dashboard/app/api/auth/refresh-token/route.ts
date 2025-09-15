@@ -3,13 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     console.log('🔄 API: Solicitação de renovação de token recebida');
-    
+
     // ✅ SEGURO: Credenciais via environment variables
     const credentials = {
       username: process.env.ADMIN_USERNAME || 'admin',
       password: process.env.ADMIN_PASSWORD
     };
-    
+
     // Validação de segurança
     if (!credentials.password) {
       return NextResponse.json(
@@ -17,9 +17,9 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-    
+
     console.log('🔐 API: Fazendo login no backend...');
-    
+
     // Login no backend para obter novo token
     const loginResponse = await fetch('https://wppagent-production.up.railway.app/admin/login', {
       method: 'POST',
@@ -37,13 +37,13 @@ export async function POST(req: NextRequest) {
 
     const loginData = await loginResponse.json();
     const newToken = loginData.access_token;
-    
+
     if (!newToken) {
       throw new Error('Token não foi retornado pelo backend');
     }
 
     console.log('✅ API: Novo token obtido com sucesso');
-    
+
     // Criar resposta com o novo token
     const response = NextResponse.json({
       success: true,
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
     console.error('❌ API: Erro ao renovar token:', error);
-    
+
     return NextResponse.json({
       success: false,
       error: 'Falha ao renovar token',

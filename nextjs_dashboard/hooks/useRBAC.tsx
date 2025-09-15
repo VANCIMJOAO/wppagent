@@ -56,7 +56,7 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
   // Verificar token no localStorage e carregar dados do usuário
   const checkAuthentication = useCallback(async () => {
     const token = null // ✅ REMOVIDO: Token inseguro;
-    
+
     if (!token) {
       setIsLoading(false);
       return;
@@ -128,10 +128,10 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
   // Verificar se 2FA é obrigatório
   const checkTwoFactorRequired = (permission?: string): boolean => {
     if (!user) return false;
-    
+
     // Se o usuário tem 2FA configurado, sempre requer
     if (user.requires_2fa) return true;
-    
+
     // Se uma permissão específica foi fornecida, verificar se ela requer 2FA
     // Isso seria implementado baseado nas configurações de permissões
     return false;
@@ -140,7 +140,7 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
   // Atualizar dados do usuário
   const refreshUser = async (): Promise<void> => {
     if (!isAuthenticated) return;
-    
+
     const token = null // ✅ REMOVIDO: Token inseguro;
     if (!token) return;
 
@@ -203,52 +203,52 @@ export const useRBAC = (): RBACContextType => {
 // Hook para componentes protegidos por permissão
 export const useRequirePermission = (permission: string) => {
   const { hasPermission, isLoading, isAuthenticated } = useRBAC();
-  
+
   const canAccess = isAuthenticated && hasPermission(permission);
   const isCheckingAccess = isLoading;
-  
+
   return { canAccess, isCheckingAccess };
 };
 
 // Hook para componentes protegidos por role
 export const useRequireRole = (role: string) => {
   const { hasRole, isLoading, isAuthenticated } = useRBAC();
-  
+
   const canAccess = isAuthenticated && hasRole(role);
   const isCheckingAccess = isLoading;
-  
+
   return { canAccess, isCheckingAccess };
 };
 
 // Hook para componentes protegidos por múltiplas permissões
 export const useRequireAnyPermission = (permissions: string[]) => {
   const { hasAnyPermission, isLoading, isAuthenticated } = useRBAC();
-  
+
   const canAccess = isAuthenticated && hasAnyPermission(permissions);
   const isCheckingAccess = isLoading;
-  
+
   return { canAccess, isCheckingAccess };
 };
 
 // Hook para componentes protegidos por múltiplas permissões (todas obrigatórias)
 export const useRequireAllPermissions = (permissions: string[]) => {
   const { hasAllPermissions, isLoading, isAuthenticated } = useRBAC();
-  
+
   const canAccess = isAuthenticated && hasAllPermissions(permissions);
   const isCheckingAccess = isLoading;
-  
+
   return { canAccess, isCheckingAccess };
 };
 
 // Hook para operações RBAC (admin)
 export const useRBACAdmin = () => {
   const { hasPermission } = useRBAC();
-  
+
   const canManageUsers = hasPermission('USERS_MANAGE');
   const canManageRoles = hasPermission('SYSTEM_RBAC_MANAGE');
   const canViewUsers = hasPermission('USERS_VIEW');
   const canViewSystem = hasPermission('SYSTEM_VIEW');
-  
+
   // Funções para operações administrativas
   const createUser = async (userData: {
     username: string;

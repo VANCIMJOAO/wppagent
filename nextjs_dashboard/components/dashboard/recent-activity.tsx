@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge" 
+import { Badge } from "@/components/ui/badge"
 import { MessageCircle, Calendar, UserPlus, CheckCircle } from "lucide-react"
 
 interface ActivityItem {
@@ -116,7 +116,7 @@ export const RecentActivity = ({ data }: RecentActivityProps) => {
             </div>
           </div>
         ))}
-        
+
         {activities.length === 0 && (
           <p className="text-center text-gray-500 py-4">
             Nenhuma atividade recente

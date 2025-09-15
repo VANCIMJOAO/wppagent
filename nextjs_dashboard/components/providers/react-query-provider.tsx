@@ -18,7 +18,7 @@ export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
       {children}
       {/* Devtools apenas em desenvolvimento */}
       {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools 
+        <ReactQueryDevtools
           initialIsOpen={false}
           position="bottom"
         />

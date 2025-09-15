@@ -5,11 +5,11 @@ networks:
   # Rede frontend - apenas nginx e serviços expostos
   frontend_network:
     driver: bridge
-  
+
   # Rede backend - aplicações internas
   backend_network:
     driver: bridge
-  
+
   # Rede database - apenas banco de dados
   database_network:
     driver: bridge

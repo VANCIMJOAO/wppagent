@@ -45,7 +45,7 @@ export function LoginForm() {
           </CardTitle>
           <p className="text-gray-600">Entre na sua conta</p>
         </CardHeader>
-        
+
         <CardContent>
           {error && (
             <Alert className="mb-4 border-red-200 bg-red-50">
@@ -97,8 +97,8 @@ export function LoginForm() {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-green-600 hover:bg-green-700 shadow-lg"
               disabled={loading}
             >

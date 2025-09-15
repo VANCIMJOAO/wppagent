@@ -5,10 +5,10 @@ import { usePWA } from '@/hooks/usePWA'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Smartphone, 
-  Download, 
-  X, 
+import {
+  Smartphone,
+  Download,
+  X,
   CheckCircle,
   RefreshCw,
   Trash2,
@@ -22,16 +22,16 @@ interface PWAPromptProps {
 }
 
 export function PWAPrompt({ className = '', variant = 'banner', autoShow = true }: PWAPromptProps) {
-  const { 
-    isInstallable, 
-    isInstalled, 
-    installPWA, 
-    needsUpdate, 
+  const {
+    isInstallable,
+    isInstalled,
+    installPWA,
+    needsUpdate,
     updateServiceWorker,
     clearCache,
     isPWAReady
   } = usePWA()
-  
+
   const [isDismissed, setIsDismissed] = useState(false)
   const [isInstalling, setIsInstalling] = useState(false)
 
@@ -96,7 +96,7 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Button
                 variant="secondary"
@@ -112,7 +112,7 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
                 )}
                 {isInstalling ? 'Instalando...' : 'Instalar'}
               </Button>
-              
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -141,21 +141,21 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
             Estado atual da aplicação PWA
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {/* Status badges */}
           <div className="flex flex-wrap gap-2">
             <Badge variant={isPWAReady ? 'default' : 'secondary'}>
               {isPWAReady ? 'PWA Ativo' : 'PWA Inativo'}
             </Badge>
-            
+
             {isInstalled && (
               <Badge variant="default" className="bg-green-500">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Instalado
               </Badge>
             )}
-            
+
             {needsUpdate && (
               <Badge variant="outline" className="border-orange-500 text-orange-500">
                 <RefreshCw className="h-3 w-3 mr-1" />
@@ -167,8 +167,8 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
           {/* Ações */}
           <div className="space-y-2">
             {isInstallable && !isInstalled && (
-              <Button 
-                onClick={handleInstall} 
+              <Button
+                onClick={handleInstall}
                 disabled={isInstalling}
                 className="w-full"
               >
@@ -187,7 +187,7 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
             )}
 
             {needsUpdate && (
-              <Button 
+              <Button
                 onClick={handleUpdate}
                 variant="outline"
                 className="w-full border-orange-500 text-orange-500 hover:bg-orange-50"
@@ -197,7 +197,7 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
               </Button>
             )}
 
-            <Button 
+            <Button
               onClick={handleClearCache}
               variant="outline"
               className="w-full"
@@ -216,7 +216,7 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
                   App Instalado
                 </div>
                 <div className="text-green-700">
-                  O WhatsApp Agent está instalado como app nativo. 
+                  O WhatsApp Agent está instalado como app nativo.
                   Funciona offline e pode ser acessado pela tela inicial.
                 </div>
               </div>
@@ -247,8 +247,8 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
     return (
       <div className={`flex gap-2 ${className}`}>
         {isInstallable && !isInstalled && (
-          <Button 
-            onClick={handleInstall} 
+          <Button
+            onClick={handleInstall}
             disabled={isInstalling}
             variant="outline"
             size="sm"
@@ -263,7 +263,7 @@ export function PWAPrompt({ className = '', variant = 'banner', autoShow = true 
         )}
 
         {needsUpdate && (
-          <Button 
+          <Button
             onClick={handleUpdate}
             variant="outline"
             size="sm"
@@ -292,7 +292,7 @@ export function PWASettings({ className = '' }: { className?: string }) {
           Configurações PWA
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
@@ -301,26 +301,26 @@ export function PWASettings({ className = '' }: { className?: string }) {
               {isPWAReady ? 'Ativo' : 'Inativo'}
             </div>
           </div>
-          
+
           <div>
             <div className="font-medium">Instalação:</div>
             <div className={`${isInstalled ? 'text-green-600' : 'text-gray-500'}`}>
               {isInstalled ? 'Instalado' : 'Não instalado'}
             </div>
           </div>
-          
+
           <div>
             <div className="font-medium">Service Worker:</div>
             <div className="text-green-600">Ativo</div>
           </div>
-          
+
           <div>
             <div className="font-medium">Cache Offline:</div>
             <div className="text-green-600">Disponível</div>
           </div>
         </div>
 
-        <Button 
+        <Button
           onClick={clearCache}
           variant="outline"
           className="w-full"

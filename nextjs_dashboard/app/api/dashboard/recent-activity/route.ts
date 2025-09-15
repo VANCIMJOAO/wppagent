@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     // TODO: Implement recent activity logic
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Recent activity API endpoint',
       data: []
     });

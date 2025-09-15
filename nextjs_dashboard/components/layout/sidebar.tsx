@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import useAuth from '@/hooks/useAuth'
-import { 
-  LayoutDashboard, 
-  MessageCircle, 
-  Users, 
+import {
+  LayoutDashboard,
+  MessageCircle,
+  Users,
   Calendar,
   FileText,
   Settings,
@@ -61,7 +61,7 @@ export default function Sidebar({ children }: SidebarProps) {
         setIsLoading(false)
       }
     }
-    
+
     checkAuth()
     setIsLoading(false)
   }, [router])
@@ -193,7 +193,7 @@ export default function Sidebar({ children }: SidebarProps) {
       'operator': { label: 'Operador', color: 'bg-orange-500' },
       'viewer': { label: 'Viewer', color: 'bg-gray-500' }
     }
-    
+
     const config = roleConfig[role as keyof typeof roleConfig] || roleConfig.viewer
     return (
       <Badge className={`${config.color} text-white`}>
@@ -210,7 +210,7 @@ export default function Sidebar({ children }: SidebarProps) {
     <div className="flex h-screen bg-gray-50">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
@@ -218,7 +218,7 @@ export default function Sidebar({ children }: SidebarProps) {
 
       {/* Mobile Menu Button */}
       <div className="md:hidden fixed top-4 left-4 z-50">
-        <Button 
+        <Button
           variant="outline"
           size="sm"
           className="bg-white shadow-lg border-gray-200"
@@ -234,7 +234,7 @@ export default function Sidebar({ children }: SidebarProps) {
 
       {/* Sidebar */}
       <div className={`
-        fixed md:relative inset-y-0 left-0 z-40 
+        fixed md:relative inset-y-0 left-0 z-40
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         w-80 bg-white border-r border-gray-200 flex flex-col
         transition-transform duration-300 ease-in-out
@@ -276,7 +276,7 @@ export default function Sidebar({ children }: SidebarProps) {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2 mt-3 md:mt-4">
               <Button size="sm" variant="outline" className="flex-1 text-xs">
                 <User className="h-3 w-3 md:h-4 md:w-4 mr-1" />
@@ -296,28 +296,28 @@ export default function Sidebar({ children }: SidebarProps) {
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
               Navegação
             </h3>
-            
+
             <div className="space-y-1 md:space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href
-                
+
                 return (
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.href)}
                     className={cn(
                       "w-full flex items-center justify-between p-3 rounded-lg text-left transition-all duration-200 group",
-                      isActive 
-                        ? "bg-blue-50 text-blue-700 border-l-4 border-blue-500" 
+                      isActive
+                        ? "bg-blue-50 text-blue-700 border-l-4 border-blue-500"
                         : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
                     <div className="flex items-center space-x-3">
                       <div className={cn(
                         "p-1.5 md:p-2 rounded-md",
-                        isActive 
-                          ? "bg-blue-100 text-blue-600" 
+                        isActive
+                          ? "bg-blue-100 text-blue-600"
                           : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
                       )}>
                         <Icon className="h-4 w-4" />
@@ -327,7 +327,7 @@ export default function Sidebar({ children }: SidebarProps) {
                         <p className="text-xs text-gray-500 truncate">{item.description}</p>
                       </div>
                     </div>
-                    
+
                     {item.badge && (
                       <Badge className="bg-red-500 text-white animate-pulse text-xs flex-shrink-0">
                         {item.badge}
@@ -383,12 +383,12 @@ export default function Sidebar({ children }: SidebarProps) {
                 {menuItems.find(item => item.href === pathname)?.label || 'Dashboard'}
               </h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm">
                 <Bell className="h-5 w-5" />
               </Button>
-              
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2">

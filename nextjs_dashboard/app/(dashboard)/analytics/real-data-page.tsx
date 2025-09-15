@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { RealAnalyticsDashboard } from '@/components/analytics/RealAnalyticsDashboard';
 import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary';
 import { useRealAnalytics } from '@/hooks/use-real-analytics';
-import { 
+import {
   BarChart3,
   Database,
   Activity,
@@ -24,7 +24,7 @@ import {
 
 export default function RealAnalyticsPage() {
   const [useRealData, setUseRealData] = useState(true);
-  
+
   const {
     dashboardSummary,
     loadingDashboard,
@@ -50,13 +50,13 @@ export default function RealAnalyticsPage() {
             Dashboard integrado com backend FastAPI - Sem dados mock
           </p>
         </div>
-        
+
         <div className="flex items-center space-x-3">
           <Badge variant={useRealData ? "default" : "secondary"} className="flex items-center">
             <Activity className="w-3 h-3 mr-1" />
             {useRealData ? 'Dados Reais' : 'Dados Simulados'}
           </Badge>
-          
+
           <Button
             variant="outline"
             onClick={handleRefresh}
@@ -65,7 +65,7 @@ export default function RealAnalyticsPage() {
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
-          
+
           <Button
             variant="ghost"
             onClick={() => setUseRealData(!useRealData)}
@@ -148,7 +148,7 @@ export default function RealAnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <RealAnalyticsDashboard 
+              <RealAnalyticsDashboard
                 period={30}
                 autoRefresh={true}
               />
@@ -182,8 +182,8 @@ export default function RealAnalyticsPage() {
                 <h4 className="font-medium text-red-800">Erro no Backend</h4>
                 <p className="text-sm text-red-600">{dashboardError}</p>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setUseRealData(false)}
                 className="text-red-600 border-red-300"

@@ -7,6 +7,7 @@
 ## 📋 **PRÉ-REQUISITOS**
 
 ### **Sistema Operacional**
+
 - ✅ **Linux**: Ubuntu 20.04+ / CentOS 8+ / Debian 11+
 - ✅ **macOS**: 12.0+ (Monterey)
 - ✅ **Windows**: 10+ com WSL2
@@ -14,11 +15,12 @@
 ### **Software Necessário**
 
 #### **Core Requirements**
+
 ```bash
 # Python 3.11+ (Required)
 python --version  # 3.11.0+
 
-# Node.js 18+ (Required) 
+# Node.js 18+ (Required)
 node --version     # 18.0.0+
 
 # PostgreSQL 16+ (Required)
@@ -32,6 +34,7 @@ git --version     # 2.34.0+
 ```
 
 #### **Development Tools**
+
 ```bash
 # Docker & Docker Compose (Recommended)
 docker --version         # 24.0.0+
@@ -43,6 +46,7 @@ npm --version    # 9.0+
 ```
 
 ### **Meta Business API Requirements**
+
 - ✅ **Meta Business Account** (verificado)
 - ✅ **WhatsApp Business API Access** (aprovado)
 - ✅ **Webhook endpoint** (HTTPS obrigatório)
@@ -55,6 +59,7 @@ npm --version    # 9.0+
 ### **Método 1: Docker (Recomendado)**
 
 #### **1.1 Clone e Setup Inicial**
+
 ```bash
 # Clone do repositório
 git clone https://github.com/VANCIMJOAO/wppagent.git
@@ -66,6 +71,7 @@ ls -la
 ```
 
 #### **1.2 Configuração Environment**
+
 ```bash
 # Copiar template de configuração
 cp .env.example .env
@@ -75,6 +81,7 @@ nano .env
 ```
 
 #### **1.3 Build e Start dos Serviços**
+
 ```bash
 # Build das imagens
 docker-compose build
@@ -87,6 +94,7 @@ docker-compose ps
 ```
 
 #### **1.4 Inicialização Database**
+
 ```bash
 # Aplicar migrations
 docker-compose exec app alembic upgrade head
@@ -96,6 +104,7 @@ docker-compose exec app alembic current
 ```
 
 #### **1.5 Verificação da Instalação**
+
 ```bash
 # Health check do sistema
 curl -X GET http://localhost:8000/health
@@ -114,6 +123,7 @@ curl -I http://localhost:3000
 ### **Método 2: Instalação Manual**
 
 #### **2.1 Setup Backend (FastAPI)**
+
 ```bash
 # Criar ambiente virtual Python
 python -m venv venv
@@ -136,6 +146,7 @@ pip list | grep fastapi
 ```
 
 #### **2.2 Setup Database (PostgreSQL)**
+
 ```bash
 # Instalar PostgreSQL (Ubuntu)
 sudo apt update
@@ -157,6 +168,7 @@ psql -h localhost -U whatsapp_user -d whatsapp_agent -c "SELECT version();"
 ```
 
 #### **2.3 Setup Redis**
+
 ```bash
 # Instalar Redis (Ubuntu)
 sudo apt install redis-server
@@ -174,6 +186,7 @@ redis-cli ping
 ```
 
 #### **2.4 Aplicar Migrations**
+
 ```bash
 # Na pasta raiz do projeto
 alembic upgrade head
@@ -185,6 +198,7 @@ alembic heads
 ```
 
 #### **2.5 Setup Frontend (Next.js)**
+
 ```bash
 # Navegar para o diretório frontend
 cd nextjs_dashboard
@@ -210,6 +224,7 @@ ls -la .next/
 ### **Environment Variables (.env)**
 
 #### **Database Configuration**
+
 ```env
 # PostgreSQL Configuration
 DATABASE_URL=postgresql://whatsapp_user:secure_password@localhost:5432/whatsapp_agent
@@ -220,6 +235,7 @@ DB_POOL_RECYCLE=3600
 ```
 
 #### **Redis Configuration**
+
 ```env
 # Redis Configuration
 REDIS_URL=redis://default:your_redis_password@localhost:6379
@@ -228,6 +244,7 @@ REDIS_MAX_CONNECTIONS=100
 ```
 
 #### **Security Configuration**
+
 ```env
 # JWT Security
 JWT_SECRET_KEY=your-super-secure-secret-key-minimum-32-chars
@@ -249,6 +266,7 @@ RATE_LIMIT_BURST=20
 ```
 
 #### **WhatsApp Meta API**
+
 ```env
 # Meta Business API
 META_ACCESS_TOKEN=your_permanent_access_token
@@ -264,6 +282,7 @@ WEBHOOK_URL=https://yourdomain.com/webhook
 ```
 
 #### **Application Configuration**
+
 ```env
 # Application Settings
 APP_NAME=WhatsApp Agent
@@ -283,12 +302,14 @@ TZ=America/Sao_Paulo
 ### **Meta Business API Setup**
 
 #### **3.1 Criar App no Meta for Developers**
+
 1. Acesse [developers.facebook.com](https://developers.facebook.com)
 2. Clique em "Create App" → "Business"
 3. Nome: "WhatsApp Agent - [Sua Empresa]"
 4. Adicione o produto "WhatsApp Business API"
 
 #### **3.2 Configurar Webhook**
+
 ```bash
 # No painel do Meta for Developers:
 # 1. WhatsApp → Configuration → Webhook
@@ -298,6 +319,7 @@ TZ=America/Sao_Paulo
 ```
 
 #### **3.3 Obter Tokens de Acesso**
+
 ```bash
 # Temporary Access Token (desenvolvimento)
 # Disponível em: WhatsApp → API Setup → Temporary access token
@@ -307,6 +329,7 @@ TZ=America/Sao_Paulo
 ```
 
 #### **3.4 Configurar Phone Number**
+
 ```bash
 # No painel do Meta for Developers:
 # 1. WhatsApp → API Setup → Phone numbers
@@ -318,6 +341,7 @@ TZ=America/Sao_Paulo
 ### **Database Configuration (Avançada)**
 
 #### **4.1 Otimizações PostgreSQL**
+
 ```sql
 -- Configurações de performance (/etc/postgresql/16/main/postgresql.conf)
 shared_buffers = '256MB'
@@ -332,11 +356,12 @@ sudo systemctl restart postgresql
 ```
 
 #### **4.2 Índices Compostos (Já aplicados via Alembic)**
+
 ```sql
 -- Verificar índices existentes
-SELECT schemaname, tablename, indexname, indexdef 
-FROM pg_indexes 
-WHERE schemaname = 'public' 
+SELECT schemaname, tablename, indexname, indexdef
+FROM pg_indexes
+WHERE schemaname = 'public'
 ORDER BY tablename, indexname;
 
 -- Índices de performance implementados:
@@ -349,6 +374,7 @@ ORDER BY tablename, indexname;
 ```
 
 #### **4.3 Backup Strategy**
+
 ```bash
 # Backup automático (crontab)
 0 2 * * * pg_dump $DATABASE_URL > /backup/whatsapp_agent_$(date +\%Y\%m\%d).sql
@@ -367,6 +393,7 @@ psql $DATABASE_URL -c "SELECT count(*) FROM appointments;"
 ### **Railway Deploy (Recomendado)**
 
 #### **5.1 Preparação**
+
 ```bash
 # Instalar Railway CLI
 npm install -g @railway/cli
@@ -379,6 +406,7 @@ railway init whatsapp-agent
 ```
 
 #### **5.2 Configuração dos Serviços**
+
 ```bash
 # Adicionar PostgreSQL
 railway add postgresql
@@ -391,6 +419,7 @@ railway up
 ```
 
 #### **5.3 Environment Variables (Railway)**
+
 ```bash
 # Via Railway CLI
 railway variables set JWT_SECRET_KEY=your-secret
@@ -402,6 +431,7 @@ railway variables set WEBHOOK_SECRET=your-webhook-secret
 ```
 
 #### **5.4 Custom Domain Setup**
+
 ```bash
 # No Railway Dashboard:
 # Settings → Domains → Custom Domain
@@ -412,6 +442,7 @@ railway variables set WEBHOOK_SECRET=your-webhook-secret
 ### **VPS Deploy Manual**
 
 #### **6.1 Server Setup (Ubuntu)**
+
 ```bash
 # Atualizar sistema
 sudo apt update && sudo apt upgrade -y
@@ -425,6 +456,7 @@ sudo usermod -aG sudo whatsapp
 ```
 
 #### **6.2 Aplicação Setup**
+
 ```bash
 # Login como usuário da aplicação
 sudo su - whatsapp
@@ -444,6 +476,7 @@ nano .env
 ```
 
 #### **6.3 Nginx Configuration**
+
 ```nginx
 # /etc/nginx/sites-available/whatsapp-agent
 server {
@@ -504,6 +537,7 @@ server {
 ```
 
 #### **6.4 SSL Certificate**
+
 ```bash
 # Instalar certificado SSL
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
@@ -515,6 +549,7 @@ sudo certbot renew --dry-run
 #### **6.5 Systemd Services**
 
 **Backend Service:**
+
 ```ini
 # /etc/systemd/system/whatsapp-backend.service
 [Unit]
@@ -535,6 +570,7 @@ WantedBy=multi-user.target
 ```
 
 **Frontend Service:**
+
 ```ini
 # /etc/systemd/system/whatsapp-frontend.service
 [Unit]
@@ -556,6 +592,7 @@ WantedBy=multi-user.target
 ```
 
 **Enable Services:**
+
 ```bash
 sudo systemctl enable whatsapp-backend
 sudo systemctl enable whatsapp-frontend
@@ -572,6 +609,7 @@ sudo systemctl status whatsapp-frontend
 ## 🧪 **VERIFICAÇÃO E TESTES**
 
 ### **Health Checks**
+
 ```bash
 # Backend health
 curl https://yourdomain.com/health
@@ -587,6 +625,7 @@ curl -I https://yourdomain.com/
 ```
 
 ### **Database Tests**
+
 ```bash
 # Test database connection
 python -c "
@@ -604,6 +643,7 @@ alembic heads
 ```
 
 ### **Redis Tests**
+
 ```bash
 # Test Redis connection
 redis-cli -u $REDIS_URL ping
@@ -620,6 +660,7 @@ r.delete('test')
 ```
 
 ### **WhatsApp Integration Tests**
+
 ```bash
 # Test webhook endpoint
 curl -X POST https://yourdomain.com/webhook \
@@ -631,6 +672,7 @@ curl -X POST https://yourdomain.com/webhook \
 ```
 
 ### **Frontend Tests**
+
 ```bash
 # Test frontend pages
 curl -s https://yourdomain.com/ | grep -q "WhatsApp Agent"
@@ -648,6 +690,7 @@ curl -s https://yourdomain.com/api/health | jq .
 ### **Common Issues**
 
 #### **Database Connection Issues**
+
 ```bash
 # Check PostgreSQL status
 sudo systemctl status postgresql
@@ -660,6 +703,7 @@ psql $DATABASE_URL -c "SELECT 1"
 ```
 
 #### **Redis Connection Issues**
+
 ```bash
 # Check Redis status
 sudo systemctl status redis-server
@@ -672,6 +716,7 @@ redis-cli -u $REDIS_URL ping
 ```
 
 #### **Migration Issues**
+
 ```bash
 # Check current migration
 alembic current
@@ -685,6 +730,7 @@ alembic upgrade head
 ```
 
 #### **Meta API Issues**
+
 ```bash
 # Test access token
 curl -X GET "https://graph.facebook.com/v18.0/me?access_token=$META_ACCESS_TOKEN"
@@ -697,15 +743,16 @@ curl -X GET "https://graph.facebook.com/v18.0/$META_APP_ID/subscriptions?access_
 ```
 
 ### **Performance Monitoring**
+
 ```bash
 # Backend performance
 curl -w "%{time_total}s\n" -o /dev/null -s https://yourdomain.com/health
 
 # Database performance
 psql $DATABASE_URL -c "
-SELECT query, mean_exec_time, calls 
-FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC 
+SELECT query, mean_exec_time, calls
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
 LIMIT 10;"
 
 # Redis performance
@@ -717,6 +764,7 @@ redis-cli -u $REDIS_URL --latency-history -i 1
 ## 📞 **SUPORTE**
 
 ### **Logs e Debugging**
+
 ```bash
 # Application logs
 tail -f logs/security_audit.log
@@ -731,7 +779,8 @@ sudo tail -f /var/log/nginx/error.log
 ```
 
 ### **Contato**
-- 📧 **Email**: setup-support@whatsappagent.com
+
+- 📧 **Email**: <setup-support@whatsappagent.com>
 - 🐛 **Issues**: [GitHub Issues](https://github.com/VANCIMJOAO/wppagent/issues)
 - 📚 **Docs**: [Documentação Completa](../README.md)
 
@@ -740,6 +789,7 @@ sudo tail -f /var/log/nginx/error.log
 ## ✅ **CHECKLIST FINAL**
 
 ### **Development Setup**
+
 - [ ] ✅ Python 3.11+ instalado
 - [ ] ✅ Node.js 18+ instalado
 - [ ] ✅ PostgreSQL 16+ configurado
@@ -753,6 +803,7 @@ sudo tail -f /var/log/nginx/error.log
 - [ ] ✅ API endpoints funcionando
 
 ### **Production Setup**
+
 - [ ] ✅ Server configurado (Railway/VPS)
 - [ ] ✅ Domain/SSL configurado
 - [ ] ✅ Environment variables configuradas

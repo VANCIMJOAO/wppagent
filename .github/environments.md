@@ -5,12 +5,14 @@ Este arquivo documenta como configurar os environments no GitHub para que o pipe
 ## 📋 Environments Necessários
 
 ### 1. Staging Environment
+
 - **Nome**: `staging`
 - **URL**: `https://staging.whatsapp-agent.com` (ou sua URL de staging)
 - **Branch Protection**: `develop`
 - **Review Required**: Não obrigatório
 
 ### 2. Production Environment  
+
 - **Nome**: `production`
 - **URL**: `https://whatsapp-agent.com` (ou sua URL de produção)
 - **Branch Protection**: `main`
@@ -31,6 +33,7 @@ Se você não configurou os environments ainda, o pipeline continuará funcionan
 ## 🚀 Variáveis Necessárias
 
 Certifique-se de que estas variáveis estão configuradas:
+
 - `STAGING_URL`: URL do ambiente de staging
 - `PRODUCTION_URL`: URL do ambiente de produção
 

@@ -72,7 +72,7 @@ export function DashboardHeader() {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => router.push('/dashboard/perfil')}
                 className="cursor-pointer"
               >
@@ -85,7 +85,7 @@ export function DashboardHeader() {
                 Ajuda
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={handleLogout}
                 className="cursor-pointer text-red-600 focus:text-red-600"
               >

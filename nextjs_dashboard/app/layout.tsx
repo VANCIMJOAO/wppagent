@@ -50,27 +50,27 @@ export default function RootLayout({
         <meta name="background-color" content="#ffffff" />
         <meta name="display" content="standalone" />
         <meta name="orientation" content="portrait-primary" />
-        
+
         {/* iOS PWA Meta Tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="WA Agent" />
-        
+
         {/* iOS Icons */}
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icon-192x192.png" />
-        
+
         {/* Standard Icons */}
         <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
         <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
-        
+
         {/* Manifest */}
         <link rel="manifest" href="/manifest.json" />
-        
+
         {/* H005: Preload Service Worker with Auth Bypass */}
         <link rel="preload" href="/sw-h005.js" as="script" />
-        
+
         {/* H005: PWA Service Worker habilitado com bypass para auth */}
         <script dangerouslySetInnerHTML={{
           __html: `

@@ -12,11 +12,11 @@ interface ExportButtonsProps {
   className?: string
 }
 
-export function ExportButtons({ 
-  periodDays = 30, 
-  startDate, 
+export function ExportButtons({
+  periodDays = 30,
+  startDate,
   endDate,
-  className = "" 
+  className = ""
 }: ExportButtonsProps) {
   const [loading, setLoading] = useState<string | null>(null)
 
@@ -32,7 +32,7 @@ export function ExportButtons({
   const downloadFile = async (url: string, filename: string, exportType: string) => {
     try {
       setLoading(exportType)
-      
+
       const token = null // ✅ REMOVIDO: Token inseguro
       if (!token) {
         showNotification(
@@ -49,21 +49,21 @@ export function ExportButtons({
           'Content-Type': 'application/json'
         }
       })
-      
+
       if (!response.ok) {
         if (response.status === 401) {
           showNotification(
-            "Erro de Autenticação", 
+            "Erro de Autenticação",
             "Acesso negado. Verifique suas credenciais.",
             'error'
           )
           return
         }
-        
+
         const error = await response.text()
         throw new Error(`HTTP ${response.status}: ${error}`)
       }
-      
+
       const blob = await response.blob()
       const downloadUrl = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -73,12 +73,12 @@ export function ExportButtons({
       link.click()
       link.remove()
       window.URL.revokeObjectURL(downloadUrl)
-      
+
       showNotification(
         "Download Concluído",
         `Arquivo ${filename} baixado com sucesso!`
       )
-      
+
     } catch (error: any) {
       console.error('Erro no download:', error)
       showNotification(
@@ -95,7 +95,7 @@ export function ExportButtons({
     const params = new URLSearchParams()
     if (startDate) params.append('start_date', startDate)
     if (endDate) params.append('end_date', endDate)
-    
+
     const url = `/api/export/appointments/csv?${params}`
     const filename = `agendamentos_${new Date().toISOString().split('T')[0]}.csv`
     downloadFile(url, filename, 'csv')
@@ -118,8 +118,8 @@ export function ExportButtons({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className={`relative ${className}`}
           disabled={isLoading}
         >
@@ -131,7 +131,7 @@ export function ExportButtons({
           {isLoading ? 'Gerando...' : 'Exportar'}
         </Button>
       </DropdownMenuTrigger>
-      
+
       <DropdownMenuContent align="end" className="w-56">
         <div className="px-2 py-1.5">
           <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -141,10 +141,10 @@ export function ExportButtons({
             Exportar dados para análise
           </p>
         </div>
-        
+
         <DropdownMenuSeparator />
-        
-        <DropdownMenuItem 
+
+        <DropdownMenuItem
           onClick={exportAppointmentsCSV}
           disabled={loading === 'csv'}
           className="cursor-pointer"
@@ -164,7 +164,7 @@ export function ExportButtons({
           </div>
         </DropdownMenuItem>
 
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={exportAnalyticsExcel}
           disabled={loading === 'excel'}
           className="cursor-pointer"
@@ -184,7 +184,7 @@ export function ExportButtons({
           </div>
         </DropdownMenuItem>
 
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={exportExecutivePDF}
           disabled={loading === 'pdf'}
           className="cursor-pointer"
@@ -203,9 +203,9 @@ export function ExportButtons({
             </div>
           </div>
         </DropdownMenuItem>
-        
+
         <DropdownMenuSeparator />
-        
+
         <div className="px-2 py-1.5">
           <p className="text-xs text-gray-400">
             {periodDays ? `Período: ${periodDays} dias` : 'Período personalizado'}

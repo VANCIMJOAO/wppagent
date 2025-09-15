@@ -19,34 +19,34 @@ export async function GET(
   { params }: { params: { conversationId: string } }
 ) {
   let client;
-  
+
   try {
     const conversationId = params.conversationId;
-    
+
     console.log(`🔍 POSTGRESQL: Buscando TODAS as mensagens da conversa ${conversationId}`);
-    
+
     // Conectar ao PostgreSQL
     client = await pool.connect();
-    
+
     // Buscar TODAS as mensagens da conversa, ordenadas por data
     const query = `
-      SELECT 
+      SELECT
         id,
         direction,
         content,
         message_type,
         created_at,
         user_id
-      FROM messages 
-      WHERE conversation_id = $1 
+      FROM messages
+      WHERE conversation_id = $1
       ORDER BY created_at ASC
     `;
-    
+
     const result = await client.query(query, [conversationId]);
-    
+
     if (result.rows.length === 0) {
       console.log(`⚠️ Nenhuma mensagem encontrada para conversa ${conversationId}`);
-      
+
       return NextResponse.json({
         success: true,
         messages: [
@@ -64,7 +64,7 @@ export async function GET(
         source: 'empty'
       });
     }
-    
+
     // Converter mensagens para o formato da interface
     const formattedMessages = result.rows.map((row: any) => ({
       id: row.id,
@@ -74,9 +74,9 @@ export async function GET(
       direction: row.direction,
       message_type: row.message_type || 'text'
     }));
-    
+
     console.log(`✅ POSTGRESQL: ${formattedMessages.length} mensagens REAIS carregadas da conversa ${conversationId}`);
-    
+
     return NextResponse.json({
       success: true,
       messages: formattedMessages,
@@ -84,17 +84,17 @@ export async function GET(
       conversation_id: conversationId,
       source: 'postgresql'
     });
-    
+
   } catch (error) {
     console.error('❌ Erro ao conectar ao PostgreSQL:', error);
-    
+
     return NextResponse.json({
       success: false,
       error: 'Erro ao carregar mensagens do banco',
       messages: [],
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 });
-    
+
   } finally {
     if (client) {
       client.release();

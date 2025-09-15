@@ -18,10 +18,10 @@ interface DashboardStats {
   total_messages: number;
   new_clients_today: number;
 }
-import { 
-  Users, 
-  MessageCircle, 
-  Calendar, 
+import {
+  Users,
+  MessageCircle,
+  Calendar,
   MessageSquare,
   TrendingUp,
   TrendingDown,
@@ -37,7 +37,7 @@ export function StatsCards({ stats, period = 'daily' }: StatsCardsProps) {
   if (!stats) {
     return null;
   }
-  
+
   const cards = [
     {
       title: 'Total de Clientes',
@@ -81,7 +81,7 @@ export function StatsCards({ stats, period = 'daily' }: StatsCardsProps) {
       trend: null
     }
   ];
-  
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
@@ -104,8 +104,8 @@ export function StatsCards({ stats, period = 'daily' }: StatsCardsProps) {
                 <div className={`flex items-center text-xs ${
                   card.trend.isPositive ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  {card.trend.isPositive ? 
-                    <TrendingUp className="h-3 w-3 mr-1" /> : 
+                  {card.trend.isPositive ?
+                    <TrendingUp className="h-3 w-3 mr-1" /> :
                     <TrendingDown className="h-3 w-3 mr-1" />
                   }
                   {Math.abs(card.trend.value)}%
@@ -124,7 +124,7 @@ export function CompactStatsCards({ stats }: { stats?: DashboardStats | null }) 
   if (!stats) {
     return null;
   }
-  
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
       <div className="bg-white p-3 rounded-lg border text-center">

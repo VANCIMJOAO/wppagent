@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input"
 // import { Textarea } from "@/components/ui/textarea"
 import TextareaAutosize from "react-textarea-autosize"
 import { Badge } from "@/components/ui/badge"
-import { 
-  HelpCircle, 
-  MessageCircle, 
+import {
+  HelpCircle,
+  MessageCircle,
   CheckCircle,
   AlertCircle,
   XCircle,
@@ -163,7 +163,7 @@ export default function SuportePage() {
               {systemStatus.map((system, index) => {
                 const config = getStatusConfig(system.status);
                 const StatusIcon = config.icon;
-                
+
                 return (
                   <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center space-x-3">
@@ -243,7 +243,7 @@ export default function SuportePage() {
                   <p className="text-sm text-blue-700">suporte@wppagent.com</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
                 <Phone className="h-5 w-5 text-green-600" />
                 <div>
@@ -251,7 +251,7 @@ export default function SuportePage() {
                   <p className="text-sm text-green-700">+55 (11) 9999-9999</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg">
                 <Clock className="h-5 w-5 text-orange-600" />
                 <div>
@@ -277,7 +277,7 @@ export default function SuportePage() {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <Input
                     type="email"

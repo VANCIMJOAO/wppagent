@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
   Clock,
   Activity,
   Database,
@@ -56,7 +56,7 @@ export default function MonitoringPage() {
         api.getActiveAlerts(),
         api.getSystemHealth()
       ])
-      
+
       // Acessa os dados das respostas da API
       setAlerts(alertsResponse.data || [])
       setSystemHealth(healthResponse.data || null)
@@ -71,12 +71,12 @@ export default function MonitoringPage() {
   const handleResolveAlert = async (alertId: string) => {
     try {
       setResolvingAlerts(prev => new Set(prev).add(alertId))
-      
+
       await api.resolveAlert(alertId, 'Resolvido manualmente via dashboard')
-      
+
       // Remover o alerta da lista local
       setAlerts(prev => prev.filter(alert => alert.id !== alertId))
-      
+
     } catch (error) {
       console.error('Erro ao resolver alerta:', error)
     } finally {
@@ -90,7 +90,7 @@ export default function MonitoringPage() {
 
   useEffect(() => {
     loadData()
-    
+
     // Atualizar a cada 30 segundos
     const interval = setInterval(loadData, 30000)
     return () => clearInterval(interval)
@@ -161,7 +161,7 @@ export default function MonitoringPage() {
                   {systemHealth.components.whatsapp_api}
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   {getStatusIcon(systemHealth.components.database)}
@@ -171,7 +171,7 @@ export default function MonitoringPage() {
                   {systemHealth.components.database}
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   {getStatusIcon(systemHealth.components.cache)}
@@ -181,7 +181,7 @@ export default function MonitoringPage() {
                   {systemHealth.components.cache}
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   {getStatusIcon(systemHealth.components.webhook)}
@@ -206,7 +206,7 @@ export default function MonitoringPage() {
                   <Clock className="w-8 h-8 text-blue-500" />
                 </div>
               </div>
-              
+
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
@@ -218,7 +218,7 @@ export default function MonitoringPage() {
                   <XCircle className="w-8 h-8 text-red-500" />
                 </div>
               </div>
-              
+
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
@@ -230,7 +230,7 @@ export default function MonitoringPage() {
                   <MessageSquare className="w-8 h-8 text-green-500" />
                 </div>
               </div>
-              
+
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
@@ -289,7 +289,7 @@ export default function MonitoringPage() {
                         {new Date(alert.timestamp).toLocaleString()}
                       </p>
                     </div>
-                    
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -303,7 +303,7 @@ export default function MonitoringPage() {
                       )}
                     </Button>
                   </div>
-                  
+
                   {alert.data && Object.keys(alert.data).length > 0 && (
                     <details className="mt-4">
                       <summary className="text-sm font-medium text-gray-700 cursor-pointer">

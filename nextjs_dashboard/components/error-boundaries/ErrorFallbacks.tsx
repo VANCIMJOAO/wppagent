@@ -49,7 +49,7 @@ export function DashboardKpisErrorFallback({
                 Erro ao carregar
               </p>
               {onRetry && retryCount < maxRetries && (
-                <Button 
+                <Button
                   onClick={onRetry}
                   disabled={loading}
                   size="sm"
@@ -92,13 +92,13 @@ export function ChartsErrorFallback({
           <div className="w-full h-32 bg-amber-100 rounded-lg flex items-center justify-center mb-4">
             <div className="text-amber-600 text-sm">Dados indisponíveis</div>
           </div>
-          
+
           <p className="text-amber-700 text-sm text-center mb-4">
             {error?.message || 'Não foi possível carregar os gráficos no momento.'}
           </p>
-          
+
           {onRetry && retryCount < maxRetries && (
-            <Button 
+            <Button
               onClick={onRetry}
               disabled={loading}
               variant="outline"
@@ -123,7 +123,7 @@ export function ChartsErrorFallback({
   );
 }
 
-// Recent Activity Error Fallback  
+// Recent Activity Error Fallback
 export function RecentActivityErrorFallback({
   error,
   onRetry,
@@ -148,7 +148,7 @@ export function RecentActivityErrorFallback({
                 </p>
               </div>
               {onRetry && retryCount < maxRetries && (
-                <Button 
+                <Button
                   onClick={onRetry}
                   disabled={loading}
                   size="sm"
@@ -201,13 +201,13 @@ export function NetworkErrorFallback({
       ) : (
         <WifiOff className="w-16 h-16 text-red-500 mb-4" />
       )}
-      
+
       <h2 className="text-xl font-semibold text-gray-800 mb-2">
         {isOnline ? 'Problema de Conexão' : 'Sem Internet'}
       </h2>
-      
+
       <p className="text-gray-600 text-center mb-6 max-w-md">
-        {isOnline 
+        {isOnline
           ? 'Não foi possível conectar com o servidor. Verifique se os serviços estão funcionando.'
           : 'Verifique sua conexão com a internet e tente novamente.'
         }
@@ -215,7 +215,7 @@ export function NetworkErrorFallback({
 
       <div className="flex gap-3">
         {onRetry && (
-          <Button 
+          <Button
             onClick={onRetry}
             disabled={loading}
             className="min-w-32"
@@ -233,9 +233,9 @@ export function NetworkErrorFallback({
             )}
           </Button>
         )}
-        
+
         {onReset && (
-          <Button 
+          <Button
             onClick={onReset}
             variant="outline"
           >
@@ -278,9 +278,9 @@ export function TableErrorFallback({
         <p className="text-gray-600 mb-4">
           {error?.message || `Não foi possível carregar os ${tableName} no momento.`}
         </p>
-        
+
         {onRetry && retryCount < maxRetries && (
-          <Button 
+          <Button
             onClick={onRetry}
             disabled={loading}
             variant="outline"
@@ -322,7 +322,7 @@ export function FormErrorFallback({
             </p>
             <div className="flex gap-2">
               {onRetry && (
-                <Button 
+                <Button
                   onClick={onRetry}
                   disabled={loading}
                   size="sm"
@@ -338,7 +338,7 @@ export function FormErrorFallback({
                 </Button>
               )}
               {onReset && (
-                <Button 
+                <Button
                   onClick={onReset}
                   size="sm"
                   variant="ghost"
@@ -365,7 +365,7 @@ export function MinimalErrorFallback({
     <div className="p-3 bg-gray-100 rounded text-center text-sm text-gray-600">
       <p className="mb-2">Conteúdo indisponível</p>
       {onRetry && (
-        <button 
+        <button
           onClick={onRetry}
           disabled={loading}
           className="text-blue-600 hover:text-blue-800 underline text-xs"

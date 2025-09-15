@@ -1,10 +1,10 @@
 /**
  * 📋 Tipos TypeScript Unificados - API Contracts
  * =============================================
- * 
+ *
  * Tipos padronizados que correspondem exatamente aos schemas do backend.
  * Elimina divergências entre frontend e backend.
- * 
+ *
  * Autor: Claude AI
  * Data: 2025-09-07
  * Status: Unificação crítica de contratos API
@@ -46,7 +46,7 @@ export interface Appointment {
   user_id: number;
   business_id: number;
   service_id?: number;
-  
+
   // ✅ Campos padronizados (matching backend aliases)
   data_agendamento: string; // ISO 8601 datetime
   horario: string; // HH:MM format
@@ -54,7 +54,7 @@ export interface Appointment {
   valor: number;
   status: AppointmentStatus;
   observacoes?: string;
-  
+
   // ✅ Dados relacionados padronizados
   cliente_nome: string;
   cliente_telefone: string;
@@ -62,7 +62,7 @@ export interface Appointment {
   servico_nome: string;
   servico_descricao?: string;
   business_name: string;
-  
+
   // ✅ Timestamps padronizados
   created_at: string; // ISO 8601
   updated_at?: string; // ISO 8601
@@ -79,7 +79,7 @@ export interface Conversation {
   last_message_at?: string; // ISO 8601
   created_at: string; // ISO 8601
   updated_at?: string; // ISO 8601
-  
+
   // ✅ Dados relacionados padronizados
   user_name: string;
   user_phone?: string;
@@ -100,7 +100,7 @@ export interface Message {
   direction: MessageDirection; // ✅ Padronizado: 'in' | 'out'
   created_at: string; // ISO 8601
   whatsapp_id?: string;
-  
+
   // ✅ Campos adicionais
   sender_type?: string;
   is_read: boolean;
@@ -191,7 +191,7 @@ export interface Client {
   email?: string;
   created_at: string;
   updated_at?: string;
-  
+
   // Campos calculados
   total_conversations: number;
   total_messages: number;
@@ -300,28 +300,28 @@ export interface Appointment {
   user_id: number;  // ✅ Padronizado
   business_id: number;
   service_id?: number;
-  
+
   // ✅ Campos padronizados com backend
   date_time: string;  // ✅ ISO string format
   duration_minutes: number;  // ✅ Padronizado
   end_time?: string;  // ISO string
   price: number;  // ✅ Unificado
-  
+
   // Status e observações
   status: 'pendente' | 'confirmado' | 'realizado' | 'cancelado' | 'concluido' | 'bloqueado';
   notes?: string;
-  
+
   // ✅ Campos relacionados com nomes padronizados
   cliente_nome?: string;  // Mapeado de user.nome
   cliente_telefone?: string;  // Mapeado de user.telefone
   cliente_email?: string;  // Mapeado de user.email
   servico_nome?: string;  // Mapeado de service.name
   business_name?: string;
-  
+
   // Auditoria
   created_at: string;
   updated_at?: string;
-  
+
   // Campos de cancelamento/confirmação (opcionais)
   cancelled_at?: string;
   cancellation_reason?: string;

@@ -46,7 +46,7 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
   const [selectedPreset, setSelectedPreset] = useState<string>(
     filters.timeRange?.preset || '30d'
   );
-  
+
   // Estado local para datas customizadas
   const [customStartDate, setCustomStartDate] = useState(
     filters.timeRange?.startDate || subDays(new Date(), 30)
@@ -58,14 +58,14 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
   // Aplicar preset de tempo
   const handlePresetChange = (preset: string) => {
     setSelectedPreset(preset);
-    
+
     if (preset === 'custom') return;
-    
+
     const presetData = TIME_PRESETS.find(p => p.key === preset);
     if (!presetData) return;
 
     let timeRange: AnalyticsTimeRange;
-    
+
     if (presetData.days === 0) {
       // Hoje
       timeRange = {
@@ -107,13 +107,13 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
   const handleChannelChange = (channel: string, checked: boolean) => {
     const currentChannels = filters.channels || [];
     let newChannels: string[];
-    
+
     if (checked) {
       newChannels = [...currentChannels, channel];
     } else {
       newChannels = currentChannels.filter(c => c !== channel);
     }
-    
+
     onFiltersChange({
       ...filters,
       channels: newChannels,
@@ -124,13 +124,13 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
   const handleAgentChange = (agent: string, checked: boolean) => {
     const currentAgents = filters.agents || [];
     let newAgents: string[];
-    
+
     if (checked) {
       newAgents = [...currentAgents, agent];
     } else {
       newAgents = currentAgents.filter(a => a !== agent);
     }
-    
+
     onFiltersChange({
       ...filters,
       agents: newAgents,
@@ -158,7 +158,7 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
             <Filter className="w-5 h-5 mr-2 text-blue-500" />
             Filtros
           </h3>
-          
+
           {lastUpdate && (
             <span className="text-sm text-gray-500">
               Atualizado em {format(lastUpdate, 'HH:mm:ss')}
@@ -186,7 +186,7 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
               <Download className="w-4 h-4 mr-2" />
               {exporting ? 'Exportando...' : 'Exportar'}
             </button>
-            
+
             <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10 hidden group-hover:block">
               <button
                 onClick={() => onExport('csv')}
@@ -225,7 +225,7 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
           <Calendar className="w-4 h-4 inline mr-1" />
           Período
         </label>
-        
+
         <div className="flex flex-wrap gap-2 mb-4">
           {TIME_PRESETS.map((preset) => (
             <button
@@ -256,7 +256,7 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
-            
+
             <div className="flex-1">
               <label className="block text-xs font-medium text-gray-600 mb-1">
                 Data final
@@ -268,7 +268,7 @@ const AnalyticsFiltersComponent: React.FC<AnalyticsFiltersComponentProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
-            
+
             <div className="flex items-end">
               <button
                 onClick={handleCustomDateChange}

@@ -1,7 +1,7 @@
 /**
  * 🪝 Hook de Autenticação com Refresh Tokens
  * ==========================================
- * 
+ *
  * Hook customizado que integra AuthService com React:
  * - Estado de autenticação reativo
  * - Métodos para login/logout
@@ -38,16 +38,16 @@ export function useAuth(): UseAuthReturn {
     isLoading: true,
     error: null,
   });
-  
+
   /**
    * 🔄 Atualizar estado de autenticação
    */
   const updateAuthState = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+
       const isAuthenticated = authService.isAuthenticated();
-      
+
       if (isAuthenticated) {
         const user = await authService.getCurrentUser();
         setState({
@@ -74,21 +74,21 @@ export function useAuth(): UseAuthReturn {
       });
     }
   }, []);
-  
+
   /**
    * 🔑 Função de login
    */
   const login = useCallback(async (credentials: LoginCredentials): Promise<TokenPair> => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+
       const tokenPair = await authService.login(credentials);
-      
+
       // Atualizar estado após login bem-sucedido
       await updateAuthState();
-      
+
       return tokenPair;
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro no login';
       setState(prev => ({
@@ -99,23 +99,23 @@ export function useAuth(): UseAuthReturn {
       throw error;
     }
   }, [updateAuthState]);
-  
+
   /**
    * 🚪 Função de logout
    */
   const logout = useCallback(async (): Promise<void> => {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
-      
+
       await authService.logout();
-      
+
       setState({
         isAuthenticated: false,
         user: null,
         isLoading: false,
         error: null,
       });
-      
+
     } catch (error) {
       console.error('❌ Erro no logout:', error);
       // Mesmo com erro, limpar estado local
@@ -127,28 +127,28 @@ export function useAuth(): UseAuthReturn {
       });
     }
   }, []);
-  
+
   /**
    * 🔄 Atualizar informações do usuário
    */
   const refreshUser = useCallback(async (): Promise<void> => {
     await updateAuthState();
   }, [updateAuthState]);
-  
+
   /**
    * 🧹 Limpar erro
    */
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
-  
+
   /**
    * 🎬 Effect para verificar autenticação inicial
    */
   useEffect(() => {
     updateAuthState();
   }, [updateAuthState]);
-  
+
   /**
    * 🎧 Effect para escutar eventos de storage (sincronização entre abas)
    */
@@ -159,23 +159,23 @@ export function useAuth(): UseAuthReturn {
         updateAuthState();
       }
     };
-    
+
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', handleStorageChange);
-      
+
       return () => {
         window.removeEventListener('storage', handleStorageChange);
       };
     }
   }, [updateAuthState]);
-  
+
   return {
     // Estado
     isAuthenticated: state.isAuthenticated,
     user: state.user,
     isLoading: state.isLoading,
     error: state.error,
-    
+
     // Ações
     login,
     logout,
@@ -189,7 +189,7 @@ export function useAuth(): UseAuthReturn {
  */
 export function usePermission(permission: string): boolean {
   const { user } = useAuth();
-  
+
   // Por enquanto, usuários admin têm todas as permissões
   // Pode ser expandido futuramente com sistema de roles
   return user?.is_active === true;
@@ -200,7 +200,7 @@ export function usePermission(permission: string): boolean {
  */
 export function useSuperAdmin(): boolean {
   const { user } = useAuth();
-  
+
   // Assumindo que existe campo is_super_admin no modelo User
   return (user as any)?.is_super_admin === true;
 }

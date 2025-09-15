@@ -8,12 +8,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
-  Bell, 
-  Settings, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Bell,
+  Settings,
   TrendingDown,
   TrendingUp,
   Clock,
@@ -214,8 +214,8 @@ export const AlertsSystem: React.FC<AlertsSystemProps> = ({
 
   // Reconhecer alerta
   const acknowledgeAlert = useCallback((alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId 
+    setAlerts(prev => prev.map(alert =>
+      alert.id === alertId
         ? { ...alert, acknowledged: true }
         : alert
     ));
@@ -223,8 +223,8 @@ export const AlertsSystem: React.FC<AlertsSystemProps> = ({
 
   // Resolver alerta
   const resolveAlert = useCallback((alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId 
+    setAlerts(prev => prev.map(alert =>
+      alert.id === alertId
         ? { ...alert, resolved: true }
         : alert
     ));
@@ -264,7 +264,7 @@ export const AlertsSystem: React.FC<AlertsSystemProps> = ({
                   {activeAlerts.length} ativo{activeAlerts.length !== 1 ? 's' : ''}
                 </Badge>
               )}
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -348,7 +348,7 @@ export const AlertsSystem: React.FC<AlertsSystemProps> = ({
                           {alert.acknowledged && (
                             <Badge variant="secondary">Reconhecido</Badge>
                           )}
-                          
+
                           <div className="flex space-x-1">
                             {!alert.acknowledged && (
                               <Button
@@ -392,7 +392,7 @@ export const AlertsSystem: React.FC<AlertsSystemProps> = ({
               Configure os thresholds para monitoramento automático
             </p>
           </CardHeader>
-          
+
           <CardContent>
             <div className="space-y-4">
               {thresholds.map((threshold) => (
@@ -412,7 +412,7 @@ export const AlertsSystem: React.FC<AlertsSystemProps> = ({
                     <Badge variant={threshold.enabled ? 'default' : 'secondary'}>
                       {threshold.severity}
                     </Badge>
-                    
+
                     <Button
                       variant={threshold.enabled ? 'destructive' : 'default'}
                       size="sm"

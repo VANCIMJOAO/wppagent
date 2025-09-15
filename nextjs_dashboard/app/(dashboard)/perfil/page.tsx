@@ -11,15 +11,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  Shield, 
-  Bell, 
-  Lock, 
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Shield,
+  Bell,
+  Lock,
   Camera,
   Save,
   Eye,
@@ -96,7 +96,7 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email,
@@ -194,7 +194,7 @@ export default function ProfilePage() {
                     <Camera className="w-3 h-3" />
                   </Button>
                 </div>
-                
+
                 <h3 className="text-lg font-semibold mt-3">{user.name}</h3>
                 <p className="text-gray-600">{user.email}</p>
                 <Badge variant="secondary" className="mt-2">{user.role}</Badge>
@@ -284,7 +284,7 @@ export default function ProfilePage() {
                         disabled={!isEditing}
                       />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="email">Email</Label>
                       <Input
@@ -402,7 +402,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <Button 
+                  <Button
                     onClick={changePassword}
                     className="w-full md:w-auto"
                     disabled={!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}

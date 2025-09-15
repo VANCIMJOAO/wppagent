@@ -18,9 +18,9 @@ NC='\033[0m' # No Color
 test_environment() {
     local env=$1
     local expected_url=$2
-    
+
     echo -e "\n📋 Testando ambiente: ${YELLOW}${env}${NC}"
-    
+
     # Exportar variáveis para o ambiente específico
     if [ -f ".env.${env}" ]; then
         export $(grep -v '^#' .env.${env} | xargs)
@@ -29,7 +29,7 @@ test_environment() {
         echo -e "${RED}❌ Arquivo .env.${env} não encontrado${NC}"
         return 1
     fi
-    
+
     # Verificar se a URL está correta
     if [ "${NEXT_PUBLIC_API_BASE_URL}" = "${expected_url}" ]; then
         echo -e "${GREEN}✅ URL correta: ${NEXT_PUBLIC_API_BASE_URL}${NC}"
@@ -37,13 +37,13 @@ test_environment() {
         echo -e "${RED}❌ URL incorreta. Esperado: ${expected_url}, Atual: ${NEXT_PUBLIC_API_BASE_URL}${NC}"
         return 1
     fi
-    
+
     # Verificar outras configurações
     echo "📊 Configurações:"
     echo "   Environment: ${NEXT_PUBLIC_ENVIRONMENT}"
     echo "   Debug: ${NEXT_PUBLIC_ENABLE_DEBUG}"
     echo "   Timeout: ${NEXT_PUBLIC_REQUEST_TIMEOUT}"
-    
+
     # Limpar variáveis
     unset NEXT_PUBLIC_API_BASE_URL NEXT_PUBLIC_ENVIRONMENT NEXT_PUBLIC_ENABLE_DEBUG NEXT_PUBLIC_REQUEST_TIMEOUT
 }
@@ -52,7 +52,7 @@ test_environment() {
 echo "🔍 Verificando arquivos de configuração..."
 
 test_environment "development" "http://localhost:8000"
-test_environment "staging" "https://wppagent-staging.up.railway.app" 
+test_environment "staging" "https://wppagent-staging.up.railway.app"
 test_environment "production" "https://wppagent-production.up.railway.app"
 
 # Verificar se não há URLs hardcoded

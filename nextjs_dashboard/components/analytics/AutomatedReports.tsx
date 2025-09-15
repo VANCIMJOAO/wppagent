@@ -7,7 +7,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   Calendar,
   Clock,
   Send,
@@ -260,7 +260,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
           createdAt: new Date(),
           nextRun: calculateNextRun(template as ReportTemplate),
         })) as ReportTemplate[];
-        
+
         setTemplates(defaultTemplates);
         saveTemplates(defaultTemplates);
       }
@@ -295,10 +295,10 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
   const calculateNextRun = (template: ReportTemplate): Date => {
     const now = new Date();
     const [hours, minutes] = template.schedule.time.split(':').map(Number);
-    
+
     let nextRun = new Date(now);
     nextRun.setHours(hours, minutes, 0, 0);
-    
+
     // Se o horário já passou hoje, calcular para o próximo período
     if (nextRun <= now) {
       switch (template.frequency) {
@@ -313,7 +313,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
           break;
       }
     }
-    
+
     return nextRun;
   };
 
@@ -330,7 +330,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
       }
       return template;
     });
-    
+
     setTemplates(updatedTemplates);
     saveTemplates(updatedTemplates);
   }, [templates, saveTemplates]);
@@ -360,13 +360,13 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
         fileUrl: `/reports/${execution.id}.pdf`,
       };
 
-      setExecutions(prev => 
+      setExecutions(prev =>
         prev.map(e => e.id === execution.id ? completedExecution : e)
       );
 
       // Atualizar template com última execução
-      const updatedTemplates = templates.map(t => 
-        t.id === templateId 
+      const updatedTemplates = templates.map(t =>
+        t.id === templateId
           ? { ...t, lastRun: new Date(), nextRun: calculateNextRun(t) }
           : t
       );
@@ -403,18 +403,18 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
                   <div className="flex items-center space-x-3">
                     <h4 className="font-medium">{template.name}</h4>
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      template.active 
-                        ? 'bg-green-100 text-green-800' 
+                      template.active
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-600'
                     }`}>
                       {template.active ? 'Ativo' : 'Inativo'}
                     </span>
                   </div>
-                  
+
                   <p className="text-sm text-gray-600 mt-1">
                     {template.description}
                   </p>
-                  
+
                   <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
@@ -422,12 +422,12 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
                       {template.frequency === 'weekly' && 'Semanal'}
                       {template.frequency === 'monthly' && 'Mensal'}
                     </div>
-                    
+
                     <div className="flex items-center">
                       <Clock className="w-4 h-4 mr-1" />
                       {template.schedule.time}
                     </div>
-                    
+
                     <div className="flex items-center">
                       <FileText className="w-4 h-4 mr-1" />
                       {template.format.toUpperCase()}
@@ -451,7 +451,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
                   >
                     <Play className="w-4 h-4" />
                   </Button>
-                  
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -459,7 +459,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
                   >
                     {template.active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                   </Button>
-                  
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -467,7 +467,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
                   >
                     <Edit3 className="w-4 h-4" />
                   </Button>
-                  
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -488,11 +488,11 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
   const renderExecutions = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Histórico de Execuções</h3>
-      
+
       <div className="grid gap-4">
         {executions.map(execution => {
           const template = templates.find(t => t.id === execution.templateId);
-          
+
           return (
             <Card key={execution.id}>
               <CardContent className="p-4">
@@ -503,7 +503,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
                       <span>
                         {format(execution.startedAt, 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                       </span>
-                      
+
                       <div className="flex items-center">
                         {execution.status === 'completed' && (
                           <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
@@ -516,7 +516,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
                         )}
                         {execution.status}
                       </div>
-                      
+
                       <span>
                         {execution.recipients.length} destinatários
                       </span>
@@ -529,7 +529,7 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
                         <Download className="w-4 h-4" />
                       </Button>
                     )}
-                    
+
                     <Button variant="ghost" size="sm">
                       <Send className="w-4 h-4" />
                     </Button>
@@ -582,17 +582,17 @@ export const AutomatedReports: React.FC<AutomatedReportsProps> = ({
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Servidor SMTP</label>
-                <input 
-                  type="text" 
-                  className="w-full mt-1 p-2 border rounded" 
+                <input
+                  type="text"
+                  className="w-full mt-1 p-2 border rounded"
                   placeholder="smtp.gmail.com"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">API WhatsApp</label>
-                <input 
-                  type="text" 
-                  className="w-full mt-1 p-2 border rounded" 
+                <input
+                  type="text"
+                  className="w-full mt-1 p-2 border rounded"
                   placeholder="https://api.whatsapp.com"
                 />
               </div>

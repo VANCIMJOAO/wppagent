@@ -25,26 +25,30 @@ GITHUB_TOKEN = (automático)
 ## 🚀 Como configurar
 
 ### 1. Acesse seu repositório no GitHub
+
 ```
 https://github.com/VANCIMJOAO/wppagent
 ```
 
 ### 2. Vá para Settings > Secrets and variables > Actions
 
-### 3. Clique na aba "Variables" e adicione:
+### 3. Clique na aba "Variables" e adicione
+
 - **Name:** `STAGING_URL`
 - **Value:** `https://staging.whatsapp-agent.com`
 
-- **Name:** `PRODUCTION_URL` 
+- **Name:** `PRODUCTION_URL`
 - **Value:** `https://wppagent-production.up.railway.app`
 
-### 4. Se repositório privado, vá para aba "Secrets" e adicione:
+### 4. Se repositório privado, vá para aba "Secrets" e adicione
+
 - **Name:** `CODECOV_TOKEN`
 - **Value:** `seu_token_do_codecov`
 
 ## ✅ Validação
 
 Após configurar, o pipeline terá:
+
 - ✅ 0 erros de action não encontrada
 - ✅ Variables de contexto funcionando
 - ✅ Health checks executando corretamente
@@ -54,6 +58,7 @@ Após configurar, o pipeline terá:
 ## 🎯 Environments
 
 O pipeline funciona com 3 ambientes:
+
 - **develop** → Deploy para Staging
 - **main** → Deploy para Production
 - **releases** → Deploy para Production com tag

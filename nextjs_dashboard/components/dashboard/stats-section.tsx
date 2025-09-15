@@ -10,10 +10,10 @@ import { StatsCards } from '@/components/dashboard/stats-cards'
 
 export function StatsSection() {
   const { stats, loading, error } = useDashboardStats()
-  
+
   if (loading) return <DashboardSkeleton />
   if (error) return <ErrorFallback error={error} />
-  
+
   return <StatsCards stats={stats} />
 }
 
@@ -25,16 +25,16 @@ interface StatsWithPeriodProps {
 
 export function StatsWithPeriod({ period, onPeriodChange }: StatsWithPeriodProps) {
   const { stats, loading, error } = useDashboardStats()
-  
+
   if (loading) return <DashboardSkeleton />
   if (error) return <ErrorFallback error={error} retry={() => window.location.reload()} />
-  
+
   return (
     <div className="space-y-4">
       {onPeriodChange && (
         <div className="flex justify-end">
-          <select 
-            value={period} 
+          <select
+            value={period}
             onChange={(e) => onPeriodChange(e.target.value as any)}
             className="px-3 py-2 border rounded-md bg-white"
           >

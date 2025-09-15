@@ -20,7 +20,7 @@ const AUTH_BYPASS_URLS = [
 // URLs que podem ser cacheadas para funcionamento offline
 const CACHEABLE_URLS = [
   '/dashboard',
-  '/agendamentos', 
+  '/agendamentos',
   '/conversas',
   '/monitoring',
   '/clientes',
@@ -63,7 +63,7 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames
-          .filter(cacheName => 
+          .filter(cacheName =>
             !cacheName.includes('h005') // Manter apenas caches da versão H005
           )
           .map(cacheName => {
@@ -87,8 +87,8 @@ function shouldBypassAuth(url) {
 
 // Verificar se é uma request de navegação (página)
 function isNavigationRequest(request) {
-  return request.mode === 'navigate' || 
-         (request.method === 'GET' && request.headers.get('accept') && 
+  return request.mode === 'navigate' ||
+         (request.method === 'GET' && request.headers.get('accept') &&
           request.headers.get('accept').includes('text/html'))
 }
 
@@ -96,12 +96,12 @@ function isNavigationRequest(request) {
 self.addEventListener('fetch', event => {
   const request = event.request
   const url = new URL(request.url)
-  
+
   // Ignorar requests externos
   if (!url.origin.includes(self.location.origin)) {
     return
   }
-  
+
   // BYPASS: Sempre usar rede para autenticação (não cachear)
   if (shouldBypassAuth(url)) {
     console.log('🔐 H005 SW: Auth bypass for', url.pathname)
@@ -112,7 +112,7 @@ self.addEventListener('fetch', event => {
         if (isNavigationRequest(request)) {
           return new Response(
             '<!DOCTYPE html><html><head><title>Offline</title></head><body><script>window.location.href="/offline?auth=required"</script></body></html>',
-            { 
+            {
               headers: { 'Content-Type': 'text/html' },
               status: 200
             }
@@ -126,7 +126,7 @@ self.addEventListener('fetch', event => {
     )
     return
   }
-  
+
   // Para APIs não-auth: tentar rede primeiro, cache como fallback
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
@@ -140,7 +140,7 @@ self.addEventListener('fetch', event => {
         }).catch(() => {
           console.log('📱 H005 SW: Using cached API response for', url.pathname)
           return cache.match(request) || new Response(
-            JSON.stringify({error: 'Offline', cached: false}), 
+            JSON.stringify({error: 'Offline', cached: false}),
             { headers: { 'Content-Type': 'application/json' } }
           )
         })
@@ -148,7 +148,7 @@ self.addEventListener('fetch', event => {
     )
     return
   }
-  
+
   // Para páginas: estratégia stale-while-revalidate
   if (isNavigationRequest(request)) {
     event.respondWith(
@@ -167,7 +167,7 @@ self.addEventListener('fetch', event => {
               { headers: { 'Content-Type': 'text/html' } }
             )
           })
-          
+
           // Retornar cache imediatamente se existir, senão aguardar rede
           return cachedResponse || fetchPromise
         })
@@ -175,9 +175,9 @@ self.addEventListener('fetch', event => {
     )
     return
   }
-  
+
   // Para recursos estáticos: cache first
-  if (request.destination === 'script' || 
+  if (request.destination === 'script' ||
       request.destination === 'style' ||
       request.destination === 'image' ||
       url.pathname.includes('_next/static')) {
@@ -193,7 +193,7 @@ self.addEventListener('fetch', event => {
             }).catch(() => {}) // Ignorar erros de background update
             return cachedResponse
           }
-          
+
           return fetch(request).then(response => {
             if (response.status === 200) {
               cache.put(request, response.clone())

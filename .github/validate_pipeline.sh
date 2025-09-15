@@ -24,9 +24,9 @@ check_correction() {
     local description="$1"
     local search_pattern="$2"
     local expected_count="$3"
-    
+
     local count=$(grep -c "$search_pattern" "$PIPELINE_FILE")
-    
+
     if [ "$count" -eq "$expected_count" ]; then
         echo -e "${GREEN}✅ $description${NC}"
         return 0

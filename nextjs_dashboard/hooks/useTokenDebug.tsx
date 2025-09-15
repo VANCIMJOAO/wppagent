@@ -1,17 +1,17 @@
 /**
  * 🔍 Token Debug Hook and Dashboard
  * ================================
- * 
+ *
  * Hook e componente para debugging do TokenManager e monitoramento
  * de race conditions em tempo real.
- * 
+ *
  * Funcionalidades:
  * - Monitoramento em tempo real do estado dos tokens
  * - Detecção de race conditions
  * - Logs de refresh attempts
  * - Interface visual para debugging
  * - Métricas de performance
- * 
+ *
  * Autor: Claude AI
  * Status: Tool de debugging para JWT Race Condition
  */
@@ -68,14 +68,14 @@ export function useTokenDebug() {
       await tokenManager.forceRefresh();
       attempt.success = true;
       attempt.duration = Date.now() - startTime;
-      
+
       console.log('✅ Test refresh successful');
-      
+
     } catch (error: any) {
       attempt.success = false;
       attempt.duration = Date.now() - startTime;
       attempt.error = error.message;
-      
+
       console.error('❌ Test refresh failed:', error);
     }
 
@@ -143,11 +143,11 @@ export function TokenDebugDashboard() {
   const formatTimeRemaining = (seconds: number | null): string => {
     if (seconds === null) return 'N/A';
     if (seconds <= 0) return 'EXPIRED';
-    
+
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m ${remainingSeconds}s`;
     } else if (minutes > 0) {
@@ -173,8 +173,8 @@ export function TokenDebugDashboard() {
           <button
             onClick={toggleMonitoring}
             className={`px-3 py-1 rounded text-sm font-medium ${
-              isMonitoring 
-                ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+              isMonitoring
+                ? 'bg-red-100 text-red-700 hover:bg-red-200'
                 : 'bg-green-100 text-green-700 hover:bg-green-200'
             }`}
           >
@@ -231,7 +231,7 @@ export function TokenDebugDashboard() {
         >
           🔄 Refresh Info
         </button>
-        
+
         <button
           onClick={testTokenRefresh}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
@@ -239,7 +239,7 @@ export function TokenDebugDashboard() {
         >
           🧪 Test Refresh
         </button>
-        
+
         <button
           onClick={clearDebugData}
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
@@ -253,7 +253,7 @@ export function TokenDebugDashboard() {
         <h3 className="text-lg font-semibold text-gray-800 mb-3">
           📊 Recent Refresh Attempts ({refreshAttempts.length})
         </h3>
-        
+
         {refreshAttempts.length === 0 ? (
           <p className="text-gray-500 italic">No refresh attempts recorded</p>
         ) : (
@@ -262,8 +262,8 @@ export function TokenDebugDashboard() {
               <div
                 key={index}
                 className={`p-3 rounded border-l-4 ${
-                  attempt.success 
-                    ? 'border-green-400 bg-green-50' 
+                  attempt.success
+                    ? 'border-green-400 bg-green-50'
                     : 'border-red-400 bg-red-50'
                 }`}
               >

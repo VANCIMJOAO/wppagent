@@ -27,9 +27,9 @@ import {
 } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  TrendingUp,
+  TrendingDown,
   Minus,
   Activity,
   MessageCircle,
@@ -52,17 +52,17 @@ interface MetricCardProps {
 }
 
 // Skeleton loading para gráficos
-export const ChartSkeleton: React.FC<ChartSkeletonProps> = ({ 
-  height = 300, 
-  lines = 3 
+export const ChartSkeleton: React.FC<ChartSkeletonProps> = ({
+  height = 300,
+  lines = 3
 }) => (
   <div className="animate-pulse" style={{ height }}>
     <div className="h-full bg-gray-200 rounded-lg flex flex-col justify-end p-4">
       {Array.from({ length: lines }, (_, i) => (
-        <div 
+        <div
           key={i}
           className="bg-gray-300 rounded"
-          style={{ 
+          style={{
             height: `${Math.random() * 60 + 20}%`,
             marginBottom: '8px',
             width: '100%'
@@ -81,8 +81,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   icon,
   formatValue
 }) => {
-  const displayValue = typeof value === 'number' && formatValue 
-    ? formatValue(value) 
+  const displayValue = typeof value === 'number' && formatValue
+    ? formatValue(value)
     : value;
 
   const getTrendIcon = () => {
@@ -144,13 +144,13 @@ export const ConversationTrendsChart: React.FC<{
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis 
-            dataKey="date" 
+          <XAxis
+            dataKey="date"
             stroke="#666"
             fontSize={12}
           />
           <YAxis stroke="#666" fontSize={12} />
-          <Tooltip 
+          <Tooltip
             contentStyle={{
               backgroundColor: '#fff',
               border: '1px solid #e5e7eb',
@@ -159,18 +159,18 @@ export const ConversationTrendsChart: React.FC<{
             }}
           />
           <Legend />
-          <Line 
-            type="monotone" 
-            dataKey="conversations" 
-            stroke="#3b82f6" 
+          <Line
+            type="monotone"
+            dataKey="conversations"
+            stroke="#3b82f6"
             strokeWidth={3}
             dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
             name="Conversas"
           />
-          <Line 
-            type="monotone" 
-            dataKey="messages" 
-            stroke="#10b981" 
+          <Line
+            type="monotone"
+            dataKey="messages"
+            stroke="#10b981"
             strokeWidth={2}
             dot={{ fill: '#10b981', strokeWidth: 2, r: 3 }}
             name="Mensagens"
@@ -211,26 +211,26 @@ export const MessageVolumeChart: React.FC<{
           <XAxis dataKey="date" stroke="#666" fontSize={12} />
           <YAxis stroke="#666" fontSize={12} />
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <Tooltip 
+          <Tooltip
             contentStyle={{
               backgroundColor: '#fff',
               border: '1px solid #e5e7eb',
               borderRadius: '8px'
             }}
           />
-          <Area 
-            type="monotone" 
-            dataKey="messages" 
-            stackId="1" 
-            stroke="#3b82f6" 
+          <Area
+            type="monotone"
+            dataKey="messages"
+            stackId="1"
+            stroke="#3b82f6"
             fill="url(#colorMessages)"
             name="Mensagens Recebidas"
           />
-          <Area 
-            type="monotone" 
-            dataKey="responses" 
-            stackId="1" 
-            stroke="#10b981" 
+          <Area
+            type="monotone"
+            dataKey="responses"
+            stackId="1"
+            stroke="#10b981"
             fill="url(#colorResponses)"
             name="Respostas Enviadas"
           />
@@ -255,7 +255,7 @@ export const ChannelPerformanceChart: React.FC<{
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis dataKey="channel" stroke="#666" fontSize={12} />
           <YAxis stroke="#666" fontSize={12} />
-          <Tooltip 
+          <Tooltip
             contentStyle={{
               backgroundColor: '#fff',
               border: '1px solid #e5e7eb',
@@ -263,9 +263,9 @@ export const ChannelPerformanceChart: React.FC<{
             }}
           />
           <Legend />
-          <Bar 
-            dataKey="conversations" 
-            fill="#3b82f6" 
+          <Bar
+            dataKey="conversations"
+            fill="#3b82f6"
             name="Conversas"
             radius={[4, 4, 0, 0]}
           />
@@ -312,13 +312,13 @@ export const SatisfactionDistributionChart: React.FC<{
             label={({ name, percentage }) => `${name}: ${percentage.toFixed(1)}%`}
           >
             {formattedData.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={COLORS[entry.rating as keyof typeof COLORS] || '#94a3b8'} 
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[entry.rating as keyof typeof COLORS] || '#94a3b8'}
               />
             ))}
           </Pie>
-          <Tooltip 
+          <Tooltip
             formatter={(value: number, name: string) => [
               `${value} avaliações`,
               name
@@ -347,7 +347,7 @@ export const ConversionFunnelChart: React.FC<{
     <div className="h-80">
       <ResponsiveContainer width="100%" height="100%">
         <FunnelChart>
-          <Tooltip 
+          <Tooltip
             formatter={(value: number, name: string) => [
               `${value} usuários`,
               name
@@ -378,13 +378,13 @@ export const MetricsOverview: React.FC<{
     satisfaction: number;
   };
   loading?: boolean;
-}> = ({ 
-  totalConversations, 
-  totalMessages, 
-  avgResponseTime, 
+}> = ({
+  totalConversations,
+  totalMessages,
+  avgResponseTime,
   overallSatisfaction,
   trends,
-  loading 
+  loading
 }) => {
   if (loading) {
     return (
@@ -413,20 +413,20 @@ export const MetricsOverview: React.FC<{
         trend={trends.conversations}
         icon={<MessageCircle className="w-5 h-5 text-blue-500" />}
       />
-      
+
       <MetricCard
         title="Total de Mensagens"
         value={totalMessages.toLocaleString('pt-BR')}
         icon={<Activity className="w-5 h-5 text-green-500" />}
       />
-      
+
       <MetricCard
         title="Tempo Médio de Resposta"
         value={formatResponseTime(avgResponseTime)}
         trend={-trends.responseTime} // Negativo pois menor tempo é melhor
         icon={<Clock className="w-5 h-5 text-orange-500" />}
       />
-      
+
       <MetricCard
         title="Satisfação Média"
         value={formatSatisfaction(overallSatisfaction)}

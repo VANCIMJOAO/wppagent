@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       debugLog.auth('Verificando autenticação via cookies seguros...')
-      
+
       try {
         // Tentar acessar endpoint protegido para verificar autenticação
         const response = await fetch('/api/proxy/auth/status', {
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         debugLog.error('Erro ao verificar autenticação:', error);
         setIsAuthenticated(false);
       }
-      
+
       setLoading(false);
     };
 
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       debugLog.auth(`Tentando fazer login com: ${email}`);
-      
+
       // Fazer login real com o backend usando cookies seguros
       const response = await fetch('/api/proxy/auth/login', {
         method: 'POST',
@@ -64,9 +64,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           username: email === 'admin@example.com' ? 'admin' : email,
-          password 
+          password
         })
       });
 
@@ -78,10 +78,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       debugLog.success('Login realizado com sucesso!');
-      
+
       // ✅ SEGURO: Tokens agora estão em cookies HttpOnly
       // Não precisamos mais gerenciar tokens no frontend
-      
+
       setIsAuthenticated(true);
       router.push('/dashboard');
     } catch (error) {
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshToken = async (): Promise<boolean> => {
     try {
       debugLog.auth('Renovando token via cookies seguros...');
-      
+
       const response = await fetch('/api/proxy/auth/refresh', {
         method: 'POST',
         credentials: 'include', // Inclui cookies HttpOnly
@@ -126,12 +126,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'Content-Type': 'application/json'
         }
       });
-      
+
       debugLog.success('Logout realizado com sucesso!');
     } catch (error) {
       debugLog.error('Erro no logout:', error);
     }
-    
+
     // ✅ SEGURO: Cookies HttpOnly são removidos pelo backend
     // Apenas limpar estado local
     setIsAuthenticated(false);

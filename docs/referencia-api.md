@@ -9,6 +9,7 @@
 ### **Informações Básicas** 📋
 
 #### **Base URL e Versioning**
+
 ```
 🌐 Produção: https://api.whatsappagent.com/v1
 🧪 Staging: https://staging-api.whatsappagent.com/v1
@@ -20,6 +21,7 @@
 ```
 
 #### **Formato de Response**
+
 ```json
 {
   "success": true,
@@ -40,8 +42,9 @@
 ```
 
 #### **Content Types Suportados**
+
 - ✅ `application/json` (padrão)
-- ✅ `application/x-www-form-urlencoded` 
+- ✅ `application/x-www-form-urlencoded`
 - ✅ `multipart/form-data` (uploads)
 - ✅ `text/plain` (webhooks)
 
@@ -52,6 +55,7 @@
 ### **JWT Authentication**
 
 #### **Login e Obtenção de Token**
+
 ```http
 POST /v1/auth/login
 Content-Type: application/json
@@ -64,6 +68,7 @@ Content-Type: application/json
 ```
 
 **Response Success:**
+
 ```json
 {
   "success": true,
@@ -80,7 +85,7 @@ Content-Type: application/json
       "business_id": 456,
       "permissions": [
         "appointments:read",
-        "appointments:write", 
+        "appointments:write",
         "users:read",
         "analytics:read"
       ]
@@ -91,6 +96,7 @@ Content-Type: application/json
 ```
 
 #### **Refresh Token**
+
 ```http
 POST /v1/auth/refresh
 Content-Type: application/json
@@ -102,12 +108,14 @@ Authorization: Bearer {refresh_token}
 ```
 
 #### **Verificar Token Atual**
+
 ```http
 GET /v1/auth/me
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -127,6 +135,7 @@ Authorization: Bearer {access_token}
 ### **Sistema de Permissões RBAC**
 
 #### **Roles Disponíveis**
+
 ```json
 {
   "roles": {
@@ -174,6 +183,7 @@ Authorization: Bearer {access_token}
 ```
 
 #### **Headers de Autenticação**
+
 ```http
 # ✅ Formato correto
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
@@ -196,6 +206,7 @@ Authorization: Bearer {token}
 ```
 
 #### **Query Parameters**
+
 ```http
 GET /v1/appointments?
     business_id=123&
@@ -212,6 +223,7 @@ GET /v1/appointments?
 ```
 
 **Parâmetros Detalhados:**
+
 - `business_id` (int): ID do negócio
 - `status` (string): `pending|confirmed|completed|cancelled|no_show`
 - `start_date` (date): Data início filtro (YYYY-MM-DD)
@@ -225,6 +237,7 @@ GET /v1/appointments?
 - `search` (string): Busca por nome, telefone ou email
 
 **Response Success:**
+
 ```json
 {
   "success": true,
@@ -290,6 +303,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "business_id": 123,
@@ -308,7 +322,7 @@ Content-Type: application/json
       "message": "Lembrete personalizado: Seu agendamento é em 2 horas"
     },
     {
-      "type": "email", 
+      "type": "email",
       "minutes_before": 1440,
       "message": "Lembrete: Você tem um agendamento amanhã"
     }
@@ -321,6 +335,7 @@ Content-Type: application/json
 ```
 
 **Response Success (201 Created):**
+
 ```json
 {
   "success": true,
@@ -351,6 +366,7 @@ Content-Type: application/json
 ```
 
 **Request Body (campos opcionais):**
+
 ```json
 {
   "appointment_date": "2024-01-20T15:00:00Z",
@@ -369,6 +385,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "cancellation_reason": "Cliente solicitou cancelamento",
@@ -378,6 +395,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -401,6 +419,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "confirmation_code": "AG789XYZ",
@@ -421,6 +440,7 @@ Authorization: Bearer {token}
 ```
 
 #### **Query Parameters**
+
 ```http
 GET /v1/users?
     business_id=123&
@@ -432,6 +452,7 @@ GET /v1/users?
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -484,6 +505,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "business_id": 123,
@@ -507,6 +529,7 @@ Content-Type: application/json
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -533,6 +556,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Carlos Oliveira Santos",
@@ -562,6 +586,7 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -632,6 +657,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Clínica Exemplo - Unidade Centro",
@@ -662,11 +688,13 @@ Authorization: Bearer {token}
 ```
 
 **Query Parameters:**
+
 ```http
 GET /v1/services?business_id=123&is_active=true&category=consulta
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -712,6 +740,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "business_id": 123,
@@ -742,6 +771,7 @@ Authorization: Bearer {token}
 ```
 
 **Query Parameters:**
+
 ```http
 GET /v1/analytics/dashboard?
     business_id=123&
@@ -750,6 +780,7 @@ GET /v1/analytics/dashboard?
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -811,6 +842,7 @@ Authorization: Bearer {token}
 ```
 
 **Query Parameters:**
+
 ```http
 GET /v1/analytics/report?
     business_id=123&
@@ -821,13 +853,14 @@ GET /v1/analytics/report?
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
   "data": {
     "report_id": "RPT_2024_01_15_ABC123",
     "period": {
-      "start": "2024-01-01T00:00:00Z", 
+      "start": "2024-01-01T00:00:00Z",
       "end": "2024-01-31T23:59:59Z"
     },
     "summary": {
@@ -861,6 +894,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "business_id": 123,
@@ -877,6 +911,7 @@ Content-Type: application/json
 ```
 
 **Para Template Message:**
+
 ```json
 {
   "business_id": 123,
@@ -900,6 +935,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -922,6 +958,7 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -946,6 +983,7 @@ X-Hub-Signature-256: sha256=...
 ```
 
 **Webhook Payload:**
+
 ```json
 {
   "object": "whatsapp_business_account",
@@ -981,6 +1019,7 @@ X-Hub-Signature-256: sha256=...
 ```
 
 **Auto-Response Example:**
+
 ```json
 {
   "success": true,
@@ -1000,6 +1039,7 @@ X-Hub-Signature-256: sha256=...
 ### **Códigos de Status HTTP**
 
 #### **Success Codes**
+
 ```json
 200 OK - Operação realizada com sucesso
 201 Created - Recurso criado com sucesso  
@@ -1008,6 +1048,7 @@ X-Hub-Signature-256: sha256=...
 ```
 
 #### **Client Error Codes**
+
 ```json
 400 Bad Request - Dados da requisição inválidos
 401 Unauthorized - Token de autenticação inválido ou ausente
@@ -1019,6 +1060,7 @@ X-Hub-Signature-256: sha256=...
 ```
 
 #### **Server Error Codes**
+
 ```json
 500 Internal Server Error - Erro interno do servidor
 502 Bad Gateway - Erro de gateway/proxy
@@ -1056,6 +1098,7 @@ X-Hub-Signature-256: sha256=...
 ### **Códigos de Erro Específicos**
 
 #### **Authentication Errors**
+
 ```json
 {
   "AUTH_TOKEN_MISSING": {
@@ -1063,7 +1106,7 @@ X-Hub-Signature-256: sha256=...
     "message": "Token de autenticação é obrigatório"
   },
   "AUTH_TOKEN_INVALID": {
-    "code": 401, 
+    "code": 401,
     "message": "Token de autenticação inválido"
   },
   "AUTH_TOKEN_EXPIRED": {
@@ -1078,6 +1121,7 @@ X-Hub-Signature-256: sha256=...
 ```
 
 #### **Validation Errors**
+
 ```json
 {
   "VALIDATION_REQUIRED_FIELD": {
@@ -1100,6 +1144,7 @@ X-Hub-Signature-256: sha256=...
 ```
 
 #### **Business Logic Errors**
+
 ```json
 {
   "APPOINTMENT_SLOT_UNAVAILABLE": {
@@ -1193,13 +1238,14 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "business_id": 123,
   "url": "https://meu-sistema.com/webhooks/whatsapp-agent",
   "events": [
     "appointment.created",
-    "appointment.confirmed", 
+    "appointment.confirmed",
     "appointment.cancelled",
     "appointment.completed",
     "whatsapp.message.received",
@@ -1213,6 +1259,7 @@ Content-Type: application/json
 ### **Eventos de Webhook**
 
 #### **Appointment Events**
+
 ```json
 {
   "event": "appointment.created",
@@ -1233,7 +1280,7 @@ Content-Type: application/json
 ```json
 {
   "event": "appointment.confirmed",
-  "timestamp": "2024-01-15T11:35:00Z", 
+  "timestamp": "2024-01-15T11:35:00Z",
   "data": {
     "appointment": {
       "id": 789,
@@ -1246,6 +1293,7 @@ Content-Type: application/json
 ```
 
 #### **WhatsApp Events**
+
 ```json
 {
   "event": "whatsapp.message.received",
@@ -1277,6 +1325,7 @@ Content-Type: application/json
 ```
 
 **Verificação da Assinatura:**
+
 ```python
 import hashlib
 import hmac
@@ -1287,7 +1336,7 @@ def verify_webhook_signature(payload, signature, secret):
         payload.encode('utf-8'),
         hashlib.sha256
     ).hexdigest()
-    
+
     return hmac.compare_digest(
         f"sha256={expected_signature}",
         signature
@@ -1301,6 +1350,7 @@ def verify_webhook_signature(payload, signature, secret):
 ### **SDK JavaScript/TypeScript**
 
 #### **Instalação**
+
 ```bash
 npm install @whatsapp-agent/sdk
 # ou
@@ -1308,6 +1358,7 @@ yarn add @whatsapp-agent/sdk
 ```
 
 #### **Configuração**
+
 ```typescript
 import { WhatsAppAgentAPI } from '@whatsapp-agent/sdk';
 
@@ -1319,6 +1370,7 @@ const api = new WhatsAppAgentAPI({
 ```
 
 #### **Uso Básico**
+
 ```typescript
 // Listar appointments
 const appointments = await api.appointments.list({
@@ -1349,11 +1401,13 @@ const message = await api.whatsapp.send({
 ### **SDK Python**
 
 #### **Instalação**
+
 ```bash
 pip install whatsapp-agent-sdk
 ```
 
 #### **Uso**
+
 ```python
 from whatsapp_agent_sdk import WhatsAppAgentAPI
 
@@ -1387,11 +1441,13 @@ dashboard = await api.analytics.dashboard(period='30d')
 ### **SDK PHP**
 
 #### **Instalação**
+
 ```bash
 composer require whatsapp-agent/sdk
 ```
 
 #### **Uso**
+
 ```php
 <?php
 use WhatsAppAgent\SDK\Client;
@@ -1448,6 +1504,7 @@ $appointment = $api->appointments()->create([
 ### **Dados de Teste**
 
 #### **Test Phone Numbers**
+
 ```json
 {
   "test_numbers": {
@@ -1460,6 +1517,7 @@ $appointment = $api->appointments()->create([
 ```
 
 #### **Test Webhook URL**
+
 ```
 https://webhook.site/#!/unique-id
 ```
@@ -1483,7 +1541,7 @@ https://webhook.site/#!/unique-id
       "value": "{{token}}"
     },
     {
-      "key": "businessId", 
+      "key": "businessId",
       "value": "123"
     }
   ],
@@ -1506,6 +1564,7 @@ https://webhook.site/#!/unique-id
 ### **Versão v1.2.0 (2024-01-15)**
 
 #### **✨ Novos Recursos**
+
 - ✅ Suporte a templates WhatsApp Business
 - ✅ Webhook events para mensagens
 - ✅ Analytics avançados com exportação
@@ -1514,12 +1573,14 @@ https://webhook.site/#!/unique-id
 - ✅ SDK Python oficial
 
 #### **🔧 Melhorias**
+
 - ⚡ Performance de consultas otimizada (90% mais rápido)
 - 🔐 Segurança JWT melhorada
 - 📝 Documentação expandida
 - 🌐 Suporte internacional melhorado
 
 #### **🐛 Correções**
+
 - 🔧 Fix timezone handling em appointments
 - 🔧 Fix memory leak em webhooks
 - 🔧 Fix WhatsApp message delivery status
@@ -1527,6 +1588,7 @@ https://webhook.site/#!/unique-id
 ### **Versão v1.1.0 (2023-12-01)**
 
 #### **✨ Novos Recursos**
+
 - ✅ Sistema de permissões RBAC
 - ✅ Multi-business support
 - ✅ Webhook system
@@ -1546,9 +1608,9 @@ https://webhook.site/#!/unique-id
 
 **🔗 Links Úteis**
 
-[📊 OpenAPI Spec](https://api.whatsappagent.com/openapi.json) | 
-[🧪 Sandbox](https://sandbox-api.whatsappagent.com) | 
-[📦 SDKs](https://github.com/whatsapp-agent/sdks) | 
+[📊 OpenAPI Spec](https://api.whatsappagent.com/openapi.json) |
+[🧪 Sandbox](https://sandbox-api.whatsappagent.com) |
+[📦 SDKs](https://github.com/whatsapp-agent/sdks) |
 [💬 Suporte](https://support.whatsappagent.com)
 
 </div>

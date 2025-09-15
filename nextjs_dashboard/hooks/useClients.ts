@@ -20,11 +20,11 @@ export function useClients(filters: ClientsFilters = {}) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
-  
+
   const fetchClients = useCallback(async () => {
     setLoading(true)
     setError(null)
-    
+
     try {
       // Construir parâmetros de query
       const params = new URLSearchParams()
@@ -32,26 +32,26 @@ export function useClients(filters: ClientsFilters = {}) {
       if (filters.status && filters.status !== 'all') params.append('status', filters.status)
       if (filters.page) params.append('page', filters.page.toString())
       if (filters.per_page) params.append('per_page', filters.per_page.toString())
-      
+
       const queryString = params.toString()
       const endpoint = `/api/proxy/clients${queryString ? `?${queryString}` : ''}`
-      
+
       // Fazer requisição real para o backend
       const response = await fetch(endpoint, {
         headers: {
           'Content-Type': 'application/json',
           // Tentar obter token do localStorage se disponível
-          ...(typeof window !== 'undefined' && null // ✅ REMOVIDO: Token inseguro 
+          ...(typeof window !== 'undefined' && null // ✅ REMOVIDO: Token inseguro
             ? { 'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}` }
             : {})
         }
       })
       const data = await response.json()
-      
+
       if (!response.ok) {
         throw new Error(data.error || 'Erro ao carregar clientes')
       }
-      
+
       // Transformar dados do backend para o formato esperado
       const transformedClients: Client[] = (data.clients || data.data || []).map((client: any) => ({
         id: client.id,
@@ -68,13 +68,13 @@ export function useClients(filters: ClientsFilters = {}) {
         total_spent: client.total_spent || client.totalSpent || 0,
         last_contact: client.last_contact || client.lastContact
       }))
-      
+
       setClients(transformedClients)
       setTotal(data.total || data.pagination?.total || transformedClients.length)
     } catch (err) {
       console.error('Erro ao buscar clientes:', err)
       setError(err instanceof Error ? err.message : 'Erro ao carregar clientes')
-      
+
       // Fallback com dados vazios em caso de erro
       setClients([])
       setTotal(0)
@@ -82,11 +82,11 @@ export function useClients(filters: ClientsFilters = {}) {
       setLoading(false)
     }
   }, [filters])
-  
+
   useEffect(() => {
     fetchClients()
   }, [fetchClients])
-  
+
   return {
     clients,
     loading,
@@ -110,21 +110,21 @@ export function useClientStats() {
   } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true)
       setError(null)
-      
+
       try {
         // Buscar estatísticas reais do backend
         const response = await fetch('/api/proxy/clients/stats')
         const data = await response.json()
-        
+
         if (!response.ok) {
           throw new Error(data.error || 'Erro ao carregar estatísticas')
         }
-        
+
         // Transformar dados do backend
         setStats({
           total: data.total_clients || data.total || 0,
@@ -135,7 +135,7 @@ export function useClientStats() {
       } catch (err) {
         console.error('Erro ao buscar stats de clientes:', err)
         setError(err instanceof Error ? err.message : 'Erro ao carregar estatísticas')
-        
+
         // Fallback com dados vazios
         setStats({
           total: 0,
@@ -147,9 +147,9 @@ export function useClientStats() {
         setLoading(false)
       }
     }
-    
+
     fetchStats()
   }, [])
-  
+
   return { stats, loading, error }
 }

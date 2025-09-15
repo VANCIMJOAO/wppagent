@@ -9,15 +9,18 @@
 ## 📋 Sumário Executivo
 
 ### Status Geral
+
 O projeto WhatsApp Agent apresenta uma arquitetura sólida com FastAPI + Next.js, porém com **inconsistências críticas** entre backend e frontend, problemas de segurança em produção e lacunas na observabilidade. Foram identificados **47 pontos de atenção** distribuídos em 5 níveis de severidade.
 
 ### Achados Principais
+
 - 🔴 **3 Críticos**: Exposição de credenciais, endpoints sem autenticação, drift de schema
 - 🟡 **12 Altos**: Inconsistências de contrato API, N+1 queries, tokens em localStorage  
 - 🟠 **18 Médios**: Falta de índices, tipos TypeScript quebrados, logs inadequados
 - 🔵 **14 Baixos**: Code smells, otimizações de performance, melhorias de DX
 
 ### Roadmap Prioritário
+
 **Sprint 1 (2 semanas)**: Hotfixes críticos + Segurança essencial  
 **Sprint 2 (2 semanas)**: Coerência API + Performance DB  
 **Sprint 3 (1 semana)**: Observabilidade + Validação final
@@ -27,12 +30,14 @@ O projeto WhatsApp Agent apresenta uma arquitetura sólida com FastAPI + Next.js
 ## 🗂️ Registro de Premissas e Limitações
 
 ### Premissas Assumidas
+
 - Railway como ambiente de produção principal
 - PostgreSQL como banco principal + Redis para cache
 - Grafana/Prometheus para observabilidade
 - WhatsApp Business API como integração principal
 
 ### Limitações da Auditoria
+
 - ❌ **MCP Railway**: Não disponível - análise de logs/env limitada
 - ❌ **MCP Grafana**: Não disponível - métricas não verificadas
 - ❌ **MCP Postgres**: Não disponível - schema inferido do código
@@ -80,12 +85,14 @@ whats_agent/
 ### Arquivos de Configuração Principal
 
 **Backend:**
+
 - `pyproject.toml` - Configuração pytest e markers
 - `requirements.txt` - 84 dependências Python
 - `alembic.ini` - Configuração migrações
 - `docker-compose.yml` - Stack containers
 
 **Frontend:**
+
 - `package.json` - 70 dependências Node.js
 - `next.config.js` - Configuração Next.js
 - `tailwind.config.js` - Estilização
@@ -99,35 +106,35 @@ graph TB
         PWA[Next.js PWA Dashboard]
         SW[Service Worker]
     end
-    
+
     subgraph "API Gateway"
         NGINX[Nginx Load Balancer]
         MW[Rate Limit Middleware]
     end
-    
+
     subgraph "Application Tier"
         API[FastAPI Backend]
         WS[WebSocket Manager]
         RBAC[RBAC System]
     end
-    
+
     subgraph "Services Layer"
         WA[WhatsApp Service]
         LLM[LLM Service]
         CACHE[Redis Cache]
         PUSH[Push Service]
     end
-    
+
     subgraph "Data Tier"
         PG[(PostgreSQL)]
         FILES[(File Storage)]
     end
-    
+
     subgraph "External"
         META[Meta WhatsApp API]
         OPENAI[OpenAI API]
     end
-    
+
     PWA --> NGINX
     SW --> PWA
     NGINX --> MW
@@ -183,7 +190,7 @@ erDiagram
         boolean is_active
         datetime created_at
     }
-    
+
     User {
         int id PK
         string wa_id UK
@@ -192,7 +199,7 @@ erDiagram
         string email
         datetime created_at
     }
-    
+
     Business {
         int id PK
         string name
@@ -200,7 +207,7 @@ erDiagram
         json business_hours
         datetime created_at
     }
-    
+
     Service {
         int id PK
         int business_id FK
@@ -210,7 +217,7 @@ erDiagram
         string price
         boolean is_active
     }
-    
+
     Appointment {
         int id PK
         int user_id FK
@@ -223,7 +230,7 @@ erDiagram
         numeric price
         text notes
     }
-    
+
     Conversation {
         int id PK
         int user_id FK
@@ -231,7 +238,7 @@ erDiagram
         datetime last_message_at
         datetime created_at
     }
-    
+
     Message {
         int id PK
         int user_id FK
@@ -242,7 +249,7 @@ erDiagram
         json raw_payload
         datetime created_at
     }
-    
+
     LoginSession {
         int id PK
         int admin_user_id FK
@@ -250,7 +257,7 @@ erDiagram
         datetime expires_at
         boolean is_active
     }
-    
+
     User ||--o{ Appointment : "faz"
     User ||--o{ Conversation : "tem"
     User ||--o{ Message : "envia"
@@ -272,10 +279,11 @@ erDiagram
 - **Arquivos**: `alembic/versions/2025_09_11_*_h002_*.py`
 
 **Migrações Problemáticas:**
+
 ```python
 # 2025_09_11_1019-c20ea17a14b9_h002_schema_drift_fix_robust_v2.py:19-41
 orphan_tables = [
-    'role_permissions', 'rbac_audit_logs', 'rbac_roles', 
+    'role_permissions', 'rbac_audit_logs', 'rbac_roles',
     'rbac_permissions', 'user_roles', 'admins', 'rbac_users'
 ]
 for table in orphan_tables:
@@ -288,6 +296,7 @@ for table in orphan_tables:
 **Análise:** `app/services/` - 60+ serviços
 
 **Serviços Críticos Identificados:**
+
 - `whatsapp.py` - Integração Meta API
 - `llm_advanced.py` - Processamento LLM
 - `cache_service.py` - Cache Redis
@@ -326,6 +335,7 @@ for table in orphan_tables:
 **Análise:** `lib/api-service.ts` redireciona para `api-service-robust.ts`
 
 **Base URL Detection:**
+
 ```typescript
 // lib/environment-config.ts
 export const detectEnvironment = (): 'development' | 'staging' | 'production' => {
@@ -343,6 +353,7 @@ export const detectEnvironment = (): 'development' | 'staging' | 'production' =>
 🔴 **ACHADO CRÍTICO**: **Tokens JWT Inseguros**
 
 **Evidência encontrada em 15+ arquivos:**
+
 ```typescript
 // nextjs_dashboard/contexts/auth-context.tsx:87
 localStorage.setItem('auth-token', token);
@@ -352,6 +363,7 @@ const token = localStorage.getItem('auth_token');
 ```
 
 **Problemas identificados:**
+
 - Tokens armazenados em localStorage (vulnerável a XSS)
 - Duplo armazenamento: localStorage + cookies não-HttpOnly
 - Headers Authorization hardcoded no client-side
@@ -361,6 +373,7 @@ const token = localStorage.getItem('auth_token');
 **Análise:** `public/` - 5 service workers diferentes
 
 **Arquivos PWA:**
+
 - `manifest.json` - Configuração PWA completa
 - `sw-advanced.js` - Service worker principal
 - `sw-offline.js` - Estratégia offline
@@ -368,6 +381,7 @@ const token = localStorage.getItem('auth_token');
 - Icons 72x72 até 512x512
 
 **Potencial problema identificado:**
+
 ```javascript
 // public/sw-advanced.js - Cache collision risk
 async function staleWhileRevalidateStrategy(request) {
@@ -383,6 +397,7 @@ async function staleWhileRevalidateStrategy(request) {
 ### DX e Tipos
 
 **TypeScript Analysis:**
+
 - 8 arquivos de tipos em `types/`
 - 10+ ocorrências de `any` type
 - Redirecionamento para versões "robust" indica refatoração em progresso
@@ -396,6 +411,7 @@ async function staleWhileRevalidateStrategy(request) {
 ### Schema Inferido dos Modelos
 
 **Tabelas Principais (baseado em `models/database.py`):**
+
 - `admin_users` - Autenticação dashboard
 - `users` - Usuários WhatsApp
 - `appointments` - Agendamentos
@@ -412,33 +428,34 @@ Baseado na análise dos modelos e queries:
 
 ```sql
 -- Índices de performance críticos
-CREATE INDEX IF NOT EXISTS idx_appointments_user_date_status 
+CREATE INDEX IF NOT EXISTS idx_appointments_user_date_status
   ON appointments (user_id, date_time, status);
 
-CREATE INDEX IF NOT EXISTS idx_messages_conversation_created 
+CREATE INDEX IF NOT EXISTS idx_messages_conversation_created
   ON messages (conversation_id, created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_conversations_user_status 
+CREATE INDEX IF NOT EXISTS idx_conversations_user_status
   ON conversations (user_id, status, last_message_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_admin_users_email_active 
+CREATE INDEX IF NOT EXISTS idx_admin_users_email_active
   ON admin_users (email, is_active);
 
-CREATE INDEX IF NOT EXISTS idx_services_business_active 
+CREATE INDEX IF NOT EXISTS idx_services_business_active
   ON services (business_id, is_active);
 
 -- Índices compostos para queries dashboard
-CREATE INDEX IF NOT EXISTS idx_appointments_dashboard 
-  ON appointments (status, date_time DESC) 
+CREATE INDEX IF NOT EXISTS idx_appointments_dashboard
+  ON appointments (status, date_time DESC)
   WHERE status IN ('agendado', 'confirmado');
 
-CREATE INDEX IF NOT EXISTS idx_messages_stats 
+CREATE INDEX IF NOT EXISTS idx_messages_stats
   ON messages (user_id, direction, created_at);
 ```
 
 ### Análise de Drift Alembic
 
 **Evidência de instabilidade:**
+
 - 25 migrações total
 - 5+ migrações de correção H002
 - Tabelas órfãs: `rbac_*`, `admins` duplicada
@@ -486,18 +503,22 @@ ALLOWED_ORIGINS_DEVELOPMENT = [
 ### Problemas de Segurança Identificados
 
 #### SEC-001: Tokens JWT em localStorage
+
 **Evidência:** 15+ arquivos com `localStorage.setItem(*token*)`
 **Impacto:** Vulnerabilidade XSS crítica
 **Localização:** `contexts/auth-context.tsx`, `hooks/*.ts`
 
 #### SEC-002: Rate Limiting Desabilitado  
+
 **Evidência:** `app/main.py:29-30`
+
 ```python
 # Rate limiting removido - usando sistema unificado
 # from app.middleware.rate_limit import RateLimitMiddleware
 ```
 
 #### SEC-003: Webhook Sem Validação
+
 **Evidência:** `routes/webhook.py` sem verificação `X-Hub-Signature-256`
 **Impacto:** Aceita payloads falsos da Meta API
 
@@ -516,7 +537,9 @@ ALLOWED_ORIGINS_DEVELOPMENT = [
 ### Divergências Detalhadas
 
 #### DIV-001: Schema de Appointments
+
 **Backend:** `schemas/unified.py`
+
 ```python
 class UnifiedAppointmentResponse(BaseModel):
     id: int
@@ -526,6 +549,7 @@ class UnifiedAppointmentResponse(BaseModel):
 ```
 
 **Frontend:** `types/api-unified.ts`
+
 ```typescript
 export interface UnifiedAppointment {
   id: number;
@@ -544,6 +568,7 @@ export interface UnifiedAppointment {
 ### Criticidade Alta (🔴)
 
 #### ERR-001: Schema Drift Crítico
+
 - **Severidade**: 🔴 Alta
 - **Local**: `alembic/versions/` - múltiplas migrações H002
 - **Evidência**: 25 migrações, incluindo 5+ drift fixes
@@ -553,6 +578,7 @@ export interface UnifiedAppointment {
 - **Teste**: `alembic current` deve mostrar única head
 
 #### ERR-002: Tokens JWT Inseguros
+
 - **Severidade**: 🔴 Alta  
 - **Local**: `nextjs_dashboard/hooks/*.ts`, `contexts/auth-context.tsx`
 - **Evidência**: `localStorage.setItem('auth-token', token)` em 8+ arquivos
@@ -562,6 +588,7 @@ export interface UnifiedAppointment {
 - **Teste**: Token não deve aparecer em localStorage após login
 
 #### ERR-003: Webhook Sem Validação
+
 - **Severidade**: 🔴 Alta
 - **Local**: `routes/webhook.py`
 - **Evidência**: Endpoint aceita payloads sem verificar assinatura Meta
@@ -573,6 +600,7 @@ export interface UnifiedAppointment {
 ### Criticidade Média (🟡)
 
 #### ERR-004: Inconsistência de Schemas API
+
 - **Severidade**: 🟡 Média
 - **Local**: `schemas/unified.py` vs `types/api-unified.ts`
 - **Evidência**: Backend `UnifiedAppointmentResponse` ≠ Frontend `AppointmentResponse[]`
@@ -582,6 +610,7 @@ export interface UnifiedAppointment {
 - **Teste**: TypeScript build sem erros de tipo
 
 #### ERR-005: Rate Limiting Desabilitado
+
 - **Severidade**: 🟡 Média
 - **Local**: `app/main.py:29-30`
 - **Evidência**: `# Rate limiting removido - usando sistema unificado`
@@ -591,6 +620,7 @@ export interface UnifiedAppointment {
 - **Teste**: 100+ req/min deve retornar 429
 
 #### ERR-006: N+1 Queries em Appointments
+
 - **Severidade**: 🟡 Média
 - **Local**: `routes/appointments.py:get_appointments`
 - **Evidência**: Query separada para cada relacionamento
@@ -602,6 +632,7 @@ export interface UnifiedAppointment {
 ### Criticidade Baixa (🔵)
 
 #### ERR-007: PWA Cache Collision
+
 - **Severidade**: 🔵 Baixa
 - **Local**: `public/sw-advanced.js`
 - **Evidência**: Service worker caches authenticated requests
@@ -611,6 +642,7 @@ export interface UnifiedAppointment {
 - **Teste**: Logout deve limpar cache autenticado
 
 #### ERR-008: TypeScript Any Types
+
 - **Severidade**: 🔵 Baixa
 - **Local**: `app/api/**/*.ts` - 10+ ocorrências
 - **Evidência**: `catch (error: any)`, `data: any`
@@ -627,14 +659,15 @@ Baixo     [ERR-002]      [ERR-004]       [ERR-007]
 Esforço   [ERR-003]      [ERR-005]       [ERR-008]
           [Quick Wins]   [ERR-006]
 
-Médio     [ERR-001]      
-Esforço   [Major Fix]    
+Médio     [ERR-001]  
+Esforço   [Major Fix]  
 
 Alto
 Esforço
 ```
 
 **Quick Wins Identificados:**
+
 - ERR-002: Migrar tokens para cookies (2-3 dias)
 - ERR-003: Validação webhook (1 dia)
 - ERR-005: Ativar rate limiting (0.5 dia)
@@ -646,6 +679,7 @@ Esforço
 ### Sprint 1: Hotfixes Críticos (2 semanas)
 
 #### HF-001: Corrigir Schema Drift DB
+
 - **Categoria**: Database
 - **Descrição**: Consolidar migrações e corrigir drift entre models e banco
 - **Estimativa**: G (Grande)
@@ -658,6 +692,7 @@ Esforço
 - **Teste**: `alembic revision --autogenerate` não gera mudanças
 
 #### HF-002: Migrar Tokens para HttpOnly Cookies
+
 - **Categoria**: Segurança
 - **Descrição**: Substituir localStorage por cookies seguros para auth
 - **Estimativa**: M (Médio)
@@ -670,6 +705,7 @@ Esforço
 - **Teste**: F12 → localStorage vazio após login
 
 #### HF-003: Ativar Rate Limiting
+
 - **Categoria**: Segurança  
 - **Descrição**: Restaurar middleware de rate limiting
 - **Estimativa**: P (Pequeno)
@@ -684,6 +720,7 @@ Esforço
 ### Sprint 2: Coerência e Performance (2 semanas)
 
 #### CF-001: Sincronizar Schemas API
+
 - **Categoria**: Coerência
 - **Descrição**: Alinhar tipos TypeScript com Pydantic schemas
 - **Estimativa**: M (Médio)
@@ -696,6 +733,7 @@ Esforço
 - **Teste**: `npm run type-check` sem erros
 
 #### CF-002: Validação Webhook Meta
+
 - **Categoria**: Segurança
 - **Descrição**: Implementar verificação HMAC para webhooks
 - **Estimativa**: P (Pequeno)
@@ -708,6 +746,7 @@ Esforço
 - **Teste**: Payload com assinatura incorreta → 401
 
 #### PF-001: Otimizar Queries N+1
+
 - **Categoria**: Performance
 - **Descrição**: Eliminar N+1 queries em endpoints críticos
 - **Estimativa**: M (Médio)
@@ -720,6 +759,7 @@ Esforço
 - **Teste**: 10 appointments = máximo 3 DB queries
 
 #### PF-002: Índices de Performance
+
 - **Categoria**: Performance
 - **Descrição**: Adicionar índices compostos para queries frequentes
 - **Estimativa**: P (Pequeno)
@@ -734,6 +774,7 @@ Esforço
 ### Sprint 3: Observabilidade e Validação (1 semana)
 
 #### OB-001: Logs Estruturados
+
 - **Categoria**: Observabilidade
 - **Descrição**: Padronizar logs com estrutura JSON
 - **Estimativa**: P (Pequeno)
@@ -746,6 +787,7 @@ Esforço
 - **Teste**: Log entries são JSON válido
 
 #### OB-002: Health Checks Completos
+
 - **Categoria**: Observabilidade
 - **Descrição**: Ampliar health checks para todas as dependências
 - **Estimativa**: P (Pequeno)
@@ -758,6 +800,7 @@ Esforço
 - **Teste**: `/health` retorna status detalhado
 
 #### VL-001: Testes de Integração
+
 - **Categoria**: Validação
 - **Descrição**: Suite de testes end-to-end críticos
 - **Estimativa**: M (Médio)
@@ -770,6 +813,7 @@ Esforço
 - **Teste**: `pytest --cov=app tests/` > 90%
 
 #### VL-002: Validação Final
+
 - **Categoria**: Validação
 - **Descrição**: Checklist completo de encerramento
 - **Estimativa**: P (Pequeno)
@@ -782,6 +826,7 @@ Esforço
 - **Teste**: Auditoria manual sem achados críticos
 
 ### Linha do Tempo
+
 ```
 Semana 1-2: [HF-001] [HF-002] [HF-003]
 Semana 3-4: [CF-001] [CF-002] [PF-001] [PF-002]  
@@ -789,6 +834,7 @@ Semana 5:   [OB-001] [OB-002] [VL-001] [VL-002]
 ```
 
 ### Checklist Final de Encerramento
+
 - [ ] Zero vulnerabilidades críticas/altas
 - [ ] Schema drift eliminado permanently  
 - [ ] Performance targets: P95 < 500ms
@@ -829,6 +875,7 @@ grep -r "rate.*limit" app/middleware/
 ### A2. Arquivos de Configuração Analisados
 
 **Backend:**
+
 - `pyproject.toml:1-42` - Configuração pytest e markers
 - `requirements.txt:1-84` - 84 dependências Python core  
 - `alembic.ini` - Configuração Alembic
@@ -836,22 +883,25 @@ grep -r "rate.*limit" app/middleware/
 - `app/cors_config.py:1-254` - Configuração CORS
 
 **Frontend:**
+
 - `nextjs_dashboard/package.json:1-70` - 70 deps React/Next.js
 - `nextjs_dashboard/next.config.js` - Configuração Next.js
 - `nextjs_dashboard/tsconfig.json` - TypeScript config
 - `nextjs_dashboard/public/manifest.json` - PWA config
 
 **Infraestrutura:**
+
 - `docker-compose.yml` - Stack de containers
 - `Dockerfile` - Imagem backend
 
 ### A3. Trechos de Código Críticos
 
 **Schema Drift Evidence:**
+
 ```python
 # alembic/versions/2025_09_11_1019-c20ea17a14b9_h002_schema_drift_fix_robust_v2.py:19-41
 orphan_tables = [
-    'role_permissions', 'rbac_audit_logs', 'rbac_roles', 
+    'role_permissions', 'rbac_audit_logs', 'rbac_roles',
     'rbac_permissions', 'user_roles', 'admins', 'rbac_users'
 ]
 for table in orphan_tables:
@@ -860,6 +910,7 @@ for table in orphan_tables:
 ```
 
 **Insecure Token Storage:**
+
 ```typescript
 // nextjs_dashboard/contexts/auth-context.tsx:87
 localStorage.setItem('auth-token', token);
@@ -869,6 +920,7 @@ const token = localStorage.getItem('auth_token');
 ```
 
 **Rate Limiting Disabled:**
+
 ```python
 # app/main.py:29-30
 # Rate limiting removido - usando sistema unificado
@@ -876,11 +928,13 @@ const token = localStorage.getItem('auth_token');
 ```
 
 **Schema Inconsistency:**
+
 ```python
 # Backend: schemas/unified.py
 class UnifiedAppointmentResponse(BaseModel):
     user_id: int = Field(alias="userId", serialization_alias="userId")
 ```
+
 ```typescript
 // Frontend: components esperan AppointmentResponse[] não UnifiedAppointmentResponse
 interface AppointmentResponse {

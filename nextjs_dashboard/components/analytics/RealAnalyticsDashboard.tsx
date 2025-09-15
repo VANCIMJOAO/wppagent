@@ -7,7 +7,7 @@
 import React from 'react';
 import { useRealAnalytics } from '@/hooks/use-real-analytics';
 import { ApiErrorBoundary } from '@/components/error-boundaries/ApiErrorBoundary';
-import { 
+import {
   LineChart,
   Line,
   AreaChart,
@@ -27,9 +27,9 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  TrendingUp,
+  TrendingDown,
   Minus,
   Activity,
   MessageCircle,
@@ -49,9 +49,9 @@ interface RealAnalyticsDashboardProps {
   autoRefresh?: boolean;
 }
 
-export function RealAnalyticsDashboard({ 
-  period = 30, 
-  autoRefresh = false 
+export function RealAnalyticsDashboard({
+  period = 30,
+  autoRefresh = false
 }: RealAnalyticsDashboardProps) {
   const {
     dashboardSummary,
@@ -99,7 +99,7 @@ export function RealAnalyticsDashboard({
             Dados reais dos últimos {period} dias
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {autoRefresh && (
             <Badge variant="outline" className="text-green-600">
@@ -107,9 +107,9 @@ export function RealAnalyticsDashboard({
               Auto-refresh
             </Badge>
           )}
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             size="sm"
             onClick={handleRefresh}
             disabled={isLoading}
@@ -180,7 +180,7 @@ export function RealAnalyticsDashboard({
               ) : conversionFunnel ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <FunnelChart>
-                    <Tooltip 
+                    <Tooltip
                       content={({ payload }) => {
                         if (!payload || !payload[0]) return null;
                         const data = payload[0].payload;
@@ -215,7 +215,7 @@ export function RealAnalyticsDashboard({
 
         {/* Série Temporal */}
         <ApiErrorBoundary>
-          <TimeSeriesChart 
+          <TimeSeriesChart
             data={dashboardSummary?.time_series || []}
             loading={loadingDashboard}
           />
@@ -224,7 +224,7 @@ export function RealAnalyticsDashboard({
 
       {/* Performance por Canal */}
       <ApiErrorBoundary>
-        <ChannelPerformanceChart 
+        <ChannelPerformanceChart
           data={dashboardSummary?.channel_performance || []}
           loading={loadingDashboard}
         />
@@ -232,7 +232,7 @@ export function RealAnalyticsDashboard({
 
       {/* Breakdown de Satisfação */}
       <ApiErrorBoundary>
-        <SatisfactionChart 
+        <SatisfactionChart
           data={dashboardSummary?.satisfaction_breakdown || []}
           loading={loadingDashboard}
         />
@@ -338,15 +338,15 @@ function TimeSeriesChart({ data, loading }: TimeSeriesChartProps) {
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
+            <XAxis
+              dataKey="date"
               tickFormatter={(value) => {
                 const date = new Date(value);
                 return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
               }}
             />
             <YAxis />
-            <Tooltip 
+            <Tooltip
               labelFormatter={(value) => {
                 const date = new Date(value);
                 return date.toLocaleDateString('pt-BR');

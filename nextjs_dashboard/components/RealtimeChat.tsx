@@ -1,7 +1,7 @@
 /**
  * 💬 Componente Chat Real-Time
  * ============================
- * 
+ *
  * Componente React para chat em tempo real com WebSocket:
  * - Interface de chat moderna
  * - Mensagens em tempo real
@@ -49,20 +49,20 @@ interface ChatProps {
 
 // ============= API FUNCTIONS =============
 const fetchMessages = async (conversationId?: number): Promise<Message[]> => {
-    const url = conversationId 
+    const url = conversationId
         ? `/api/messages?conversation_id=${conversationId}`
         : '/api/messages'
-    
+
     const response = await fetch(url, {
         headers: {
             'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
         }
     })
-    
+
     if (!response.ok) {
         throw new Error('Falha ao carregar mensagens')
     }
-    
+
     return response.json()
 }
 
@@ -72,11 +72,11 @@ const fetchConversations = async (): Promise<Conversation[]> => {
             'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
         }
     })
-    
+
     if (!response.ok) {
         throw new Error('Falha ao carregar conversas')
     }
-    
+
     return response.json()
 }
 
@@ -93,11 +93,11 @@ const sendMessageApi = async (data: {
         },
         body: JSON.stringify(data)
     })
-    
+
     if (!response.ok) {
         throw new Error('Falha ao enviar mensagem')
     }
-    
+
     return response.json()
 }
 
@@ -106,12 +106,12 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
     const queryClient = useQueryClient()
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
-    
+
     // Local state
     const [messageText, setMessageText] = useState('')
     const [isTyping, setIsTyping] = useState(false)
     const [selectedConversation, setSelectedConversation] = useState<number | undefined>(conversationId)
-    
+
     // WebSocket connection
     const {
         isConnected,
@@ -123,20 +123,20 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
         markMessageRead,
         connectionId
     } = useMessagesWebSocket(token, selectedConversation)
-    
+
     // Queries
     const { data: conversations = [], isLoading: loadingConversations } = useQuery({
         queryKey: ['conversations'],
         queryFn: fetchConversations,
         enabled: !!token
     })
-    
+
     const { data: messages = [], isLoading: loadingMessages } = useQuery({
         queryKey: ['messages', selectedConversation],
         queryFn: () => fetchMessages(selectedConversation),
         enabled: !!token && !!selectedConversation
     })
-    
+
     // Mutations
     const sendMessageMutation = useMutation({
         mutationFn: sendMessageApi,
@@ -146,29 +146,29 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
             queryClient.invalidateQueries({ queryKey: ['conversations'] })
         }
     })
-    
+
     // Auto scroll to bottom
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-    
+
     useEffect(() => {
         scrollToBottom()
     }, [messages])
-    
+
     // Handle typing indicators
     useEffect(() => {
         let typingTimeout: NodeJS.Timeout
-        
+
         if (isTyping) {
             sendTypingStart()
-            
+
             typingTimeout = setTimeout(() => {
                 setIsTyping(false)
                 sendTypingStop()
             }, 3000)
         }
-        
+
         return () => {
             if (typingTimeout) {
                 clearTimeout(typingTimeout)
@@ -178,25 +178,25 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
             }
         }
     }, [isTyping, sendTypingStart, sendTypingStop])
-    
+
     // Handle input change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessageText(e.target.value)
-        
+
         if (!isTyping && e.target.value.trim()) {
             setIsTyping(true)
         } else if (isTyping && !e.target.value.trim()) {
             setIsTyping(false)
         }
     }
-    
+
     // Handle send message
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         const content = messageText.trim()
         if (!content || !selectedConversation) return
-        
+
         try {
             // Send via WebSocket first for immediate feedback
             const wsSuccess = sendChatMessage(
@@ -204,31 +204,31 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                 conversations.find(c => c.id === selectedConversation)?.user?.telefone,
                 selectedConversation
             )
-            
+
             if (wsSuccess) {
                 setMessageText('')
                 setIsTyping(false)
             }
-            
+
             // Also send via API as backup
             await sendMessageMutation.mutateAsync({
                 content,
                 conversation_id: selectedConversation
             })
-            
+
         } catch (error) {
             console.error('Erro ao enviar mensagem:', error)
         }
     }
-    
+
     // Handle message read
     const handleMessageRead = (messageId: number) => {
         markMessageRead(messageId)
     }
-    
+
     // Get current conversation
     const currentConversation = conversations.find(c => c.id === selectedConversation)
-    
+
     if (!token) {
         return (
             <div className={`flex items-center justify-center p-8 ${className}`}>
@@ -236,7 +236,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
             </div>
         )
     }
-    
+
     return (
         <div className={`flex flex-col h-full ${className}`}>
             {/* Header */}
@@ -259,18 +259,18 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                         </p>
                     </div>
                 </div>
-                
+
                 {/* Connection Info */}
                 <div className="text-xs text-gray-400">
                     {connectionId && `ID: ${connectionId.slice(-8)}`}
                 </div>
             </div>
-            
+
             {/* Conversation List (if no conversation selected) */}
             {!selectedConversation && (
                 <div className="flex-1 overflow-y-auto p-4">
                     <h4 className="font-medium mb-4">Conversas Ativas</h4>
-                    
+
                     {loadingConversations ? (
                         <div className="text-center py-8 text-gray-500">Carregando conversas...</div>
                     ) : conversations.length === 0 ? (
@@ -302,7 +302,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                     )}
                 </div>
             )}
-            
+
             {/* Messages */}
             {selectedConversation && (
                 <>
@@ -325,8 +325,8 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                                     }`}>
                                         <div className="break-words">{message.content}</div>
                                         <div className={`text-xs mt-1 ${
-                                            message.direction === 'out' 
-                                                ? 'text-blue-100' 
+                                            message.direction === 'out'
+                                                ? 'text-blue-100'
                                                 : 'text-gray-500'
                                         }`}>
                                             {new Date(message.created_at).toLocaleTimeString()}
@@ -335,7 +335,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                                 </div>
                             ))
                         )}
-                        
+
                         {/* Typing Indicator */}
                         {typingUsers.length > 0 && (
                             <div className="flex justify-start">
@@ -348,10 +348,10 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                                 </div>
                             </div>
                         )}
-                        
+
                         <div ref={messagesEndRef} />
                     </div>
-                    
+
                     {/* Message Input */}
                     <form onSubmit={handleSendMessage} className="p-4 border-t bg-white">
                         <div className="flex space-x-2">
@@ -363,7 +363,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                             >
                                 ←
                             </button>
-                            
+
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -373,7 +373,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                                 disabled={!isConnected || sendMessageMutation.isPending}
                                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                             />
-                            
+
                             <button
                                 type="submit"
                                 disabled={!messageText.trim() || !isConnected || sendMessageMutation.isPending}
@@ -382,7 +382,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                                 {sendMessageMutation.isPending ? 'Enviando...' : 'Enviar'}
                             </button>
                         </div>
-                        
+
                         {/* Status */}
                         <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
                             <div>
@@ -403,7 +403,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
 export function ChatWidget({ token }: { token?: string }) {
     const [isOpen, setIsOpen] = useState(false)
     const { isConnected, status } = useMessagesWebSocket(token)
-    
+
     return (
         <>
             {/* Chat Toggle Button */}
@@ -420,11 +420,11 @@ export function ChatWidget({ token }: { token?: string }) {
                     )}
                 </div>
             </button>
-            
+
             {/* Chat Window */}
             {isOpen && (
                 <div className="fixed bottom-24 right-6 w-96 h-96 bg-white rounded-lg shadow-2xl border border-gray-200 z-40">
-                    <RealtimeChat 
+                    <RealtimeChat
                         token={token}
                         className="h-full"
                     />

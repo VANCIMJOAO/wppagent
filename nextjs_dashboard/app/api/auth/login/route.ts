@@ -15,7 +15,7 @@ interface LoginRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: LoginRequest = await request.json();
-    
+
     // Validação básica
     if (!body.username || !body.password) {
       return NextResponse.json(
@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
 
     if (!backendResponse.ok) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: authData.error || 'Credenciais inválidas'
         },
         { status: backendResponse.status }

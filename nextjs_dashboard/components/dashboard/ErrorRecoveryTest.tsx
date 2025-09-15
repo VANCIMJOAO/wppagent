@@ -9,12 +9,12 @@ import { useDashboardStatsRobust } from '@/hooks/useDashboardStatsRobust'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Play, 
-  Square, 
-  RefreshCw, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Play,
+  Square,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle,
   XCircle,
   Wifi,
   WifiOff,
@@ -41,7 +41,7 @@ export const ErrorRecoveryTest: React.FC = () => {
     details: string
     timestamp: Date
   }>>([])
-  
+
   const {
     data: stats,
     error,
@@ -73,7 +73,7 @@ export const ErrorRecoveryTest: React.FC = () => {
     global.fetch = async (url: RequestInfo | URL, options?: RequestInit) => {
       if (shouldFailAPI && (url as string).includes('/api/analytics')) {
         failureCount++
-        
+
         switch (failureType) {
           case 'network':
             throw new Error('NetworkError: Failed to fetch')
@@ -91,7 +91,7 @@ export const ErrorRecoveryTest: React.FC = () => {
             })
         }
       }
-      
+
       return originalFetch(url, options)
     }
 
@@ -110,15 +110,15 @@ export const ErrorRecoveryTest: React.FC = () => {
   }
 
   const runTest = async (
-    testName: string, 
-    testFunction: () => Promise<boolean>, 
+    testName: string,
+    testFunction: () => Promise<boolean>,
     expectedBehavior: string
   ) => {
     addTestResult(testName, 'running', 'Iniciando teste...')
-    
+
     try {
       const result = await testFunction()
-      addTestResult(testName, result ? 'pass' : 'fail', 
+      addTestResult(testName, result ? 'pass' : 'fail',
         result ? 'Comportamento esperado confirmado' : 'Comportamento inesperado')
       return result
     } catch (error) {
@@ -131,7 +131,7 @@ export const ErrorRecoveryTest: React.FC = () => {
     setTestRunning(true)
     setTestResults([])
     failureCount = 0
-    
+
     toast.info('🧪 Iniciando bateria de testes de Error Recovery...')
 
     // Teste 1: Estado Normal
@@ -168,13 +168,13 @@ export const ErrorRecoveryTest: React.FC = () => {
         shouldFailAPI = false
         refetch()
         await new Promise(resolve => setTimeout(resolve, 2000))
-        
+
         // Depois simula falha e verifica se usa cache
         shouldFailAPI = true
         failureType = 'server'
         refetch()
         await new Promise(resolve => setTimeout(resolve, 3000))
-        
+
         return isUsingCache || recoveryMode === 'cached'
       },
       'Sistema deve usar dados em cache quando API falha'
@@ -230,10 +230,10 @@ export const ErrorRecoveryTest: React.FC = () => {
 
     shouldFailAPI = false
     setTestRunning(false)
-    
+
     const passedTests = testResults.filter(t => t.status === 'pass').length
     const totalTests = testResults.length
-    
+
     toast.success(`✅ Testes concluídos: ${passedTests}/${totalTests} passaram`)
   }
 
@@ -283,17 +283,17 @@ export const ErrorRecoveryTest: React.FC = () => {
               <div className="text-sm text-gray-600">Recovery Mode</div>
               <div className="font-semibold capitalize">{recoveryMode}</div>
             </div>
-            
+
             <div className="text-center">
               <div className="text-sm text-gray-600">Retry Count</div>
               <div className="font-semibold">{retryCount}</div>
             </div>
-            
+
             <div className="text-center">
               <div className="text-sm text-gray-600">Using Cache</div>
               <div className="font-semibold">{isUsingCache ? 'Yes' : 'No'}</div>
             </div>
-            
+
             <div className="text-center">
               <div className="text-sm text-gray-600">Network</div>
               <div className="font-semibold">
@@ -312,7 +312,7 @@ export const ErrorRecoveryTest: React.FC = () => {
               <Play className="w-4 h-4 mr-2" />
               Executar Todos os Testes
             </Button>
-            
+
             {testRunning && (
               <Button
                 onClick={stopTests}
@@ -332,12 +332,12 @@ export const ErrorRecoveryTest: React.FC = () => {
                 <div className="text-2xl font-bold text-green-600">{passedTests}</div>
                 <div className="text-sm text-gray-600">Passou</div>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">{failedTests}</div>
                 <div className="text-sm text-gray-600">Falhou</div>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{testResults.length}</div>
                 <div className="text-sm text-gray-600">Total</div>
@@ -358,7 +358,7 @@ export const ErrorRecoveryTest: React.FC = () => {
               {testResults.map((result, index) => (
                 <div key={index} className="flex items-start space-x-3 p-3 border rounded-lg">
                   {getStatusIcon(result.status)}
-                  
+
                   <div className="flex-1">
                     <div className="font-medium">{result.test}</div>
                     <div className="text-sm text-gray-600">{result.details}</div>

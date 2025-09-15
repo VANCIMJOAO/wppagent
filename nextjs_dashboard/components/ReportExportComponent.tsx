@@ -5,10 +5,10 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { 
-  FileSpreadsheet, 
-  FileText, 
-  Download, 
+import {
+  FileSpreadsheet,
+  FileText,
+  Download,
   Calendar,
   Filter,
   Users,
@@ -38,7 +38,7 @@ const ReportExportComponent: React.FC = () => {
     format: 'excel',
     filters: {}
   });
-  
+
   const [isExporting, setIsExporting] = useState(false);
   const [lastExport, setLastExport] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +102,7 @@ const ReportExportComponent: React.FC = () => {
   const handleExport = useCallback(async () => {
     setIsExporting(true);
     setError(null);
-    
+
     try {
       // Construir URL com parâmetros
       const baseUrl = `/api/reports/${config.reportType}/export`;
@@ -125,7 +125,7 @@ const ReportExportComponent: React.FC = () => {
       }
 
       const url = `${baseUrl}?${params.toString()}`;
-      
+
       // Fazer request
       const response = await fetch(url, {
         method: 'GET',
@@ -140,11 +140,11 @@ const ReportExportComponent: React.FC = () => {
 
       // Obter o blob do arquivo
       const blob = await response.blob();
-      
+
       // Extrair nome do arquivo do header Content-Disposition
       const contentDisposition = response.headers.get('Content-Disposition');
       let filename = `relatorio_${config.reportType}_${format(new Date(), 'yyyyMMdd_HHmmss')}.${config.format === 'excel' ? 'xlsx' : config.format}`;
-      
+
       if (contentDisposition) {
         const matches = contentDisposition.match(/filename="?(.+)"?/);
         if (matches) {
@@ -340,8 +340,8 @@ const ReportExportComponent: React.FC = () => {
               type="number"
               placeholder="Filtrar por usuário específico"
               value={config.filters.userId || ''}
-              onChange={(e) => updateFilters({ 
-                userId: e.target.value ? parseInt(e.target.value) : undefined 
+              onChange={(e) => updateFilters({
+                userId: e.target.value ? parseInt(e.target.value) : undefined
               })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />

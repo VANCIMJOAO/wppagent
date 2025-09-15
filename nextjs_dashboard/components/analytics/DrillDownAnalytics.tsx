@@ -7,12 +7,12 @@
 import React, { useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  ChevronRight, 
-  ArrowLeft, 
-  TrendingUp, 
-  Users, 
-  MessageCircle, 
+import {
+  ChevronRight,
+  ArrowLeft,
+  TrendingUp,
+  Users,
+  MessageCircle,
   Target,
   Calendar,
   BarChart3
@@ -136,7 +136,7 @@ export const DrillDownAnalytics: React.FC<DrillDownProps> = ({
   const drillDown = useCallback((targetLevelId?: string) => {
     if (!canGoDeeper) return;
 
-    const nextLevelIndex = targetLevelId 
+    const nextLevelIndex = targetLevelId
       ? drillPath.levels.findIndex(l => l.id === targetLevelId)
       : drillPath.currentLevel + 1;
 

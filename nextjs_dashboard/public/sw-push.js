@@ -1,6 +1,6 @@
 /**
  * 🔔 Service Worker para Push Notifications
- * 
+ *
  * Gerencia push notifications do WhatsApp Agent Dashboard.
  * Funcionalidades:
  * - Receber push notifications
@@ -19,7 +19,7 @@ const API_BASE_URL = self.location.origin;
  */
 self.addEventListener('install', (event) => {
     console.log('🔧 Service Worker: Installing...');
-    
+
     // Força a ativação imediata
     event.waitUntil(self.skipWaiting());
 });
@@ -29,7 +29,7 @@ self.addEventListener('install', (event) => {
  */
 self.addEventListener('activate', (event) => {
     console.log('✅ Service Worker: Activated');
-    
+
     // Assume controle de todas as abas
     event.waitUntil(self.clients.claim());
 });
@@ -39,15 +39,15 @@ self.addEventListener('activate', (event) => {
  */
 self.addEventListener('push', (event) => {
     console.log('📬 Push notification received:', event);
-    
+
     if (!event.data) {
         console.warn('Push notification without data');
         return;
     }
-    
+
     try {
         const data = event.data.json();
-        
+
         // Configurações padrão
         const options = {
             title: data.title || 'WhatsApp Agent',
@@ -56,31 +56,31 @@ self.addEventListener('push', (event) => {
             badge: data.badge || '/icons/badge-icon-96.png',
             tag: data.tag || NOTIFICATION_TAG,
             data: data.data || {},
-            
+
             // Configurações avançadas
             requireInteraction: data.requireInteraction || false,
             silent: false,
             timestamp: data.timestamp || Date.now(),
-            
+
             // Ações da notificação
             actions: getNotificationActions(data),
-            
+
             // Visual
             image: data.image,
             vibrate: data.vibrate || [200, 100, 200]
         };
-        
+
         // Log da notificação
         console.log('📤 Displaying notification:', options);
-        
+
         // Exibir notificação
         event.waitUntil(
             self.registration.showNotification(options.title, options)
         );
-        
+
     } catch (error) {
         console.error('❌ Error processing push notification:', error);
-        
+
         // Fallback notification
         event.waitUntil(
             self.registration.showNotification('WhatsApp Agent', {
@@ -97,14 +97,14 @@ self.addEventListener('push', (event) => {
  */
 self.addEventListener('notificationclick', (event) => {
     console.log('👆 Notification clicked:', event);
-    
+
     const notification = event.notification;
     const action = event.action;
     const data = notification.data || {};
-    
+
     // Fechar notificação
     notification.close();
-    
+
     // URLs para diferentes ações
     const urls = {
         default: '/dashboard',
@@ -114,10 +114,10 @@ self.addEventListener('notificationclick', (event) => {
         test: '/dashboard',
         settings: '/dashboard/configuracoes'
     };
-    
+
     // Determinar URL de destino
     let targetUrl = urls.default;
-    
+
     if (action) {
         targetUrl = urls[action] || urls.default;
     } else if (data.url) {
@@ -129,12 +129,12 @@ self.addEventListener('notificationclick', (event) => {
     } else if (data.alert_type) {
         targetUrl = urls.alert;
     }
-    
+
     // Abrir ou focar na aba
     event.waitUntil(
         openOrFocusTab(targetUrl, data)
     );
-    
+
     // Analytics/tracking (opcional)
     trackNotificationClick(action, data);
 });
@@ -144,9 +144,9 @@ self.addEventListener('notificationclick', (event) => {
  */
 self.addEventListener('notificationclose', (event) => {
     console.log('❌ Notification closed:', event);
-    
+
     const data = event.notification.data || {};
-    
+
     // Analytics/tracking opcional
     trackNotificationClose(data);
 });
@@ -156,25 +156,25 @@ self.addEventListener('notificationclose', (event) => {
  */
 self.addEventListener('message', (event) => {
     console.log('📧 Message received:', event.data);
-    
+
     const { type, payload } = event.data;
-    
+
     switch (type) {
         case 'UPDATE_SUBSCRIPTION':
             // Atualizar dados da subscription
             updateSubscriptionData(payload);
             break;
-            
+
         case 'CLEAR_NOTIFICATIONS':
             // Limpar todas as notificações
             clearAllNotifications();
             break;
-            
+
         case 'TEST_NOTIFICATION':
             // Exibir notificação de teste
             showTestNotification();
             break;
-            
+
         default:
             console.warn('Unknown message type:', type);
     }
@@ -195,7 +195,7 @@ function getNotificationActions(data) {
             icon: '/icons/action-view.png'
         }
     ];
-    
+
     // Ações específicas por tipo
     if (data.data?.conversation_id) {
         return [
@@ -211,7 +211,7 @@ function getNotificationActions(data) {
             }
         ];
     }
-    
+
     if (data.data?.appointment_id) {
         return [
             {
@@ -226,7 +226,7 @@ function getNotificationActions(data) {
             }
         ];
     }
-    
+
     if (data.data?.alert_type) {
         return [
             {
@@ -241,7 +241,7 @@ function getNotificationActions(data) {
             }
         ];
     }
-    
+
     return baseActions;
 }
 
@@ -251,19 +251,19 @@ function getNotificationActions(data) {
 async function openOrFocusTab(url, data) {
     try {
         const fullUrl = new URL(url, self.location.origin).href;
-        
+
         // Procurar por aba existente
         const clients = await self.clients.matchAll({
             type: 'window',
             includeUncontrolled: true
         });
-        
+
         // Verificar se já existe uma aba com a URL
         for (const client of clients) {
             if (client.url === fullUrl && 'focus' in client) {
                 console.log('🎯 Focusing existing tab:', fullUrl);
                 await client.focus();
-                
+
                 // Enviar dados adicionais para a aba
                 if (data && Object.keys(data).length > 0) {
                     client.postMessage({
@@ -271,15 +271,15 @@ async function openOrFocusTab(url, data) {
                         payload: data
                     });
                 }
-                
+
                 return;
             }
         }
-        
+
         // Abrir nova aba se não encontrou existente
         console.log('🆕 Opening new tab:', fullUrl);
         await self.clients.openWindow(fullUrl);
-        
+
     } catch (error) {
         console.error('❌ Error opening/focusing tab:', error);
     }
@@ -325,9 +325,9 @@ async function showTestNotification() {
                 }
             ]
         });
-        
+
         console.log('🧪 Test notification shown');
-        
+
     } catch (error) {
         console.error('❌ Error showing test notification:', error);
     }
@@ -359,12 +359,12 @@ function trackNotificationClose(data) {
  */
 self.addEventListener('sync', (event) => {
     console.log('🔄 Background sync triggered:', event.tag);
-    
+
     switch (event.tag) {
         case 'sync-notifications':
             event.waitUntil(syncNotifications());
             break;
-            
+
         default:
             console.log('Unknown sync tag:', event.tag);
     }

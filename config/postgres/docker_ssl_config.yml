@@ -32,4 +32,3 @@
       -c log_connections=on
       -c log_disconnections=on
       -c password_encryption=scram-sha-256
-

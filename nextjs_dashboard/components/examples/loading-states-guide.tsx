@@ -1,10 +1,10 @@
 /**
  * 📊 Guia de Implementação - Loading States
  * ========================================
- * 
+ *
  * Guia prático para implementar os componentes de loading states
  * em componentes existentes do dashboard.
- * 
+ *
  * Autor: Claude AI
  * Data: 2025-09-07
  */
@@ -14,7 +14,7 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { 
+import {
   LoadingSpinner,
   ErrorFallback,
   EmptyState,
@@ -27,13 +27,13 @@ import { useAsyncState, useRetry } from "@/hooks/use-async-state"
 // ✅ 1. Uso Básico do LoadingSpinner
 export function BasicLoadingExample() {
   const [loading, setLoading] = useState(false)
-  
+
   const handleAction = async () => {
     setLoading(true)
     await new Promise(resolve => setTimeout(resolve, 2000))
     setLoading(false)
   }
-  
+
   return (
     <Card>
       <CardHeader>
@@ -45,7 +45,7 @@ export function BasicLoadingExample() {
             Executar Ação
           </ButtonLoading>
         </Button>
-        
+
         {loading && (
           <div className="p-8">
             <LoadingSpinner size="lg" />
@@ -60,15 +60,15 @@ export function BasicLoadingExample() {
 // ✅ 2. Uso do ErrorFallback
 export function ErrorHandlingExample() {
   const [error, setError] = useState<Error | null>(null)
-  
+
   const simulateError = () => {
     setError(new Error('Erro simulado para demonstração'))
   }
-  
+
   const clearError = () => {
     setError(null)
   }
-  
+
   if (error) {
     return (
       <Card>
@@ -82,7 +82,7 @@ export function ErrorHandlingExample() {
       </Card>
     )
   }
-  
+
   return (
     <Card>
       <CardHeader>
@@ -100,7 +100,7 @@ export function ErrorHandlingExample() {
 // ✅ 3. Uso do EmptyState
 export function EmptyStateExample() {
   const [hasData, setHasData] = useState(false)
-  
+
   return (
     <Card>
       <CardHeader>
@@ -120,8 +120,8 @@ export function EmptyStateExample() {
         ) : (
           <div className="space-y-2">
             <p>✅ Dados carregados com sucesso!</p>
-            <Button 
-              onClick={() => setHasData(false)} 
+            <Button
+              onClick={() => setHasData(false)}
               variant="outline"
             >
               Limpar Dados
@@ -143,13 +143,13 @@ export function AsyncStateExample() {
     }
     return ['Item 1', 'Item 2', 'Item 3']
   }
-  
+
   const { data, loading, error, execute } = useAsyncState<string[]>()
-  
+
   const handleLoad = () => {
     execute(fetchData)
   }
-  
+
   return (
     <Card>
       <CardHeader>
@@ -162,7 +162,7 @@ export function AsyncStateExample() {
               Carregar Dados
             </ButtonLoading>
           </Button>
-          
+
           <DataStateWrapper<string[]>
             data={data}
             loading={loading}
@@ -190,16 +190,16 @@ export function AsyncStateExample() {
 // ✅ 5. Skeleton para Cards
 export function SkeletonExample() {
   const [showSkeleton, setShowSkeleton] = useState(true)
-  
+
   return (
     <div className="space-y-4">
-      <Button 
+      <Button
         onClick={() => setShowSkeleton(!showSkeleton)}
         variant="outline"
       >
         {showSkeleton ? 'Mostrar Conteúdo' : 'Mostrar Skeleton'}
       </Button>
-      
+
       {showSkeleton ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <CardSkeleton />
@@ -245,7 +245,7 @@ export function SkeletonExample() {
 export function RetryExample() {
   const [shouldFail, setShouldFail] = useState(true)
   const asyncState = useAsyncState<string>()
-  
+
   const fetchData = async (): Promise<string> => {
     await new Promise(resolve => setTimeout(resolve, 1000))
     if (shouldFail) {
@@ -253,9 +253,9 @@ export function RetryExample() {
     }
     return 'Dados carregados com sucesso!'
   }
-  
+
   const { retryCount, retry } = useRetry(3, 1000)
-  
+
   const handleLoad = async () => {
     try {
       await asyncState.execute(fetchData)
@@ -266,7 +266,7 @@ export function RetryExample() {
       }
     }
   }
-  
+
   return (
     <Card>
       <CardHeader>
@@ -279,21 +279,21 @@ export function RetryExample() {
               Carregar
             </ButtonLoading>
           </Button>
-          
-          <Button 
+
+          <Button
             onClick={() => setShouldFail(!shouldFail)}
             variant="outline"
           >
             {shouldFail ? 'Desabilitar Falha' : 'Habilitar Falha'}
           </Button>
         </div>
-        
+
         {retryCount > 0 && (
           <p className="text-sm text-gray-600">
             Tentativas: {retryCount}/3
           </p>
         )}
-        
+
         <DataStateWrapper<string>
           data={asyncState.data}
           loading={asyncState.loading}
@@ -323,7 +323,7 @@ export function LoadingStatesDashboard() {
           Demonstração de todos os componentes de loading states
         </p>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <BasicLoadingExample />
         <ErrorHandlingExample />
@@ -331,7 +331,7 @@ export function LoadingStatesDashboard() {
         <AsyncStateExample />
         <RetryExample />
       </div>
-      
+
       <div>
         <h2 className="text-2xl font-bold mb-4">Skeleton Loading</h2>
         <SkeletonExample />

@@ -73,7 +73,7 @@ export function ClientTableLoading() {
             </div>
           ))}
         </div>
-        
+
         {/* Pagination Loading */}
         <div className="flex items-center justify-between mt-6">
           <Skeleton className="h-4 w-32" />
@@ -102,7 +102,7 @@ export function ClientDetailLoading() {
           <Skeleton className="h-4 w-32" />
         </div>
       </div>
-      
+
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -117,7 +117,7 @@ export function ClientDetailLoading() {
           </Card>
         ))}
       </div>
-      
+
       {/* Content Sections */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -136,7 +136,7 @@ export function ClientDetailLoading() {
             ))}
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <Skeleton className="h-5 w-28" />

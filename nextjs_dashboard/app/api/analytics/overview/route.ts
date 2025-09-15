@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 // Backend URL configuration
 const BACKEND_URL = process.env.BACKEND_URL || 'https://wppagent-production.up.railway.app';
-// ✅ SEGURO: Credenciais via environment variables  
+// ✅ SEGURO: Credenciais via environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
@@ -81,7 +81,7 @@ async function getAuthToken(): Promise<string> {
   }
 
   const loginData = await loginResponse.json();
-  
+
   if (!loginData.access_token) {
     throw new Error('No access token received from backend');
   }
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
   try {
     // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Parâmetros de filtro
     const startDate = searchParams.get('start_date') || format(subDays(new Date(), 30), 'yyyy-MM-dd');
     const endDate = searchParams.get('end_date') || format(new Date(), 'yyyy-MM-dd');
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
 
     // Cache key based on parameters
     const cacheKey = getCacheKey(`analytics-overview-${days}-${startDate}-${endDate}`);
-    
+
     // Check cache first
     const cachedData = getCache(cacheKey);
     if (cachedData) {
@@ -128,19 +128,19 @@ export async function GET(request: NextRequest) {
     // Professional fallback with intelligent data simulation
     try {
       console.log(`🔄 Fetching analytics data from Railway backend...`);
-      
+
       // Get authentication token
       const token = await getAuthToken();
 
       // Since diagnostics show all endpoints failing, try only login verification
       // If we got here, authentication works but data endpoints are broken
-      
+
       console.log('⚠️ Using intelligent fallback: Backend authentication works but data endpoints unavailable');
       console.log('📊 Generating realistic analytics data based on business patterns...');
-      
+
       // Create enhanced realistic data
       const enhancedData = createIntelligentFallbackResponse(startDate, endDate, days);
-      
+
       const response = {
         success: true,
         data: enhancedData,
@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
           issue: 'Railway backend endpoints returning 500/405 errors'
         }
       };
-      
+
       setCache(cacheKey, response, 60000); // Cache for 1 minute (shorter due to fallback)
       return NextResponse.json(response);
     } catch (backendError: any) {
@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
       } else {
         console.warn('⚠️ Backend connection failed:', backendError.message);
       }
-      
+
       // Use fallback data
       const fallbackData = createIntelligentFallbackResponse(startDate, endDate, days);
       const fallbackResponse = {
@@ -184,8 +184,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('❌ Analytics API error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: error instanceof Error ? error.message : 'Unknown error',
         source: 'error'
@@ -198,10 +198,10 @@ export async function GET(request: NextRequest) {
 // Função para criar resposta de fallback inteligente baseada em padrões reais
 function createIntelligentFallbackResponse(startDate: string, endDate: string, daysParam: string) {
   const days = parseInt(daysParam) || 30;
-  
+
   // Simular métricas baseadas no período solicitado
   const baseMultiplier = Math.max(1, days / 30); // Escala baseada no período
-  
+
   // Dados mais realísticos baseados em negócios WhatsApp reais
   const analyticsData = {
     key_metrics: {
@@ -224,25 +224,25 @@ function createIntelligentFallbackResponse(startDate: string, endDate: string, d
       overall_conversion: 9.4
     },
     channel_performance: [
-      { 
-        channel: 'WhatsApp Business API', 
-        conversations: Math.floor(520 * baseMultiplier), 
-        messages: Math.floor(2340 * baseMultiplier), 
-        avgResponseTime: 42, 
+      {
+        channel: 'WhatsApp Business API',
+        conversations: Math.floor(520 * baseMultiplier),
+        messages: Math.floor(2340 * baseMultiplier),
+        avgResponseTime: 42,
         satisfaction: 4.7
       },
-      { 
-        channel: 'WhatsApp Web', 
-        conversations: Math.floor(280 * baseMultiplier), 
-        messages: Math.floor(1120 * baseMultiplier), 
-        avgResponseTime: 35, 
+      {
+        channel: 'WhatsApp Web',
+        conversations: Math.floor(280 * baseMultiplier),
+        messages: Math.floor(1120 * baseMultiplier),
+        avgResponseTime: 35,
         satisfaction: 4.5
       },
-      { 
-        channel: 'Integração CRM', 
-        conversations: Math.floor(150 * baseMultiplier), 
-        messages: Math.floor(450 * baseMultiplier), 
-        avgResponseTime: 28, 
+      {
+        channel: 'Integração CRM',
+        conversations: Math.floor(150 * baseMultiplier),
+        messages: Math.floor(450 * baseMultiplier),
+        avgResponseTime: 28,
         satisfaction: 4.8
       },
     ],
@@ -276,26 +276,26 @@ function processBackendData(backendData: any, startDate: string, endDate: string
       { stage: 'Confirmaram', count: 95, conversionRate: 76, previousStage: 125 },
     ],
     channelPerformance: [
-      { 
-        channel: 'WhatsApp Business', 
-        conversations: 1250, 
-        messages: 4800, 
-        avgResponseTime: 45, 
-        satisfaction: 4.6 
+      {
+        channel: 'WhatsApp Business',
+        conversations: 1250,
+        messages: 4800,
+        avgResponseTime: 45,
+        satisfaction: 4.6
       },
-      { 
-        channel: 'WhatsApp Web', 
-        conversations: 850, 
-        messages: 3200, 
-        avgResponseTime: 38, 
-        satisfaction: 4.4 
+      {
+        channel: 'WhatsApp Web',
+        conversations: 850,
+        messages: 3200,
+        avgResponseTime: 38,
+        satisfaction: 4.4
       },
-      { 
-        channel: 'API Integration', 
-        conversations: 450, 
-        messages: 1800, 
-        avgResponseTime: 25, 
-        satisfaction: 4.8 
+      {
+        channel: 'API Integration',
+        conversations: 450,
+        messages: 1800,
+        avgResponseTime: 25,
+        satisfaction: 4.8
       },
     ],
     agentPerformance: [
@@ -308,7 +308,7 @@ function processBackendData(backendData: any, startDate: string, endDate: string
         resolutionRate: 0.92
       },
       {
-        agentId: 'agent_002', 
+        agentId: 'agent_002',
         agentName: 'João Santos',
         conversations: 145,
         avgResponseTime: 28,
@@ -340,20 +340,20 @@ function generateTimeSeriesData(startDate: string, endDate: string) {
   const start = parseISO(startDate);
   const end = parseISO(endDate);
   const data = [];
-  
+
   let current = start;
   while (current <= end) {
     const dayOfWeek = current.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    
+
     // Simular variação realística baseada no dia da semana
     const baseConversations = isWeekend ? 80 : 120;
     const baseMessages = isWeekend ? 300 : 450;
-    
+
     const conversations = Math.floor(baseConversations + (Math.random() * 40) - 20);
     const messages = Math.floor(baseMessages + (Math.random() * 150) - 75);
     const responses = Math.floor(conversations * 0.85 + (Math.random() * 10) - 5);
-    
+
     data.push({
       date: format(current, 'yyyy-MM-dd'),
       conversations,
@@ -361,10 +361,10 @@ function generateTimeSeriesData(startDate: string, endDate: string) {
       responses,
       responseRate: Math.round((responses / conversations) * 100),
     });
-    
+
     // Avançar um dia
     current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
   }
-  
+
   return data;
 }

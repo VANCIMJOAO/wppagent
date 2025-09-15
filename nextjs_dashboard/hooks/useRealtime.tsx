@@ -1,27 +1,27 @@
 /**
  * 🎯 React Hook for Real-time Updates
  * ===================================
- * 
+ *
  * Hook personalizado para conectar componentes React
  * com o sistema de real-time updates via WebSocket.
- * 
+ *
  * Funcionalidades:
  * - Auto-connect/disconnect baseado no ciclo de vida do componente
  * - Event handlers tipados
  * - Estado reativo da conexão
  * - Integration com Context API
- * 
+ *
  * Status: Resolução completa do problema 4.1 Real-time Updates Parciais
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  realtimeClient, 
-  EventType, 
-  RoomType, 
+import {
+  realtimeClient,
+  EventType,
+  RoomType,
   ConnectionState,
   WebSocketMessage,
-  ConnectionStats 
+  ConnectionStats
 } from '../lib/websocket-client';
 
 // Types para o hook
@@ -37,18 +37,18 @@ export interface UseRealtimeReturn {
   isAuthenticated: boolean;
   connectionState: ConnectionState;
   currentRoom: string;
-  
-  // Actions  
+
+  // Actions
   connect: (room?: string) => Promise<void>;
   disconnect: () => void;
   joinRoom: (room: string) => void;
   leaveRoom: () => void;
   sendMessage: (message: string, room?: string) => void;
-  
+
   // Event subscription
   on: (eventType: EventType | string, handler: (data: any, message: WebSocketMessage) => void) => void;
   off: (eventType: EventType | string, handler?: (data: any, message: WebSocketMessage) => void) => void;
-  
+
   // Utilities
   getStats: () => void;
   getRoomUsers: (room?: string) => void;
@@ -67,12 +67,12 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
   // Estado do hook
   const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.DISCONNECTED);
   const [currentRoom, setCurrentRoom] = useState<string>(room);
-  
+
   // Refs para cleanup
   const handlersRef = useRef<Map<string, (data: any, message: WebSocketMessage) => void>>(new Map());
-  
+
   // Derived state
-  const isConnected = connectionState === ConnectionState.CONNECTED || 
+  const isConnected = connectionState === ConnectionState.CONNECTED ||
                      connectionState === ConnectionState.AUTHENTICATED;
   const isAuthenticated = connectionState === ConnectionState.AUTHENTICATED;
 
@@ -116,7 +116,7 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
 
   const off = useCallback((eventType: EventType | string, handler?: (data: any, message: WebSocketMessage) => void) => {
     realtimeClient.off(eventType, handler);
-    
+
     // Remove from our ref tracking
     if (handler) {
       Array.from(handlersRef.current.entries()).forEach(([key, h]) => {
@@ -131,14 +131,14 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
   useEffect(() => {
     const handleConnectionStateChange = (state: ConnectionState, error?: string) => {
       setConnectionState(state);
-      
+
       if (debugMode) {
         console.log('[useRealtime] Connection state changed:', state, error);
       }
     };
 
     realtimeClient.onConnectionStateChange(handleConnectionStateChange);
-    
+
     // Set initial state
     setConnectionState(realtimeClient.state);
     setCurrentRoom(realtimeClient.room || 'general');
@@ -172,18 +172,18 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
     isAuthenticated,
     connectionState,
     currentRoom,
-    
+
     // Actions
     connect,
     disconnect,
     joinRoom,
     leaveRoom,
     sendMessage,
-    
+
     // Event handling
     on,
     off,
-    
+
     // Utilities
     getStats,
     getRoomUsers
@@ -194,9 +194,9 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
  * 📅 Hook especializado para updates de appointments
  */
 export function useAppointmentRealtime() {
-  const realtime = useRealtime({ 
+  const realtime = useRealtime({
     room: RoomType.APPOINTMENTS,
-    autoConnect: true 
+    autoConnect: true
   });
 
   // Estado específico para appointments
@@ -255,9 +255,9 @@ export function useAppointmentRealtime() {
  * 📊 Hook especializado para dashboard real-time
  */
 export function useDashboardRealtime() {
-  const realtime = useRealtime({ 
+  const realtime = useRealtime({
     room: RoomType.DASHBOARD,
-    autoConnect: true 
+    autoConnect: true
   });
 
   // Estado específico para dashboard
@@ -320,9 +320,9 @@ export function useDashboardRealtime() {
  * 🔔 Hook para notificações em tempo real
  */
 export function useNotifications() {
-  const realtime = useRealtime({ 
+  const realtime = useRealtime({
     room: RoomType.NOTIFICATIONS,
-    autoConnect: true 
+    autoConnect: true
   });
 
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -365,9 +365,9 @@ export function useNotifications() {
   }, [realtime]);
 
   const markAsRead = useCallback((notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId 
+    setNotifications(prev =>
+      prev.map(notif =>
+        notif.id === notificationId
           ? { ...notif, read: true }
           : notif
       )

@@ -5,18 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ErrorBoundary from '@/components/error-boundary';
-import { 
-  ComponentErrorBoundary, 
+import {
+  ComponentErrorBoundary,
   DataTableErrorBoundary,
-  useErrorReporter 
+  useErrorReporter
 } from '@/components/error-boundaries';
-import { 
-  AlertTriangle, 
-  Bug, 
-  Zap, 
-  Shield, 
+import {
+  AlertTriangle,
+  Bug,
+  Zap,
+  Shield,
   RefreshCw,
-  CheckCircle 
+  CheckCircle
 } from 'lucide-react';
 
 // Component que simula erro
@@ -24,7 +24,7 @@ function ErrorComponent({ shouldError }: { shouldError: boolean }) {
   if (shouldError) {
     throw new Error('Erro simulado para demonstração do Error Boundary');
   }
-  
+
   return (
     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
       <div className="flex items-center">
@@ -38,17 +38,17 @@ function ErrorComponent({ shouldError }: { shouldError: boolean }) {
 // Component que simula erro assíncrono
 function AsyncErrorComponent() {
   const [hasError, setHasError] = useState(false);
-  
+
   const triggerAsyncError = () => {
     setTimeout(() => {
       setHasError(true);
     }, 1000);
   };
-  
+
   if (hasError) {
     throw new Error('Erro assíncrono após timeout');
   }
-  
+
   return (
     <div className="p-4 border rounded-lg">
       <p className="mb-4">Componente com erro assíncrono:</p>
@@ -63,12 +63,12 @@ function AsyncErrorComponent() {
 // Component que usa useErrorReporter
 function ManualErrorReporter() {
   const { reportError } = useErrorReporter();
-  
+
   const reportManualError = () => {
     const error = new Error('Erro reportado manualmente via hook');
     reportError(error, 'ManualErrorReporter');
   };
-  
+
   return (
     <div className="p-4 border rounded-lg">
       <p className="mb-4">Reportar erro manualmente:</p>
@@ -83,7 +83,7 @@ function ManualErrorReporter() {
 // Component que simula erro de network/API
 function NetworkErrorComponent() {
   const [shouldError, setShouldError] = useState(false);
-  
+
   React.useEffect(() => {
     if (shouldError) {
       // Simula erro de network que quebra o componente
@@ -94,11 +94,11 @@ function NetworkErrorComponent() {
       });
     }
   }, [shouldError]);
-  
+
   if (shouldError) {
     throw new Error('Erro de rede simulado');
   }
-  
+
   return (
     <div className="p-4 border rounded-lg">
       <p className="mb-4">Componente com erro de rede:</p>
@@ -126,10 +126,10 @@ export default function ErrorBoundaryDemo() {
         <p className="text-gray-600">
           Demonstração interativa do sistema robusto de Error Boundaries implementado.
         </p>
-        
+
         <div className="flex justify-center gap-2 mt-4">
           <Badge variant="secondary">✅ Global Error Boundary</Badge>
-          <Badge variant="secondary">✅ Page Error Boundary</Badge>  
+          <Badge variant="secondary">✅ Page Error Boundary</Badge>
           <Badge variant="secondary">✅ Component Error Boundary</Badge>
           <Badge variant="secondary">✅ Error Reporting API</Badge>
         </div>
@@ -148,30 +148,30 @@ export default function ErrorBoundaryDemo() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3">
-            <Button 
-              onClick={() => setGlobalError(false)} 
-              variant="outline" 
+            <Button
+              onClick={() => setGlobalError(false)}
+              variant="outline"
               size="sm"
             >
               Reset Global
             </Button>
-            <Button 
-              onClick={() => setPageError(false)} 
-              variant="outline" 
+            <Button
+              onClick={() => setPageError(false)}
+              variant="outline"
               size="sm"
             >
               Reset Page
             </Button>
-            <Button 
-              onClick={() => setComponentError(false)} 
-              variant="outline" 
+            <Button
+              onClick={() => setComponentError(false)}
+              variant="outline"
               size="sm"
             >
               Reset Component
             </Button>
-            <Button 
-              onClick={() => setDataTableError(false)} 
-              variant="outline" 
+            <Button
+              onClick={() => setDataTableError(false)}
+              variant="outline"
               size="sm"
             >
               Reset Data Table
@@ -181,8 +181,8 @@ export default function ErrorBoundaryDemo() {
       </Card>
 
       {/* Global Error Boundary Demo */}
-      <ErrorBoundary 
-        level="global" 
+      <ErrorBoundary
+        level="global"
         name="DemoGlobal"
         onError={(error, errorInfo) => {
           console.log('🚨 Global Error Demo:', { error, errorInfo });
@@ -200,8 +200,8 @@ export default function ErrorBoundaryDemo() {
           <CardContent>
             <div className="space-y-4">
               <ErrorComponent shouldError={globalError} />
-              <Button 
-                onClick={() => setGlobalError(true)} 
+              <Button
+                onClick={() => setGlobalError(true)}
                 variant="destructive"
               >
                 <AlertTriangle className="w-4 h-4 mr-2" />
@@ -213,8 +213,8 @@ export default function ErrorBoundaryDemo() {
       </ErrorBoundary>
 
       {/* Page Error Boundary Demo */}
-      <ErrorBoundary 
-        level="page" 
+      <ErrorBoundary
+        level="page"
         name="DemoPage"
         onError={(error, errorInfo) => {
           console.log('📄 Page Error Demo:', { error, errorInfo });
@@ -223,7 +223,7 @@ export default function ErrorBoundaryDemo() {
         <Card>
           <CardHeader>
             <CardTitle className="text-orange-600">
-              📄 Page Error Boundary  
+              📄 Page Error Boundary
             </CardTitle>
             <CardDescription>
               Captura erros em nível de página com opções de navegação
@@ -232,8 +232,8 @@ export default function ErrorBoundaryDemo() {
           <CardContent>
             <div className="space-y-4">
               <ErrorComponent shouldError={pageError} />
-              <Button 
-                onClick={() => setPageError(true)} 
+              <Button
+                onClick={() => setPageError(true)}
                 variant="destructive"
               >
                 <AlertTriangle className="w-4 h-4 mr-2" />
@@ -259,8 +259,8 @@ export default function ErrorBoundaryDemo() {
             <ComponentErrorBoundary name="DemoComponent">
               <ErrorComponent shouldError={componentError} />
             </ComponentErrorBoundary>
-            <Button 
-              onClick={() => setComponentError(true)} 
+            <Button
+              onClick={() => setComponentError(true)}
               variant="destructive"
             >
               <AlertTriangle className="w-4 h-4 mr-2" />
@@ -285,8 +285,8 @@ export default function ErrorBoundaryDemo() {
             <DataTableErrorBoundary dataType="demonstração">
               <ErrorComponent shouldError={dataTableError} />
             </DataTableErrorBoundary>
-            <Button 
-              onClick={() => setDataTableError(true)} 
+            <Button
+              onClick={() => setDataTableError(true)}
               variant="destructive"
             >
               <AlertTriangle className="w-4 h-4 mr-2" />
@@ -311,11 +311,11 @@ export default function ErrorBoundaryDemo() {
             <ComponentErrorBoundary name="AsyncError">
               <AsyncErrorComponent />
             </ComponentErrorBoundary>
-            
+
             <ComponentErrorBoundary name="NetworkError">
               <NetworkErrorComponent />
             </ComponentErrorBoundary>
-            
+
             <div className="md:col-span-2">
               <ManualErrorReporter />
             </div>
@@ -341,21 +341,21 @@ export default function ErrorBoundaryDemo() {
                 <code>/api/errors</code> para centralizar relatórios
               </p>
             </div>
-            
+
             <div className="bg-blue-50 p-4 rounded-lg">
               <h3 className="font-medium text-blue-800">Error IDs</h3>
               <p className="text-sm text-blue-600">
                 IDs únicos para rastreamento e suporte
               </p>
             </div>
-            
+
             <div className="bg-purple-50 p-4 rounded-lg">
               <h3 className="font-medium text-purple-800">Context Stack</h3>
               <p className="text-sm text-purple-600">
                 Stack trace de componentes React
               </p>
             </div>
-            
+
             <div className="bg-orange-50 p-4 rounded-lg">
               <h3 className="font-medium text-orange-800">User Context</h3>
               <p className="text-sm text-orange-600">
@@ -395,7 +395,7 @@ export default function ErrorBoundaryDemo() {
 
       <div className="text-center text-gray-500 text-sm">
         <p>
-          ✨ Sistema completo implementado com sucesso! 
+          ✨ Sistema completo implementado com sucesso!
           Abra o console do navegador para ver os logs detalhados dos erros.
         </p>
       </div>

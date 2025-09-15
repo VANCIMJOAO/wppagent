@@ -41,7 +41,7 @@
     z-index: 9999;
     animation: fadeOut 2s ease-in-out forwards;
   }
-  
+
   @keyframes fadeOut {
     0% { opacity: 1; }
     90% { opacity: 1; }
@@ -50,8 +50,8 @@
 }
 
 /* Prevent zoom on mobile */
-.pwa-mode input, 
-.pwa-mode select, 
+.pwa-mode input,
+.pwa-mode select,
 .pwa-mode textarea {
   font-size: 16px !important; /* Prevent iOS zoom */
 }
@@ -116,7 +116,7 @@
     min-height: 100vh;
     min-height: 100dvh; /* New dynamic viewport height */
   }
-  
+
   /* Navigation adjustments for mobile PWA */
   .pwa-nav {
     position: sticky;
@@ -126,7 +126,7 @@
     border-bottom: 1px solid #e5e7eb;
     padding: env(safe-area-inset-top) 0 0 0;
   }
-  
+
   /* Bottom navigation for mobile PWA */
   .pwa-bottom-nav {
     position: fixed;
@@ -138,7 +138,7 @@
     padding: 8px 0 calc(env(safe-area-inset-bottom) + 8px) 0;
     z-index: 100;
   }
-  
+
   /* Content padding to account for fixed navigation */
   .pwa-content {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -227,17 +227,17 @@
     background: #1f2937;
     color: #f9fafb;
   }
-  
+
   .pwa-nav {
     background: #111827;
     border-bottom-color: #374151;
   }
-  
+
   .pwa-bottom-nav {
     background: #111827;
     border-top-color: #374151;
   }
-  
+
   .offline-indicator {
     color: #f9fafb;
   }
@@ -248,7 +248,7 @@
   .pwa-install-btn {
     border: 2px solid currentColor;
   }
-  
+
   .offline-indicator {
     border: 1px solid currentColor;
   }

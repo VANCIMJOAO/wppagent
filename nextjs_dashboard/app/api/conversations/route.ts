@@ -8,11 +8,11 @@ const RAILWAY_API_URL = process.env.RAILWAY_API_URL || 'https://wppagent-product
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 API Conversations: Iniciando proxy para Railway');
-    
+
     // ✅ Extrair token do cookie HTTP-only
     const authToken = request.cookies.get('auth-token')?.value;
     console.log('🔍 Token encontrado no cookie:', authToken ? 'Sim' : 'Não');
-    
+
     if (!authToken) {
       console.log('❌ Token não encontrado');
       return NextResponse.json(
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const queryString = searchParams.toString();
     const railwayUrl = `${RAILWAY_API_URL}/conversations/${queryString ? '?' + queryString : ''}`;
-    
+
     console.log('🚀 Fazendo requisição para:', railwayUrl);
 
     // ✅ Fazer requisição para o Railway com token
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.log('❌ Erro do Railway:', errorText);
-      
+
       return NextResponse.json(
         { error: `Erro do servidor: ${response.status} ${response.statusText}` },
         { status: response.status }
@@ -76,10 +76,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // ✅ Extrair token do cookie HTTP-only
     const authToken = request.cookies.get('auth-token')?.value;
-    
+
     if (!authToken) {
       return NextResponse.json(
         { error: 'Token de autenticação não encontrado' },

@@ -13,7 +13,7 @@ export function BackendDiagnostic() {
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold">🔍 Diagnóstico de Backend</h1>
-      
+
       {/* Status de Conectividade */}
       <Card>
         <CardHeader>
@@ -33,7 +33,7 @@ export function BackendDiagnostic() {
               <p className="text-red-800 text-sm">Erro: {backendStatus.error}</p>
             </div>
           )}
-          
+
           <div className="space-y-2">
             <h4 className="font-semibold">Endpoints Testados:</h4>
             {Object.entries(backendStatus.endpoints).map(([endpoint, status]) => (
@@ -63,13 +63,13 @@ export function BackendDiagnostic() {
               <span>Buscando dados reais...</span>
             </div>
           )}
-          
+
           {realData.error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-md">
               <p className="text-red-800 text-sm">Erro: {realData.error}</p>
             </div>
           )}
-          
+
           {realData.data && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export function BackendDiagnostic() {
                   {realData.data.endpoint}
                 </code>
               </div>
-              
+
               <div className="bg-gray-50 p-4 rounded-md">
                 <h4 className="font-semibold mb-2">Estrutura dos Dados:</h4>
                 <pre className="text-xs overflow-auto max-h-96">
@@ -87,7 +87,7 @@ export function BackendDiagnostic() {
               </div>
             </div>
           )}
-          
+
           {!realData.loading && !realData.error && !realData.data && (
             <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
               <p className="text-yellow-800 text-sm">
@@ -118,7 +118,7 @@ export function BackendDiagnostic() {
               4. Testar conectividade direta com o backend
             </p>
           </div>
-          
+
           <div className="mt-4 pt-4 border-t">
             <p className="text-sm font-medium mb-2">Backend URL:</p>
             <code className="text-sm bg-gray-100 px-2 py-1 rounded">

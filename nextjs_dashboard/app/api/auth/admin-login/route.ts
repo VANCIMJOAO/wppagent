@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
-      
+
       if (fetchError.name === 'AbortError') {
         console.error('❌ Timeout no login - backend não respondeu');
         return NextResponse.json(

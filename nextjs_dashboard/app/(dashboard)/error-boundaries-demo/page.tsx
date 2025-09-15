@@ -3,21 +3,21 @@
 import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary';
 import { ApiErrorBoundary } from '@/components/error-boundaries/ApiErrorBoundary';
 import { ErrorDashboard } from '@/components/error-boundaries/ErrorDashboard';
-import { 
-  DashboardKpisErrorFallback, 
-  ChartsErrorFallback, 
+import {
+  DashboardKpisErrorFallback,
+  ChartsErrorFallback,
   RecentActivityErrorFallback,
   NetworkErrorFallback,
-  FormErrorFallback 
+  FormErrorFallback
 } from '@/components/error-boundaries/ErrorFallbacks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import { 
-  Activity, 
-  Users, 
-  MessageSquare, 
+import {
+  Activity,
+  Users,
+  MessageSquare,
   TrendingUp,
   BarChart3,
   Settings,
@@ -28,11 +28,11 @@ import {
 // Mock components que podem falhar para demonstrar Error Boundaries
 function FailingKPIComponent() {
   const [shouldFail, setShouldFail] = useState(false);
-  
+
   if (shouldFail) {
     throw new Error('KPI data fetch failed - Network timeout');
   }
-  
+
   const kpis = [
     { title: 'Mensagens Enviadas', value: '2,847', change: '+12%', icon: MessageSquare },
     { title: 'Usuários Ativos', value: '1,234', change: '+8%', icon: Users },
@@ -61,9 +61,9 @@ function FailingKPIComponent() {
           </CardContent>
         </Card>
       ))}
-      
+
       <div className="col-span-full mt-4">
-        <Button 
+        <Button
           onClick={() => setShouldFail(true)}
           variant="destructive"
           size="sm"
@@ -78,7 +78,7 @@ function FailingKPIComponent() {
 
 function FailingChartComponent() {
   const [shouldFail, setShouldFail] = useState(false);
-  
+
   if (shouldFail) {
     throw new Error('Chart API failed - 503 Service Unavailable');
   }
@@ -96,7 +96,7 @@ function FailingChartComponent() {
           <div className="text-center">
             <BarChart3 className="w-16 h-16 text-blue-400 mx-auto mb-4" />
             <p className="text-gray-600">Chart carregado com sucesso!</p>
-            <Button 
+            <Button
               onClick={() => setShouldFail(true)}
               variant="outline"
               size="sm"
@@ -114,7 +114,7 @@ function FailingChartComponent() {
 
 function FailingNetworkComponent() {
   const [shouldFail, setShouldFail] = useState(false);
-  
+
   if (shouldFail) {
     const error = new Error('Network request failed');
     (error as any).isNetworkError = true;
@@ -141,7 +141,7 @@ function FailingNetworkComponent() {
             <span>Latência</span>
             <span className="text-sm text-muted-foreground">45ms</span>
           </div>
-          <Button 
+          <Button
             onClick={() => setShouldFail(true)}
             variant="outline"
             size="sm"
@@ -171,9 +171,9 @@ export default function ErrorBoundaryDemoPage() {
             Demonstração de Error Boundaries robustos com recovery automático
           </p>
         </div>
-        
+
         <div className="flex gap-2">
-          <Button 
+          <Button
             onClick={() => setShowErrorDashboard(!showErrorDashboard)}
             variant={showErrorDashboard ? "default" : "outline"}
             className="flex items-center gap-2"
@@ -218,7 +218,7 @@ export default function ErrorBoundaryDemoPage() {
           maxRetries={5}
           showToast={true}
           fallback={
-            <ChartsErrorFallback 
+            <ChartsErrorFallback
               onRetry={() => console.log('Retrying chart load...')}
               loading={false}
             />
@@ -236,7 +236,7 @@ export default function ErrorBoundaryDemoPage() {
             level="component"
             context="Network Monitor"
             fallback={
-              <NetworkErrorFallback 
+              <NetworkErrorFallback
                 onRetry={() => console.log('Retrying network check...')}
                 onReset={() => console.log('Resetting network state...')}
                 error={null}
@@ -253,7 +253,7 @@ export default function ErrorBoundaryDemoPage() {
             level="component"
             context="Activity Feed"
             fallback={
-              <RecentActivityErrorFallback 
+              <RecentActivityErrorFallback
                 onRetry={() => console.log('Retrying activity load...')}
                 loading={false}
               />

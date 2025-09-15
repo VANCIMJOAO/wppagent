@@ -22,8 +22,8 @@ interface OfflineHookResult {
 
 export function useOfflineSupport(): OfflineHookResult {
   const [status, setStatus] = useState<OfflineStatus>(
-    typeof navigator !== 'undefined' && navigator.onLine 
-      ? OfflineStatus.ONLINE 
+    typeof navigator !== 'undefined' && navigator.onLine
+      ? OfflineStatus.ONLINE
       : OfflineStatus.OFFLINE
   );
   const [queueSize] = useState(0);

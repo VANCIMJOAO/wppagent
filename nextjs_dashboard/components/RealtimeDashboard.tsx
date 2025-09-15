@@ -1,7 +1,7 @@
 /**
  * 📊 Dashboard Real-Time com WebSocket
  * ====================================
- * 
+ *
  * Dashboard em tempo real usando WebSocket:
  * - Estatísticas em tempo real
  * - Notificações automáticas
@@ -36,11 +36,11 @@ const fetchDashboardStats = async (): Promise<DashboardStats> => {
             'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
         }
     })
-    
+
     if (!response.ok) {
         throw new Error('Falha ao carregar estatísticas')
     }
-    
+
     return response.json()
 }
 
@@ -56,7 +56,7 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, color, trend, isAnimating }: StatCardProps) {
     const [displayValue, setDisplayValue] = useState(value)
-    
+
     // Animate value changes
     useEffect(() => {
         if (value !== displayValue) {
@@ -71,11 +71,11 @@ function StatCard({ title, value, icon, color, trend, isAnimating }: StatCardPro
                     return next
                 })
             }, 50)
-            
+
             return () => clearInterval(timer)
         }
     }, [value, displayValue])
-    
+
     return (
         <div className={`bg-white rounded-xl p-6 shadow-sm border-l-4 ${color} ${
             isAnimating ? 'animate-pulse' : ''
@@ -115,8 +115,8 @@ function ConnectionStatus({ isConnected, status, connectionId }: {
 }) {
     return (
         <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-            isConnected 
-                ? 'bg-green-100 text-green-700 border border-green-200' 
+            isConnected
+                ? 'bg-green-100 text-green-700 border border-green-200'
                 : 'bg-red-100 text-red-700 border border-red-200'
         }`}>
             <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}>
@@ -143,7 +143,7 @@ function ActivityFeed({ messages }: { messages: any[] }) {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Atividade em Tempo Real
             </h3>
-            
+
             <div className="space-y-3 max-h-64 overflow-y-auto">
                 {messages.length === 0 ? (
                     <p className="text-gray-500 text-sm">Nenhuma atividade recente</p>
@@ -168,14 +168,14 @@ function ActivityFeed({ messages }: { messages: any[] }) {
 }
 
 // ============= MAIN DASHBOARD COMPONENT =============
-export default function RealtimeDashboard({ 
-    token, 
-    className = '', 
-    refreshInterval = 30000 
+export default function RealtimeDashboard({
+    token,
+    className = '',
+    refreshInterval = 30000
 }: DashboardProps) {
     const [activityMessages, setActivityMessages] = useState<any[]>([])
     const [animatingCards, setAnimatingCards] = useState<Set<string>>(new Set())
-    
+
     // WebSocket connection
     const {
         isConnected,
@@ -184,7 +184,7 @@ export default function RealtimeDashboard({
         lastMessage,
         refreshDashboard
     } = useDashboardWebSocket(token)
-    
+
     // Query for dashboard stats
     const { data: stats, isLoading, error, refetch } = useQuery({
         queryKey: ['dashboard', 'stats'],
@@ -193,13 +193,13 @@ export default function RealtimeDashboard({
         refetchInterval: refreshInterval,
         refetchOnWindowFocus: true
     })
-    
+
     // Handle real-time messages
     useEffect(() => {
         if (lastMessage) {
             // Add to activity feed
             setActivityMessages(prev => [...prev, lastMessage].slice(-50))
-            
+
             // Animate relevant cards
             if (lastMessage.type.includes('appointment')) {
                 setAnimatingCards(prev => new Set(prev).add('appointments'))
@@ -211,7 +211,7 @@ export default function RealtimeDashboard({
                     })
                 }, 1000)
             }
-            
+
             if (lastMessage.type.includes('message')) {
                 setAnimatingCards(prev => new Set(prev).add('messages'))
                 setTimeout(() => {
@@ -224,13 +224,13 @@ export default function RealtimeDashboard({
             }
         }
     }, [lastMessage])
-    
+
     // Manual refresh
     const handleRefresh = async () => {
         refreshDashboard()
         await refetch()
     }
-    
+
     if (!token) {
         return (
             <div className={`flex items-center justify-center p-8 ${className}`}>
@@ -238,12 +238,12 @@ export default function RealtimeDashboard({
             </div>
         )
     }
-    
+
     if (error) {
         return (
             <div className={`flex items-center justify-center p-8 ${className}`}>
                 <div className="text-red-500">Erro ao carregar dados do dashboard</div>
-                <button 
+                <button
                     onClick={handleRefresh}
                     className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 >
@@ -252,7 +252,7 @@ export default function RealtimeDashboard({
             </div>
         )
     }
-    
+
     return (
         <div className={`space-y-6 ${className}`}>
             {/* Header */}
@@ -260,20 +260,20 @@ export default function RealtimeDashboard({
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Dashboard em Tempo Real</h1>
                     <p className="text-gray-600">
-                        Última atualização: {stats?.last_updated ? 
-                            new Date(stats.last_updated).toLocaleString() : 
+                        Última atualização: {stats?.last_updated ?
+                            new Date(stats.last_updated).toLocaleString() :
                             'Carregando...'
                         }
                     </p>
                 </div>
-                
+
                 <div className="flex items-center space-x-4">
-                    <ConnectionStatus 
+                    <ConnectionStatus
                         isConnected={isConnected}
                         status={status}
                         connectionId={connectionId}
                     />
-                    
+
                     <button
                         onClick={handleRefresh}
                         disabled={isLoading}
@@ -284,7 +284,7 @@ export default function RealtimeDashboard({
                     </button>
                 </div>
             </div>
-            
+
             {/* Stats Grid */}
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -305,7 +305,7 @@ export default function RealtimeDashboard({
                         color="border-blue-500"
                         isAnimating={animatingCards.has('appointments')}
                     />
-                    
+
                     <StatCard
                         title="Mensagens Não Lidas"
                         value={stats.unread_messages}
@@ -313,14 +313,14 @@ export default function RealtimeDashboard({
                         color="border-orange-500"
                         isAnimating={animatingCards.has('messages')}
                     />
-                    
+
                     <StatCard
                         title="Total de Usuários"
                         value={stats.total_users}
                         icon="👥"
                         color="border-green-500"
                     />
-                    
+
                     <StatCard
                         title="Mensagens Hoje"
                         value={stats.messages_today}
@@ -334,18 +334,18 @@ export default function RealtimeDashboard({
                     Nenhum dado disponível
                 </div>
             )}
-            
+
             {/* Activity Feed */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                     <ActivityFeed messages={activityMessages} />
                 </div>
-                
+
                 <div className="bg-white rounded-xl p-6 shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">
                         Status do Sistema
                     </h3>
-                    
+
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <span className="text-gray-600">WebSocket</span>
@@ -355,19 +355,19 @@ export default function RealtimeDashboard({
                                 {isConnected ? 'Online' : 'Offline'}
                             </span>
                         </div>
-                        
+
                         <div className="flex items-center justify-between">
                             <span className="text-gray-600">Status</span>
                             <span className="text-sm text-gray-900">{status}</span>
                         </div>
-                        
+
                         <div className="flex items-center justify-between">
                             <span className="text-gray-600">Mensagens Recebidas</span>
                             <span className="text-sm font-medium text-gray-900">
                                 {activityMessages.length}
                             </span>
                         </div>
-                        
+
                         {connectionId && (
                             <div className="flex items-center justify-between">
                                 <span className="text-gray-600">Conexão</span>
@@ -391,28 +391,28 @@ export function MiniDashboard({ token }: { token?: string }) {
         enabled: !!token,
         refetchInterval: 30000
     })
-    
+
     const { isConnected } = useDashboardWebSocket(token)
-    
+
     if (!stats) return null
-    
+
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-lg shadow-sm border">
                 <div className="text-2xl font-bold text-blue-600">{stats.appointments_today}</div>
                 <div className="text-sm text-gray-600">Agendamentos</div>
             </div>
-            
+
             <div className="bg-white p-4 rounded-lg shadow-sm border">
                 <div className="text-2xl font-bold text-orange-600">{stats.unread_messages}</div>
                 <div className="text-sm text-gray-600">Não Lidas</div>
             </div>
-            
+
             <div className="bg-white p-4 rounded-lg shadow-sm border">
                 <div className="text-2xl font-bold text-green-600">{stats.total_users}</div>
                 <div className="text-sm text-gray-600">Usuários</div>
             </div>
-            
+
             <div className="bg-white p-4 rounded-lg shadow-sm border">
                 <div className={`text-2xl font-bold ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
                     {isConnected ? '🟢' : '🔴'}

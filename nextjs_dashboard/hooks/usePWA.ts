@@ -39,7 +39,7 @@ export function usePWAInstall() {
     }
 
     checkIfInstalled()
-    
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.addEventListener('appinstalled', handleAppInstalled)
 
@@ -58,7 +58,7 @@ export function usePWAInstall() {
     try {
       await deferredPrompt.prompt()
       const choiceResult = await deferredPrompt.userChoice
-      
+
       if (choiceResult.outcome === 'accepted') {
         console.log('✅ PWA: User accepted install')
         setIsInstallable(false)
@@ -151,7 +151,7 @@ export function useServiceWorker() {
     try {
       // Enviar mensagem para o SW limpar cache
       const messageChannel = new MessageChannel()
-      
+
       const promise = new Promise<boolean>((resolve) => {
         messageChannel.port1.onmessage = (event) => {
           resolve(event.data.cleared === true)
@@ -159,13 +159,13 @@ export function useServiceWorker() {
       })
 
       registration.active?.postMessage({ type: 'CLEAR_CACHE' }, [messageChannel.port2])
-      
+
       const cleared = await promise
       if (cleared) {
         console.log('🧹 SW: Cache cleared')
         window.location.reload()
       }
-      
+
       return cleared
     } catch (error) {
       console.error('❌ SW: Error clearing cache:', error)

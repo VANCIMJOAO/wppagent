@@ -1,86 +1,104 @@
 {
-  "name": "WhatsApp Agent Dashboard",
-  "short_name": "WA Agent",
-  "description": "Dashboard de gestão do WhatsApp Agent - H005 PWA com bypass auth",
-  "start_url": "/dashboard",
-  "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#366092",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "id": "whatsapp-agent-h005",
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
+  "description": "Dashboard de gest\u00e3o do WhatsApp Agent - H005 PWA com bypass auth",
+  "display": "standalone",
   "icons": [
     {
-      "src": "/icon-72x72.png",
+      "purpose": "maskable any",
       "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/icon-72x72.png",
+      "type": "image/png"
     },
     {
-      "src": "/icon-96x96.png",
+      "purpose": "maskable any",
       "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/icon-96x96.png",
+      "type": "image/png"
     },
     {
-      "src": "/icon-128x128.png",
+      "purpose": "maskable any",
       "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/icon-128x128.png",
+      "type": "image/png"
     },
     {
-      "src": "/icon-144x144.png",
+      "purpose": "maskable any",
       "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/icon-144x144.png",
+      "type": "image/png"
     },
     {
-      "src": "/icon-152x152.png",
+      "purpose": "maskable any",
       "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/icon-152x152.png",
+      "type": "image/png"
     },
     {
-      "src": "/icon-192x192.png",
+      "purpose": "maskable any",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/icon-192x192.png",
+      "type": "image/png"
     },
     {
-      "src": "/icon-384x384.png",
+      "purpose": "maskable any",
       "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/icon-384x384.png",
+      "type": "image/png"
     },
     {
-      "src": "/icon-512x512.png",
+      "purpose": "maskable any",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/icon-512x512.png",
+      "type": "image/png"
     }
   ],
+  "id": "whatsapp-agent-h005",
+  "name": "WhatsApp Agent Dashboard",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "WA Agent",
   "shortcuts": [
     {
+      "description": "Ver agendamentos",
+      "icons": [
+        {
+          "sizes": "192x192",
+          "src": "/icon-192x192.png"
+        }
+      ],
       "name": "Agendamentos",
       "short_name": "Agendamentos",
-      "description": "Ver agendamentos",
-      "url": "/agendamentos",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+      "url": "/agendamentos"
     },
     {
+      "description": "Ver conversas",
+      "icons": [
+        {
+          "sizes": "192x192",
+          "src": "/icon-192x192.png"
+        }
+      ],
       "name": "Conversas",
       "short_name": "Conversas",
-      "description": "Ver conversas",
-      "url": "/conversas",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+      "url": "/conversas"
     },
     {
+      "description": "Sistema de alertas",
+      "icons": [
+        {
+          "sizes": "192x192",
+          "src": "/icon-192x192.png"
+        }
+      ],
       "name": "Monitoramento",
       "short_name": "Monitor",
-      "description": "Sistema de alertas",
-      "url": "/monitoring",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+      "url": "/monitoring"
     }
-  ]
+  ],
+  "start_url": "/dashboard",
+  "theme_color": "#366092"
 }

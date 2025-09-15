@@ -7,12 +7,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Grid, 
-  Plus, 
-  Settings, 
-  Save, 
-  RotateCcw, 
+import {
+  Grid,
+  Plus,
+  Settings,
+  Save,
+  RotateCcw,
   Eye,
   EyeOff,
   Move,
@@ -169,7 +169,7 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
         ...layout,
         updatedAt: new Date(),
       };
-      
+
       localStorage.setItem(`dashboard_${layout.id}`, JSON.stringify(updatedLayout));
       setLayout(updatedLayout);
       onLayoutChange?.(updatedLayout);
@@ -218,8 +218,8 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
   const toggleWidgetVisibility = useCallback((widgetId: string) => {
     setLayout(prev => ({
       ...prev,
-      widgets: prev.widgets.map(w => 
-        w.id === widgetId 
+      widgets: prev.widgets.map(w =>
+        w.id === widgetId
           ? { ...w, visible: !w.visible }
           : w
       ),
@@ -228,13 +228,13 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
 
   // Atualizar posição do widget
   const updateWidgetPosition = useCallback((
-    widgetId: string, 
+    widgetId: string,
     newPosition: DashboardWidget['position']
   ) => {
     setLayout(prev => ({
       ...prev,
-      widgets: prev.widgets.map(w => 
-        w.id === widgetId 
+      widgets: prev.widgets.map(w =>
+        w.id === widgetId
           ? { ...w, position: newPosition }
           : w
       ),
@@ -268,7 +268,7 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
             <CardTitle className="text-sm font-medium">
               {widget.title}
             </CardTitle>
-            
+
             {editMode && (
               <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
                 <Button
@@ -281,7 +281,7 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
                 >
                   {widget.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                 </Button>
-                
+
                 <Button
                   variant="ghost"
                   size="sm"
@@ -446,7 +446,7 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
       </Card>
 
       {/* Grid de widgets */}
-      <div 
+      <div
         className="grid gap-4 min-h-[600px]"
         style={{
           gridTemplateColumns: `repeat(${layout.gridSize.columns}, 1fr)`,
@@ -470,7 +470,7 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
               </Button>
             </div>
           </CardHeader>
-          
+
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {WIDGET_TEMPLATES.map((template, index) => (

@@ -23,6 +23,7 @@
 ### 1. Substituição de Mocks por Erros Claros
 
 **Antes:**
+
 ```typescript
 // Mock fallback que sempre retorna sucesso
 const mockConversations = [
@@ -40,6 +41,7 @@ return {
 ```
 
 **Depois:**
+
 ```typescript
 // Retorna erro claro quando API falha - não dados falsos
 debugLog.error('❌ Falha ao conectar com API de conversas');
@@ -83,16 +85,19 @@ return {
 ## 📊 Benefícios da Correção
 
 ### ✅ Transparência
+
 - Usuários sabem quando há problemas reais
 - Interface não mostra dados enganosos
 - Feedbacks claros sobre status do sistema
 
 ### ✅ Debugging Melhorado
+
 - Logs específicos para cada tipo de falha
 - Códigos de status HTTP apropriados
 - Rastreamento adequado de problemas
 
 ### ✅ Experiência do Usuário
+
 - Mensagens de erro claras e actionáveis
 - Não há confusão sobre dados reais vs. falsos
 - Interface pode reagir adequadamente a falhas

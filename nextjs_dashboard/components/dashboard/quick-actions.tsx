@@ -14,14 +14,14 @@ export const QuickActions = () => {
     },
     {
       icon: <CalendarPlus className="h-6 w-6" />,
-      label: "Novo Agendamento", 
+      label: "Novo Agendamento",
       color: "bg-blue-500 hover:bg-blue-600",
       onClick: () => console.log("Novo agendamento")
     },
     {
       icon: <UserPlus className="h-6 w-6" />,
       label: "Adicionar Cliente",
-      color: "bg-purple-500 hover:bg-purple-600", 
+      color: "bg-purple-500 hover:bg-purple-600",
       onClick: () => console.log("Novo cliente")
     },
     {
