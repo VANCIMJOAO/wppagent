@@ -201,9 +201,7 @@ class SmartLoadTestRunner:
 
             # Performance
             if avg_time < 100:
-                print(
-                    f"🚀 EXCELENTE: Tempo de resposta muito rápido ({avg_time:.0f}ms)"
-                )
+                print(f"🚀 EXCELENTE: Tempo de resposta muito rápido ({avg_time:.0f}ms)")
             elif avg_time < 300:
                 print(f"✅ BOM: Tempo de resposta adequado ({avg_time:.0f}ms)")
             elif avg_time < 1000:

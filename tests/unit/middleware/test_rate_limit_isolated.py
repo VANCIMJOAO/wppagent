@@ -23,7 +23,6 @@ def test_rate_limit_middleware_initialization():
     with patch("app.middleware.rate_limit.rate_limiter") as mock_rate_limiter, patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ) as mock_whatsapp_limiter:
-
         # Configurar mocks
         mock_rate_limiter.return_value = MagicMock()
         mock_whatsapp_limiter.return_value = MagicMock()
@@ -44,7 +43,6 @@ def test_rate_limit_middleware_initialization():
 def test_rate_limit_middleware_disabled():
     """Teste do middleware desabilitado"""
     with patch("app.middleware.rate_limit.RATE_LIMITERS_AVAILABLE", False):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -61,7 +59,6 @@ def test_get_client_id_custom_header():
     with patch("app.middleware.rate_limit.rate_limiter"), patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -83,7 +80,6 @@ def test_get_client_id_whatsapp_user_agent():
     with patch("app.middleware.rate_limit.rate_limiter"), patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -109,7 +105,6 @@ def test_get_client_id_ip_fallback():
     with patch("app.middleware.rate_limit.rate_limiter"), patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -134,7 +129,6 @@ def test_get_real_ip_forwarded_for():
     with patch("app.middleware.rate_limit.rate_limiter"), patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -156,7 +150,6 @@ def test_get_real_ip_real_ip_header():
     with patch("app.middleware.rate_limit.rate_limiter"), patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -178,7 +171,6 @@ def test_get_real_ip_client_fallback():
     with patch("app.middleware.rate_limit.rate_limiter"), patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -201,7 +193,6 @@ def test_get_route_config_webhook():
     with patch("app.middleware.rate_limit.rate_limiter") as mock_rate_limiter, patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ) as mock_whatsapp_limiter:
-
         # Configurar mocks
         mock_rate_limiter.return_value = MagicMock()
         mock_whatsapp_limiter.return_value = MagicMock()
@@ -225,7 +216,6 @@ def test_get_route_config_api():
     with patch("app.middleware.rate_limit.rate_limiter") as mock_rate_limiter, patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ) as mock_whatsapp_limiter:
-
         # Configurar mocks
         mock_rate_limiter.return_value = MagicMock()
         mock_whatsapp_limiter.return_value = MagicMock()
@@ -249,7 +239,6 @@ def test_get_route_config_default():
     with patch("app.middleware.rate_limit.rate_limiter") as mock_rate_limiter, patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ) as mock_whatsapp_limiter:
-
         # Configurar mocks
         mock_rate_limiter.return_value = MagicMock()
         mock_whatsapp_limiter.return_value = MagicMock()
@@ -271,7 +260,6 @@ def test_get_route_config_default():
 def test_get_route_config_disabled():
     """Teste de configuração quando middleware está desabilitado"""
     with patch("app.middleware.rate_limit.RATE_LIMITERS_AVAILABLE", False):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -290,7 +278,6 @@ async def test_dispatch_rate_limit_allowed():
     with patch("app.middleware.rate_limit.rate_limiter") as mock_rate_limiter, patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         # Configurar mock para permitir requisição
         mock_rate_limiter.check_rate_limit.return_value = (True, {})
 
@@ -324,7 +311,6 @@ async def test_dispatch_rate_limit_blocked():
     with patch("app.middleware.rate_limit.rate_limiter") as mock_rate_limiter, patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         # Configurar mock para bloquear requisição
         mock_rate_limiter.check_rate_limit.return_value = (
             False,
@@ -368,7 +354,6 @@ async def test_dispatch_rate_limit_blocked():
 async def test_dispatch_middleware_disabled():
     """Teste de requisição quando middleware está desabilitado"""
     with patch("app.middleware.rate_limit.RATE_LIMITERS_AVAILABLE", False):
-
         from app.middleware.rate_limit import RateLimitMiddleware
 
         app = FastAPI()
@@ -397,7 +382,6 @@ async def test_dispatch_exception_handling():
     with patch("app.middleware.rate_limit.rate_limiter") as mock_rate_limiter, patch(
         "app.middleware.rate_limit.whatsapp_rate_limiter"
     ):
-
         # Configurar mock para lançar exceção
         mock_rate_limiter.check_rate_limit.side_effect = Exception("Rate limiter error")
 

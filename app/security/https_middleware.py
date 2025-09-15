@@ -146,9 +146,9 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
             # CSP Report-Only para monitoramento (apenas produção)
             if not self.development_mode:
                 csp_report_only = self._build_csp_report_only()
-                response.headers["Content-Security-Policy-Report-Only"] = (
-                    csp_report_only
-                )
+                response.headers[
+                    "Content-Security-Policy-Report-Only"
+                ] = csp_report_only
 
             # X-Frame-Options - Proteção contra clickjacking
             response.headers["X-Frame-Options"] = "DENY"
@@ -189,15 +189,15 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
 
             # Clear-Site-Data (para logout e endpoints sensíveis)
             if request.url.path.endswith(("/logout", "/api/auth/logout")):
-                response.headers["Clear-Site-Data"] = (
-                    '"cache", "cookies", "storage", "executionContexts"'
-                )
+                response.headers[
+                    "Clear-Site-Data"
+                ] = '"cache", "cookies", "storage", "executionContexts"'
 
             # Cache-Control para endpoints de API sensíveis
             if request.url.path.startswith(("/api/auth/", "/api/admin/")):
-                response.headers["Cache-Control"] = (
-                    "no-store, no-cache, must-revalidate, private"
-                )
+                response.headers[
+                    "Cache-Control"
+                ] = "no-store, no-cache, must-revalidate, private"
                 response.headers["Pragma"] = "no-cache"
                 response.headers["Expires"] = "0"
 
@@ -214,35 +214,35 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
             # CSP para desenvolvimento - mais permissivo mas ainda seguro
             csp_policy = """
                 default-src 'self';
-                script-src 'self' 'unsafe-inline' 'unsafe-eval' 
-                           https://cdnjs.cloudflare.com 
-                           https://vercel.live 
+                script-src 'self' 'unsafe-inline' 'unsafe-eval'
+                           https://cdnjs.cloudflare.com
+                           https://vercel.live
                            https://cdn.jsdelivr.net
                            https://unpkg.com;
-                style-src 'self' 'unsafe-inline' 
-                          https://fonts.googleapis.com 
+                style-src 'self' 'unsafe-inline'
+                          https://fonts.googleapis.com
                           https://cdnjs.cloudflare.com
                           https://cdn.jsdelivr.net;
-                font-src 'self' 
-                         https://fonts.gstatic.com 
+                font-src 'self'
+                         https://fonts.gstatic.com
                          https://cdnjs.cloudflare.com
                          data:;
-                img-src 'self' 
-                        data: 
-                        https: 
+                img-src 'self'
+                        data:
+                        https:
                         blob:
                         https://images.unsplash.com
                         https://via.placeholder.com;
-                connect-src 'self' 
+                connect-src 'self'
                             ws://localhost:*
                             wss://localhost:*
                             http://localhost:*
-                            https://wppagent-production.up.railway.app 
+                            https://wppagent-production.up.railway.app
                             wss://wppagent-production.up.railway.app
                             https://api.whatsapp.com
                             https://graph.facebook.com;
-                media-src 'self' 
-                          data: 
+                media-src 'self'
+                          data:
                           blob:;
                 object-src 'none';
                 frame-src 'none';
@@ -250,32 +250,32 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
                 base-uri 'self';
                 form-action 'self';
                 manifest-src 'self';
-                worker-src 'self' 
+                worker-src 'self'
                            blob:;
             """
         else:
             # CSP rigoroso para produção
             csp_policy = """
                 default-src 'self';
-                script-src 'self' 
-                           'nonce-{nonce}' 
-                           https://cdnjs.cloudflare.com 
+                script-src 'self'
+                           'nonce-{nonce}'
+                           https://cdnjs.cloudflare.com
                            https://vercel.live
                            'strict-dynamic';
-                style-src 'self' 
-                          'unsafe-inline' 
-                          https://fonts.googleapis.com 
+                style-src 'self'
+                          'unsafe-inline'
+                          https://fonts.googleapis.com
                           https://cdnjs.cloudflare.com;
-                font-src 'self' 
-                         https://fonts.gstatic.com 
+                font-src 'self'
+                         https://fonts.gstatic.com
                          https://cdnjs.cloudflare.com
                          data:;
-                img-src 'self' 
-                        data: 
-                        https: 
+                img-src 'self'
+                        data:
+                        https:
                         blob:;
-                connect-src 'self' 
-                            https://wppagent-production.up.railway.app 
+                connect-src 'self'
+                            https://wppagent-production.up.railway.app
                             wss://wppagent-production.up.railway.app
                             https://api.whatsapp.com
                             https://graph.facebook.com;

@@ -60,7 +60,7 @@ def generate_cache_admin_dashboard() -> str:
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
@@ -72,7 +72,7 @@ def generate_cache_admin_dashboard() -> str:
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
@@ -84,7 +84,7 @@ def generate_cache_admin_dashboard() -> str:
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
@@ -102,7 +102,7 @@ def generate_cache_admin_dashboard() -> str:
             <!-- Manual Invalidation Panel -->
             <div class="bg-white rounded-lg shadow-sm p-6">
                 <h2 class="text-xl font-semibold mb-4 text-gray-900">🚀 Invalidação Manual</h2>
-                
+
                 <div class="space-y-4">
                     <!-- Tabs -->
                     <div class="border-b border-gray-200">
@@ -124,7 +124,7 @@ def generate_cache_admin_dashboard() -> str:
                         <label class="block text-sm font-medium text-gray-700">
                             Chaves (uma por linha):
                         </label>
-                        <textarea id="keysInput" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2" 
+                        <textarea id="keysInput" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2"
                                   placeholder="customer:123&#10;analytics:dashboard:summary&#10;conversation:456"></textarea>
                     </div>
 
@@ -133,7 +133,7 @@ def generate_cache_admin_dashboard() -> str:
                         <label class="block text-sm font-medium text-gray-700">
                             Padrões (uma por linha):
                         </label>
-                        <textarea id="patternsInput" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2" 
+                        <textarea id="patternsInput" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2"
                                   placeholder="analytics:*&#10;customer:*&#10;conversation:*"></textarea>
                     </div>
 
@@ -182,13 +182,13 @@ def generate_cache_admin_dashboard() -> str:
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Motivo:
                             </label>
-                            <input type="text" id="reasonInput" class="w-full border border-gray-300 rounded-md px-3 py-2" 
+                            <input type="text" id="reasonInput" class="w-full border border-gray-300 rounded-md px-3 py-2"
                                    placeholder="Motivo da invalidação" value="Manual invalidation via dashboard">
                         </div>
                     </div>
 
                     <!-- Execute Button -->
-                    <button onclick="executeInvalidation()" id="executeBtn" 
+                    <button onclick="executeInvalidation()" id="executeBtn"
                             class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
                         🗑️ Executar Invalidação
                     </button>
@@ -203,10 +203,10 @@ def generate_cache_admin_dashboard() -> str:
                         🔄 Atualizar
                     </button>
                 </div>
-                
+
                 <!-- Search -->
                 <div class="mb-4">
-                    <input type="text" id="keysSearch" class="w-full border border-gray-300 rounded-md px-3 py-2" 
+                    <input type="text" id="keysSearch" class="w-full border border-gray-300 rounded-md px-3 py-2"
                            placeholder="Buscar por padrão (ex: analytics:*)" onkeyup="searchKeys()">
                 </div>
 
@@ -227,7 +227,7 @@ def generate_cache_admin_dashboard() -> str:
                     🔄 Atualizar
                 </button>
             </div>
-            
+
             <div id="historyList" class="space-y-3">
                 <div class="text-center py-4 text-gray-500">
                     Carregando histórico...
@@ -260,7 +260,7 @@ def generate_cache_admin_dashboard() -> str:
 
     <script>
         let currentTab = 'keys';
-        
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadStats();
@@ -270,17 +270,17 @@ def generate_cache_admin_dashboard() -> str:
 
         function setInvalidationTab(tab) {
             currentTab = tab;
-            
+
             // Hide all panels
             document.getElementById('keysPanel').classList.add('hidden');
             document.getElementById('patternsPanel').classList.add('hidden');
             document.getElementById('scopesPanel').classList.add('hidden');
-            
+
             // Reset tab styles
             document.getElementById('keysTab').className = 'py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm';
             document.getElementById('patternsTab').className = 'py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm';
             document.getElementById('scopesTab').className = 'py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm';
-            
+
             // Show active panel and tab
             document.getElementById(tab + 'Panel').classList.remove('hidden');
             document.getElementById(tab + 'Tab').className = 'py-2 px-1 border-b-2 border-blue-500 text-blue-600 font-medium text-sm';
@@ -290,7 +290,7 @@ def generate_cache_admin_dashboard() -> str:
             try {
                 const response = await fetch('/api/cache/statistics');
                 const result = await response.json();
-                
+
                 if (result.success) {
                     const stats = result.data;
                     document.getElementById('totalKeys').textContent = stats.total_keys?.toLocaleString() || '0';
@@ -308,15 +308,15 @@ def generate_cache_admin_dashboard() -> str:
             try {
                 const response = await fetch(`/api/cache/keys?pattern=${encodeURIComponent(pattern)}&limit=100`);
                 const result = await response.json();
-                
+
                 if (result.success) {
                     const keysList = document.getElementById('keysList');
-                    
+
                     if (result.data.keys.length === 0) {
                         keysList.innerHTML = '<div class="text-center py-4 text-gray-500">Nenhuma chave encontrada</div>';
                         return;
                     }
-                    
+
                     keysList.innerHTML = result.data.keys.map(key => `
                         <div class="flex justify-between items-center p-2 bg-gray-50 rounded border">
                             <code class="text-sm text-gray-800">${key}</code>
@@ -339,13 +339,13 @@ def generate_cache_admin_dashboard() -> str:
         function addKeyToInvalidation(key) {
             const keysInput = document.getElementById('keysInput');
             const currentValue = keysInput.value;
-            
+
             if (currentValue && !currentValue.endsWith('\\n')) {
                 keysInput.value = currentValue + '\\n' + key;
             } else {
                 keysInput.value = currentValue + key;
             }
-            
+
             // Switch to keys tab
             setInvalidationTab('keys');
         }
@@ -354,15 +354,15 @@ def generate_cache_admin_dashboard() -> str:
             const executeBtn = document.getElementById('executeBtn');
             executeBtn.disabled = true;
             executeBtn.innerHTML = '⏳ Executando...';
-            
+
             try {
                 const request = buildInvalidationRequest();
-                
+
                 if (!request) {
                     showError('Configuração inválida para invalidação');
                     return;
                 }
-                
+
                 const response = await fetch('/api/cache/invalidate', {
                     method: 'POST',
                     headers: {
@@ -370,10 +370,10 @@ def generate_cache_admin_dashboard() -> str:
                     },
                     body: JSON.stringify(request)
                 });
-                
+
                 const result = await response.json();
                 showResults(result);
-                
+
                 // Refresh data
                 if (result.success && !result.dry_run) {
                     setTimeout(() => {
@@ -381,7 +381,7 @@ def generate_cache_admin_dashboard() -> str:
                         loadHistory();
                     }, 1000);
                 }
-                
+
             } catch (error) {
                 showError('Erro na invalidação: ' + error.message);
             } finally {
@@ -397,7 +397,7 @@ def generate_cache_admin_dashboard() -> str:
                 cascade: document.getElementById('cascadeOption').checked,
                 dry_run: document.getElementById('dryRunOption').checked
             };
-            
+
             if (currentTab === 'keys') {
                 const keysText = document.getElementById('keysInput').value.trim();
                 if (!keysText) return null;
@@ -411,7 +411,7 @@ def generate_cache_admin_dashboard() -> str:
                 if (checkedScopes.length === 0) return null;
                 request.scopes = checkedScopes;
             }
-            
+
             return request;
         }
 
@@ -419,15 +419,15 @@ def generate_cache_admin_dashboard() -> str:
             try {
                 const response = await fetch('/api/cache/history?limit=20');
                 const result = await response.json();
-                
+
                 if (result.success) {
                     const historyList = document.getElementById('historyList');
-                    
+
                     if (result.data.invalidations.length === 0) {
                         historyList.innerHTML = '<div class="text-center py-4 text-gray-500">Nenhum histórico encontrado</div>';
                         return;
                     }
-                    
+
                     historyList.innerHTML = result.data.invalidations.map(item => `
                         <div class="border border-gray-200 rounded p-3">
                             <div class="flex justify-between items-start">
@@ -453,11 +453,11 @@ def generate_cache_admin_dashboard() -> str:
             const modal = document.getElementById('resultsModal');
             const title = document.getElementById('resultsTitle');
             const content = document.getElementById('resultsContent');
-            
-            title.textContent = result.success ? 
-                (result.dry_run ? 'Simulação Concluída' : 'Invalidação Concluída') : 
+
+            title.textContent = result.success ?
+                (result.dry_run ? 'Simulação Concluída' : 'Invalidação Concluída') :
                 'Erro na Invalidação';
-            
+
             let html = `
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -481,7 +481,7 @@ def generate_cache_admin_dashboard() -> str:
                         </div>
                     </div>
             `;
-            
+
             if (result.errors && result.errors.length > 0) {
                 html += `
                     <div class="bg-red-50 p-3 rounded">
@@ -492,7 +492,7 @@ def generate_cache_admin_dashboard() -> str:
                     </div>
                 `;
             }
-            
+
             if (result.invalidated_keys && result.invalidated_keys.length > 0 && result.invalidated_keys.length <= 20) {
                 html += `
                     <div class="bg-blue-50 p-3 rounded">
@@ -503,7 +503,7 @@ def generate_cache_admin_dashboard() -> str:
                     </div>
                 `;
             }
-            
+
             html += '</div>';
             content.innerHTML = html;
             modal.classList.remove('hidden');

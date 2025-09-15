@@ -7,6 +7,7 @@
 ## 🎯 **API OVERVIEW**
 
 ### **Base Information**
+
 - **Base URL**: `https://api.whatsappagent.com`  
 - **API Version**: `v2.0.0`
 - **Protocol**: `HTTPS only`
@@ -15,6 +16,7 @@
 - **Total Endpoints**: `355`
 
 ### **Architecture Overview** 🏗️
+
 ```
 📦 API Categories (355 endpoints total)
 ├── 🛡️ Admin System (78 endpoints)
@@ -44,6 +46,7 @@
 ```
 
 ### **Key Features** ✨
+
 - 🍪 **HttpOnly Cookie Authentication** (XSS protection)
 - 🔒 **2FA with backup codes** (TOTP support)
 - 🛡️ **Advanced Rate Limiting** (per-user, per-IP, per-webhook)
@@ -64,6 +67,7 @@
 O sistema utiliza cookies HttpOnly para máxima segurança, prevenindo ataques XSS e CSRF.
 
 #### **1. Login Principal**
+
 ```http
 POST /auth/auth/login
 Content-Type: application/json
@@ -76,6 +80,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -92,17 +97,20 @@ Content-Type: application/json
 ```
 
 **Cookies Definidos Automaticamente:**
+
 - `access_token`: JWT principal (HttpOnly, Secure, SameSite=Strict, 1h TTL)
 - `refresh_token`: Token refresh (HttpOnly, Secure, SameSite=Strict, 7d TTL)
 - `csrf_token`: Proteção CSRF (Secure, SameSite=Strict)
 
 #### **2. Two-Factor Authentication**
+
 ```http
 POST /auth/auth/2fa/setup
 Cookie: access_token=...; csrf_token=...
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -110,7 +118,7 @@ Cookie: access_token=...; csrf_token=...
     "qr_code": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
     "secret": "JBSWY3DPEHPK3PXP",
     "backup_codes": [
-      "12345678", "87654321", "11223344", 
+      "12345678", "87654321", "11223344",
       "55667788", "99887766", "44332211"
     ],
     "recovery_url": "https://app.com/auth/recovery?token=...",
@@ -142,6 +150,7 @@ Cookie: access_token=...
 ```
 
 #### **3. Session Management**
+
 ```http
 POST /auth/auth/refresh
 Cookie: refresh_token=...
@@ -158,6 +167,7 @@ Cookie: access_token=...
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -176,6 +186,7 @@ Cookie: access_token=...
 ## 🛡️ **ADMIN SYSTEM (78 ENDPOINTS)**
 
 ### **Backup Management**
+
 ```http
 GET    /admin/backup/status              # Status do sistema
 POST   /admin/backup/trigger             # Executar backup manual
@@ -189,7 +200,8 @@ POST   /admin/backup/verify/{filename}   # Verificar integridade
 GET    /admin/backup/config              # Configuração atual
 ```
 
-### **Rate Limiting & DDoS Protection** 
+### **Rate Limiting & DDoS Protection**
+
 ```http
 GET    /admin/h003/overview              # Dashboard rate limiting
 GET    /admin/h003/stats/{client_ip}     # Estatísticas por IP
@@ -204,6 +216,7 @@ POST   /admin/rate-limit/reset           # Reset contadores
 ```
 
 ### **User Management**
+
 ```http
 POST   /admin/create                     # Criar usuário admin
 POST   /admin/create-initial-admin       # Setup inicial
@@ -220,6 +233,7 @@ GET    /admin/health                     # Health check auth
 ## 📊 **HEALTH & MONITORING (31 ENDPOINTS)**
 
 ### **System Health**
+
 ```http
 GET /health                    # Health check básico
 GET /health/detailed          # Health check detalhado
@@ -232,6 +246,7 @@ GET /api/rbac/health         # Status RBAC system
 ```
 
 **Response Example:**
+
 ```json
 {
   "status": "healthy",
@@ -267,6 +282,7 @@ GET /api/rbac/health         # Status RBAC system
 ```
 
 ### **Documentation & API**
+
 ```http
 GET /docs                     # Documentação OpenAPI
 GET /openapi.json            # Schema OpenAPI
@@ -278,6 +294,7 @@ GET /redoc                   # Documentação ReDoc
 ## 🔗 **WHATSAPP WEBHOOKS (7 ENDPOINTS)**
 
 ### **Core Webhook System**
+
 ```http
 POST /webhook                 # Webhook principal WhatsApp
 GET  /webhook/verify         # Verificação webhook
@@ -289,6 +306,7 @@ GET  /public/webhook-secret-info  # Info pública webhook
 ```
 
 **Webhook Payload Example:**
+
 ```json
 {
   "object": "whatsapp_business_account",
@@ -320,6 +338,7 @@ GET  /public/webhook-secret-info  # Info pública webhook
 ## 🛡️ **LGPD COMPLIANCE (8 ENDPOINTS)**
 
 ### **Data Rights Management**
+
 ```http
 GET  /api/lgpd/my-data                    # Dados pessoais
 POST /api/lgpd/data-portability          # Solicitar portabilidade
@@ -332,6 +351,7 @@ POST /api/lgpd/apply-retention-policies  # Aplicar retenção
 ```
 
 **Data Portability Response:**
+
 ```json
 {
   "success": true,
@@ -340,7 +360,7 @@ POST /api/lgpd/apply-retention-policies  # Aplicar retenção
     "status": "processing",
     "estimated_completion": "2025-09-16T13:30:00Z",
     "data_categories": [
-      "personal_info", "appointments", "messages", 
+      "personal_info", "appointments", "messages",
       "preferences", "analytics_data"
     ],
     "format": "JSON",
@@ -357,12 +377,14 @@ POST /api/lgpd/apply-retention-policies  # Aplicar retenção
 ### **🎯 Conversations & Messages (45 endpoints)**
 
 #### **Optimized Queries (N+1 Elimination)**
+
 ```http
 GET /api/v1/conversations?include=messages,client,business&limit=20
 Authorization: Cookie (HttpOnly)
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -410,6 +432,7 @@ Authorization: Cookie (HttpOnly)
 ```
 
 #### **Real-time Messages**
+
 ```http
 POST /api/v1/conversations/{id}/messages
 Content-Type: application/json
@@ -430,11 +453,13 @@ Cookie: access_token=...
 ### **📅 Appointments (38 endpoints)**
 
 #### **Performance Optimized**
+
 ```http
 GET /api/v1/appointments?optimize=true&include=client,service,business
 ```
 
 **Optimizations Applied:**
+
 - ✅ **N+1 Query Elimination**: Single query with joins
 - ✅ **Redis Caching**: 5-minute cache with intelligent invalidation
 - ✅ **Database Indexing**: Optimized indexes on date, status
@@ -464,6 +489,7 @@ Cookie: access_token=...
 ### **📊 Advanced Analytics & BI (25 endpoints)**
 
 #### **Business Intelligence Dashboard**
+
 ```http
 GET /analytics/advanced/dashboard-summary
 Cookie: access_token=...
@@ -477,6 +503,7 @@ GET /analytics/advanced/roi-metrics
 ```
 
 **Analytics Response:**
+
 ```json
 {
   "success": true,
@@ -509,6 +536,7 @@ GET /analytics/advanced/roi-metrics
 ### **🌐 Real-time WebSocket (15 endpoints)**
 
 #### **WebSocket Connections**
+
 ```javascript
 // Client-side connection
 const ws = new WebSocket('wss://api.whatsappagent.com/api/websocket/ws');
@@ -521,13 +549,14 @@ ws.send(JSON.stringify({
 }));
 
 ws.send(JSON.stringify({
-  "action": "subscribe", 
+  "action": "subscribe",
   "channel": "messages",
   "filters": {"conversation_id": 123}
 }));
 ```
 
 **WebSocket Routes:**
+
 ```http
 WebSocket /api/websocket/ws                    # Conexão principal
 WebSocket /api/websocket/ws/chat              # Chat tempo real
@@ -539,6 +568,7 @@ WebSocket /api/websocket/ws/analytics         # Métricas tempo real
 ### **📄 Export System (18 endpoints)**
 
 #### **Data Export**
+
 ```http
 GET /api/export/conversations/csv?date_from=2025-09-01&date_to=2025-09-15
 GET /api/export/appointments/excel?business_id=789
@@ -547,6 +577,7 @@ POST /api/reports/generate
 ```
 
 **Export Request:**
+
 ```json
 {
   "report_type": "comprehensive",
@@ -561,7 +592,7 @@ POST /api/reports/generate
     "include_sensitive": false
   },
   "delivery": {
-    "method": "download", 
+    "method": "download",
     "encryption": true,
     "password_protected": true
   }
@@ -575,12 +606,14 @@ POST /api/reports/generate
 ### **Rate Limiting System**
 
 #### **Multi-layer Protection**
+
 - 🚦 **User-based**: 100 req/min per authenticated user
 - 🌐 **IP-based**: 200 req/min per IP address  
 - 🔗 **Webhook-specific**: 100 req/min per webhook endpoint
 - 🚨 **DDoS Protection**: Automatic IP blocking for abuse
 
 #### **Rate Limit Headers**
+
 ```http
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 87
@@ -589,8 +622,9 @@ X-RateLimit-Retry-After: 45
 ```
 
 ### **Content Security Policy (CSP)**
+
 ```http
-Content-Security-Policy: 
+Content-Security-Policy:
   default-src 'self';
   script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
@@ -600,13 +634,16 @@ Content-Security-Policy:
 ```
 
 ### **Log Sanitization (S002 Protection)**
+
 Proteção automática contra exposição de dados sensíveis:
+
 - 🔒 **PII Sanitization**: CPF, RG, cartões de crédito
 - 🔑 **Credential Protection**: Senhas, tokens, API keys
 - 📞 **Phone Number Masking**: Últimos 4 dígitos apenas
 - 📧 **Email Masking**: Domínio preservado, usuário mascarado
 
 ### **HTTPS & Security Headers**
+
 ```http
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff
@@ -621,18 +658,21 @@ Referrer-Policy: strict-origin-when-cross-origin
 ## ⚡ **PERFORMANCE & OPTIMIZATION**
 
 ### **Database Optimizations (PF-001)**
+
 - ✅ **N+1 Query Elimination**: Eager loading com joins otimizados
 - ✅ **Query Performance Monitoring**: Alertas automáticos para queries lentas
 - ✅ **Database Connection Pooling**: Pool otimizado para alta concorrência
 - ✅ **Index Optimization**: Indexes automáticos baseados em usage patterns
 
 ### **Redis Cache System**
+
 - 🗄️ **Intelligent Invalidation**: 10 eventos de cache configurados
 - ⚡ **Cache Hit Rate**: 94.8% average hit rate
 - 🔄 **Auto-refresh**: Background cache warming
 - 📊 **Cache Analytics**: Detailed metrics e monitoring
 
 **Cache Events:**
+
 ```javascript
 // Automatic cache invalidation events
 CacheEvent.APPOINTMENT_CREATED   → Invalidates 10 patterns
@@ -647,6 +687,7 @@ CacheEvent.CLIENT_UPDATED        → Invalidates 6 patterns
 ## 📖 **ERROR HANDLING & STATUS CODES**
 
 ### **Standardized Response Format (C002)**
+
 ```json
 {
   "success": true|false,
@@ -672,6 +713,7 @@ CacheEvent.CLIENT_UPDATED        → Invalidates 6 patterns
 ```
 
 ### **HTTP Status Codes**
+
 - `200` OK - Sucesso
 - `201` Created - Recurso criado
 - `400` Bad Request - Dados inválidos
@@ -682,6 +724,7 @@ CacheEvent.CLIENT_UPDATED        → Invalidates 6 patterns
 - `500` Internal Server Error - Erro interno
 
 ### **Error Codes**
+
 - `AUTH001` - Token inválido ou expirado
 - `AUTH002` - 2FA necessário
 - `RATE001` - Rate limit excedido
@@ -694,6 +737,7 @@ CacheEvent.CLIENT_UPDATED        → Invalidates 6 patterns
 ## 🧪 **DEMO & TESTING ENDPOINTS (12 ENDPOINTS)**
 
 ### **Performance Demos**
+
 ```http
 GET /appointments-demo/before        # Queries não otimizadas
 GET /appointments-demo/after         # Queries otimizadas (PF-001)
@@ -702,6 +746,7 @@ GET /performance-demo/conversations/batch-with-counts  # Batch loading
 ```
 
 ### **Error Demos**
+
 ```http
 GET /appointments-demo/error-demo           # Demonstração error handling
 GET /appointments-demo/validation-error-demo  # Validation errors
@@ -709,6 +754,7 @@ GET /appointments-demo/server-error-demo    # Server error simulation
 ```
 
 ### **Health Demos**
+
 ```http
 GET /health-demo/comprehensive              # Health check demo
 ```
@@ -718,6 +764,7 @@ GET /health-demo/comprehensive              # Health check demo
 ## 🔧 **DEVELOPMENT & TESTING**
 
 ### **Debug Endpoints** (Development Only)
+
 ```http
 GET /admin/debug-jwt                 # Debug JWT tokens
 POST /admin/debug-admin             # Debug admin functions
@@ -725,11 +772,12 @@ POST /debug/webhook-test            # Test webhook functionality
 ```
 
 ### **CORS Configuration**
+
 ```javascript
 // Allowed origins (development)
 origins: [
   'http://localhost:3000',
-  'http://localhost:3001', 
+  'http://localhost:3001',
   'http://127.0.0.1:3000',
   'https://localhost:3000',
   'http://localhost:8501',
@@ -746,8 +794,9 @@ methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH']
 ## 📝 **CHANGELOG & VERSION HISTORY**
 
 ### **v2.0.0** (Current)
+
 - ✅ **355 endpoints** total
-- ✅ **HttpOnly Cookie Authentication** 
+- ✅ **HttpOnly Cookie Authentication**
 - ✅ **Advanced Rate Limiting** (H003)
 - ✅ **N+1 Query Elimination** (PF-001)
 - ✅ **LGPD Compliance** system
@@ -757,6 +806,7 @@ methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH']
 - ✅ **Export System** (CSV/Excel/PDF)
 
 ### **v1.0.0**
+
 - Basic API structure
 - Simple JWT authentication
 - Core business endpoints

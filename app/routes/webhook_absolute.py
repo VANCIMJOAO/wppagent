@@ -32,8 +32,11 @@ from app.models.database import MetaLog
 from app.services.data import ConversationService, MessageService, UserService
 from app.services.whatsapp import whatsapp_service
 from app.utils.logger import get_logger
-from app.utils.whatsapp_sanitizer import (sanitize_message, sanitize_phone,
-                                          sanitize_whatsapp_data)
+from app.utils.whatsapp_sanitizer import (
+    sanitize_message,
+    sanitize_phone,
+    sanitize_whatsapp_data,
+)
 
 logger = get_logger(__name__)
 
@@ -164,7 +167,6 @@ class AbsoluteResponseControl:
             content_lower = content.lower().strip()
             for cached_key, cached_data in self.cache.items():
                 if cached_data.get("user_id") == user_id and cached_data.get("content"):
-
                     similarity = self._calculate_similarity(
                         content_lower, cached_data.get("content", "").lower()
                     )

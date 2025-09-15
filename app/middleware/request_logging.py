@@ -18,8 +18,12 @@ from typing import Callable
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
-from app.utils.structured_logger import (clear_context, get_structured_logger,
-                                         set_request_context, set_trace_id)
+from app.utils.structured_logger import (
+    clear_context,
+    get_structured_logger,
+    set_request_context,
+    set_trace_id,
+)
 
 logger = get_structured_logger("request-middleware")
 

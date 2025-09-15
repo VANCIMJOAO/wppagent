@@ -21,10 +21,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import httpx
 import psutil
 
-from app.services.automated_alerts import (AlertCategory, AlertSeverity,
-                                           alert_manager)
-from app.services.production_logger import (log_performance_metric,
-                                            performance_logger)
+from app.services.automated_alerts import AlertCategory, AlertSeverity, alert_manager
+from app.services.production_logger import log_performance_metric, performance_logger
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -209,7 +207,7 @@ class SystemPerformanceMonitor:
                 result = await db.execute(
                     text(
                         """
-                    SELECT 
+                    SELECT
                         COUNT(*) as total_users,
                         COUNT(CASE WHEN created_at > NOW() - INTERVAL '24 hours' THEN 1 END) as recent_users
                     FROM users
@@ -237,7 +235,7 @@ class SystemPerformanceMonitor:
                     text(
                         """
                     SELECT COUNT(*) as active_connections
-                    FROM pg_stat_activity 
+                    FROM pg_stat_activity
                     WHERE state = 'active'
                 """
                     )
@@ -350,54 +348,54 @@ class SystemPerformanceMonitor:
                         )
                         response_time = (time.time() - start_time) * 1000  # ms
 
-                        metrics[f"external_{service['name']}_response_time"] = (
-                            PerformanceMetric(
-                                name=f"external_{service['name']}_response_time",
-                                value=response_time,
-                                unit="milliseconds",
-                                timestamp=timestamp,
-                                component="external",
-                                metadata={
-                                    "status_code": response.status_code,
-                                    "service": service["name"],
-                                },
-                            )
+                        metrics[
+                            f"external_{service['name']}_response_time"
+                        ] = PerformanceMetric(
+                            name=f"external_{service['name']}_response_time",
+                            value=response_time,
+                            unit="milliseconds",
+                            timestamp=timestamp,
+                            component="external",
+                            metadata={
+                                "status_code": response.status_code,
+                                "service": service["name"],
+                            },
                         )
 
                         # Availability
                         available = 1 if response.status_code < 500 else 0
-                        metrics[f"external_{service['name']}_availability"] = (
-                            PerformanceMetric(
-                                name=f"external_{service['name']}_availability",
-                                value=available,
-                                unit="boolean",
-                                timestamp=timestamp,
-                                component="external",
-                                metadata={"status_code": response.status_code},
-                            )
+                        metrics[
+                            f"external_{service['name']}_availability"
+                        ] = PerformanceMetric(
+                            name=f"external_{service['name']}_availability",
+                            value=available,
+                            unit="boolean",
+                            timestamp=timestamp,
+                            component="external",
+                            metadata={"status_code": response.status_code},
                         )
 
                     except asyncio.TimeoutError:
-                        metrics[f"external_{service['name']}_availability"] = (
-                            PerformanceMetric(
-                                name=f"external_{service['name']}_availability",
-                                value=0,
-                                unit="boolean",
-                                timestamp=timestamp,
-                                component="external",
-                                metadata={"error": "timeout"},
-                            )
+                        metrics[
+                            f"external_{service['name']}_availability"
+                        ] = PerformanceMetric(
+                            name=f"external_{service['name']}_availability",
+                            value=0,
+                            unit="boolean",
+                            timestamp=timestamp,
+                            component="external",
+                            metadata={"error": "timeout"},
                         )
                     except Exception as e:
-                        metrics[f"external_{service['name']}_availability"] = (
-                            PerformanceMetric(
-                                name=f"external_{service['name']}_availability",
-                                value=0,
-                                unit="boolean",
-                                timestamp=timestamp,
-                                component="external",
-                                metadata={"error": str(e)},
-                            )
+                        metrics[
+                            f"external_{service['name']}_availability"
+                        ] = PerformanceMetric(
+                            name=f"external_{service['name']}_availability",
+                            value=0,
+                            unit="boolean",
+                            timestamp=timestamp,
+                            component="external",
+                            metadata={"error": str(e)},
                         )
 
             return metrics

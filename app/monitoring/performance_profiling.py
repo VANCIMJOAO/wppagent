@@ -415,7 +415,9 @@ class SimpleProfiler:
                         "priority": (
                             "high"
                             if avg_severity >= 7
-                            else "medium" if avg_severity >= 4 else "low"
+                            else "medium"
+                            if avg_severity >= 4
+                            else "low"
                         ),
                         "title": f"{bottleneck_type.value.replace('_', ' ').title()} Issues",
                         "description": f"Detected {len(group)} {bottleneck_type.value} issues affecting {total_functions} functions",

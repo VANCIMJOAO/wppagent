@@ -115,19 +115,19 @@ class EmailAlertChannel(AlertChannel):
             body = f"""
             ALERTA DO SISTEMA WHATSAPP AGENT
             ================================
-            
+
             Severidade: {alert.severity.value.upper()}
             Categoria: {alert.category.value}
             Timestamp: {alert.timestamp.strftime('%d/%m/%Y %H:%M:%S')}
-            
+
             Título: {alert.title}
-            
+
             Mensagem:
             {alert.message}
-            
+
             Metadados:
             {json.dumps(alert.metadata, indent=2, ensure_ascii=False)}
-            
+
             ID do Alerta: {alert.id}
             """
 

@@ -2,7 +2,7 @@
 Load Testing Executável para TRILHA 2 FASE 2.2
 ==============================================
 
-Script executável para rodar diferentes cenários 
+Script executável para rodar diferentes cenários
 de load testing com configurações otimizadas.
 """
 

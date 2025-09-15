@@ -53,7 +53,7 @@ def upgrade() -> None:
     # Migrar dados existentes: usar start_time para start_date e end_time para end_date
     op.execute(
         """
-        UPDATE blocked_times 
+        UPDATE blocked_times
         SET start_date = start_time, end_date = end_time
         WHERE start_date IS NULL OR end_date IS NULL
     """

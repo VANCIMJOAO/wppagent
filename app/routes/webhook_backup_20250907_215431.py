@@ -30,13 +30,19 @@ from app.config import settings
 from app.database import get_db
 from app.models.database import MetaLog
 from app.services.data import ConversationService, MessageService, UserService
+
 # 🔥 WebSocket Integration para notificações em tempo real
-from app.services.websocket_integration import (notify_message_sent,
-                                                notify_new_whatsapp_message)
+from app.services.websocket_integration import (
+    notify_message_sent,
+    notify_new_whatsapp_message,
+)
 from app.services.whatsapp import whatsapp_service
 from app.utils.logger import get_logger
-from app.utils.whatsapp_sanitizer import (sanitize_message, sanitize_phone,
-                                          sanitize_whatsapp_data)
+from app.utils.whatsapp_sanitizer import (
+    sanitize_message,
+    sanitize_phone,
+    sanitize_whatsapp_data,
+)
 
 logger = get_logger(__name__)
 
@@ -158,9 +164,7 @@ class AbsoluteResponseControl:
 
                 # Se usuário não existe, SEMPRE permitir (primeira mensagem)
                 if not user_exists:
-                    logger.info(
-                        f"✅ PRIMEIRO CONTATO: {user_id} - Criando novo usuário"
-                    )
+                    logger.info(f"✅ PRIMEIRO CONTATO: {user_id} - Criando novo usuário")
                     return True, "Primeiro contato - usuário será criado"
 
                 # Se usuário existe, aplicar controles normais APENAS se não for o primeiro uso hoje
@@ -170,7 +174,7 @@ class AbsoluteResponseControl:
                 today_usage = await db.execute(
                     text(
                         """
-                    SELECT COUNT(*) FROM messages 
+                    SELECT COUNT(*) FROM messages
                     WHERE user_id = :user_id
                     AND direction = 'in'
                     AND created_at::date = CURRENT_DATE
@@ -190,11 +194,11 @@ class AbsoluteResponseControl:
                 recent_response = await db.execute(
                     text(
                         """
-                    SELECT created_at FROM messages 
+                    SELECT created_at FROM messages
                     WHERE user_id = :user_id
                     AND direction = 'out'
                     AND created_at > NOW() - INTERVAL '30 seconds'
-                    ORDER BY created_at DESC 
+                    ORDER BY created_at DESC
                     LIMIT 1
                 """
                     ),
@@ -212,11 +216,11 @@ class AbsoluteResponseControl:
                 rate_limit_check = await db.execute(
                     text(
                         """
-                    SELECT created_at FROM messages 
+                    SELECT created_at FROM messages
                     WHERE user_id = :user_id
                     AND direction = 'in'
                     AND created_at > NOW() - INTERVAL '15 seconds'
-                    ORDER BY created_at DESC 
+                    ORDER BY created_at DESC
                     LIMIT 1
                 """
                     ),

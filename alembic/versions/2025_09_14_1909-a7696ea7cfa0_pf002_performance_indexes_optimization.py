@@ -27,7 +27,7 @@ def upgrade() -> None:
     # Índice otimizado para queries de agendamentos por usuário, data e status
     op.execute(
         """
-        CREATE INDEX IF NOT EXISTS idx_appointments_user_date_status 
+        CREATE INDEX IF NOT EXISTS idx_appointments_user_date_status
         ON appointments (user_id, date_time DESC, status)
         WHERE status IN ('agendado', 'confirmado', 'concluido')
     """
@@ -37,7 +37,7 @@ def upgrade() -> None:
     # Índice para listagem de mensagens por conversa ordenadas por data
     op.execute(
         """
-        CREATE INDEX IF NOT EXISTS idx_messages_conversation_created 
+        CREATE INDEX IF NOT EXISTS idx_messages_conversation_created
         ON messages (conversation_id, created_at DESC)
     """
     )
@@ -46,7 +46,7 @@ def upgrade() -> None:
     # Índice para listagem de conversas por usuário e status
     op.execute(
         """
-        CREATE INDEX IF NOT EXISTS idx_conversations_user_status 
+        CREATE INDEX IF NOT EXISTS idx_conversations_user_status
         ON conversations (user_id, status, last_message_at DESC)
     """
     )
@@ -55,8 +55,8 @@ def upgrade() -> None:
     # Índice otimizado para autenticação de administradores ativos
     op.execute(
         """
-        CREATE INDEX IF NOT EXISTS idx_admin_users_email_active 
-        ON admin_users (email, is_active) 
+        CREATE INDEX IF NOT EXISTS idx_admin_users_email_active
+        ON admin_users (email, is_active)
         WHERE is_active = true
     """
     )
@@ -65,8 +65,8 @@ def upgrade() -> None:
     # Índice para busca de serviços ativos por business
     op.execute(
         """
-        CREATE INDEX IF NOT EXISTS idx_services_business_active 
-        ON services (business_id, is_active) 
+        CREATE INDEX IF NOT EXISTS idx_services_business_active
+        ON services (business_id, is_active)
         WHERE is_active = true
     """
     )
@@ -75,8 +75,8 @@ def upgrade() -> None:
     # Índice para limpeza de sessões expiradas
     op.execute(
         """
-        CREATE INDEX IF NOT EXISTS idx_login_sessions_expires 
-        ON login_sessions (expires_at, is_active) 
+        CREATE INDEX IF NOT EXISTS idx_login_sessions_expires
+        ON login_sessions (expires_at, is_active)
         WHERE is_active = true
     """
     )

@@ -3,7 +3,7 @@
 ============================================================
 
 Implementa verificação de saúde de todos os componentes críticos:
-- Database (PostgreSQL) 
+- Database (PostgreSQL)
 - Redis/Cache
 - Meta API (WhatsApp)
 - Webhook endpoint
@@ -36,23 +36,23 @@ router = APIRouter(prefix="/health", tags=["Health Monitoring"])
     summary="🔍 Detailed System Health Check",
     description="""
     **Comprehensive health monitoring** for all system components with detailed metrics.
-    
+
     ### 🎯 What's Checked
-    
+
     - **🗄️ Database**: PostgreSQL connection, query performance, data integrity
-    - **🚀 Cache**: Redis connectivity, memory usage, hit rates  
+    - **🚀 Cache**: Redis connectivity, memory usage, hit rates
     - **📱 Meta API**: WhatsApp Business API connectivity and rate limits
     - **🔗 Webhook**: Endpoint availability and response times
     - **⚡ Performance**: CPU, memory, disk usage
-    
+
     ### 🔐 Security
-    
+
     - **Admin Role Required**: Only administrators can access detailed health information
     - **Rate Limited**: Maximum 10 requests per minute per user
-    
+
     ### 📊 Response Format
-    
-    Returns comprehensive health status with component-specific metrics, 
+
+    Returns comprehensive health status with component-specific metrics,
     performance data, and troubleshooting information.
     """,
     responses={

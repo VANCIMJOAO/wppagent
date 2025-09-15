@@ -1,7 +1,7 @@
 """add rbac system tables
 
 Revision ID: rbac_2025
-Revises: 2025_09_08_1600-add_refresh_tokens  
+Revises: 2025_09_08_1600-add_refresh_tokens
 Create Date: 2025-09-08 14:01:00.000000
 
 ✅ MIGRAÇÃO REORGANIZADA: Padrão de nomenclatura corrigido

@@ -18,13 +18,19 @@ from app.database import get_db
 from app.models.database import MetaLog
 from app.services.data import ConversationService, MessageService, UserService
 from app.services.response_control import get_unified_response_control
+
 # 🔥 WebSocket Integration
-from app.services.websocket_integration import (notify_message_sent,
-                                                notify_new_whatsapp_message)
+from app.services.websocket_integration import (
+    notify_message_sent,
+    notify_new_whatsapp_message,
+)
 from app.services.whatsapp import whatsapp_service
 from app.utils.logger import get_logger
-from app.utils.whatsapp_sanitizer import (sanitize_message, sanitize_phone,
-                                          sanitize_whatsapp_data)
+from app.utils.whatsapp_sanitizer import (
+    sanitize_message,
+    sanitize_phone,
+    sanitize_whatsapp_data,
+)
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/webhook", tags=["WhatsApp Webhook"])

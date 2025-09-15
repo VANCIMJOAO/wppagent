@@ -9,11 +9,21 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel, EmailStr
 
-from app.auth.rbac_decorators import (RequirePermission, RequireRole,
-                                      RequireSuperAdmin, get_current_user)
-from app.models.rbac import (PERMISSION_DEFINITIONS, ROLE_CONFIGURATIONS,
-                             PermissionResponse, PermissionType, RoleResponse,
-                             RoleType, UserResponse)
+from app.auth.rbac_decorators import (
+    RequirePermission,
+    RequireRole,
+    RequireSuperAdmin,
+    get_current_user,
+)
+from app.models.rbac import (
+    PERMISSION_DEFINITIONS,
+    ROLE_CONFIGURATIONS,
+    PermissionResponse,
+    PermissionType,
+    RoleResponse,
+    RoleType,
+    UserResponse,
+)
 from app.services.rbac_service import rbac_service
 
 router = APIRouter(prefix="/api/rbac", tags=["RBAC Management"])

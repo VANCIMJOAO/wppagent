@@ -500,7 +500,9 @@ class BusinessMetricsCollector:
                     "direction": (
                         "up"
                         if trend_percentage > 5
-                        else "down" if trend_percentage < -5 else "stable"
+                        else "down"
+                        if trend_percentage < -5
+                        else "stable"
                     ),
                     "percentage": round(trend_percentage, 2),
                     "daily_values": daily_values,

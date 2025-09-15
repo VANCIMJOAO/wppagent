@@ -7,6 +7,7 @@
 ## 🎯 **SECURITY OVERVIEW**
 
 ### **Security Stack** 🛡️
+
 ```
 🔒 Security Layers
 ├── 🍪 HttpOnly Cookie Authentication (XSS Protection)
@@ -22,6 +23,7 @@
 ```
 
 ### **Security Certifications** ✅
+
 - ✅ **LGPD Compliant** - Lei Geral de Proteção de Dados
 - ✅ **OWASP Top 10** - Protection against common vulnerabilities
 - ✅ **CSRF Protection** - Cross-Site Request Forgery prevention
@@ -38,6 +40,7 @@
 O sistema utiliza cookies HttpOnly como método principal de autenticação, oferecendo proteção máxima contra ataques XSS e CSRF.
 
 #### **Cookie Configuration**
+
 ```python
 # Configuração de segurança dos cookies
 COOKIE_SETTINGS = {
@@ -57,7 +60,7 @@ COOKIES = {
         "refresh": "automatic"
     },
     "refresh_token": {
-        "purpose": "Token refresh mechanism", 
+        "purpose": "Token refresh mechanism",
         "ttl": "7 days",
         "rotation": "on_use"
     },
@@ -70,6 +73,7 @@ COOKIES = {
 ```
 
 #### **Authentication Flow**
+
 ```mermaid
 sequenceDiagram
     participant Client
@@ -84,7 +88,7 @@ sequenceDiagram
     Auth-->>API: JWT tokens
     API->>Client: Set HttpOnly cookies
     Note over Client: Cookies stored securely
-    
+
     Client->>API: Subsequent requests
     Note over API: Cookies sent automatically
     API->>Auth: Validate JWT from cookie
@@ -93,6 +97,7 @@ sequenceDiagram
 ```
 
 #### **Security Headers**
+
 ```http
 # Response headers for maximum security
 Set-Cookie: access_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=3600; Path=/
@@ -104,20 +109,21 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 ```
 
 #### **Logout Security**
+
 ```python
 # Secure logout implementation
 def secure_logout():
     # 1. Invalidate JWT tokens in database
     invalidate_refresh_token(user_id)
-    
+
     # 2. Clear all authentication cookies
     response.delete_cookie("access_token", secure=True, httponly=True)
     response.delete_cookie("refresh_token", secure=True, httponly=True)
     response.delete_cookie("csrf_token", secure=True)
-    
+
     # 3. Log security event
     audit_log.info("User logout", user_id=user_id, ip=client_ip)
-    
+
     return {"success": True, "message": "Logged out securely"}
 ```
 
@@ -128,25 +134,26 @@ def secure_logout():
 ### **TOTP Implementation**
 
 #### **Setup Flow**
+
 ```python
 # 2FA Setup process
 def setup_2fa(user_id):
     # 1. Generate secret key
     secret = pyotp.random_base32()
-    
+
     # 2. Generate QR code
     totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
         name=user.email,
         issuer_name="WhatsApp Agent"
     )
     qr_code = generate_qr_code(totp_uri)
-    
+
     # 3. Generate backup codes
     backup_codes = [secrets.token_hex(4) for _ in range(6)]
-    
+
     # 4. Store temporarily (confirmed later)
     temp_store_2fa_setup(user_id, secret, backup_codes)
-    
+
     return {
         "qr_code": qr_code,
         "secret": secret,
@@ -156,13 +163,14 @@ def setup_2fa(user_id):
 ```
 
 #### **Verification Flow**
+
 ```python
 def verify_2fa(user_id, token, token_type="totp"):
     if token_type == "totp":
         # TOTP verification
         totp = pyotp.TOTP(user.totp_secret)
         valid = totp.verify(token, valid_window=1)
-        
+
     elif token_type == "backup":
         # Backup code verification
         valid = token in user.backup_codes
@@ -170,15 +178,15 @@ def verify_2fa(user_id, token, token_type="totp"):
             # Remove used backup code
             user.backup_codes.remove(token)
             save_user(user)
-    
+
     if valid:
         # Update last 2FA verification
         user.last_2fa_verification = datetime.utcnow()
         save_user(user)
-        
+
         # Log security event
         security_log.info("2FA verified", user_id=user_id, type=token_type)
-        
+
         return {"success": True, "message": "2FA verified"}
     else:
         # Log failed attempt
@@ -187,6 +195,7 @@ def verify_2fa(user_id, token, token_type="totp"):
 ```
 
 #### **Backup Codes Management**
+
 ```python
 # Backup codes features
 def regenerate_backup_codes(user_id):
@@ -194,23 +203,23 @@ def regenerate_backup_codes(user_id):
     user.backup_codes = new_codes
     user.backup_codes_generated_at = datetime.utcnow()
     save_user(user)
-    
+
     # Log security event
     audit_log.info("Backup codes regenerated", user_id=user_id)
-    
+
     return {"backup_codes": new_codes}
 
 def disable_2fa(user_id, confirmation_token):
     # Verify disable token
     if not verify_disable_token(user_id, confirmation_token):
         raise SecurityError("Invalid disable token")
-    
+
     # Clear 2FA settings
     user.totp_secret = None
     user.backup_codes = []
     user.two_factor_enabled = False
     save_user(user)
-    
+
     # Log security event
     security_log.warning("2FA disabled", user_id=user_id)
 ```
@@ -222,6 +231,7 @@ def disable_2fa(user_id, confirmation_token):
 ### **Multi-Layer Protection**
 
 #### **Architecture**
+
 ```
 Rate Limiting Layers:
 ├── 🌐 IP-based (200 req/min per IP)
@@ -232,6 +242,7 @@ Rate Limiting Layers:
 ```
 
 #### **Implementation**
+
 ```python
 # Rate limiting configuration
 RATE_LIMITS = {
@@ -242,14 +253,14 @@ RATE_LIMITS = {
         "exempt_roles": ["admin", "service"]
     },
     "ip_based": {
-        "limit": 200, 
+        "limit": 200,
         "window": "1 minute",
         "key_format": "ip:{client_ip}",
         "whitelist": ["127.0.0.1", "::1"]
     },
     "webhook_specific": {
         "limit": 100,
-        "window": "1 minute", 
+        "window": "1 minute",
         "endpoints": ["/webhook", "/webhook/verify"],
         "ddos_threshold": 500
     }
@@ -260,18 +271,18 @@ class RateLimitMiddleware:
     def __init__(self):
         self.redis = redis.Redis()
         self.blocked_ips = set()
-    
+
     async def __call__(self, request, call_next):
         client_ip = get_client_ip(request)
         user_id = get_user_id(request)
-        
+
         # Check if IP is blocked
         if client_ip in self.blocked_ips:
             return JSONResponse(
                 status_code=429,
                 content={"error": "IP temporarily blocked"}
             )
-        
+
         # Apply rate limits
         for limiter in self.get_applicable_limits(request):
             if not await limiter.check_limit(request):
@@ -282,11 +293,11 @@ class RateLimitMiddleware:
                     user_id=user_id,
                     endpoint=request.url.path
                 )
-                
+
                 # Check for DDoS pattern
                 if await self.detect_ddos(client_ip):
                     await self.block_ip(client_ip)
-                
+
                 return JSONResponse(
                     status_code=429,
                     content={
@@ -294,11 +305,12 @@ class RateLimitMiddleware:
                         "retry_after": limiter.retry_after
                     }
                 )
-        
+
         return await call_next(request)
 ```
 
 #### **DDoS Protection**
+
 ```python
 # Automated DDoS detection and mitigation
 class DDoSProtection:
@@ -306,23 +318,23 @@ class DDoSProtection:
         self.redis = redis.Redis()
         self.threshold = 500  # requests per minute
         self.block_duration = 3600  # 1 hour
-    
+
     async def detect_ddos(self, client_ip):
         # Count requests in last minute
         key = f"ddos_detect:{client_ip}"
         count = await self.redis.incr(key)
         await self.redis.expire(key, 60)
-        
+
         if count > self.threshold:
             await self.block_ip(client_ip)
             return True
         return False
-    
+
     async def block_ip(self, client_ip):
         # Add to blocked IPs
         block_key = f"blocked_ip:{client_ip}"
         await self.redis.setex(block_key, self.block_duration, "1")
-        
+
         # Log security incident
         security_log.critical(
             "IP blocked for DDoS",
@@ -330,7 +342,7 @@ class DDoSProtection:
             requests_per_minute=await self.get_request_count(client_ip),
             block_duration=self.block_duration
         )
-        
+
         # Send security alert
         await send_security_alert(
             type="ddos_detection",
@@ -340,6 +352,7 @@ class DDoSProtection:
 ```
 
 #### **Admin Controls**
+
 ```python
 # Administrative rate limiting controls
 @admin_required
@@ -358,7 +371,7 @@ async def clear_rate_limit_blocks(client_ip: str):
     """Clear rate limit blocks for specific IP"""
     await redis.delete(f"blocked_ip:{client_ip}")
     await redis.delete(f"rate_limit:ip:{client_ip}")
-    
+
     audit_log.info("Rate limit cleared", admin_id=current_user.id, client_ip=client_ip)
     return {"success": True, "message": f"Blocks cleared for {client_ip}"}
 ```
@@ -370,6 +383,7 @@ async def clear_rate_limit_blocks(client_ip: str):
 ### **Automatic Data Protection**
 
 #### **Sensitive Data Detection**
+
 ```python
 # Patterns for sensitive data detection
 SENSITIVE_PATTERNS = {
@@ -389,11 +403,11 @@ class LogSanitizer:
             name: re.compile(pattern, re.IGNORECASE)
             for name, pattern in self.patterns.items()
         }
-    
+
     def sanitize(self, message: str) -> str:
         """Sanitize sensitive data from log message"""
         sanitized = message
-        
+
         for pattern_name, compiled_pattern in self.compiled_patterns.items():
             if pattern_name == "cpf":
                 sanitized = compiled_pattern.sub(
@@ -413,23 +427,24 @@ class LogSanitizer:
             else:
                 # Complete redaction for passwords, tokens, etc.
                 sanitized = compiled_pattern.sub(f"[REDACTED-{pattern_name.upper()}]", sanitized)
-        
+
         return sanitized
 ```
 
 #### **Structured Logging Implementation**
+
 ```python
 # Secure structured logging
 class SecureLogger:
     def __init__(self):
         self.sanitizer = LogSanitizer()
         self.logger = structlog.get_logger()
-    
+
     def log(self, level: str, message: str, **kwargs):
         # Sanitize message and kwargs
         sanitized_message = self.sanitizer.sanitize(message)
         sanitized_kwargs = self._sanitize_kwargs(kwargs)
-        
+
         # Add security context
         log_entry = {
             "timestamp": datetime.utcnow().isoformat(),
@@ -442,13 +457,13 @@ class SecureLogger:
             "category": kwargs.pop("category", "system"),
             **sanitized_kwargs
         }
-        
+
         # Log with trace ID for correlation
         if trace_id := get_current_trace_id():
             log_entry["trace_id"] = trace_id
-        
+
         getattr(self.logger, level)(log_entry)
-    
+
     def _sanitize_kwargs(self, kwargs):
         """Sanitize all kwargs values"""
         sanitized = {}
@@ -477,6 +492,7 @@ secure_logger.warning("Failed auth", password="secret123", ip="192.168.1.1")
 ## 🎯 **CONTENT SECURITY POLICY (CSP)**
 
 ### **CSP Headers Implementation**
+
 ```python
 # Content Security Policy configuration
 CSP_POLICIES = {
@@ -497,26 +513,26 @@ CSP_POLICIES = {
 class CSPMiddleware:
     def __init__(self):
         self.policy_string = "; ".join(
-            f"{directive} {sources}" 
+            f"{directive} {sources}"
             for directive, sources in CSP_POLICIES.items()
         )
-    
+
     async def __call__(self, request, call_next):
         response = await call_next(request)
-        
+
         # Add CSP header
         response.headers["Content-Security-Policy"] = self.policy_string
-        
+
         # Additional security headers
         response.headers.update({
             "X-Content-Type-Options": "nosniff",
-            "X-Frame-Options": "DENY", 
+            "X-Frame-Options": "DENY",
             "X-XSS-Protection": "1; mode=block",
             "Referrer-Policy": "strict-origin-when-cross-origin",
             "X-Permitted-Cross-Domain-Policies": "none",
             "X-DNS-Prefetch-Control": "off"
         })
-        
+
         return response
 ```
 
@@ -525,24 +541,25 @@ class CSPMiddleware:
 ## 🔗 **HTTPS ENFORCEMENT**
 
 ### **HTTPS Middleware**
+
 ```python
 class HTTPSEnforcementMiddleware:
     def __init__(self, max_age: int = 31536000):  # 1 year
         self.max_age = max_age
-    
+
     async def __call__(self, request, call_next):
         # Force HTTPS in production
         if not request.url.scheme == "https" and os.getenv("ENVIRONMENT") == "production":
             https_url = request.url.replace(scheme="https")
             return RedirectResponse(url=str(https_url), status_code=301)
-        
+
         response = await call_next(request)
-        
+
         # Add HSTS header
         response.headers["Strict-Transport-Security"] = (
             f"max-age={self.max_age}; includeSubDomains; preload"
         )
-        
+
         return response
 ```
 
@@ -551,19 +568,20 @@ class HTTPSEnforcementMiddleware:
 ## 🔍 **REQUEST LOGGING & APM**
 
 ### **Structured Request Logging**
+
 ```python
 class RequestLoggingMiddleware:
     def __init__(self):
         self.logger = SecureLogger()
         self.sanitizer = LogSanitizer()
-    
+
     async def __call__(self, request, call_next):
         start_time = time.time()
         trace_id = str(uuid.uuid4())[:8]
-        
+
         # Set trace ID in context
         set_trace_id(trace_id)
-        
+
         # Log request start
         self.logger.info(
             "Request started",
@@ -573,13 +591,13 @@ class RequestLoggingMiddleware:
             user_agent=request.headers.get("user-agent", "unknown"),
             trace_id=trace_id
         )
-        
+
         try:
             response = await call_next(request)
-            
+
             # Calculate duration
             duration = (time.time() - start_time) * 1000
-            
+
             # Log successful response
             self.logger.info(
                 "Request completed",
@@ -587,15 +605,15 @@ class RequestLoggingMiddleware:
                 duration_ms=round(duration, 2),
                 trace_id=trace_id
             )
-            
+
             # Add trace ID to response headers
             response.headers["X-Trace-ID"] = trace_id
-            
+
             return response
-            
+
         except Exception as e:
             duration = (time.time() - start_time) * 1000
-            
+
             # Log error
             self.logger.error(
                 "Request failed",
@@ -612,24 +630,25 @@ class RequestLoggingMiddleware:
 ## ⚡ **PERFORMANCE MONITORING (PF-001)**
 
 ### **N+1 Query Detection**
+
 ```python
 class DatabasePerformanceMiddleware:
     def __init__(self):
         self.query_threshold = 100  # Max queries per request
         self.duration_threshold = 1000  # Max duration in ms
         self.logger = SecureLogger()
-    
+
     async def __call__(self, request, call_next):
         # Start query monitoring
         query_monitor = QueryMonitor()
         query_monitor.start()
-        
+
         try:
             response = await call_next(request)
-            
+
             # Get query statistics
             stats = query_monitor.get_stats()
-            
+
             # Check for N+1 queries
             if stats.query_count > self.query_threshold:
                 self.logger.warning(
@@ -639,7 +658,7 @@ class DatabasePerformanceMiddleware:
                     duration_ms=stats.total_duration,
                     similar_queries=stats.similar_queries
                 )
-            
+
             # Check for slow queries
             if stats.total_duration > self.duration_threshold:
                 self.logger.warning(
@@ -648,16 +667,16 @@ class DatabasePerformanceMiddleware:
                     endpoint=request.url.path,
                     slowest_query=stats.slowest_query
                 )
-            
+
             # Add performance headers
             response.headers.update({
                 "X-Query-Count": str(stats.query_count),
                 "X-Query-Duration": str(stats.total_duration),
                 "X-Cache-Hit": str(stats.cache_hits > 0)
             })
-            
+
             return response
-            
+
         finally:
             query_monitor.stop()
 ```
@@ -667,11 +686,12 @@ class DatabasePerformanceMiddleware:
 ## 🛡️ **RBAC SYSTEM**
 
 ### **Role-Based Access Control**
+
 ```python
 # Permission system
 class Permission:
     READ = "read"
-    WRITE = "write" 
+    WRITE = "write"
     DELETE = "delete"
     ADMIN = "admin"
     EXPORT = "export"
@@ -701,7 +721,7 @@ def require_permission(permission: str):
             current_user = get_current_user()
             if not current_user:
                 raise HTTPException(status_code=401, detail="Authentication required")
-            
+
             user_permissions = ROLE_PERMISSIONS.get(current_user.role, [])
             if permission not in user_permissions:
                 # Log unauthorized access attempt
@@ -713,7 +733,7 @@ def require_permission(permission: str):
                     endpoint=request.url.path
                 )
                 raise HTTPException(status_code=403, detail="Insufficient permissions")
-            
+
             return await func(*args, **kwargs)
         return wrapper
     return decorator
@@ -735,6 +755,7 @@ async def export_data():
 ## 🚨 **SECURITY MONITORING & ALERTS**
 
 ### **Security Event Detection**
+
 ```python
 class SecurityMonitor:
     def __init__(self):
@@ -745,7 +766,7 @@ class SecurityMonitor:
             "2fa_failures": 3,       # per user per 5 minutes
             "admin_access": 1        # any admin access
         }
-    
+
     async def track_event(self, event_type: str, **context):
         # Log security event
         self.logger.info(
@@ -753,11 +774,11 @@ class SecurityMonitor:
             event_type=event_type,
             **context
         )
-        
+
         # Check alert thresholds
         if await self._should_alert(event_type, context):
             await self._send_security_alert(event_type, context)
-    
+
     async def _should_alert(self, event_type: str, context: dict) -> bool:
         if event_type == "failed_login":
             # Count failed logins for IP
@@ -766,14 +787,14 @@ class SecurityMonitor:
             count = await redis.incr(key)
             await redis.expire(key, 600)  # 10 minutes
             return count >= self.alert_thresholds["failed_logins"]
-        
+
         elif event_type == "admin_access":
             # Always alert on admin access
             return True
-        
+
         # Add more event type checks...
         return False
-    
+
     async def _send_security_alert(self, event_type: str, context: dict):
         alert = {
             "type": "security_alert",
@@ -783,10 +804,10 @@ class SecurityMonitor:
             "timestamp": datetime.utcnow().isoformat(),
             "environment": os.getenv("ENVIRONMENT")
         }
-        
+
         # Send to monitoring system
         await send_to_monitoring_system(alert)
-        
+
         # Send email/Slack notification for critical events
         if alert["severity"] == "critical":
             await send_critical_alert_notification(alert)
@@ -799,6 +820,7 @@ class SecurityMonitor:
 ### **Implementation Verification** ✅
 
 #### **Authentication & Authorization**
+
 - ✅ HttpOnly cookies implemented
 - ✅ JWT tokens with secure configuration
 - ✅ 2FA with TOTP and backup codes
@@ -807,6 +829,7 @@ class SecurityMonitor:
 - ✅ Session management with rotation
 
 #### **Protection Mechanisms**
+
 - ✅ Rate limiting (user/IP/webhook)
 - ✅ DDoS protection with auto-blocking
 - ✅ CSRF protection with tokens
@@ -815,6 +838,7 @@ class SecurityMonitor:
 - ✅ HTTPS enforcement
 
 #### **Data Protection**
+
 - ✅ Log sanitization (S002 compliant)
 - ✅ Sensitive data encryption
 - ✅ LGPD compliance measures
@@ -822,6 +846,7 @@ class SecurityMonitor:
 - ✅ Secure backup procedures
 
 #### **Monitoring & Alerting**
+
 - ✅ Security event logging
 - ✅ Performance monitoring
 - ✅ Real-time alerting

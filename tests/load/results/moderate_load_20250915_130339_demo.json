@@ -1,477 +1,477 @@
 {
-  "scenario": "moderate_load",
   "config": {
-    "users": 15,
     "duration": 30,
     "endpoints": {
-      "/health": 30,
-      "/webhook": 25,
+      "/analytics": 10,
       "/conversations": 20,
       "/dashboard": 15,
-      "/analytics": 10
-    }
+      "/health": 30,
+      "/webhook": 25
+    },
+    "users": 15
   },
   "metrics": {
-    "total_requests": 225,
-    "successful_requests": 222,
+    "avg_response_time": 70.81955368139452,
+    "duration_actual": 15.976969480514526,
     "failed_requests": 3,
     "failure_rate": 1.3333333333333335,
-    "avg_response_time": 70.81955368139452,
-    "min_response_time": 31.147305886079526,
     "max_response_time": 114.15007395257142,
+    "min_response_time": 31.147305886079526,
     "rps": 14.082770845522955,
-    "duration_actual": 15.976969480514526
+    "successful_requests": 222,
+    "total_requests": 225
   },
   "raw_results": [
     {
       "endpoint": "/conversations",
+      "request_num": 0,
       "response_time": 64.72385842471469,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 0,
-      "timestamp": 1757952204.0145502
+      "success": true,
+      "timestamp": 1757952204.0145502,
+      "user_id": 0
     },
     {
       "endpoint": "/analytics",
+      "request_num": 1,
       "response_time": 62.07155068528748,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 1,
-      "timestamp": 1757952204.0767248
+      "success": true,
+      "timestamp": 1757952204.0767248,
+      "user_id": 0
     },
     {
       "endpoint": "/conversations",
+      "request_num": 2,
       "response_time": 94.02678538650056,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 2,
-      "timestamp": 1757952204.1708565
+      "success": true,
+      "timestamp": 1757952204.1708565,
+      "user_id": 0
     },
     {
       "endpoint": "/health",
+      "request_num": 3,
       "response_time": 62.5662730568762,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 3,
-      "timestamp": 1757952204.2335248
+      "success": true,
+      "timestamp": 1757952204.2335248,
+      "user_id": 0
     },
     {
       "endpoint": "/conversations",
+      "request_num": 4,
       "response_time": 81.02077965135979,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 4,
-      "timestamp": 1757952204.3146462
+      "success": true,
+      "timestamp": 1757952204.3146462,
+      "user_id": 0
     },
     {
       "endpoint": "/webhook",
+      "request_num": 5,
       "response_time": 50.51710319887137,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 5,
-      "timestamp": 1757952204.3652618
+      "success": true,
+      "timestamp": 1757952204.3652618,
+      "user_id": 0
     },
     {
       "endpoint": "/webhook",
+      "request_num": 6,
       "response_time": 38.86752295446775,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 6,
-      "timestamp": 1757952204.4042192
+      "success": true,
+      "timestamp": 1757952204.4042192,
+      "user_id": 0
     },
     {
       "endpoint": "/health",
+      "request_num": 7,
       "response_time": 53.26238217153287,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 7,
-      "timestamp": 1757952204.4575787
+      "success": true,
+      "timestamp": 1757952204.4575787,
+      "user_id": 0
     },
     {
       "endpoint": "/webhook",
+      "request_num": 8,
       "response_time": 47.169796361646746,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 8,
-      "timestamp": 1757952204.5048501
+      "success": true,
+      "timestamp": 1757952204.5048501,
+      "user_id": 0
     },
     {
       "endpoint": "/conversations",
+      "request_num": 9,
       "response_time": 87.12259633886981,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 9,
-      "timestamp": 1757952204.5920682
+      "success": true,
+      "timestamp": 1757952204.5920682,
+      "user_id": 0
     },
     {
       "endpoint": "/analytics",
+      "request_num": 10,
       "response_time": 59.98132156052366,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 10,
-      "timestamp": 1757952204.6521611
+      "success": true,
+      "timestamp": 1757952204.6521611,
+      "user_id": 0
     },
     {
       "endpoint": "/conversations",
+      "request_num": 11,
       "response_time": 44.60902476728471,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 11,
-      "timestamp": 1757952204.696869
+      "success": true,
+      "timestamp": 1757952204.696869,
+      "user_id": 0
     },
     {
       "endpoint": "/conversations",
+      "request_num": 12,
       "response_time": 33.316613629393075,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 12,
-      "timestamp": 1757952204.7302897
+      "success": true,
+      "timestamp": 1757952204.7302897,
+      "user_id": 0
     },
     {
       "endpoint": "/webhook",
+      "request_num": 13,
       "response_time": 68.38897961739097,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 13,
-      "timestamp": 1757952204.7987816
+      "success": true,
+      "timestamp": 1757952204.7987816,
+      "user_id": 0
     },
     {
       "endpoint": "/conversations",
+      "request_num": 14,
       "response_time": 70.78455463273406,
-      "success": true,
       "status_code": 200,
-      "user_id": 0,
-      "request_num": 14,
-      "timestamp": 1757952204.8696728
+      "success": true,
+      "timestamp": 1757952204.8696728,
+      "user_id": 0
     },
     {
       "endpoint": "/analytics",
+      "request_num": 0,
       "response_time": 64.47316657166886,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 0,
-      "timestamp": 1757952204.9342446
+      "success": true,
+      "timestamp": 1757952204.9342446,
+      "user_id": 1
     },
     {
       "endpoint": "/dashboard",
+      "request_num": 1,
       "response_time": 105.04685345773501,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 1,
-      "timestamp": 1757952205.0393906
+      "success": true,
+      "timestamp": 1757952205.0393906,
+      "user_id": 1
     },
     {
       "endpoint": "/webhook",
+      "request_num": 2,
       "response_time": 58.58607002228913,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 2,
-      "timestamp": 1757952205.0980732
+      "success": true,
+      "timestamp": 1757952205.0980732,
+      "user_id": 1
     },
     {
       "endpoint": "/dashboard",
+      "request_num": 3,
       "response_time": 71.35127602183381,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 3,
-      "timestamp": 1757952205.1695259
+      "success": true,
+      "timestamp": 1757952205.1695259,
+      "user_id": 1
     },
     {
       "endpoint": "/webhook",
+      "request_num": 4,
       "response_time": 52.52277471719913,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 4,
-      "timestamp": 1757952205.2221525
+      "success": true,
+      "timestamp": 1757952205.2221525,
+      "user_id": 1
     },
     {
       "endpoint": "/webhook",
+      "request_num": 5,
       "response_time": 60.72823529699012,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 5,
-      "timestamp": 1757952205.283037
+      "success": true,
+      "timestamp": 1757952205.283037,
+      "user_id": 1
     },
     {
       "endpoint": "/conversations",
+      "request_num": 6,
       "response_time": 56.06489796150133,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 6,
-      "timestamp": 1757952205.3392053
+      "success": true,
+      "timestamp": 1757952205.3392053,
+      "user_id": 1
     },
     {
       "endpoint": "/health",
+      "request_num": 7,
       "response_time": 82.09654910028802,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 7,
-      "timestamp": 1757952205.4214044
+      "success": true,
+      "timestamp": 1757952205.4214044,
+      "user_id": 1
     },
     {
       "endpoint": "/health",
+      "request_num": 8,
       "response_time": 59.91051840077156,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 8,
-      "timestamp": 1757952205.481435
+      "success": true,
+      "timestamp": 1757952205.481435,
+      "user_id": 1
     },
     {
       "endpoint": "/health",
+      "request_num": 9,
       "response_time": 66.05603337844953,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 9,
-      "timestamp": 1757952205.5475876
+      "success": true,
+      "timestamp": 1757952205.5475876,
+      "user_id": 1
     },
     {
       "endpoint": "/conversations",
+      "request_num": 10,
       "response_time": 96.88106499961924,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 10,
-      "timestamp": 1757952205.644566
+      "success": true,
+      "timestamp": 1757952205.644566,
+      "user_id": 1
     },
     {
       "endpoint": "/webhook",
+      "request_num": 11,
       "response_time": 83.70220398879115,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 11,
-      "timestamp": 1757952205.7283692
+      "success": true,
+      "timestamp": 1757952205.7283692,
+      "user_id": 1
     },
     {
       "endpoint": "/health",
+      "request_num": 12,
       "response_time": 88.23261059746288,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 12,
-      "timestamp": 1757952205.8167071
+      "success": true,
+      "timestamp": 1757952205.8167071,
+      "user_id": 1
     },
     {
       "endpoint": "/health",
+      "request_num": 13,
       "response_time": 55.79646380063498,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 13,
-      "timestamp": 1757952205.872605
+      "success": true,
+      "timestamp": 1757952205.872605,
+      "user_id": 1
     },
     {
       "endpoint": "/webhook",
+      "request_num": 14,
       "response_time": 90.00555213137379,
-      "success": true,
       "status_code": 200,
-      "user_id": 1,
-      "request_num": 14,
-      "timestamp": 1757952205.962714
+      "success": true,
+      "timestamp": 1757952205.962714,
+      "user_id": 1
     },
     {
       "endpoint": "/health",
+      "request_num": 0,
       "response_time": 101.91787434639295,
-      "success": true,
       "status_code": 200,
-      "user_id": 2,
-      "request_num": 0,
-      "timestamp": 1757952206.0647724
+      "success": true,
+      "timestamp": 1757952206.0647724,
+      "user_id": 2
     },
     {
       "endpoint": "/webhook",
+      "request_num": 1,
       "response_time": 97.52525394667019,
-      "success": true,
       "status_code": 200,
-      "user_id": 2,
-      "request_num": 1,
-      "timestamp": 1757952206.1624062
+      "success": true,
+      "timestamp": 1757952206.1624062,
+      "user_id": 2
     },
     {
       "endpoint": "/health",
+      "request_num": 2,
       "response_time": 35.80824871972946,
-      "success": true,
       "status_code": 200,
-      "user_id": 2,
-      "request_num": 2,
-      "timestamp": 1757952206.1983266
+      "success": true,
+      "timestamp": 1757952206.1983266,
+      "user_id": 2
     },
     {
       "endpoint": "/health",
+      "request_num": 3,
       "response_time": 96.45856942047479,
-      "success": true,
       "status_code": 200,
-      "user_id": 2,
-      "request_num": 3,
-      "timestamp": 1757952206.2948947
+      "success": true,
+      "timestamp": 1757952206.2948947,
+      "user_id": 2
     },
     {
       "endpoint": "/conversations",
+      "request_num": 4,
       "response_time": 51.0857852045298,
-      "success": true,
       "status_code": 200,
-      "user_id": 2,
-      "request_num": 4,
-      "timestamp": 1757952206.3460872
+      "success": true,
+      "timestamp": 1757952206.3460872,
+      "user_id": 2
     },
     {
       "endpoint": "/dashboard",
-      "response_time": 51.573358774422374,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 5,
-      "timestamp": 1757952206.3977618
+      "response_time": 51.573358774422374,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952206.3977618,
+      "user_id": 2
     },
     {
       "endpoint": "/conversations",
-      "response_time": 65.26132439737354,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 6,
-      "timestamp": 1757952206.4631193
+      "response_time": 65.26132439737354,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952206.4631193,
+      "user_id": 2
     },
     {
       "endpoint": "/webhook",
-      "response_time": 91.1111754672361,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 7,
-      "timestamp": 1757952206.5543256
+      "response_time": 91.1111754672361,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952206.5543256,
+      "user_id": 2
     },
     {
       "endpoint": "/health",
-      "response_time": 67.73086519259728,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 8,
-      "timestamp": 1757952206.6221573
+      "response_time": 67.73086519259728,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952206.6221573,
+      "user_id": 2
     },
     {
       "endpoint": "/analytics",
-      "response_time": 79.67076548093046,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 9,
-      "timestamp": 1757952206.7019293
+      "response_time": 79.67076548093046,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952206.7019293,
+      "user_id": 2
     },
     {
       "endpoint": "/health",
-      "response_time": 68.64136814103045,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 10,
-      "timestamp": 1757952206.7706995
+      "response_time": 68.64136814103045,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952206.7706995,
+      "user_id": 2
     },
     {
       "endpoint": "/health",
-      "response_time": 71.45944277659095,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 11,
-      "timestamp": 1757952206.8422592
+      "response_time": 71.45944277659095,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952206.8422592,
+      "user_id": 2
     },
     {
       "endpoint": "/analytics",
-      "response_time": 81.56347030542977,
-      "success": false,
-      "status_code": 502,
-      "user_id": 2,
       "request_num": 12,
-      "timestamp": 1757952206.9239376
+      "response_time": 81.56347030542977,
+      "status_code": 502,
+      "success": false,
+      "timestamp": 1757952206.9239376,
+      "user_id": 2
     },
     {
       "endpoint": "/dashboard",
-      "response_time": 79.28974538385965,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 13,
-      "timestamp": 1757952207.0033185
+      "response_time": 79.28974538385965,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952207.0033185,
+      "user_id": 2
     },
     {
       "endpoint": "/dashboard",
-      "response_time": 111.26173149863973,
-      "success": true,
-      "status_code": 200,
-      "user_id": 2,
       "request_num": 14,
-      "timestamp": 1757952207.1146808
+      "response_time": 111.26173149863973,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952207.1146808,
+      "user_id": 2
     },
     {
       "endpoint": "/dashboard",
-      "response_time": 73.24137004341344,
-      "success": true,
-      "status_code": 200,
-      "user_id": 3,
       "request_num": 0,
-      "timestamp": 1757952207.188016
+      "response_time": 73.24137004341344,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952207.188016,
+      "user_id": 3
     },
     {
       "endpoint": "/analytics",
-      "response_time": 83.44290620403467,
-      "success": true,
-      "status_code": 200,
-      "user_id": 3,
       "request_num": 1,
-      "timestamp": 1757952207.2715552
+      "response_time": 83.44290620403467,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952207.2715552,
+      "user_id": 3
     },
     {
       "endpoint": "/webhook",
-      "response_time": 65.2131396043437,
-      "success": true,
-      "status_code": 200,
-      "user_id": 3,
       "request_num": 2,
-      "timestamp": 1757952207.3368635
+      "response_time": 65.2131396043437,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952207.3368635,
+      "user_id": 3
     },
     {
       "endpoint": "/health",
-      "response_time": 89.38011024294022,
-      "success": true,
-      "status_code": 200,
-      "user_id": 3,
       "request_num": 3,
-      "timestamp": 1757952207.4263394
+      "response_time": 89.38011024294022,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952207.4263394,
+      "user_id": 3
     },
     {
       "endpoint": "/webhook",
-      "response_time": 32.499298549291865,
-      "success": true,
-      "status_code": 200,
-      "user_id": 3,
       "request_num": 4,
-      "timestamp": 1757952207.4589362
+      "response_time": 32.499298549291865,
+      "status_code": 200,
+      "success": true,
+      "timestamp": 1757952207.4589362,
+      "user_id": 3
     }
-  ]
+  ],
+  "scenario": "moderate_load"
 }

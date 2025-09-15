@@ -9,8 +9,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 
 from ..services.lgpd_compliance import LGPDComplianceManager, get_lgpd_manager
-from ..services.lgpd_scheduler import (LGPDRetentionScheduler,
-                                       get_lgpd_scheduler)
+from ..services.lgpd_scheduler import LGPDRetentionScheduler, get_lgpd_scheduler
 
 router = APIRouter(prefix="/admin/lgpd")
 
@@ -48,7 +47,7 @@ async def lgpd_admin_dashboard():
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         <!-- Status Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white overflow-hidden shadow rounded-lg">
@@ -118,14 +117,14 @@ async def lgpd_admin_dashboard():
 
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
+
             <!-- Políticas de Retenção -->
             <div class="bg-white shadow rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
                         <i class="fas fa-trash-alt mr-2"></i>Políticas de Retenção
                     </h3>
-                    
+
                     <div class="space-y-4">
                         <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
                             <div>
@@ -136,7 +135,7 @@ async def lgpd_admin_dashboard():
                                 Ativo
                             </span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
                             <div>
                                 <p class="font-medium">Conversas</p>
@@ -146,7 +145,7 @@ async def lgpd_admin_dashboard():
                                 Ativo
                             </span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
                             <div>
                                 <p class="font-medium">Agendamentos</p>
@@ -157,9 +156,9 @@ async def lgpd_admin_dashboard():
                             </span>
                         </div>
                     </div>
-                    
+
                     <div class="mt-6">
-                        <button onclick="applyRetentionPolicies()" 
+                        <button onclick="applyRetentionPolicies()"
                                 class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150">
                             <i class="fas fa-play mr-2"></i>Executar Políticas Agora
                         </button>
@@ -173,7 +172,7 @@ async def lgpd_admin_dashboard():
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
                         <i class="fas fa-user-check mr-2"></i>Direitos dos Usuários
                     </h3>
-                    
+
                     <div class="grid grid-cols-2 gap-4">
                         <div class="text-center p-4 bg-blue-50 rounded-lg">
                             <i class="fas fa-eye text-blue-600 text-2xl mb-2"></i>
@@ -181,21 +180,21 @@ async def lgpd_admin_dashboard():
                             <p class="text-sm text-gray-600">Visualizar dados</p>
                             <span class="inline-block mt-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Disponível</span>
                         </div>
-                        
+
                         <div class="text-center p-4 bg-green-50 rounded-lg">
                             <i class="fas fa-download text-green-600 text-2xl mb-2"></i>
                             <p class="font-medium">Portabilidade</p>
                             <p class="text-sm text-gray-600">Exportar dados</p>
                             <span class="inline-block mt-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Disponível</span>
                         </div>
-                        
+
                         <div class="text-center p-4 bg-red-50 rounded-lg">
                             <i class="fas fa-trash text-red-600 text-2xl mb-2"></i>
                             <p class="font-medium">Eliminação</p>
                             <p class="text-sm text-gray-600">Deletar conta</p>
                             <span class="inline-block mt-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Disponível</span>
                         </div>
-                        
+
                         <div class="text-center p-4 bg-gray-50 rounded-lg">
                             <i class="fas fa-edit text-gray-600 text-2xl mb-2"></i>
                             <p class="font-medium">Correção</p>
@@ -214,14 +213,14 @@ async def lgpd_admin_dashboard():
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
                         <i class="fas fa-chart-bar mr-2"></i>Relatórios e Monitoramento
                     </h3>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- Gráfico de Dados por Categoria -->
                         <div>
                             <h4 class="font-medium mb-2">Dados por Categoria</h4>
                             <canvas id="dataCategoryChart" width="200" height="200"></canvas>
                         </div>
-                        
+
                         <!-- Últimas Atividades -->
                         <div class="md:col-span-2">
                             <h4 class="font-medium mb-2">Últimas Atividades LGPD</h4>
@@ -252,24 +251,24 @@ async def lgpd_admin_dashboard():
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
                         <i class="fas fa-tools mr-2"></i>Ações Administrativas
                     </h3>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <button onclick="generateReport()" 
+                        <button onclick="generateReport()"
                                 class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md transition duration-150">
                             <i class="fas fa-file-alt mr-2"></i>Gerar Relatório
                         </button>
-                        
-                        <button onclick="exportUsers()" 
+
+                        <button onclick="exportUsers()"
                                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition duration-150">
                             <i class="fas fa-users mr-2"></i>Exportar Usuários
                         </button>
-                        
-                        <button onclick="viewScheduler()" 
+
+                        <button onclick="viewScheduler()"
                                 class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-md transition duration-150">
                             <i class="fas fa-calendar mr-2"></i>Ver Agendamento
                         </button>
-                        
-                        <button onclick="viewLogs()" 
+
+                        <button onclick="viewLogs()"
                                 class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-md transition duration-150">
                             <i class="fas fa-list mr-2"></i>Ver Logs
                         </button>
@@ -299,7 +298,7 @@ async def lgpd_admin_dashboard():
                 </button>
             </div>
             <div id="result-content" class="mb-4"></div>
-            <button onclick="closeResultModal()" 
+            <button onclick="closeResultModal()"
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
                 Fechar
             </button>
@@ -317,12 +316,12 @@ async def lgpd_admin_dashboard():
             try {
                 const response = await fetch('/api/lgpd/data-processing-report');
                 const data = await response.json();
-                
+
                 document.getElementById('total-records').textContent = data.total_records.toLocaleString();
-                
+
                 // Simular dados de usuários
                 document.getElementById('total-users').textContent = '1,234';
-                
+
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
                 document.getElementById('total-records').textContent = 'Erro';
@@ -340,7 +339,7 @@ async def lgpd_admin_dashboard():
                         data: [40, 35, 20, 5],
                         backgroundColor: [
                             '#3B82F6',
-                            '#10B981', 
+                            '#10B981',
                             '#F59E0B',
                             '#6B7280'
                         ]
@@ -358,22 +357,22 @@ async def lgpd_admin_dashboard():
 
         async function applyRetentionPolicies() {
             showLoadingModal();
-            
+
             try {
                 const response = await fetch('/api/lgpd/apply-retention-policies', {
                     method: 'POST'
                 });
-                
+
                 const result = await response.json();
-                
+
                 hideLoadingModal();
-                showResultModal('Políticas de Retenção', 
+                showResultModal('Políticas de Retenção',
                     `<p><strong>Registros processados:</strong> ${result.total_records_processed}</p>
                      <p><strong>Registros deletados:</strong> ${result.total_records_deleted}</p>
                      <p><strong>Registros anonimizados:</strong> ${result.total_records_anonymized}</p>
                      <p class="text-green-600 mt-2">✅ Políticas aplicadas com sucesso!</p>`
                 );
-                
+
             } catch (error) {
                 hideLoadingModal();
                 showResultModal('Erro', `<p class="text-red-600">❌ Erro ao aplicar políticas: ${error.message}</p>`);
@@ -382,19 +381,19 @@ async def lgpd_admin_dashboard():
 
         async function generateReport() {
             showLoadingModal();
-            
+
             try {
                 const response = await fetch('/api/lgpd/data-processing-report');
                 const report = await response.json();
-                
+
                 hideLoadingModal();
-                showResultModal('Relatório LGPD', 
+                showResultModal('Relatório LGPD',
                     `<p><strong>Total de registros:</strong> ${report.total_records}</p>
                      <p><strong>Categorias de dados:</strong> ${Object.keys(report.data_categories).length}</p>
                      <p><strong>Finalidades:</strong> ${Object.keys(report.processing_purposes).length}</p>
                      <p class="text-blue-600 mt-2">📊 Relatório gerado com sucesso!</p>`
                 );
-                
+
             } catch (error) {
                 hideLoadingModal();
                 showResultModal('Erro', `<p class="text-red-600">❌ Erro ao gerar relatório: ${error.message}</p>`);
@@ -402,12 +401,12 @@ async def lgpd_admin_dashboard():
         }
 
         function exportUsers() {
-            showResultModal('Exportação de Usuários', 
+            showResultModal('Exportação de Usuários',
                 '<p>🚧 Funcionalidade em desenvolvimento</p><p class="text-gray-600 text-sm mt-2">Esta funcionalidade será implementada em breve.</p>');
         }
 
         function viewScheduler() {
-            showResultModal('Status do Agendador', 
+            showResultModal('Status do Agendador',
                 `<p><strong>Status:</strong> <span class="text-green-600">Ativo</span></p>
                  <p><strong>Próximas execuções:</strong></p>
                  <ul class="text-sm text-gray-600 mt-2 space-y-1">
@@ -418,7 +417,7 @@ async def lgpd_admin_dashboard():
         }
 
         function viewLogs() {
-            showResultModal('Logs do Sistema', 
+            showResultModal('Logs do Sistema',
                 '<p>📋 Últimas atividades:</p><div class="text-sm text-gray-600 mt-2 space-y-1"><div>✅ Sistema iniciado</div><div>🔄 Políticas de retenção ativas</div><div>📊 Dashboard acessado</div></div>');
         }
 

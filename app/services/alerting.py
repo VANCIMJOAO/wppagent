@@ -10,7 +10,7 @@ Implementa:
 
 Alertas implementados:
 - webhook_failure_rate > 10%
-- message_processing_delay > 5000ms  
+- message_processing_delay > 5000ms
 - database_connection_errors > 0
 - redis_unavailable == true
 

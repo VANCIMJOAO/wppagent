@@ -17,9 +17,14 @@ from app.config.config_factory import is_development
 from app.database import init_db
 from app.middleware.request_logging import add_request_logging_middleware
 from app.routes.webhook import router as webhook_router
-from app.schemas.health import (AppInfo, DetailedHealthResponse,
-                                HealthCheckResponse, SystemHealth,
-                                SystemMetrics)
+from app.schemas.health import (
+    AppInfo,
+    DetailedHealthResponse,
+    HealthCheckResponse,
+    SystemHealth,
+    SystemMetrics,
+)
+
 # Rate limiting removido - usando sistema unificado
 # from app.middleware.rate_limit import RateLimitMiddleware, get_rate_limit_stats
 from app.services.alert_manager import alert_manager
@@ -29,13 +34,17 @@ from app.services.health_checker import HealthStatus, health_checker
 from app.services.lead_scoring import lead_scoring_service
 from app.services.llm_advanced import advanced_llm_service
 from app.services.strategy_compatibility import hybrid_service
+
 # 🔍 SISTEMA APM E LOGGING ESTRUTURADO - OB-001
-from app.services.structured_apm import (APMMiddleware, get_structured_logger,
-                                         setup_structured_logging)
+from app.services.structured_apm import (
+    APMMiddleware,
+    get_structured_logger,
+    setup_structured_logging,
+)
+
 # OB-001: Sistema de Logs Estruturados
 from app.utils.structured_logger import configure_structured_logging
-from app.utils.structured_logger import \
-    get_structured_logger as get_ob001_logger
+from app.utils.structured_logger import get_structured_logger as get_ob001_logger
 
 # Cache Invalidation Manual System
 try:
@@ -48,8 +57,7 @@ except ImportError:
 # LGPD Compliance System
 try:
     from app.services.lgpd_compliance import LGPDComplianceManager
-    from app.services.lgpd_scheduler import (start_lgpd_scheduler,
-                                             stop_lgpd_scheduler)
+    from app.services.lgpd_scheduler import start_lgpd_scheduler, stop_lgpd_scheduler
 
     LGPD_COMPLIANCE_AVAILABLE = True
 except ImportError:
@@ -60,8 +68,10 @@ from app.auth import AuthMiddleware
 from app.middleware.metrics import MetricsMiddleware
 from app.services.cache_service_optimized import get_optimized_cache
 from app.services.cdn_manager import CDNManager
+
 # 🚀 Sistemas de Performance e Escalabilidade
 from app.services.database_optimizer import DatabaseOptimizer
+
 # Prometheus Metrics Integration
 from app.utils.metrics import get_metrics_response, metrics_collector
 
@@ -109,8 +119,7 @@ except ImportError:
 
 # 🔒 S002 - Sistema de Log Sanitization
 try:
-    from app.security.request_logging import \
-        configure_request_logging_middleware
+    from app.security.request_logging import configure_request_logging_middleware
     from app.security.secure_logger import configure_secure_logging
 
     S002_LOG_SANITIZATION_AVAILABLE = True
@@ -138,8 +147,9 @@ async def lifespan(app: FastAPI):
         # Inicializar Cache Invalidation Manual System
         if CACHE_INVALIDATION_AVAILABLE:
             try:
-                from app.services.cache_invalidation_manual import \
-                    get_cache_invalidation_manager
+                from app.services.cache_invalidation_manual import (
+                    get_cache_invalidation_manager,
+                )
 
                 cache_invalidation_manager = get_cache_invalidation_manager()
                 # CacheInvalidationManager não precisa de initialize() - é configurado no __init__
@@ -161,8 +171,7 @@ async def lifespan(app: FastAPI):
 
         # 🌐 Inicializar WebSocket Real-Time Manager
         try:
-            from app.services.realtime_websocket_manager import \
-                get_realtime_manager
+            from app.services.realtime_websocket_manager import get_realtime_manager
 
             websocket_manager = get_realtime_manager()
             await websocket_manager.start_background_tasks()
@@ -217,8 +226,9 @@ async def lifespan(app: FastAPI):
 
         # 🔥 Inicializar integração WebSocket
         try:
-            from app.services.websocket_integration import \
-                initialize_websocket_integration
+            from app.services.websocket_integration import (
+                initialize_websocket_integration,
+            )
 
             websocket_integration_success = await initialize_websocket_integration()
             if websocket_integration_success:
@@ -259,8 +269,7 @@ async def lifespan(app: FastAPI):
 
     # 🌐 Parar WebSocket Real-Time Manager
     try:
-        from app.services.realtime_websocket_manager import \
-            get_realtime_manager
+        from app.services.realtime_websocket_manager import get_realtime_manager
 
         websocket_manager = get_realtime_manager()
         await websocket_manager.cleanup_all()
@@ -316,7 +325,7 @@ app = FastAPI(
 ### 🎯 Key Features
 
 - ✅ **Smart Appointment Scheduling** with conflict detection
-- ✅ **Real-time WhatsApp Integration** via Meta Business API  
+- ✅ **Real-time WhatsApp Integration** via Meta Business API
 - ✅ **AI-Powered Responses** with conversation context
 - ✅ **Enterprise Security** with JWT, 2FA, and RBAC
 - ✅ **High Performance** with Redis caching and optimized queries
@@ -335,7 +344,7 @@ This API uses **JWT tokens with HttpOnly cookies** for maximum security:
 ### 📊 Rate Limiting
 
 - **Standard**: 100 requests/minute
-- **Premium**: 1000 requests/minute  
+- **Premium**: 1000 requests/minute
 - **Enterprise**: Custom limits
 
 ### 🔗 External Documentation
@@ -414,8 +423,7 @@ logger.info("APM Middleware activated - Request tracking enabled")
 
 # 🚀 PF-001 - Adicionar middleware de performance de banco de dados
 try:
-    from app.middleware.database_performance import \
-        DatabasePerformanceMiddleware
+    from app.middleware.database_performance import DatabasePerformanceMiddleware
 
     app.add_middleware(DatabasePerformanceMiddleware)
     logger.info(
@@ -424,9 +432,7 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ PF-001 - Database Performance Middleware não disponível: {e}")
 except Exception as e:
-    logger.error(
-        f"❌ PF-001 - Erro ao inicializar Database Performance Middleware: {e}"
-    )
+    logger.error(f"❌ PF-001 - Erro ao inicializar Database Performance Middleware: {e}")
 
 # 🔒 S002 - Adicionar middlewares de logging seguro
 if S002_LOG_SANITIZATION_AVAILABLE:
@@ -444,10 +450,12 @@ else:
     logger.warning("CSP Middleware not available - skipping")
 
 # 🔧 CONFIGURAR CORS AVANÇADO - SOLUÇÃO PARA RAILWAY
-from app.config.api_documentation import (API_METADATA,
-                                          configure_enhanced_openapi)
-from app.cors_config import (add_cors_test_endpoint, get_cors_debug_info,
-                             setup_cors_middleware)
+from app.config.api_documentation import API_METADATA, configure_enhanced_openapi
+from app.cors_config import (
+    add_cors_test_endpoint,
+    get_cors_debug_info,
+    setup_cors_middleware,
+)
 
 # Aplicar configuração CORS otimizada
 setup_cors_middleware(app, debug=is_development())
@@ -623,8 +631,7 @@ except Exception as e:
 
 # 🔧 CF002 - Incluir rotas demo para Response Wrapper Padronizado
 try:
-    from app.routes.appointments_cf002_demo import \
-        router as appointments_demo_router
+    from app.routes.appointments_cf002_demo import router as appointments_demo_router
 
     app.include_router(appointments_demo_router, tags=["CF002 Demo"])
 
@@ -663,8 +670,9 @@ from app.routes.rate_limit import router as rate_limit_router
 app.include_router(rate_limit_router, tags=["Rate Limiting"])
 
 # 🛡️ Sistema de Rate Limiting para Webhooks (Avançado)
-from app.routes.webhook_rate_limit_admin import \
-    router as webhook_rate_limit_admin_router
+from app.routes.webhook_rate_limit_admin import (
+    router as webhook_rate_limit_admin_router,
+)
 
 app.include_router(
     webhook_rate_limit_admin_router, tags=["Webhook Rate Limiting Admin"]
@@ -686,8 +694,9 @@ app.include_router(appointments_router, tags=["Dashboard - Appointments"])
 
 # 🚀 PF-001 - Rotas otimizadas para appointments (eliminação de N+1 queries)
 try:
-    from app.routes.appointments_pf001_optimized import \
-        router as appointments_pf001_router
+    from app.routes.appointments_pf001_optimized import (
+        router as appointments_pf001_router,
+    )
 
     app.include_router(
         appointments_pf001_router, tags=["PF-001 Optimized - Appointments"]
@@ -702,8 +711,7 @@ except Exception as e:
 
 # 🧪 PF-001 - Rotas de teste sem autenticação (apenas para validação)
 try:
-    from app.routes.appointments_pf001_test import \
-        router as appointments_test_router
+    from app.routes.appointments_pf001_test import router as appointments_test_router
 
     app.include_router(appointments_test_router, tags=["PF-001 Test - No Auth"])
     logger.info("🧪 PF-001 - Rotas de teste carregadas: validação sem autenticação")
@@ -735,8 +743,7 @@ app.include_router(dashboard_router, tags=["Dashboard"])
 
 # 🔄 C002 - Dashboard migrado para demonstrar novo padrão
 try:
-    from app.routes.dashboard_migrated import \
-        router as dashboard_migrated_router
+    from app.routes.dashboard_migrated import router as dashboard_migrated_router
 
     app.include_router(dashboard_migrated_router, tags=["Dashboard C002 - Migrated"])
     logger.info(
@@ -772,8 +779,7 @@ logger.info("✅ Analytics Avançadas ativadas - Business Intelligence")
 
 # � CACHE INVALIDATION MANUAL - Sistema de Invalidação de Cache Manual
 try:
-    from app.routes.cache_invalidation import \
-        router as cache_invalidation_router
+    from app.routes.cache_invalidation import router as cache_invalidation_router
 
     app.include_router(
         cache_invalidation_router, prefix="/cache", tags=["Cache Management"]
@@ -802,8 +808,9 @@ except ImportError as e:
 
 # 🌐 WEBSOCKET REAL-TIME AVANÇADO - Sistema de tempo real para chat
 try:
-    from app.routes.websocket_realtime_advanced import \
-        router as websocket_realtime_router
+    from app.routes.websocket_realtime_advanced import (
+        router as websocket_realtime_router,
+    )
 
     app.include_router(websocket_realtime_router, tags=["WebSocket Real-Time"])
     logger.info("🌐 WebSocket Real-Time ativado - Chat em tempo real implementado")
@@ -1655,9 +1662,9 @@ async def get_conversation_analytics():
         # Coletar dados de todas as conversas ativas
         all_conversations = {}
         for phone, memory in conversation_flow_service.conversation_memories.items():
-            all_conversations[phone] = (
-                conversation_flow_service.get_conversation_summary(phone)
-            )
+            all_conversations[
+                phone
+            ] = conversation_flow_service.get_conversation_summary(phone)
 
         # Calcular métricas
         total_conversations = len(all_conversations)
@@ -1818,8 +1825,7 @@ async def periodic_cleanup():
     while True:
         try:
             await asyncio.sleep(300)  # A cada 5 minutos
-            from app.services.response_control import \
-                get_unified_response_control
+            from app.services.response_control import get_unified_response_control
 
             unified_response_control = get_unified_response_control()
             await unified_response_control.cleanup_expired()

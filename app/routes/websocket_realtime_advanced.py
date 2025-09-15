@@ -1,10 +1,10 @@
 """
-🔌 Router WebSocket Real-Time Avançado  
+🔌 Router WebSocket Real-Time Avançado
 ====================================
 
 Router FastAPI otimizado para WebSocket com:
 - Autenticação JWT robusta
-- Gerenciamento de conexões inteligente  
+- Gerenciamento de conexões inteligente
 - Broadcasting por tópicos/salas
 - Reconexão automática
 - Monitoring em tempo real
@@ -17,16 +17,24 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from fastapi import (APIRouter, Depends, HTTPException, Query, WebSocket,
-                     WebSocketDisconnect)
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from sqlalchemy.orm import Session
 
 from ..auth.jwt_manager import SimpleJWTManager
 from ..database import get_db
 from ..models.database import Appointment, Conversation, Message, User
-from ..services.realtime_websocket_manager import (RealtimeEventType,
-                                                   RealtimeWebSocketManager,
-                                                   get_realtime_manager)
+from ..services.realtime_websocket_manager import (
+    RealtimeEventType,
+    RealtimeWebSocketManager,
+    get_realtime_manager,
+)
 from ..services.structured_apm import get_structured_logger
 from ..utils.logger import get_logger
 

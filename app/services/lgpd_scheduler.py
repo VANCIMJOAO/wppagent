@@ -110,7 +110,9 @@ class LGPDRetentionScheduler:
 
             # Log detalhado
             if result["total_records_deleted"] > 0:
-                logger.info(f"🗑️ Registros deletados: {result['total_records_deleted']}")
+                logger.info(
+                    f"🗑️ Registros deletados: {result['total_records_deleted']}"
+                )
 
             if result["total_records_anonymized"] > 0:
                 logger.info(
@@ -184,9 +186,7 @@ class LGPDRetentionScheduler:
             # Por simplicidade, executamos uma verificação básica
 
             current_time = datetime.utcnow()
-            logger.info(
-                f"⏰ Verificação crítica às {current_time.strftime('%H:%M:%S')}"
-            )
+            logger.info(f"⏰ Verificação crítica às {current_time.strftime('%H:%M:%S')}")
 
             # Aqui você pode implementar verificações específicas
             # Por exemplo, dados que devem ser deletados imediatamente

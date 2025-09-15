@@ -9,7 +9,7 @@ Cria índices otimizados e implementa queries com melhor performance
 # SQL para criar índices otimizados
 OPTIMIZED_INDEXES = """
 -- Índices para tabela users (operações mais frequentes)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_wa_id_hash 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_wa_id_hash
 ON users USING hash(wa_id);
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_created_at_btree
@@ -82,7 +82,7 @@ ON services USING btree(business_id, is_active, created_at DESC);
 OPTIMIZED_QUERIES = {
     "get_user_by_wa_id": """
         SELECT id, wa_id, nome, telefone, email, created_at, updated_at
-        FROM users 
+        FROM users
         WHERE wa_id = %(wa_id)s
         LIMIT 1
     """,
@@ -109,14 +109,14 @@ OPTIMIZED_QUERIES = {
     "get_available_slots_optimized": """
         SELECT slot_time, business_id
         FROM available_slots
-        WHERE date = %(date)s 
+        WHERE date = %(date)s
           AND is_available = true
           AND business_id = %(business_id)s
         ORDER BY slot_time
     """,
     "get_user_stats": """
         WITH user_stats AS (
-            SELECT 
+            SELECT
                 COUNT(DISTINCT c.id) as total_conversations,
                 COUNT(DISTINCT m.id) as total_messages,
                 COUNT(DISTINCT a.id) as total_appointments,
@@ -139,7 +139,7 @@ OPTIMIZED_QUERIES = {
     """,
     "get_business_metrics": """
         WITH daily_stats AS (
-            SELECT 
+            SELECT
                 DATE(created_at) as date,
                 COUNT(*) as new_users,
                 COUNT(DISTINCT CASE WHEN conversations.id IS NOT NULL THEN users.id END) as active_users,
@@ -151,7 +151,7 @@ OPTIMIZED_QUERIES = {
             WHERE users.created_at >= NOW() - INTERVAL '30 days'
             GROUP BY DATE(users.created_at)
         )
-        SELECT 
+        SELECT
             date,
             new_users,
             active_users,
@@ -162,22 +162,22 @@ OPTIMIZED_QUERIES = {
         ORDER BY date DESC
     """,
     "cleanup_old_sessions": """
-        DELETE FROM login_sessions 
-        WHERE expires_at < NOW() 
+        DELETE FROM login_sessions
+        WHERE expires_at < NOW()
            OR (created_at < NOW() - INTERVAL '30 days' AND is_active = false)
     """,
     "cleanup_old_messages": """
-        DELETE FROM messages 
+        DELETE FROM messages
         WHERE timestamp < NOW() - INTERVAL '%(days)s days'
           AND conversation_id IN (
               SELECT id FROM conversations WHERE status = 'closed'
           )
     """,
     "get_popular_intents": """
-        SELECT 
+        SELECT
             metadata->>'intent' as intent,
             COUNT(*) as frequency,
-            AVG(CASE WHEN metadata->>'confidence' IS NOT NULL 
+            AVG(CASE WHEN metadata->>'confidence' IS NOT NULL
                 THEN (metadata->>'confidence')::float ELSE NULL END) as avg_confidence
         FROM messages
         WHERE message_type = 'received'
@@ -222,7 +222,7 @@ ALTER TABLE messages ALTER COLUMN metadata SET STORAGE EXTENDED;
 MATERIALIZED_VIEWS = """
 -- View materializada para métricas diárias
 CREATE MATERIALIZED VIEW IF NOT EXISTS daily_metrics AS
-SELECT 
+SELECT
     DATE(created_at) as metric_date,
     'users' as metric_type,
     COUNT(*) as metric_value,
@@ -233,7 +233,7 @@ GROUP BY DATE(created_at)
 
 UNION ALL
 
-SELECT 
+SELECT
     DATE(timestamp) as metric_date,
     'messages' as metric_type,
     COUNT(*) as metric_value,
@@ -244,7 +244,7 @@ GROUP BY DATE(timestamp)
 
 UNION ALL
 
-SELECT 
+SELECT
     DATE(created_at) as metric_date,
     'conversations' as metric_type,
     COUNT(*) as metric_value,
@@ -259,7 +259,7 @@ ON daily_metrics (metric_date, metric_type);
 
 -- View materializada para estatísticas de usuários ativos
 CREATE MATERIALIZED VIEW IF NOT EXISTS user_activity_stats AS
-SELECT 
+SELECT
     u.id,
     u.wa_id,
     u.nome,
@@ -268,7 +268,7 @@ SELECT
     COUNT(DISTINCT a.id) as total_appointments,
     MAX(m.timestamp) as last_message_at,
     MAX(c.last_message_at) as last_conversation_at,
-    CASE 
+    CASE
         WHEN MAX(m.timestamp) >= NOW() - INTERVAL '24 hours' THEN 'highly_active'
         WHEN MAX(m.timestamp) >= NOW() - INTERVAL '7 days' THEN 'active'
         WHEN MAX(m.timestamp) >= NOW() - INTERVAL '30 days' THEN 'moderate'
@@ -296,10 +296,10 @@ RETURNS void AS $$
 BEGIN
     REFRESH MATERIALIZED VIEW CONCURRENTLY daily_metrics;
     REFRESH MATERIALIZED VIEW CONCURRENTLY user_activity_stats;
-    
+
     -- Log do refresh
     INSERT INTO meta_logs (level, message, metadata, created_at)
-    VALUES ('INFO', 'Materialized views refreshed', 
+    VALUES ('INFO', 'Materialized views refreshed',
             '{"views": ["daily_metrics", "user_activity_stats"]}', NOW());
 END;
 $$ LANGUAGE plpgsql;

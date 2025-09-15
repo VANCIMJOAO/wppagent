@@ -26,11 +26,16 @@ from typing import Any, Dict, List, Optional
 
 from sqlalchemy import and_, asc, case, desc, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import (contains_eager, joinedload, selectinload,
-                            subqueryload)
+from sqlalchemy.orm import contains_eager, joinedload, selectinload, subqueryload
 
-from app.models.database import (Appointment, Business, Conversation, Message,
-                                 Service, User)
+from app.models.database import (
+    Appointment,
+    Business,
+    Conversation,
+    Message,
+    Service,
+    User,
+)
 from app.services.structured_apm import get_structured_logger
 
 logger = get_structured_logger(__name__)

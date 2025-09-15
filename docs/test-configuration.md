@@ -1,17 +1,20 @@
 # Test Configuration Guide
 
 ## Overview
+
 This document describes the optimized test configuration for the WhatsApp Agent project, focusing on preventing timeouts and database conflicts.
 
 ## Test Structure
 
 ### Unit Tests (tests/unit/)
+
 - **Status**: ✅ Stable
 - **Coverage**: 61 tests
 - **Runtime**: Fast (~1-2 minutes)
 - **Command**: `pytest tests/unit/ -v`
 
 ### Integration Tests (tests/integration/)
+
 - **Status**: ✅ Fixed and Optimized
 - **Key Files**:
   - `test_database_operations_fixed.py` - **USE THIS** (optimized version)
@@ -24,6 +27,7 @@ This document describes the optimized test configuration for the WhatsApp Agent 
 - **Command**: `pytest tests/integration/test_database_operations_fixed.py -v`
 
 ### Performance Tests (tests/performance/)
+
 - **Status**: ✅ Optimized for Timeout Prevention
 - **Key Files**:
   - `test_performance_lightweight.py` - **RECOMMENDED** (ultra-fast, mocked)
@@ -40,6 +44,7 @@ This document describes the optimized test configuration for the WhatsApp Agent 
   - `pytest tests/performance/test_performance_optimized.py -v` (comprehensive)
 
 ### End-to-End Tests (tests/e2e/)
+
 - **Status**: ✅ Stable
 - **Runtime**: Variable
 - **Command**: `pytest tests/e2e/ -v`
@@ -47,6 +52,7 @@ This document describes the optimized test configuration for the WhatsApp Agent 
 ## Recommended Test Execution Strategies
 
 ### Quick Development Testing
+
 ```bash
 # Run unit tests only (fastest feedback)
 pytest tests/unit/ -v
@@ -59,6 +65,7 @@ pytest tests/performance/test_performance_lightweight.py -v
 ```
 
 ### Comprehensive Testing
+
 ```bash
 # Run all tests with optimized files
 pytest tests/unit/ tests/integration/test_database_operations_fixed.py tests/performance/test_performance_lightweight.py tests/e2e/ -v
@@ -69,6 +76,7 @@ pytest -m "performance" tests/performance/test_performance_lightweight.py -v
 ```
 
 ### CI/CD Pipeline Testing
+
 ```bash
 # Recommended for automated pipelines (timeout-safe)
 pytest tests/unit/ tests/integration/test_database_operations_fixed.py tests/performance/test_performance_lightweight.py -v --maxfail=5
@@ -85,7 +93,8 @@ pytest tests/unit/ tests/integration/test_database_operations_fixed.py tests/per
 ## Database Integration Test Fixes
 
 ### Fixed Issues
-1. **Duplicate Key Violations**: 
+
+1. **Duplicate Key Violations**:
    - ❌ Original: Hardcoded `wa_id` values causing conflicts
    - ✅ Fixed: Unique suffix generation with UUID and random
 
@@ -102,6 +111,7 @@ pytest tests/unit/ tests/integration/test_database_operations_fixed.py tests/per
    - ✅ Fixed: Comprehensive rollback and commit testing
 
 ### Usage Example
+
 ```python
 # Use the fixed integration tests
 pytest tests/integration/test_database_operations_fixed.py::TestDatabaseIntegration::test_user_crud_operations -v
@@ -133,16 +143,19 @@ pytest tests/integration/test_database_operations_fixed.py -v
 ## Development Workflow
 
 1. **Before Committing**:
+
    ```bash
    pytest tests/unit/ tests/integration/test_database_operations_fixed.py -v
    ```
 
 2. **Before CI/CD Push**:
+
    ```bash
    pytest tests/unit/ tests/integration/test_database_operations_fixed.py tests/performance/test_performance_lightweight.py -v
    ```
 
 3. **Performance Validation**:
+
    ```bash
    pytest tests/performance/test_performance_optimized.py -v
    ```
@@ -152,6 +165,7 @@ pytest tests/integration/test_database_operations_fixed.py -v
 Current test coverage baseline: **18.09%**
 
 Priority areas for coverage improvement:
+
 - Authentication modules (auth/)
 - Route handlers (routes/)
 - Service implementations (services/)

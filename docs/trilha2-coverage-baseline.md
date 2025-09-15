@@ -9,6 +9,7 @@
 ## 📊 **COVERAGE ATUAL POR CATEGORIA**
 
 ### 🔑 **1. AUTHENTICATION & SECURITY (Target: 30% → 80%)**
+
 ```
 ┌─────────────────────────────────┬──────────────┬─────────────┬──────────────┐
 │ MÓDULO                          │ COVERAGE     │ PRIORITY    │ TARGET       │
@@ -24,6 +25,7 @@
 ```
 
 ### 🛠️ **2. SERVICES (Target: 20% → 60%)**
+
 ```
 ┌─────────────────────────────────┬──────────────┬─────────────┬──────────────┐
 │ MÓDULO                          │ COVERAGE     │ PRIORITY    │ TARGET       │
@@ -40,6 +42,7 @@
 ```
 
 ### 🌐 **3. ROUTES (Target: 15% → 50%)**
+
 ```
 ┌─────────────────────────────────┬──────────────┬─────────────┬──────────────┐
 │ MÓDULO                          │ COVERAGE     │ PRIORITY    │ TARGET       │
@@ -56,6 +59,7 @@
 ```
 
 ### 🔧 **4. MIDDLEWARE (Target: 10% → 70%)**
+
 ```
 ┌─────────────────────────────────┬──────────────┬─────────────┬──────────────┐
 │ MÓDULO                          │ COVERAGE     │ PRIORITY    │ TARGET       │
@@ -77,62 +81,74 @@
 ### **Semana 1: Authentication & Security (40h)**
 
 #### **Dia 1-2: JWT & 2FA Testing**
+
 - ✅ **jwt_manager.py**: Casos edge de token expiration, refresh, blacklist
 - ✅ **two_factor.py**: TOTP generation, backup codes, rate limiting
 - ✅ **Cenários**: Múltiplos devices, sincronização de tempo, ataques
 
 #### **Dia 3-4: Middleware & Rate Limiting**
+
 - ✅ **middleware.py**: Chain de autenticação, bypass scenarios
 - ✅ **rate_limiter.py**: Burst traffic, distributed rate limiting
 - ✅ **webhook_rate_limiter.py**: Webhook-specific rate limiting
 
 #### **Dia 5: RBAC & Secrets**
+
 - ✅ **rbac_decorators.py**: Permissões granulares, inheritance
 - ✅ **secrets_manager.py**: Vault integration, secret rotation
 
 ### **Semana 2: Services & Business Logic (40h)**
 
 #### **Dia 1-2: Core Services**
+
 - ✅ **whatsapp.py**: Message delivery, error handling, circuit breaker
 - ✅ **whatsapp_security.py**: Security validations, sanitization
 - ✅ **retry_handler.py**: Exponential backoff, max retries
 
 #### **Dia 3-4: Cache & Performance**
+
 - ✅ **cache_service.py**: Cache invalidation, distributed cache
 - ✅ **structured_apm.py**: Metrics collection, performance monitoring
 - ✅ **analytics_engine.py**: Data processing, aggregations
 
 #### **Dia 5: Workflows**
+
 - ✅ **booking_workflow.py**: State machine, error recovery
 - ✅ **business_data.py**: Data validation, transformations
 
 ### **Semana 3: Routes & Endpoints (30h)**
 
 #### **Dia 1-2: Authentication Routes**
+
 - ✅ **auth.py**: Login/logout flows, token refresh
 - ✅ **admin_auth.py**: Admin-specific authentication
 
 #### **Dia 3-4: Core Functionality**
+
 - ✅ **webhook.py**: Webhook processing, validation
 - ✅ **appointments.py**: CRUD operations, business rules
 - ✅ **dashboard.py**: Data aggregation, permissions
 
 #### **Dia 5: Real-time & Analytics**
+
 - ✅ **websocket.py**: Connection management, broadcasting
 - ✅ **analytics.py**: Metrics calculation, data export
 
 ### **Semana 4: Middleware & Infrastructure (20h)**
 
 #### **Dia 1-2: Rate Limiting**
+
 - ✅ **user_rate_limit.py**: Per-user limiting, sliding window
 - ✅ **webhook_rate_limit.py**: Webhook-specific rules
 
 #### **Dia 3-4: Monitoring & Performance**
+
 - ✅ **metrics.py**: Custom metrics, aggregation
 - ✅ **database_performance.py**: Query optimization monitoring
 - ✅ **response_standardizer.py**: Response formatting, error handling
 
 #### **Dia 5: Request Processing**
+
 - ✅ **request_logging.py**: Structured logging, sanitization
 
 ---
@@ -140,6 +156,7 @@
 ## 🛠️ **FERRAMENTAS & ESTRATÉGIAS TESTE**
 
 ### **Property-Based Testing**
+
 ```python
 # Hypothesis para edge cases
 @given(st.text(min_size=1, max_size=1000))
@@ -154,6 +171,7 @@ def test_rate_limiting_boundaries(request_count):
 ```
 
 ### **Mutation Testing**
+
 ```python
 # Validar qualidade dos testes existentes
 mutmut run --paths-to-mutate=app/auth/
@@ -161,6 +179,7 @@ mutmut html  # Generate report
 ```
 
 ### **Security Testing**
+
 ```python
 # OWASP security scenarios
 def test_sql_injection_protection():
@@ -177,11 +196,12 @@ def test_csrf_protection():
 ```
 
 ### **Load Testing**
+
 ```python
 # Locust performance tests
 class WebsiteUser(HttpUser):
     wait_time = between(1, 3)
-    
+
     def test_auth_endpoint_load(self):
         # Test authentication under load
         pass
@@ -192,18 +212,21 @@ class WebsiteUser(HttpUser):
 ## 📊 **MÉTRICAS DE SUCESSO**
 
 ### **Coverage Targets**
+
 - ✅ **Authentication**: 30% → 80% (+50%)
 - ✅ **Services**: 20% → 60% (+40%)
 - ✅ **Routes**: 15% → 50% (+35%)
 - ✅ **Middleware**: 10% → 70% (+60%)
 
 ### **Quality Metrics**
+
 - ✅ **Mutation Score**: >85% (quality dos testes)
 - ✅ **Property Tests**: 50+ scenarios
 - ✅ **Security Tests**: 25+ OWASP scenarios
 - ✅ **Load Tests**: 1000+ concurrent users
 
 ### **Performance Impact**
+
 - ✅ **Test Execution**: <5min total suite
 - ✅ **CI/CD Integration**: <10min build+test
 - ✅ **Coverage Report**: Automated generation
@@ -213,6 +236,7 @@ class WebsiteUser(HttpUser):
 ## 🚀 **PRÓXIMO PASSO: IMPLEMENTAÇÃO**
 
 **Comando para iniciar:**
+
 ```bash
 # Criar estrutura de testes expandida
 pytest --cov=app/auth --cov-report=html tests/unit/auth/

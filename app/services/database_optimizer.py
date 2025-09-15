@@ -275,7 +275,7 @@ class DatabaseOptimizer:
 
         query = """
             SELECT id, wa_id, nome, telefone, email, created_at, updated_at
-            FROM users 
+            FROM users
             WHERE wa_id = :wa_id
         """
 
@@ -444,7 +444,7 @@ class DatabaseOptimizer:
         cleanup_queries = [
             # Remover mensagens antigas (manter apenas conversas ativas)
             f"""
-            DELETE FROM messages 
+            DELETE FROM messages
             WHERE timestamp < NOW() - INTERVAL '{days} days'
             AND conversation_id IN (
                 SELECT id FROM conversations WHERE status = 'closed'

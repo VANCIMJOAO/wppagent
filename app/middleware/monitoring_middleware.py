@@ -17,11 +17,12 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
 from app.config.config_factory import ConfigFactory
-from app.services.comprehensive_monitoring import (monitoring_system,
-                                                   record_api_call,
-                                                   record_business_event)
-from app.utils.logger import (clear_request_context, get_logger,
-                              set_request_context)
+from app.services.comprehensive_monitoring import (
+    monitoring_system,
+    record_api_call,
+    record_business_event,
+)
+from app.utils.logger import clear_request_context, get_logger, set_request_context
 
 logger = get_logger(__name__)
 
@@ -327,8 +328,9 @@ class HealthCheckMiddleware(BaseHTTPMiddleware):
             monitoring_data = None
             if config.metrics_enabled:
                 try:
-                    from app.services.comprehensive_monitoring import \
-                        get_monitoring_dashboard
+                    from app.services.comprehensive_monitoring import (
+                        get_monitoring_dashboard,
+                    )
 
                     monitoring_data = get_monitoring_dashboard()
                 except Exception as e:

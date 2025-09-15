@@ -13,8 +13,15 @@ from sqlalchemy.orm import selectinload
 
 from app.auth.middleware import require_admin
 from app.database import get_db
-from app.models.database import (AdminUser, Appointment, Business,
-                                 Conversation, Message, Service, User)
+from app.models.database import (
+    AdminUser,
+    Appointment,
+    Business,
+    Conversation,
+    Message,
+    Service,
+    User,
+)
 from app.routes.admin_auth import get_current_admin_user
 from app.services.structured_apm import StructuredLogger
 from app.utils.logger import get_logger

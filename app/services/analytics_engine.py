@@ -758,7 +758,9 @@ class AdvancedAnalyticsEngine:
                     "growth_trend": (
                         "Positive"
                         if revenue_growth > 0
-                        else "Negative" if revenue_growth < 0 else "Stable"
+                        else "Negative"
+                        if revenue_growth < 0
+                        else "Stable"
                     ),
                 },
                 "efficiency_metrics": {
@@ -812,9 +814,7 @@ class AdvancedAnalyticsEngine:
             )
 
         if conversion_rates["confirm_to_complete"] < 80:
-            recommendations.append(
-                "🎯 Alto no-show - melhorar confirmações e follow-up"
-            )
+            recommendations.append("🎯 Alto no-show - melhorar confirmações e follow-up")
 
         if conversion_rates["overall_conversion"] > 15:
             recommendations.append(

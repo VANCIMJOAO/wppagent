@@ -25,8 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.middleware import get_current_user
 from app.database import get_db
-from app.models.database import (Appointment, Conversation, Message, Service,
-                                 User)
+from app.models.database import Appointment, Conversation, Message, Service, User
 from app.routes.admin_auth import AdminUser, get_current_admin_user
 from app.utils.logger import get_logger
 
@@ -303,7 +302,7 @@ async def get_monthly_stats(
         # Query para estatísticas mensais (usando SQL raw por complexidade)
         monthly_query = text(
             """
-            SELECT 
+            SELECT
                 EXTRACT(MONTH FROM u.created_at) as month,
                 EXTRACT(YEAR FROM u.created_at) as year,
                 COUNT(DISTINCT c.id) as total_conversations,
@@ -312,14 +311,14 @@ async def get_monthly_stats(
                 COALESCE(SUM(a.price), 0) as revenue,
                 COUNT(DISTINCT u.id) as new_clients
             FROM users u
-            LEFT JOIN conversations c ON u.id = c.user_id 
+            LEFT JOIN conversations c ON u.id = c.user_id
                 AND c.created_at >= :start_date
-            LEFT JOIN messages m ON u.id = m.user_id 
+            LEFT JOIN messages m ON u.id = m.user_id
                 AND m.created_at >= :start_date
-            LEFT JOIN appointments a ON u.id = a.user_id 
+            LEFT JOIN appointments a ON u.id = a.user_id
                 AND a.created_at >= :start_date
             WHERE u.created_at >= :start_date
-                AND u.nome IS NOT NULL 
+                AND u.nome IS NOT NULL
                 AND u.nome != ''
                 AND u.nome NOT LIKE '%[DELETED]%'
             GROUP BY EXTRACT(YEAR FROM u.created_at), EXTRACT(MONTH FROM u.created_at)

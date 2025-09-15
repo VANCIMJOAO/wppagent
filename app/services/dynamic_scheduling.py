@@ -9,8 +9,14 @@ from typing import Dict, List, Optional, Tuple
 from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.database import (Appointment, AvailableSlot, BlockedTime,
-                                 BotConfiguration, Business, Service)
+from app.models.database import (
+    Appointment,
+    AvailableSlot,
+    BlockedTime,
+    BotConfiguration,
+    Business,
+    Service,
+)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)

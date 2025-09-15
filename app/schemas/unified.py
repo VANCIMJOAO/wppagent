@@ -1,5 +1,5 @@
 """
-� CF001 - Schemas Unificados com Padronização snake_case ↔ camelCase  
+� CF001 - Schemas Unificados com Padronização snake_case ↔ camelCase
 ========================================================================
 
 Sistema de aliases Pydantic que permite:
@@ -14,7 +14,7 @@ Funcionalidades CF001:
 - ✅ 15 campos críticos padronizados conforme tabela de mapeamento
 
 Autor: GitHub Copilot
-Data: 2025-09-12  
+Data: 2025-09-12
 Status: CF001 Implementation - Naming Standardization
 """
 

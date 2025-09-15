@@ -11,13 +11,22 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 # Database imports
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
 from app.database import AsyncSessionLocal, engine
-from app.models.database import (AdminUser, Appointment, Business, CompanyInfo,
-                                 Conversation, Message, Service, User)
+from app.models.database import (
+    AdminUser,
+    Appointment,
+    Business,
+    CompanyInfo,
+    Conversation,
+    Message,
+    Service,
+    User,
+)
 
 # Test timeout protection
 pytestmark = pytest.mark.timeout(180)

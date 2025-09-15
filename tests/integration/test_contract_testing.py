@@ -426,9 +426,7 @@ class ContractTestFramework:
         print(f"   ✅ Lista vazia: {'PASSOU' if empty_result['valid'] else 'FALHOU'}")
 
         success = result["valid"] and empty_result["valid"]
-        print(
-            f"   🎯 Contrato conversations: {'✅ PASSOU' if success else '❌ FALHOU'}"
-        )
+        print(f"   🎯 Contrato conversations: {'✅ PASSOU' if success else '❌ FALHOU'}")
         return success
 
     def test_backward_compatibility(self) -> bool:
@@ -486,9 +484,7 @@ class ContractTestFramework:
         )
 
         success = backward_compatible and breaking_detected
-        print(
-            f"   🎯 Backward compatibility: {'✅ PASSOU' if success else '❌ FALHOU'}"
-        )
+        print(f"   🎯 Backward compatibility: {'✅ PASSOU' if success else '❌ FALHOU'}")
         return success
 
     async def run_all_contract_tests(self):

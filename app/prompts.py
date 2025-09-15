@@ -14,8 +14,7 @@ async def get_system_prompt_with_database() -> str:
     """
     Retorna o prompt do sistema com dados reais da database
     """
-    from app.utils.dynamic_prompts import \
-        get_dynamic_system_prompt_with_database
+    from app.utils.dynamic_prompts import get_dynamic_system_prompt_with_database
 
     return await get_dynamic_system_prompt_with_database()
 

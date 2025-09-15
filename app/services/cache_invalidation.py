@@ -273,7 +273,9 @@ class CacheInvalidationService:
         try:
             # Delay se configurado
             if rule.delay_seconds > 0:
-                logger.info(f"⏱️ Aguardando {rule.delay_seconds}s antes da invalidation")
+                logger.info(
+                    f"⏱️ Aguardando {rule.delay_seconds}s antes da invalidation"
+                )
                 await asyncio.sleep(rule.delay_seconds)
 
             # Construir patterns com context
@@ -322,8 +324,7 @@ class CacheInvalidationService:
             # 🔔 NOTIFICAR VIA WEBSOCKET - Integração automática
             try:
                 # Import dinâmico para evitar circular imports
-                from app.services.websocket_cache_sync import \
-                    notify_cache_invalidation
+                from app.services.websocket_cache_sync import notify_cache_invalidation
 
                 # Notificar clientes WebSocket sobre a invalidação
                 websocket_result = await notify_cache_invalidation(

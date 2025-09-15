@@ -23,16 +23,16 @@ from sqlalchemy.sql import and_, desc, func, select
 from app.auth.admin_auth import get_current_admin_user
 from app.database import get_db
 from app.models.database import AdminUser, Appointment, Business, Service, User
-from app.schemas.appointments import (AppointmentCreateRequest,
-                                      AppointmentsListResponseUnified,
-                                      AppointmentUpdateRequest,
-                                      UnifiedAppointmentResponse)
+from app.schemas.appointments import (
+    AppointmentCreateRequest,
+    AppointmentsListResponseUnified,
+    AppointmentUpdateRequest,
+    UnifiedAppointmentResponse,
+)
 from app.schemas.unified import SchemaTransformer
-from app.services.cache_service import (CacheEvent, cache_service,
-                                        invalidate_cache)
+from app.services.cache_service import CacheEvent, cache_service, invalidate_cache
 from app.utils.logger import get_logger
-from app.websocket.connection_manager import (WebSocketEventType,
-                                              websocket_manager)
+from app.websocket.connection_manager import WebSocketEventType, websocket_manager
 
 logger = get_logger(__name__)
 router = APIRouter()

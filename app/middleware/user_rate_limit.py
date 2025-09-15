@@ -27,12 +27,16 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
 from app.config import get_settings
-from app.config.rate_limit_config import (ENDPOINT_RATE_LIMITS,
-                                          ENDPOINT_USER_OVERRIDES,
-                                          EXEMPT_ENDPOINTS,
-                                          GRACEFUL_DEGRADATION, LOGGING_CONFIG,
-                                          RATE_LIMIT_HEADERS, REDIS_CONFIG,
-                                          USER_TYPE_MULTIPLIERS)
+from app.config.rate_limit_config import (
+    ENDPOINT_RATE_LIMITS,
+    ENDPOINT_USER_OVERRIDES,
+    EXEMPT_ENDPOINTS,
+    GRACEFUL_DEGRADATION,
+    LOGGING_CONFIG,
+    RATE_LIMIT_HEADERS,
+    REDIS_CONFIG,
+    USER_TYPE_MULTIPLIERS,
+)
 from app.utils.redis_helper import get_redis_config_for_service
 
 logger = logging.getLogger(__name__)

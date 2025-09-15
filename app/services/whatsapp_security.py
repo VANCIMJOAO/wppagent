@@ -249,7 +249,6 @@ class WhatsAppSecurityService:
                         params=params,
                         timeout=aiohttp.ClientTimeout(total=30),
                     ) as response:
-
                         # Atualizar informações de rate limiting
                         self._update_rate_limit_info(response.headers)
 

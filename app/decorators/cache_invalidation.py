@@ -1,6 +1,6 @@
 """
 🔄 Decorators para Cache Invalidation Automática
-============================================== 
+==============================================
 
 Decorators que automatizam a invalidação de cache após operações,
 eliminando a necessidade de chamar manualmente as funções de invalidação.
@@ -20,8 +20,7 @@ import asyncio
 from functools import wraps
 from typing import Any, Callable, Dict, Optional, Union
 
-from app.services.cache_invalidation import (CacheEvent,
-                                             cache_invalidation_service)
+from app.services.cache_invalidation import CacheEvent, cache_invalidation_service
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)

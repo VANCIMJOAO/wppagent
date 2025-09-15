@@ -465,9 +465,7 @@ class BookingWorkflow:
             return self._generate_service_selection_retry(), self._get_service_buttons()
 
     def _generate_service_selection_retry(self) -> str:
-        return (
-            "❌ Não consegui identificar o serviço.\n\n🔸 **Escolha uma das opções:**"
-        )
+        return "❌ Não consegui identificar o serviço.\n\n🔸 **Escolha uma das opções:**"
 
     def _parse_date_from_message(self, message: str) -> Optional[Date]:
         """Extrai data da mensagem com validações"""

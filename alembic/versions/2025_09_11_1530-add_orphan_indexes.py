@@ -37,7 +37,7 @@ def upgrade() -> None:
             # Índice composto para busca por email e data
             op.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_login_attempts_email_time 
+                CREATE INDEX IF NOT EXISTS idx_login_attempts_email_time
                 ON login_attempts (email, attempted_at DESC)
             """
             )
@@ -46,7 +46,7 @@ def upgrade() -> None:
             op.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_time
-                ON login_attempts (ip_address, attempted_at DESC) 
+                ON login_attempts (ip_address, attempted_at DESC)
                 WHERE ip_address IS NOT NULL
             """
             )

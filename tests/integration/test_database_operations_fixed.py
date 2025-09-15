@@ -122,8 +122,7 @@ class TestDatabaseIntegration:
         try:
             from decimal import Decimal
 
-            from app.models.database import (Appointment, Business, Service,
-                                             User)
+            from app.models.database import Appointment, Business, Service, User
 
             session, created_objects = test_session
 
@@ -223,8 +222,7 @@ class TestDatabaseRelationships:
         try:
             from decimal import Decimal
 
-            from app.models.database import (Appointment, Business, Service,
-                                             User)
+            from app.models.database import Appointment, Business, Service, User
 
             session, created_objects = test_session
 

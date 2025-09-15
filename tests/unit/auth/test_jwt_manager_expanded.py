@@ -18,8 +18,11 @@ import jwt
 import pytest
 from freezegun import freeze_time
 
-from app.auth.jwt_manager import (SimpleJWTManager,
-                                  get_current_user_from_token, jwt_manager)
+from app.auth.jwt_manager import (
+    SimpleJWTManager,
+    get_current_user_from_token,
+    jwt_manager,
+)
 
 
 class TestSimpleJWTManagerExpanded:

@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 
 import requests
 from cryptography import x509
+
 # from cryptography.x509.verification import PolicyBuilder, StoreBuilder  # Removido temporariamente
 from cryptography.x509.oid import NameOID
 

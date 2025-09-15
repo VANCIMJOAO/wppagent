@@ -7,8 +7,12 @@ DEPRECATED: Este arquivo será substituído pelo novo sistema de configuração
 """
 
 # Import do novo sistema
-from .config.config_factory import (get_database_url, get_settings,
-                                    is_development, is_production)
+from .config.config_factory import (
+    get_database_url,
+    get_settings,
+    is_development,
+    is_production,
+)
 
 # Manter compatibilidade com código existente
 settings = get_settings()

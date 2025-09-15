@@ -1,6 +1,6 @@
 [run]
 source = app
-omit = 
+omit =
     app/main.py.backup.*
     app/*backup*
     app/*/backup*
@@ -16,7 +16,7 @@ omit =
     */static/*
     .pytest_cache/*
     htmlcov/*
-    
+
 [report]
 exclude_lines =
     pragma: no cover
@@ -29,7 +29,7 @@ exclude_lines =
     if __name__ == .__main__.:
     class .*\bProtocol\):
     @(abc\.)?abstractmethod
-    
+
 precision = 2
 show_missing = True
 skip_covered = False

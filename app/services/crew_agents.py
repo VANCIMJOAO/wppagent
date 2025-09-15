@@ -35,8 +35,7 @@ def _load_crewai():
 
     try:
         print("🔧 Aplicando fix de permissões CrewAI...")
-        from app.utils.crewai_fix import (alternative_crewai_init,
-                                          fix_crewai_permissions)
+        from app.utils.crewai_fix import alternative_crewai_init, fix_crewai_permissions
 
         # Tentar fix principal, senão usar alternativo
         if not fix_crewai_permissions():
@@ -111,9 +110,9 @@ class WhatsAppAgentCrew:
         self.agents[AgentRole.RECEPTIONIST] = _Agent(
             role="Recepcionista Virtual",
             goal="Recepcionar clientes com cordialidade e direcionar para o agente correto",
-            backstory="""Você é Maria, uma recepcionista virtual experiente e cordial. 
-            Você é a primeira pessoa que os clientes encontram e é responsável por criar 
-            uma primeira impressão positiva. Você identifica a necessidade do cliente 
+            backstory="""Você é Maria, uma recepcionista virtual experiente e cordial.
+            Você é a primeira pessoa que os clientes encontram e é responsável por criar
+            uma primeira impressão positiva. Você identifica a necessidade do cliente
             e direciona para o agente especializado apropriado.""",
             verbose=settings.debug,  # Condicional ao debug
             allow_delegation=True,
@@ -124,8 +123,8 @@ class WhatsAppAgentCrew:
         self.agents[AgentRole.SCHEDULER] = _Agent(
             role="Especialista em Agendamentos",
             goal="Gerenciar agendamentos de forma eficiente e organizada",
-            backstory="""Você é Carlos, um especialista em agendamentos altamente organizado. 
-            Você gerencia calendários, horários disponíveis e confirmações de agendamento. 
+            backstory="""Você é Carlos, um especialista em agendamentos altamente organizado.
+            Você gerencia calendários, horários disponíveis e confirmações de agendamento.
             Você é meticuloso com datas e horários e sempre confirma os detalhes com os clientes.""",
             verbose=settings.debug,  # Condicional ao debug
             allow_delegation=False,
@@ -136,9 +135,9 @@ class WhatsAppAgentCrew:
         self.agents[AgentRole.SALES] = _Agent(
             role="Consultora de Vendas",
             goal="Maximizar conversões através de consulta especializada",
-            backstory="""Você é Ana, uma consultora de vendas experiente e persuasiva. 
-            Você entende as necessidades dos clientes, qualifica leads e apresenta 
-            soluções personalizadas. Você é focada em resultados mas sempre ética 
+            backstory="""Você é Ana, uma consultora de vendas experiente e persuasiva.
+            Você entende as necessidades dos clientes, qualifica leads e apresenta
+            soluções personalizadas. Você é focada em resultados mas sempre ética
             e centrada no cliente.""",
             verbose=settings.debug,  # Condicional ao debug
             allow_delegation=False,
@@ -149,8 +148,8 @@ class WhatsAppAgentCrew:
         self.agents[AgentRole.SUPPORT] = _Agent(
             role="Especialista em Suporte Técnico",
             goal="Resolver problemas técnicos e dúvidas dos clientes",
-            backstory="""Você é Roberto, um especialista em suporte técnico paciente e conhecedor. 
-            Você resolve problemas complexos, explica soluções de forma clara e sempre 
+            backstory="""Você é Roberto, um especialista em suporte técnico paciente e conhecedor.
+            Você resolve problemas complexos, explica soluções de forma clara e sempre
             acompanha para garantir que o problema foi resolvido completamente.""",
             verbose=settings.debug,  # Condicional ao debug
             allow_delegation=False,
@@ -161,8 +160,8 @@ class WhatsAppAgentCrew:
         self.agents[AgentRole.SUPERVISOR] = _Agent(
             role="Supervisora de Qualidade",
             goal="Garantir qualidade e coordenar a equipe de agentes",
-            backstory="""Você é Patricia, uma supervisora experiente que garante a 
-            qualidade do atendimento. Você coordena os outros agentes, resolve 
+            backstory="""Você é Patricia, uma supervisora experiente que garante a
+            qualidade do atendimento. Você coordena os outros agentes, resolve
             escalações e toma decisões estratégicas sobre o atendimento.""",
             verbose=settings.debug,  # Condicional ao debug
             allow_delegation=True,
@@ -217,8 +216,7 @@ class WhatsAppAgentCrew:
             self._ensure_crewai_loaded()
 
             # Imports tardios para evitar dependências circulares
-            from app.services.conversation_flow import \
-                conversation_flow_service
+            from app.services.conversation_flow import conversation_flow_service
             from app.services.lead_scoring import lead_scoring_service
 
             # 1. Analisar fluxo conversacional não-linear
@@ -302,8 +300,7 @@ class WhatsAppAgentCrew:
         flow_decision: Any = None,
     ) -> str:
         """Analisa intenção considerando fluxo conversacional e lead score"""
-        from app.services.conversation_flow import (ConversationState,
-                                                    FlowTransition)
+        from app.services.conversation_flow import ConversationState, FlowTransition
 
         message_lower = message.lower()
 
@@ -389,8 +386,7 @@ class WhatsAppAgentCrew:
         self, intent: str, lead_score: Any = None, flow_decision: Any = None
     ) -> AgentRole:
         """Seleciona agente considerando fluxo e lead score"""
-        from app.services.conversation_flow import (ConversationState,
-                                                    FlowTransition)
+        from app.services.conversation_flow import ConversationState, FlowTransition
 
         # 1. Decisões baseadas no fluxo conversacional
         if flow_decision:
@@ -454,8 +450,7 @@ class WhatsAppAgentCrew:
         flow_decision: Any = None,
     ) -> Any:
         """Cria tarefa considerando fluxo conversacional não-linear"""
-        from app.services.conversation_flow import (ConversationState,
-                                                    FlowTransition)
+        from app.services.conversation_flow import ConversationState, FlowTransition
 
         # Informações do lead score
         lead_info = ""
@@ -513,89 +508,89 @@ class WhatsAppAgentCrew:
         task_descriptions = {
             AgentRole.RECEPTIONIST: f"""
             {base_context}
-            
+
             Como recepcionista inteligente, você deve:
-            
+
             {flow_instructions}
-            
+
             SUAS RESPONSABILIDADES:
             1. Manter continuidade da conversa considerando o contexto
             2. Ser natural na transição entre tópicos
             3. Reconhecer quando o cliente muda de assunto
             4. Fornecer informações relevantes ao momento da conversa
             5. Direcionar adequadamente quando necessário
-            
+
             {priority_instructions}
-            
+
             IMPORTANTE: Seja conversacional e adaptável. Se o cliente mudou de assunto,
             acompanhe naturalmente. Se está retomando algo anterior, demonstre que lembra.
             """,
             AgentRole.SCHEDULER: f"""
             {base_context}
-            
+
             Como especialista em agendamentos com consciência conversacional:
-            
+
             {flow_instructions}
-            
+
             SUAS RESPONSABILIDADES:
             1. Considerar o contexto da conversa para agendamento
             2. Ser flexível se o cliente mudou de ideia sobre datas/serviços
             3. Reconhecer se está reagendando ou cancelando
             4. Manter eficiência mesmo com mudanças de tópico
-            
+
             {priority_instructions}
-            
+
             FOCO: Agendar de forma natural e contextual, adaptando-se ao fluxo da conversa.
             """,
             AgentRole.SALES: f"""
             {base_context}
-            
+
             Como consultora de vendas conversacional:
-            
+
             {flow_instructions}
-            
+
             SUAS RESPONSABILIDADES:
             1. Adaptar abordagem de vendas ao contexto da conversa
             2. Ser natural se cliente voltou a falar de preços/serviços
             3. Reconhecer objeções e mudanças de interesse
             4. Manter foco comercial respeitando o fluxo natural
-            
+
             {priority_instructions}
-            
+
             ESTRATÉGIA: Vender de forma consultiva e adaptável, seguindo o ritmo do cliente.
             """,
             AgentRole.SUPPORT: f"""
             {base_context}
-            
+
             Como especialista em suporte contextual:
-            
+
             {flow_instructions}
-            
+
             SUAS RESPONSABILIDADES:
             1. Entender o problema no contexto da conversa completa
             2. Reconhecer se é novo problema ou continuação
             3. Ser empático com mudanças de humor/contexto
             4. Resolver de forma natural e conversacional
-            
+
             {priority_instructions}
-            
+
             ABORDAGEM: Resolver problemas considerando todo o contexto conversacional.
             """,
             AgentRole.SUPERVISOR: f"""
             {base_context}
-            
+
             Como supervisora estratégica com visão completa:
-            
+
             {flow_instructions}
-            
+
             SUAS RESPONSABILIDADES:
             1. Gerenciar múltiplas intenções e tópicos complexos
             2. Tomar decisões estratégicas baseadas no fluxo completo
             3. Coordenar soluções para conversas não-lineares
             4. Garantir satisfação em cenários complexos
-            
+
             {priority_instructions}
-            
+
             LIDERANÇA: Gerencie a conversa de forma estratégica e empática,
             considerando toda a jornada do cliente.
             """,
@@ -612,8 +607,7 @@ class WhatsAppAgentCrew:
         if not flow_decision:
             return ""
 
-        from app.services.conversation_flow import (ConversationState,
-                                                    FlowTransition)
+        from app.services.conversation_flow import ConversationState, FlowTransition
 
         instructions = []
 

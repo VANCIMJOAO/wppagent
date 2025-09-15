@@ -25,7 +25,7 @@ def upgrade():
         text(
             """
         SELECT EXISTS (
-            SELECT 1 FROM information_schema.tables 
+            SELECT 1 FROM information_schema.tables
             WHERE table_name = 'auth_users' AND table_schema = 'public'
         )
     """
@@ -37,7 +37,7 @@ def upgrade():
         text(
             """
         SELECT EXISTS (
-            SELECT 1 FROM information_schema.tables 
+            SELECT 1 FROM information_schema.tables
             WHERE table_name = 'admin_users' AND table_schema = 'public'
         )
     """
@@ -54,7 +54,7 @@ def upgrade():
             connection.execute(
                 text(
                     """
-                CREATE TABLE admin_users_backup_hf003 AS 
+                CREATE TABLE admin_users_backup_hf003 AS
                 SELECT *, NOW() as backup_created_at FROM admin_users
             """
                 )
@@ -69,7 +69,7 @@ def upgrade():
         migrated_count = connection.execute(
             text(
                 """
-            SELECT COUNT(*) FROM auth_users 
+            SELECT COUNT(*) FROM auth_users
             WHERE email IN (SELECT email FROM admin_users)
         """
             )
@@ -80,7 +80,7 @@ def upgrade():
             admin_columns = connection.execute(
                 text(
                     """
-                SELECT column_name FROM information_schema.columns 
+                SELECT column_name FROM information_schema.columns
                 WHERE table_name = 'admin_users'
             """
                 )
@@ -102,7 +102,7 @@ def upgrade():
                 text(
                     f"""
                 INSERT INTO auth_users (email, password_hash, name, role, phone, is_active, created_at, updated_at)
-                SELECT 
+                SELECT
                     au.email,
                     au.password_hash,
                     {name_field},
@@ -120,7 +120,7 @@ def upgrade():
             migrated = connection.execute(
                 text(
                     """
-                SELECT COUNT(*) FROM auth_users 
+                SELECT COUNT(*) FROM auth_users
                 WHERE role = 'admin' AND email IN (SELECT email FROM admin_users)
             """
                 )
@@ -141,7 +141,7 @@ def upgrade():
         connection.execute(
             text(
                 """
-            CREATE INDEX IF NOT EXISTS idx_auth_users_email_active 
+            CREATE INDEX IF NOT EXISTS idx_auth_users_email_active
             ON auth_users(email) WHERE is_active = true
         """
             )
@@ -150,8 +150,8 @@ def upgrade():
         connection.execute(
             text(
                 """
-            CREATE INDEX IF NOT EXISTS idx_auth_users_role_active 
-            ON auth_users(role) WHERE is_active = true  
+            CREATE INDEX IF NOT EXISTS idx_auth_users_role_active
+            ON auth_users(role) WHERE is_active = true
         """
             )
         )
@@ -169,7 +169,7 @@ def downgrade():
         text(
             """
         SELECT EXISTS (
-            SELECT 1 FROM information_schema.tables 
+            SELECT 1 FROM information_schema.tables
             WHERE table_name = 'admin_users_backup_hf003'
         )
     """
@@ -181,7 +181,7 @@ def downgrade():
         connection.execute(
             text(
                 """
-            CREATE TABLE admin_users AS 
+            CREATE TABLE admin_users AS
             SELECT id, email, password_hash, name, phone, is_active, created_at, updated_at
             FROM admin_users_backup_hf003
         """
@@ -192,7 +192,7 @@ def downgrade():
         connection.execute(
             text(
                 """
-            DELETE FROM auth_users 
+            DELETE FROM auth_users
             WHERE role = 'admin' AND email IN (
                 SELECT email FROM admin_users_backup_hf003
             )

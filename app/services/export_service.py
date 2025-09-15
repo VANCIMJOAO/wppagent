@@ -13,13 +13,18 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
-                                TableStyle)
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from sqlalchemy import and_, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.database import (Appointment, Business, Conversation, Message,
-                                 Service, User)
+from app.models.database import (
+    Appointment,
+    Business,
+    Conversation,
+    Message,
+    Service,
+    User,
+)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)

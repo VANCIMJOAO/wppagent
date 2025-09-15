@@ -1,6 +1,6 @@
 """
 🔒 HF002 - Secure Request Logging Middleware
-=========        
+=========
         # Capturar informações da requisição de forma segura HF002
         request_info = {
             "request_id": request_id,
@@ -119,12 +119,12 @@ class SecureRequestLoggingMiddleware(BaseHTTPMiddleware):
                 log_msg = f"❌ S002 Request Error: {request.method} {request.url.path}"
             elif response.status_code >= 400:
                 log_level = logging.WARNING
-                log_msg = f"⚠️ S002 Request Warning: {request.method} {request.url.path}"
+                log_msg = (
+                    f"⚠️ S002 Request Warning: {request.method} {request.url.path}"
+                )
             else:
                 log_level = logging.INFO
-                log_msg = (
-                    f"✅ S002 Request Success: {request.method} {request.url.path}"
-                )
+                log_msg = f"✅ S002 Request Success: {request.method} {request.url.path}"
 
             logger.log(log_level, log_msg, extra={"response_data": response_data})
 

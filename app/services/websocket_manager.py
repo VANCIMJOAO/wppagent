@@ -292,8 +292,9 @@ class WebSocketManager:
             try:
                 # Import here to avoid circular imports
                 from app.database import get_db
-                from app.services.analytics_engine_advanced import \
-                    AdvancedAnalyticsEngine
+                from app.services.analytics_engine_advanced import (
+                    AdvancedAnalyticsEngine,
+                )
 
                 # Get basic dashboard stats
                 basic_stats = {

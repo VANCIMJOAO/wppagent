@@ -4,7 +4,7 @@
 
 Schemas unificados que eliminam inconsistências entre:
 - Backend SQLAlchemy model
-- Frontend TypeScript interfaces  
+- Frontend TypeScript interfaces
 - API responses e requests
 
 Todos os campos seguem a mesma nomenclatura e tipos.

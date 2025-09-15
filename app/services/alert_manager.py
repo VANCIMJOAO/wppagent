@@ -161,16 +161,16 @@ class AlertManager:
             # Corpo do email
             body = f"""
             Alerta do WhatsApp Agent
-            
+
             Severidade: {alert.severity}
             Título: {alert.title}
             Mensagem: {alert.message}
             Fonte: {alert.source}
             Timestamp: {alert.timestamp.isoformat()}
-            
+
             Dados adicionais:
             {json.dumps(alert.data, indent=2, default=str)}
-            
+
             ---
             Este é um alerta automático do sistema WhatsApp Agent.
             """

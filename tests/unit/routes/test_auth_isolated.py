@@ -22,7 +22,6 @@ def test_auth_routes_initialization():
     with patch("app.routes.auth.jwt_manager"), patch(
         "app.routes.auth.two_factor_auth"
     ), patch("app.routes.auth.rate_limiter"), patch("app.routes.auth.secrets_manager"):
-
         from app.routes.auth import router
 
         assert router.prefix == "/auth"
@@ -46,7 +45,6 @@ async def test_login_endpoint_success():
     ) as mock_2fa, patch("app.routes.auth.rate_limiter") as mock_rate_limiter, patch(
         "app.routes.auth._verify_credentials"
     ) as mock_verify:
-
         # Configurar mocks
         mock_rate_limiter.check_rate_limit.return_value = (True, {})
         mock_verify.return_value = ("user123", "admin")
@@ -84,7 +82,6 @@ async def test_login_endpoint_invalid_credentials():
     ), patch("app.routes.auth.rate_limiter") as mock_rate_limiter, patch(
         "app.routes.auth._verify_credentials"
     ) as mock_verify:
-
         # Configurar mocks
         mock_rate_limiter.check_rate_limit.return_value = (True, {})
         mock_verify.return_value = (None, None)  # Credenciais inválidas
@@ -115,7 +112,6 @@ async def test_login_endpoint_rate_limited():
     ), patch("app.routes.auth.rate_limiter") as mock_rate_limiter, patch(
         "app.routes.auth._verify_credentials"
     ):
-
         # Configurar rate limiter para bloquear
         mock_rate_limiter.check_rate_limit.return_value = (False, {"retry_after": 60})
 
@@ -145,7 +141,6 @@ async def test_login_with_2fa_required():
     ) as mock_2fa, patch("app.routes.auth.rate_limiter") as mock_rate_limiter, patch(
         "app.routes.auth._verify_credentials"
     ) as mock_verify:
-
         # Configurar mocks
         mock_rate_limiter.check_rate_limit.return_value = (True, {})
         mock_verify.return_value = ("user123", "admin")
@@ -285,7 +280,6 @@ def test_cookie_config():
 async def test_verify_credentials_function():
     """Teste da função _verify_credentials (mock)"""
     with patch("app.routes.auth._verify_credentials") as mock_verify:
-
         # Configurar mock para retornar credenciais válidas
         mock_verify.return_value = ("user123", "admin")
 

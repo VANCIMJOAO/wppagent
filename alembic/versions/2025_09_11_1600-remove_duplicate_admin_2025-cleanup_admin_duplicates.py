@@ -56,8 +56,8 @@ def upgrade() -> None:
                 result = connection.execute(
                     sa.text(
                         """
-                    SELECT id, username, email, is_active, created_at 
-                    FROM admins 
+                    SELECT id, username, email, is_active, created_at
+                    FROM admins
                     ORDER BY created_at
                 """
                     )

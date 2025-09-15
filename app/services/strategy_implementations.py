@@ -12,8 +12,7 @@ from typing import Any, Dict, List, Optional
 from .crew_agents import AgentRole, whatsapp_crew
 from .lead_scoring import lead_scoring_service
 from .llm_advanced import LLMResponse, advanced_llm_service
-from .strategy_base import (BaseStrategy, MessageContext, StrategyResponse,
-                            StrategyType)
+from .strategy_base import BaseStrategy, MessageContext, StrategyResponse, StrategyType
 
 logger = logging.getLogger(__name__)
 

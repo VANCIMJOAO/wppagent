@@ -14,12 +14,24 @@ from typing import Any, Dict, List, Optional, Tuple
 from .cache_service import cache_service
 from .lead_scoring import LeadScoringService
 from .metrics_service import metrics_service
-from .state_manager import (ConversationMessage, ConversationStatus,
-                            MessageRole, state_manager)
-from .strategy_base import (BaseStrategy, MessageContext, StrategyResponse,
-                            StrategySelector)
-from .strategy_implementations import (AdvancedLLMStrategy, CrewAIStrategy,
-                                       HybridStrategy, SimpleLLMStrategy)
+from .state_manager import (
+    ConversationMessage,
+    ConversationStatus,
+    MessageRole,
+    state_manager,
+)
+from .strategy_base import (
+    BaseStrategy,
+    MessageContext,
+    StrategyResponse,
+    StrategySelector,
+)
+from .strategy_implementations import (
+    AdvancedLLMStrategy,
+    CrewAIStrategy,
+    HybridStrategy,
+    SimpleLLMStrategy,
+)
 
 logger = logging.getLogger(__name__)
 

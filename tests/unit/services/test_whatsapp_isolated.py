@@ -21,7 +21,6 @@ def test_whatsapp_service_initialization():
     with patch("app.services.whatsapp.settings") as mock_settings, patch(
         "app.services.whatsapp.whatsapp_security"
     ), patch("app.services.whatsapp.retry_handler"):
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -50,7 +49,6 @@ async def test_whatsapp_send_text_message():
     with patch("app.services.whatsapp.settings") as mock_settings, patch(
         "app.services.whatsapp.whatsapp_security"
     ) as mock_security, patch("app.services.whatsapp.retry_handler"):
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -88,7 +86,6 @@ async def test_whatsapp_send_text_message_failure():
     with patch("app.services.whatsapp.settings") as mock_settings, patch(
         "app.services.whatsapp.whatsapp_security"
     ) as mock_security, patch("app.services.whatsapp.retry_handler"):
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -116,7 +113,6 @@ async def test_whatsapp_send_interactive_buttons():
     with patch("app.services.whatsapp.settings") as mock_settings, patch(
         "app.services.whatsapp.whatsapp_security"
     ), patch("app.services.whatsapp.retry_handler") as mock_retry:
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -165,7 +161,6 @@ async def test_whatsapp_download_media():
     ), patch("app.services.whatsapp.retry_handler"), patch(
         "httpx.AsyncClient"
     ) as mock_client:
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -207,7 +202,6 @@ async def test_whatsapp_download_media_failure():
     ), patch("app.services.whatsapp.retry_handler"), patch(
         "httpx.AsyncClient"
     ) as mock_client:
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -239,7 +233,6 @@ def test_whatsapp_verify_webhook_success():
     ), patch("app.services.whatsapp.retry_handler"), patch(
         "app.config.config_factory.get_settings"
     ) as mock_get_settings:
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -271,7 +264,6 @@ def test_whatsapp_verify_webhook_failure():
     ), patch("app.services.whatsapp.retry_handler"), patch(
         "app.config.config_factory.get_settings"
     ) as mock_get_settings:
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -305,7 +297,6 @@ async def test_whatsapp_make_api_request():
     ), patch("app.services.whatsapp.retry_handler"), patch(
         "httpx.AsyncClient"
     ) as mock_client:
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -344,7 +335,6 @@ async def test_whatsapp_make_api_request_errors():
     ), patch("app.services.whatsapp.retry_handler"), patch(
         "httpx.AsyncClient"
     ) as mock_client:
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"
@@ -393,7 +383,6 @@ async def test_whatsapp_log_request():
     ), patch("app.services.whatsapp.retry_handler"), patch(
         "app.services.whatsapp.AsyncSessionLocal"
     ) as mock_session:
-
         # Configurar settings mock
         mock_settings.whatsapp_api_url = "https://graph.facebook.com/v18.0"
         mock_settings.whatsapp_phone_id = "123456789"

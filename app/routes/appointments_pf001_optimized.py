@@ -21,13 +21,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
 from app.database import get_db
-from app.models.database import (Appointment, Business, Conversation, Service,
-                                 User)
+from app.models.database import Appointment, Business, Conversation, Service, User
 from app.routes.admin_auth import AdminUser, get_current_admin_user
-from app.schemas.unified import (AppointmentCreateRequest,
-                                 AppointmentsListResponseUnified,
-                                 AppointmentUpdateRequest, SchemaTransformer,
-                                 UnifiedAppointmentResponse)
+from app.schemas.unified import (
+    AppointmentCreateRequest,
+    AppointmentsListResponseUnified,
+    AppointmentUpdateRequest,
+    SchemaTransformer,
+    UnifiedAppointmentResponse,
+)
 from app.services.cache_service import CacheService
 from app.utils.logger import get_logger
 

@@ -7,6 +7,7 @@
 ## 🎯 **LGPD COMPLIANCE OVERVIEW**
 
 ### **LGPD Compliance Stack** 🛡️
+
 ```
 🛡️ LGPD Compliance System
 ├── 📋 Data Rights Management (8 endpoints)
@@ -37,6 +38,7 @@
 ```
 
 ### **LGPD Compliance Features** ✅
+
 - 🔒 **Data Subject Rights**: Complete implementation (8 rights)
 - 📄 **Data Portability**: JSON/CSV export with encryption
 - 🗑️ **Right to Erasure**: Secure data deletion with verification
@@ -53,12 +55,14 @@
 ### **1. Data Access & Portability**
 
 #### **Get Personal Data**
+
 ```http
 GET /api/lgpd/my-data
 Authorization: Cookie (HttpOnly)
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -87,7 +91,7 @@ Authorization: Cookie (HttpOnly)
     "conversations": [
       {
         "id": 789,
-        "business_name": "Clínica Saúde", 
+        "business_name": "Clínica Saúde",
         "created_at": "2025-09-15T13:00:00Z",
         "message_count": 5,
         "last_message": "2025-09-15T13:25:00Z"
@@ -116,7 +120,7 @@ Authorization: Cookie (HttpOnly)
     "lgpd_version": "2.0",
     "data_generated_at": "2025-09-15T13:30:00Z",
     "data_categories_included": [
-      "personal_info", "appointments", "conversations", 
+      "personal_info", "appointments", "conversations",
       "preferences", "consent_records"
     ],
     "next_retention_review": "2026-09-15T00:00:00Z"
@@ -125,6 +129,7 @@ Authorization: Cookie (HttpOnly)
 ```
 
 #### **Request Data Portability**
+
 ```http
 POST /api/lgpd/data-portability
 Content-Type: application/json
@@ -134,7 +139,7 @@ Authorization: Cookie (HttpOnly)
   "format": "JSON",
   "data_categories": [
     "personal_info",
-    "appointments", 
+    "appointments",
     "conversations",
     "preferences"
   ],
@@ -145,6 +150,7 @@ Authorization: Cookie (HttpOnly)
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -161,7 +167,7 @@ Authorization: Cookie (HttpOnly)
     "data_categories": [
       "personal_info",
       "appointments",
-      "conversations", 
+      "conversations",
       "preferences"
     ],
     "compliance_notes": [
@@ -178,6 +184,7 @@ Authorization: Cookie (HttpOnly)
 ```
 
 #### **Download Portability Data**
+
 ```http
 GET /api/lgpd/data-portability/{request_id}/download
 Authorization: Cookie (HttpOnly)
@@ -186,6 +193,7 @@ Authorization: Cookie (HttpOnly)
 **Response:** Binary file download (password-protected ZIP)
 
 **ZIP Contents:**
+
 ```
 lgpd_export_abc123456.zip
 ├── personal_data.json          # Complete personal information
@@ -201,6 +209,7 @@ lgpd_export_abc123456.zip
 ### **2. Data Deletion & Right to be Forgotten**
 
 #### **Request Account Deletion**
+
 ```http
 POST /api/lgpd/delete-account
 Content-Type: application/json
@@ -215,6 +224,7 @@ Authorization: Cookie (HttpOnly)
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -254,11 +264,13 @@ Authorization: Cookie (HttpOnly)
 ### **3. Privacy Information & User Rights**
 
 #### **Privacy Policy**
+
 ```http
 GET /api/lgpd/privacy-policy
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -280,7 +292,7 @@ GET /api/lgpd/privacy-policy
         "data_collection": {
           "personal_data_collected": [
             "Nome completo",
-            "Endereço de email", 
+            "Endereço de email",
             "Número de telefone",
             "Dados de agendamentos",
             "Histórico de conversas",
@@ -354,12 +366,14 @@ GET /api/lgpd/privacy-policy
 ```
 
 #### **User Rights Information**
+
 ```http
 GET /api/lgpd/user-rights
 Authorization: Cookie (HttpOnly)
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -375,7 +389,7 @@ Authorization: Cookie (HttpOnly)
       },
       {
         "right": "access",
-        "article": "Art. 18, II", 
+        "article": "Art. 18, II",
         "description": "Acesso aos dados pessoais",
         "how_to_exercise": "Utilize o endpoint /api/lgpd/my-data",
         "response_time": "15 dias úteis",
@@ -451,12 +465,14 @@ Authorization: Cookie (HttpOnly)
 ### **4. Data Processing Reports**
 
 #### **Data Processing Report**
+
 ```http
 GET /api/lgpd/data-processing-report
 Authorization: Cookie (HttpOnly) + Admin Role
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -541,6 +557,7 @@ Authorization: Cookie (HttpOnly) + Admin Role
 ### **5. Retention Policy Management**
 
 #### **Apply Retention Policies**
+
 ```http
 POST /api/lgpd/apply-retention-policies
 Content-Type: application/json
@@ -551,7 +568,7 @@ Authorization: Cookie (HttpOnly) + Admin Role
   "dry_run": false,
   "categories": [
     "expired_appointments",
-    "old_conversations", 
+    "old_conversations",
     "revoked_consents"
   ],
   "cutoff_date": "2023-09-15T00:00:00Z"
@@ -559,6 +576,7 @@ Authorization: Cookie (HttpOnly) + Admin Role
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -586,7 +604,7 @@ Authorization: Cookie (HttpOnly) + Admin Role
       },
       {
         "category": "old_conversations",
-        "cutoff_date": "2023-09-15T00:00:00Z", 
+        "cutoff_date": "2023-09-15T00:00:00Z",
         "processed": 8900,
         "deleted": 2100,
         "anonymized": 450,
@@ -619,12 +637,14 @@ Authorization: Cookie (HttpOnly) + Admin Role
 ## 📊 **LGPD ADMINISTRATIVE DASHBOARD**
 
 ### **Dashboard Overview**
+
 ```http
 GET /admin/lgpd/dashboard
 Authorization: Cookie (HttpOnly) + Admin Role
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -720,20 +740,21 @@ Authorization: Cookie (HttpOnly) + Admin Role
 ### **Data Encryption**
 
 #### **Encryption at Rest**
+
 ```python
 # Data encryption implementation
 class LGPDDataEncryption:
     def __init__(self):
         self.key = self._get_encryption_key()
         self.cipher_suite = Fernet(self.key)
-        
+
     def encrypt_personal_data(self, data: dict) -> dict:
         """Encrypt sensitive personal data fields"""
         sensitive_fields = [
             'name', 'email', 'phone', 'cpf', 'address',
             'message_content', 'notes'
         ]
-        
+
         encrypted_data = data.copy()
         for field in sensitive_fields:
             if field in data and data[field]:
@@ -742,13 +763,13 @@ class LGPDDataEncryption:
                 )
                 encrypted_data[field] = encrypted_value.decode()
                 encrypted_data[f'{field}_encrypted'] = True
-        
+
         return encrypted_data
-    
+
     def decrypt_personal_data(self, encrypted_data: dict) -> dict:
         """Decrypt personal data for authorized access"""
         decrypted_data = encrypted_data.copy()
-        
+
         for key, value in encrypted_data.items():
             if key.endswith('_encrypted') and value:
                 field_name = key.replace('_encrypted', '')
@@ -761,32 +782,32 @@ class LGPDDataEncryption:
                     except Exception as e:
                         # Log decryption error
                         logger.error(f"Decryption failed for {field_name}: {str(e)}")
-        
+
         return decrypted_data
 
 # Database model with encryption
 class EncryptedPersonalData(Base):
     __tablename__ = "personal_data"
-    
+
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    
+
     # Encrypted fields
     name_encrypted = Column(Text)
     email_encrypted = Column(Text)
     phone_encrypted = Column(Text)
-    
+
     # Encryption metadata
     encryption_version = Column(String(10), default="v1")
     encrypted_at = Column(DateTime, default=datetime.utcnow)
-    
+
     @property
     def name(self):
         if self.name_encrypted:
             encryption = LGPDDataEncryption()
             return encryption.decrypt_field(self.name_encrypted)
         return None
-    
+
     @name.setter
     def name(self, value):
         if value:
@@ -795,15 +816,16 @@ class EncryptedPersonalData(Base):
 ```
 
 #### **Access Control & Audit**
+
 ```python
 class LGPDAccessControl:
     def __init__(self):
         self.audit_logger = AuditLogger()
-    
+
     @require_permission("lgpd.data_access")
     async def access_personal_data(self, user_id: int, requester_id: int, purpose: str):
         """Control access to personal data with full audit trail"""
-        
+
         # Log access attempt
         self.audit_logger.log_data_access(
             target_user_id=user_id,
@@ -812,18 +834,18 @@ class LGPDAccessControl:
             timestamp=datetime.utcnow(),
             legal_basis="legitimate_interest"
         )
-        
+
         # Validate access purpose
         if not self._validate_access_purpose(purpose):
             raise LGPDViolationError("Invalid access purpose")
-        
+
         # Check data retention period
         if await self._is_data_expired(user_id):
             raise LGPDViolationError("Data retention period exceeded")
-        
+
         # Get encrypted data
         encrypted_data = await self._get_encrypted_personal_data(user_id)
-        
+
         # Decrypt only if authorized
         if self._is_authorized_for_decryption(requester_id):
             return self._decrypt_data(encrypted_data)
@@ -839,15 +861,16 @@ class AuditLogger:
             "compliance_framework": "LGPD",
             **kwargs
         }
-        
+
         # Store in immutable audit log
         self._store_audit_entry(audit_entry)
-        
+
         # Real-time compliance monitoring
         self._check_compliance_violations(audit_entry)
 ```
 
 ### **Data Anonymization**
+
 ```python
 class LGPDDataAnonymization:
     def __init__(self):
@@ -858,13 +881,13 @@ class LGPDDataAnonymization:
             'cpf': self._anonymize_cpf,
             'address': self._anonymize_address
         }
-    
+
     async def anonymize_user_data(self, user_id: int) -> dict:
         """Anonymize personal data while preserving analytics value"""
-        
+
         # Get original data
         original_data = await self._get_user_data(user_id)
-        
+
         # Apply anonymization rules
         anonymized_data = {}
         for field, value in original_data.items():
@@ -872,7 +895,7 @@ class LGPDDataAnonymization:
                 anonymized_data[field] = self.anonymization_rules[field](value)
             else:
                 anonymized_data[field] = value
-        
+
         # Add anonymization metadata
         anonymized_data.update({
             'anonymized_at': datetime.utcnow().isoformat(),
@@ -880,31 +903,31 @@ class LGPDDataAnonymization:
             'original_user_id': user_id,
             'anonymized_user_id': self._generate_anonymous_id()
         })
-        
+
         # Audit anonymization
         await self._audit_anonymization(user_id, anonymized_data)
-        
+
         return anonymized_data
-    
+
     def _anonymize_name(self, name: str) -> str:
         """Anonymize name while preserving demographics"""
         if not name:
             return None
-        
+
         parts = name.split()
         if len(parts) >= 2:
             return f"{parts[0][0]}*** {parts[-1][0]}***"
         else:
             return f"{name[0]}***"
-    
+
     def _anonymize_email(self, email: str) -> str:
         """Anonymize email preserving domain for analytics"""
         if '@' not in email:
             return "anonymous@unknown.com"
-        
+
         local, domain = email.split('@', 1)
         return f"anon_{hash(local) % 10000}@{domain}"
-    
+
     def _anonymize_phone(self, phone: str) -> str:
         """Anonymize phone preserving region code"""
         # Keep country and area code, anonymize number
@@ -918,6 +941,7 @@ class LGPDDataAnonymization:
 ## ⏰ **AUTOMATED RETENTION SYSTEM**
 
 ### **Data Lifecycle Management**
+
 ```python
 class LGPDRetentionManager:
     def __init__(self):
@@ -929,30 +953,30 @@ class LGPDRetentionManager:
             'financial_records': timedelta(days=3650),  # 10 years (legal requirement)
             'audit_logs': timedelta(days=3650)          # 10 years (compliance)
         }
-        
+
         self.legal_basis_overrides = {
             'financial_records': 'legal_obligation',
             'audit_logs': 'legal_obligation',
             'contract_data': 'contract_execution'
         }
-    
+
     async def execute_retention_policies(self, dry_run: bool = True):
         """Execute retention policies across all data categories"""
-        
+
         execution_report = {
             'execution_id': str(uuid.uuid4()),
             'started_at': datetime.utcnow(),
             'dry_run': dry_run,
             'categories_processed': []
         }
-        
+
         for category, retention_period in self.retention_policies.items():
             try:
                 category_result = await self._process_category(
                     category, retention_period, dry_run
                 )
                 execution_report['categories_processed'].append(category_result)
-                
+
             except Exception as e:
                 logger.error(f"Retention processing failed for {category}: {str(e)}")
                 execution_report['categories_processed'].append({
@@ -960,22 +984,22 @@ class LGPDRetentionManager:
                     'error': str(e),
                     'status': 'failed'
                 })
-        
+
         execution_report['completed_at'] = datetime.utcnow()
-        
+
         # Store execution report for audit
         await self._store_retention_report(execution_report)
-        
+
         return execution_report
-    
+
     async def _process_category(self, category: str, retention_period: timedelta, dry_run: bool):
         """Process retention for a specific data category"""
-        
+
         cutoff_date = datetime.utcnow() - retention_period
-        
+
         # Find records eligible for retention action
         eligible_records = await self._find_eligible_records(category, cutoff_date)
-        
+
         category_result = {
             'category': category,
             'retention_period_days': retention_period.days,
@@ -983,37 +1007,37 @@ class LGPDRetentionManager:
             'eligible_records': len(eligible_records),
             'actions_taken': []
         }
-        
+
         for record in eligible_records:
             action = await self._determine_retention_action(record, category)
-            
+
             if not dry_run:
                 await self._execute_retention_action(record, action)
-            
+
             category_result['actions_taken'].append({
                 'record_id': record.id,
                 'action': action,
                 'reason': self._get_action_reason(record, action),
                 'executed': not dry_run
             })
-        
+
         return category_result
-    
+
     async def _determine_retention_action(self, record, category: str) -> str:
         """Determine what action to take for a record"""
-        
+
         # Check if legal basis allows deletion
         if category in self.legal_basis_overrides:
             legal_basis = self.legal_basis_overrides[category]
             if legal_basis in ['legal_obligation', 'vital_interests']:
                 return 'retain'
-        
+
         # Check user consent status
         if hasattr(record, 'user_id'):
             consent_status = await self._get_consent_status(record.user_id)
             if consent_status == 'revoked':
                 return 'delete'
-        
+
         # Default actions based on data sensitivity
         if category in ['personal_info', 'conversations']:
             return 'anonymize'
@@ -1021,17 +1045,17 @@ class LGPDRetentionManager:
             return 'retain'
         else:
             return 'delete'
-    
+
     async def _execute_retention_action(self, record, action: str):
         """Execute the determined retention action"""
-        
+
         if action == 'delete':
             await self._secure_delete(record)
         elif action == 'anonymize':
             await self._anonymize_record(record)
         elif action == 'retain':
             await self._mark_retained(record)
-        
+
         # Log action for audit
         await self._log_retention_action(record, action)
 
@@ -1040,10 +1064,10 @@ class LGPDRetentionManager:
 async def daily_retention_cleanup():
     """Scheduled daily retention policy execution"""
     retention_manager = LGPDRetentionManager()
-    
+
     # Execute in production mode (not dry run)
     result = await retention_manager.execute_retention_policies(dry_run=False)
-    
+
     # Send notification if significant actions taken
     if result['total_actions'] > 100:
         await send_retention_notification(result)
@@ -1054,15 +1078,16 @@ async def daily_retention_cleanup():
 ## 📈 **COMPLIANCE MONITORING & REPORTING**
 
 ### **Real-time Compliance Dashboard**
+
 ```python
 class LGPDComplianceMonitor:
     def __init__(self):
         self.compliance_metrics = {}
         self.violation_alerts = []
-        
+
     async def get_compliance_status(self) -> dict:
         """Get real-time LGPD compliance status"""
-        
+
         return {
             'overall_compliance_score': await self._calculate_compliance_score(),
             'data_protection_status': await self._get_data_protection_status(),
@@ -1073,10 +1098,10 @@ class LGPDComplianceMonitor:
             'recent_violations': await self._get_recent_violations(),
             'improvement_recommendations': await self._get_improvement_recommendations()
         }
-    
+
     async def _calculate_compliance_score(self) -> float:
         """Calculate overall LGPD compliance score"""
-        
+
         metrics = {
             'data_protection': await self._score_data_protection(),
             'user_rights': await self._score_user_rights(),
@@ -1084,7 +1109,7 @@ class LGPDComplianceMonitor:
             'security': await self._score_security(),
             'transparency': await self._score_transparency()
         }
-        
+
         # Weighted average
         weights = {
             'data_protection': 0.25,
@@ -1093,15 +1118,15 @@ class LGPDComplianceMonitor:
             'security': 0.20,
             'transparency': 0.10
         }
-        
+
         score = sum(metrics[key] * weights[key] for key in metrics)
         return round(score, 1)
-    
+
     async def monitor_compliance_violations(self):
         """Continuously monitor for LGPD violations"""
-        
+
         violations = []
-        
+
         # Check response time violations
         overdue_requests = await self._check_overdue_requests()
         if overdue_requests:
@@ -1111,7 +1136,7 @@ class LGPDComplianceMonitor:
                 'count': len(overdue_requests),
                 'description': 'User rights requests overdue (>15 days)'
             })
-        
+
         # Check retention policy violations
         retention_violations = await self._check_retention_violations()
         if retention_violations:
@@ -1121,7 +1146,7 @@ class LGPDComplianceMonitor:
                 'count': len(retention_violations),
                 'description': 'Data retained beyond policy period'
             })
-        
+
         # Check consent violations
         consent_violations = await self._check_consent_violations()
         if consent_violations:
@@ -1131,20 +1156,20 @@ class LGPDComplianceMonitor:
                 'count': len(consent_violations),
                 'description': 'Data processing without valid consent'
             })
-        
+
         # Send alerts for violations
         for violation in violations:
             await self._send_compliance_alert(violation)
-        
+
         return violations
 
 # Compliance reporting endpoints
 @router.get("/admin/lgpd/compliance-report")
 async def get_compliance_report(period: str = "month"):
     """Generate comprehensive LGPD compliance report"""
-    
+
     monitor = LGPDComplianceMonitor()
-    
+
     return {
         'report_period': period,
         'generated_at': datetime.utcnow().isoformat(),
@@ -1163,6 +1188,7 @@ async def get_compliance_report(period: str = "month"):
 ### **Implementation Verification** ✅
 
 #### **Data Subject Rights**
+
 - ✅ **8 LGPD endpoints** implemented and tested
 - ✅ **Data access** (Art. 18, II) - `/api/lgpd/my-data`
 - ✅ **Data portability** (Art. 18, V) - `/api/lgpd/data-portability`
@@ -1173,6 +1199,7 @@ async def get_compliance_report(period: str = "month"):
 - ✅ **Audit trail** for all requests
 
 #### **Data Protection Measures**
+
 - ✅ **AES-256 encryption** for personal data
 - ✅ **Access control** with RBAC system
 - ✅ **Data anonymization** capabilities
@@ -1181,6 +1208,7 @@ async def get_compliance_report(period: str = "month"):
 - ✅ **Data minimization** principles applied
 
 #### **Retention & Lifecycle**
+
 - ✅ **Automated retention policies** configured
 - ✅ **5-year retention** for appointments/personal data
 - ✅ **2-year retention** for conversations
@@ -1189,6 +1217,7 @@ async def get_compliance_report(period: str = "month"):
 - ✅ **Retention reporting** and audit
 
 #### **Administrative Controls**
+
 - ✅ **LGPD dashboard** for administrators
 - ✅ **Compliance monitoring** real-time
 - ✅ **Data processing reports** automated
@@ -1197,6 +1226,7 @@ async def get_compliance_report(period: str = "month"):
 - ✅ **ANPD reporting** readiness
 
 #### **Transparency & Communication**
+
 - ✅ **Privacy policy** (Portuguese) updated
 - ✅ **Data controller** information complete
 - ✅ **Legal basis** clearly documented
@@ -1215,6 +1245,7 @@ async def get_compliance_report(period: str = "month"):
 - **Phone Support**: `+55 11 3333-4444`
 
 ### **Regulatory Authority**
+
 - **ANPD**: Autoridade Nacional de Proteção de Dados
 - **Website**: `https://www.gov.br/anpd/`
 - **Email**: `contato@anpd.gov.br`

@@ -27,8 +27,7 @@ try:
     from app.config import settings
     from app.database import Base, get_db
     from app.main import app
-    from app.models.database import (AdminUser, Appointment, Business, Service,
-                                     User)
+    from app.models.database import AdminUser, Appointment, Business, Service, User
 except ImportError as e:
     # Fallback imports if module structure is different
     import sys

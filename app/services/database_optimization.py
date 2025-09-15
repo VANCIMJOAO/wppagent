@@ -141,15 +141,15 @@ class DatabaseOptimizationService:
                 ) AS $$
                 BEGIN
                     RETURN QUERY
-                    SELECT 
+                    SELECT
                         DATE(c.created_at) as date_period,
                         COUNT(c.id) as total_conversations,
                         COUNT(c.id) FILTER (WHERE c.status = 'active') as active_conversations,
                         ROUND(AVG(c.message_count), 2) as avg_messages_per_conversation,
                         COUNT(DISTINCT c.user_id) as unique_users,
                         ROUND(
-                            COUNT(c.id) FILTER (WHERE c.status = 'completed') * 100.0 / 
-                            NULLIF(COUNT(c.id), 0), 
+                            COUNT(c.id) FILTER (WHERE c.status = 'completed') * 100.0 /
+                            NULLIF(COUNT(c.id), 0),
                             2
                         ) as conversion_rate
                     FROM conversations c
@@ -176,13 +176,13 @@ class DatabaseOptimizationService:
                     -- Limpar meta_logs antigos
                     DELETE FROM meta_logs WHERE created_at < cutoff_date;
                     GET DIAGNOSTICS deleted_meta_logs = ROW_COUNT;
-                    
+
                     -- Limpar sessões expiradas
                     DELETE FROM login_sessions WHERE expires_at < NOW();
                     GET DIAGNOSTICS deleted_sessions = ROW_COUNT;
-                    
+
                     -- Retornar resultados
-                    RETURN QUERY VALUES 
+                    RETURN QUERY VALUES
                         ('meta_logs', deleted_meta_logs),
                         ('login_sessions', deleted_sessions);
                 END;
@@ -200,11 +200,11 @@ class DatabaseOptimizationService:
                 BEGIN
                     RETURN QUERY
                     SELECT * FROM (
-                        VALUES 
-                            ('active_connections', 
+                        VALUES
+                            ('active_connections',
                              (SELECT count(*) FROM pg_stat_activity WHERE state = 'active')::NUMERIC,
                              'connections', NOW()),
-                            ('database_size_mb', 
+                            ('database_size_mb',
                              (SELECT pg_database_size(current_database()) / 1024.0 / 1024.0)::NUMERIC,
                              'MB', NOW()),
                             ('total_messages_today',
@@ -242,10 +242,10 @@ class DatabaseOptimizationService:
                         WHERE c.status IN (''active'', ''completed'')
                         AND c.updated_at >= CURRENT_DATE - INTERVAL ''7 days''
                     ', backup_table_name);
-                    
+
                     -- Contar registros
                     EXECUTE format('SELECT count(*) FROM %I', backup_table_name) INTO backed_up_count;
-                    
+
                     RETURN format('Backup criado: %s com %s conversas', backup_table_name, backed_up_count);
                 END;
                 $$ LANGUAGE plpgsql;
@@ -267,13 +267,13 @@ class DatabaseOptimizationService:
                     VACUUM ANALYZE messages, conversations, users;
                     end_time := clock_timestamp();
                     RETURN QUERY VALUES ('VACUUM_ANALYZE', 'Completed', end_time - start_time);
-                    
+
                     -- Reindex crítico
                     start_time := clock_timestamp();
                     REINDEX INDEX CONCURRENTLY idx_messages_created_at;
                     end_time := clock_timestamp();
                     RETURN QUERY VALUES ('REINDEX_MESSAGES', 'Completed', end_time - start_time);
-                    
+
                     -- Atualizar estatísticas
                     start_time := clock_timestamp();
                     ANALYZE;
@@ -340,12 +340,12 @@ DATE=$(date +%Y%m%d_%H%M%S)
 full_backup() {{
     echo "🚀 Iniciando backup completo..."
     BACKUP_FILE="$BACKUP_DIR/full_backup_$DATE.sql.gz"
-    
+
     PGPASSWORD="{self.db_config['password']}" pg_dump \\
         -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \\
         --verbose --no-owner --no-privileges \\
         | gzip > "$BACKUP_FILE"
-    
+
     if [ $? -eq 0 ]; then
         echo "✅ Backup completo criado: $BACKUP_FILE"
         echo "📊 Tamanho: $(du -h "$BACKUP_FILE" | cut -f1)"
@@ -359,7 +359,7 @@ full_backup() {{
 incremental_backup() {{
     echo "🔄 Iniciando backup incremental..."
     BACKUP_FILE="$BACKUP_DIR/incremental_backup_$DATE.sql.gz"
-    
+
     # Backup apenas de tabelas com dados recentes (últimas 24h)
     PGPASSWORD="{self.db_config['password']}" pg_dump \\
         -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \\
@@ -367,20 +367,20 @@ incremental_backup() {{
         --where="created_at >= NOW() - INTERVAL '24 hours'" \\
         -t messages -t conversations -t meta_logs \\
         | gzip > "$BACKUP_FILE"
-    
+
     echo "✅ Backup incremental criado: $BACKUP_FILE"
 }}
 
 # Limpeza de backups antigos
 cleanup_old_backups() {{
     echo "🧹 Limpando backups antigos..."
-    
+
     # Manter apenas os últimos 30 backups completos
     ls -t $BACKUP_DIR/full_backup_*.sql.gz | tail -n +31 | xargs -r rm -f
-    
+
     # Manter apenas os últimos 60 backups incrementais
     ls -t $BACKUP_DIR/incremental_backup_*.sql.gz | tail -n +61 | xargs -r rm -f
-    
+
     echo "✅ Limpeza concluída"
 }}
 
@@ -388,7 +388,7 @@ cleanup_old_backups() {{
 verify_backup() {{
     BACKUP_FILE=$1
     echo "🔍 Verificando integridade: $BACKUP_FILE"
-    
+
     if gzip -t "$BACKUP_FILE"; then
         echo "✅ Arquivo íntegro"
         return 0
@@ -439,35 +439,35 @@ BACKUP_DIR="{os.path.abspath(self.backup_dir)}"
 
 restore_backup() {{
     BACKUP_FILE=$1
-    
+
     if [ ! -f "$BACKUP_FILE" ]; then
         echo "❌ Arquivo de backup não encontrado: $BACKUP_FILE"
         exit 1
     fi
-    
+
     echo "⚠️  ATENÇÃO: Esta operação irá substituir todos os dados!"
     echo "Backup a ser restaurado: $BACKUP_FILE"
     read -p "Continuar? (yes/no): " confirm
-    
+
     if [ "$confirm" != "yes" ]; then
         echo "Operação cancelada"
         exit 0
     fi
-    
+
     echo "🚀 Iniciando restore..."
-    
+
     # Criar backup de segurança antes do restore
     SAFETY_BACKUP="$BACKUP_DIR/safety_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
     echo "📦 Criando backup de segurança..."
     PGPASSWORD="{self.db_config['password']}" pg_dump \\
         -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \\
         | gzip > "$SAFETY_BACKUP"
-    
+
     # Restore do backup
     echo "🔄 Restaurando dados..."
     gunzip -c "$BACKUP_FILE" | PGPASSWORD="{self.db_config['password']}" psql \\
         -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME
-    
+
     if [ $? -eq 0 ]; then
         echo "✅ Restore concluído com sucesso"
         echo "💾 Backup de segurança salvo em: $SAFETY_BACKUP"
@@ -647,11 +647,11 @@ echo "💡 Para promover a replica a primary: touch /tmp/promote_replica"
 check_replication_status() {
     echo "📊 STATUS DA REPLICAÇÃO"
     echo "======================"
-    
+
     # Status no Primary
     echo "PRIMARY SERVER:"
     sudo -u postgres psql -c "
-        SELECT 
+        SELECT
             client_addr,
             state,
             sent_lsn,
@@ -663,16 +663,16 @@ check_replication_status() {
             replay_lag
         FROM pg_stat_replication;
     "
-    
+
     # Lag da replicação
     echo ""
     echo "REPLICATION LAG:"
     sudo -u postgres psql -c "
-        SELECT 
-            CASE 
-                WHEN pg_last_wal_receive_lsn() = pg_last_wal_replay_lsn() 
-                THEN 0 
-                ELSE EXTRACT(EPOCH FROM now() - pg_last_xact_replay_timestamp()) 
+        SELECT
+            CASE
+                WHEN pg_last_wal_receive_lsn() = pg_last_wal_replay_lsn()
+                THEN 0
+                ELSE EXTRACT(EPOCH FROM now() - pg_last_xact_replay_timestamp())
             END AS lag_seconds;
     "
 }
@@ -680,9 +680,9 @@ check_replication_status() {
 check_replica_status() {
     echo "📊 STATUS DO REPLICA"
     echo "==================="
-    
+
     sudo -u postgres psql -c "
-        SELECT 
+        SELECT
             pg_is_in_recovery() as is_replica,
             pg_last_wal_receive_lsn() as received_lsn,
             pg_last_wal_replay_lsn() as replayed_lsn,
@@ -762,22 +762,22 @@ esac
         # Queries básicas sempre disponíveis
         base_queries = {
             "table_sizes": """
-                SELECT 
+                SELECT
                     tablename,
                     pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size,
                     pg_total_relation_size(schemaname||'.'||tablename) as bytes
-                FROM pg_tables 
+                FROM pg_tables
                 WHERE schemaname = 'public'
                 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
             """,
             "index_usage": """
-                SELECT 
+                SELECT
                     schemaname,
                     relname as tablename,
                     indexrelname as indexname,
                     idx_tup_read,
                     idx_tup_fetch,
-                    CASE 
+                    CASE
                         WHEN idx_tup_read = 0 THEN 'Nunca usado'
                         WHEN idx_tup_read < 100 THEN 'Pouco usado'
                         ELSE 'Bem usado'
@@ -787,21 +787,21 @@ esac
                 ORDER BY idx_tup_read DESC;
             """,
             "connection_stats": """
-                SELECT 
+                SELECT
                     state,
                     count(*) as connections
-                FROM pg_stat_activity 
+                FROM pg_stat_activity
                 GROUP BY state;
             """,
             "database_stats": """
-                SELECT 
+                SELECT
                     pg_database_size(current_database()) as db_size_bytes,
                     pg_size_pretty(pg_database_size(current_database())) as db_size,
                     (SELECT count(*) FROM pg_stat_activity WHERE state = 'active') as active_connections,
                     (SELECT setting FROM pg_settings WHERE name = 'max_connections') as max_connections;
             """,
             "table_activity": """
-                SELECT 
+                SELECT
                     schemaname,
                     relname as tablename,
                     n_tup_ins as inserts,
@@ -811,7 +811,7 @@ esac
                     seq_tup_read,
                     idx_scan,
                     idx_tup_fetch
-                FROM pg_stat_user_tables 
+                FROM pg_stat_user_tables
                 WHERE schemaname = 'public'
                 ORDER BY (n_tup_ins + n_tup_upd + n_tup_del) DESC;
             """,
@@ -822,15 +822,15 @@ esac
             base_queries[
                 "slow_queries"
             ] = """
-                SELECT 
+                SELECT
                     LEFT(query, 80) as query_preview,
                     calls,
                     total_time,
                     mean_time,
                     rows
-                FROM pg_stat_statements 
+                FROM pg_stat_statements
                 WHERE mean_time > 10
-                ORDER BY mean_time DESC 
+                ORDER BY mean_time DESC
                 LIMIT 10;
             """
         else:

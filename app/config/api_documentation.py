@@ -23,15 +23,15 @@ security_scheme = HTTPBearer(
     scheme_name="JWT",
     description="""
     **JWT Authentication with HttpOnly Cookies**
-    
-    This API uses secure HttpOnly cookies for authentication. 
+
+    This API uses secure HttpOnly cookies for authentication.
     For testing in Swagger UI, you can also use Bearer tokens.
-    
+
     ### How to authenticate:
     1. **Login**: POST `/auth/login` with credentials
     2. **Use cookies**: Automatically handled by browser
     3. **Or use Bearer token**: Add `Authorization: Bearer <token>` header
-    
+
     ### Token Format:
     ```
     Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -291,7 +291,7 @@ API_METADATA = {
 ### 🎯 Key Features
 
 - ✅ **Smart Appointment Scheduling** with conflict detection
-- ✅ **Real-time WhatsApp Integration** via Meta Business API  
+- ✅ **Real-time WhatsApp Integration** via Meta Business API
 - ✅ **AI-Powered Responses** with conversation context
 - ✅ **Enterprise Security** with JWT, 2FA, and RBAC
 - ✅ **High Performance** with Redis caching and optimized queries
@@ -310,7 +310,7 @@ This API uses **JWT tokens with HttpOnly cookies** for maximum security:
 ### 📊 Rate Limiting
 
 - **Standard**: 100 requests/minute
-- **Premium**: 1000 requests/minute  
+- **Premium**: 1000 requests/minute
 - **Enterprise**: Custom limits
 
 ### 🔗 External Documentation

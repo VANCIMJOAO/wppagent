@@ -175,9 +175,7 @@ class PerformanceMonitor:
         """Reset das métricas"""
         async with self._lock:
             self.metrics = WebhookMetrics()
-            logger.info(
-                "📊 Performance metrics reset", category=LogCategory.PERFORMANCE
-            )
+            logger.info("📊 Performance metrics reset", category=LogCategory.PERFORMANCE)
 
 
 # Instância global do monitor

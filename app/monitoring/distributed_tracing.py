@@ -232,7 +232,6 @@ class TracingDemo:
             SpanKind.SERVER,
             tags={"webhook.type": "whatsapp", "webhook.source": "meta"},
         ) as webhook_span:
-
             webhook_span.add_log("Webhook received from WhatsApp")
 
             # Simular validação
@@ -249,7 +248,6 @@ class TracingDemo:
                 SpanKind.INTERNAL,
                 {"message.type": "text", "message.from": "+5511999999999"},
             ) as msg_span:
-
                 msg_span.add_log("Starting message processing")
 
                 # Simular extração de dados
@@ -290,7 +288,6 @@ class TracingDemo:
         """Simula cenário com erro"""
 
         async with self.tracer.start_span("error.scenario") as error_span:
-
             try:
                 async with self.tracer.create_child_span("database.query") as db_span:
                     db_span.add_tag("query.type", "SELECT")
@@ -319,7 +316,6 @@ class TracingDemo:
                 f"request.{request_id}",
                 tags={"request.id": request_id, "request.type": "concurrent"},
             ) as request_span:
-
                 # Simular processamento variável
                 processing_time = 0.02 + (int(request_id) * 0.01)
                 await asyncio.sleep(processing_time)

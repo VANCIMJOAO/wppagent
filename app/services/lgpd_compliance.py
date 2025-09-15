@@ -722,7 +722,7 @@ class LGPDComplianceManager:
             # Query para registros expirados
             query = text(
                 f"""
-                SELECT COUNT(*) FROM {data_map.table_name} 
+                SELECT COUNT(*) FROM {data_map.table_name}
                 WHERE created_at < :cutoff_date
             """
             )
@@ -738,7 +738,7 @@ class LGPDComplianceManager:
                 # Anonimizar registros com base legal
                 anonymize_query = text(
                     f"""
-                    UPDATE {data_map.table_name} 
+                    UPDATE {data_map.table_name}
                     SET notes = '[DADOS ANONIMIZADOS - RETENÇÃO LGPD]',
                         updated_at = :now
                     WHERE created_at < :cutoff_date
@@ -759,7 +759,7 @@ class LGPDComplianceManager:
                 # Deletar registros sem base legal
                 delete_query = text(
                     f"""
-                    DELETE FROM {data_map.table_name} 
+                    DELETE FROM {data_map.table_name}
                     WHERE created_at < :cutoff_date
                 """
                 )

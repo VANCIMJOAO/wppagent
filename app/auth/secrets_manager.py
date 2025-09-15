@@ -310,7 +310,6 @@ class SecretsManager:
                 and secret.expires_at <= now
                 and secret.active
             ):
-
                 try:
                     self.rotate_secret(secret_id)
                     rotated.append(secret_id)

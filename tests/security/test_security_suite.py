@@ -4,7 +4,7 @@ Security Testing Avançado para TRILHA 2 FASE 2.2
 
 Testes automatizados de segurança para validar:
 - Segurança JWT (tokens, expiração, assinatura)
-- Sanitização de inputs 
+- Sanitização de inputs
 - Proteção contra ataques comuns
 - Validação de headers e middleware
 """

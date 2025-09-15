@@ -19,8 +19,10 @@ from app.models.database import Appointment, Conversation, Message, User
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
-from app.utils.dynamic_prompts import (get_dynamic_data_extraction_prompt,
-                                       get_dynamic_llm_system_prompt)
+from app.utils.dynamic_prompts import (
+    get_dynamic_data_extraction_prompt,
+    get_dynamic_llm_system_prompt,
+)
 
 from .alert_manager import alert_llm_service_error
 from .cost_tracker import cost_tracker
@@ -103,8 +105,7 @@ class PromptTemplate:
     async def get_system_base_with_database(user_message: str = "", **kwargs) -> str:
         """Retorna prompt base do sistema com dados reais da database"""
         from app.services.business_data import business_data_service
-        from app.utils.dynamic_prompts import \
-            get_dynamic_system_prompt_with_database
+        from app.utils.dynamic_prompts import get_dynamic_system_prompt_with_database
 
         try:
             # Usar prompt com dados da database - PASSAR MENSAGEM DO USUÁRIO

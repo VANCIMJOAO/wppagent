@@ -9,9 +9,14 @@ from typing import Any, Dict, Optional, Tuple
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.database import (BotConfiguration, Conversation,
-                                 ConversationContext, CustomerDataCollection,
-                                 MessageTemplate, User)
+from app.models.database import (
+    BotConfiguration,
+    Conversation,
+    ConversationContext,
+    CustomerDataCollection,
+    MessageTemplate,
+    User,
+)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -239,6 +244,4 @@ class DynamicDataCollectionService:
                 "{company_name}", "Barbearia do João"
             )
 
-        return (
-            template or "Olá! 👋 Bem-vindo à nossa empresa! Como posso ajudá-lo hoje?"
-        )
+        return template or "Olá! 👋 Bem-vindo à nossa empresa! Como posso ajudá-lo hoje?"

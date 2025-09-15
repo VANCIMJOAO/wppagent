@@ -79,7 +79,6 @@ class TestWhatsAppService:
         with patch("app.services.whatsapp.settings") as mock_settings, patch(
             "app.services.whatsapp.AsyncSessionLocal"
         ) as mock_session, patch("app.services.whatsapp.MetaLog") as mock_meta_log:
-
             mock_settings.whatsapp_api_url = "https://api.test.com"
             mock_settings.whatsapp_phone_id = "123456789"
             mock_settings.meta_access_token = "test_token"
@@ -234,7 +233,6 @@ class TestWhatsAppService:
         with patch("app.services.whatsapp.settings") as mock_settings, patch(
             "app.services.whatsapp.AsyncSessionLocal"
         ) as mock_session:
-
             mock_settings.whatsapp_api_url = "https://api.test.com"
             mock_settings.whatsapp_phone_id = "123456789"
             mock_settings.meta_access_token = "test_token"

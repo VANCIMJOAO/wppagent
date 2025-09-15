@@ -10,8 +10,15 @@ from sqlalchemy import delete, desc, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.database import (Appointment, Business, Conversation, Message,
-                                 MetaLog, Service, User)
+from app.models.database import (
+    Appointment,
+    Business,
+    Conversation,
+    Message,
+    MetaLog,
+    Service,
+    User,
+)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)

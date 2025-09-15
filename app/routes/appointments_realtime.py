@@ -2,7 +2,7 @@
 📋 Enhanced Appointments Routes with Real-time Updates
 ======================================================
 
-Integração das rotas de appointments com o sistema de 
+Integração das rotas de appointments com o sistema de
 real-time updates via WebSocket.
 
 Todas as operações CRUD agora disparam eventos WebSocket
@@ -22,10 +22,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models.appointment import Appointment
-from app.websocket.event_broadcaster import (notify_appointment_created,
-                                             notify_appointment_deleted,
-                                             notify_appointment_updated,
-                                             notify_system_message)
+from app.websocket.event_broadcaster import (
+    notify_appointment_created,
+    notify_appointment_deleted,
+    notify_appointment_updated,
+    notify_system_message,
+)
 
 logger = logging.getLogger(__name__)
 

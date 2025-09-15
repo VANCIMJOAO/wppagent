@@ -56,12 +56,14 @@ async def get_appointments_optimized(
             benchmark_service = QueryPerformanceBenchmark(db)
 
             # Test both old (N+1) and new (optimized) approaches
-            old_time, new_time, improvement = (
-                await benchmark_service.benchmark_appointments_query(
-                    user_id=user_id,
-                    business_id=business_id,
-                    limit=min(limit, 50),  # Limit for benchmark
-                )
+            (
+                old_time,
+                new_time,
+                improvement,
+            ) = await benchmark_service.benchmark_appointments_query(
+                user_id=user_id,
+                business_id=business_id,
+                limit=min(limit, 50),  # Limit for benchmark
             )
 
             logger.info(

@@ -24,7 +24,6 @@ def test_two_factor_basic_functionality():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         # Configurar mocks
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
@@ -51,7 +50,6 @@ def test_two_factor_secret_generation():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()
@@ -90,7 +88,6 @@ def test_two_factor_qr_code_generation():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()
@@ -121,7 +118,6 @@ def test_two_factor_totp_verification():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()
@@ -167,7 +163,6 @@ def test_two_factor_backup_codes():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()
@@ -199,7 +194,6 @@ def test_two_factor_setup_confirmation():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()
@@ -245,7 +239,6 @@ def test_two_factor_user_lockout():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()
@@ -274,7 +267,6 @@ def test_two_factor_status_check():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()
@@ -321,7 +313,6 @@ def test_two_factor_edge_cases():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()
@@ -362,7 +353,6 @@ def test_two_factor_backup_code_verification():
     with patch("redis.from_url") as mock_redis_from_url, patch(
         "app.auth.two_factor.get_settings"
     ) as mock_settings:
-
         mock_redis = MagicMock()
         mock_redis_from_url.return_value = mock_redis
         mock_settings_obj = MagicMock()

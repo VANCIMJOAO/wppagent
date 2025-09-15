@@ -14,6 +14,7 @@
 ## 🚀 **ENTERPRISE-GRADE FEATURES**
 
 ### 🛡️ **Segurança Avançada**
+
 - **✅ HttpOnly Cookies**: Tokens seguros, imunes a XSS
 - **✅ Rate Limiting**: 100 req/min + burst protection
 - **✅ Webhook HMAC**: Validação criptográfica Meta
@@ -21,18 +22,21 @@
 - **✅ Security Headers**: CSP, HSTS, X-Frame-Options
 
 ### ⚡ **Performance Otimizada**
+
 - **✅ N+1 Queries Eliminadas**: Eager loading implementado
 - **✅ 6 Índices Compostos**: Queries < 100ms
 - **✅ Cache Inteligente**: TTL otimizado + invalidação automática
 - **✅ Database Optimization**: Single head, zero drift
 
 ### 📊 **Observabilidade Completa**
+
 - **✅ Logs Estruturados**: JSON + trace correlation
 - **✅ Health Checks**: 4 componentes monitorados
 - **✅ Performance Metrics**: APM + database monitoring
 - **✅ Security Events**: Auditoria completa
 
 ### 🧪 **Qualidade Empresarial**
+
 - **✅ Testes Robustos**: 100% funcionais (Unit, Integration, Performance, E2E)
 - **✅ Schema Estável**: Single alembic head
 - **✅ Type Safety**: Auto-sync Backend ↔ Frontend
@@ -95,6 +99,7 @@ whats_agent/
 ## ⚡ **QUICK START - DEVELOPMENT**
 
 ### **1. Clone & Setup**
+
 ```bash
 git clone https://github.com/VANCIMJOAO/wppagent.git
 cd whats_agent
@@ -105,6 +110,7 @@ cp .env.example .env
 ```
 
 ### **2. Database Setup**
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -117,6 +123,7 @@ python -c "from app.database import engine; print('✅ Database connected')"
 ```
 
 ### **3. Backend Startup**
+
 ```bash
 # Development server
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -126,6 +133,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### **4. Frontend Setup**
+
 ```bash
 cd nextjs_dashboard
 
@@ -140,6 +148,7 @@ npm run build && npm start
 ```
 
 ### **5. Health Check**
+
 ```bash
 # Verify system is running
 curl localhost:8000/health
@@ -155,6 +164,7 @@ curl localhost:8000/health/detailed
 ## 🐳 **DOCKER DEPLOYMENT**
 
 ### **Development**
+
 ```bash
 # Start all services
 docker-compose up -d
@@ -167,6 +177,7 @@ docker-compose exec app alembic upgrade head
 ```
 
 ### **Production**
+
 ```bash
 # Build production image
 docker build -t whatsapp-agent:latest .
@@ -183,6 +194,7 @@ docker-compose exec app curl localhost:8000/health
 ## 🔐 **SECURITY CONFIGURATION**
 
 ### **Environment Variables** (Required)
+
 ```env
 # Database
 DATABASE_URL=postgresql://user:password@host:5432/database
@@ -206,6 +218,7 @@ RATE_LIMIT_ENABLED=true
 ```
 
 ### **Security Features Active**
+
 - 🔒 **HttpOnly Cookies**: Zero localStorage token exposure
 - 🛡️ **Rate Limiting**: DDoS protection + burst limits  
 - 🔐 **HMAC Webhook**: Cryptographic validation
@@ -217,12 +230,14 @@ RATE_LIMIT_ENABLED=true
 ## 📊 **MONITORING & OBSERVABILITY**
 
 ### **Health Endpoints**
+
 ```bash
 GET /health              # Basic health check
 GET /health/detailed     # Component-level status
 ```
 
 ### **Structured Logging**
+
 ```json
 {
   "timestamp": "2025-09-14T20:58:42.203782+00:00",
@@ -235,6 +250,7 @@ GET /health/detailed     # Component-level status
 ```
 
 ### **Performance Metrics**
+
 - ⚡ **Response Time**: P95 < 500ms
 - 🔄 **Database Queries**: Max 3 per request (was 30+)
 - 📈 **Rate Limiting**: Headers in every response
@@ -247,6 +263,7 @@ GET /health/detailed     # Component-level status
 ## 🧪 **TESTING FRAMEWORK**
 
 ### **Test Runner Otimizado**
+
 ```bash
 # ⚡ Quick tests (development)
 python test_runner_optimized.py quick
@@ -262,6 +279,7 @@ python test_runner_optimized.py comprehensive
 ```
 
 ### **Pytest Tradicional**
+
 ```bash
 # All tests
 pytest tests/ -v
@@ -275,6 +293,7 @@ pytest tests/integration/test_webhook_validation.py -v
 ```
 
 ### **Test Coverage**
+
 - ✅ **Unit Tests**: Lógica de negócio, validações, services
 - ✅ **Integration Tests**: Auth flow, CRUD, webhook processing
 - ✅ **Performance Tests**: Response times, concurrent requests
@@ -287,6 +306,7 @@ pytest tests/integration/test_webhook_validation.py -v
 ## 📚 **DOCUMENTATION**
 
 ### **Available Docs**
+
 - 📋 **API Documentation**: `/docs` (Swagger UI)
 - 🔧 **Setup Guide**: `docs/setup-guide.md`
 - 🛡️ **Security Practices**: `docs/security-practices.md`
@@ -295,6 +315,7 @@ pytest tests/integration/test_webhook_validation.py -v
 - 🔍 **Troubleshooting**: `docs/troubleshooting.md`
 
 ### **API Endpoints Overview**
+
 ```
 Authentication:
 POST   /auth/login          # Secure login with HttpOnly cookies
@@ -317,6 +338,7 @@ GET    /health/detailed     # Component health
 ## 🚀 **PRODUCTION DEPLOYMENT**
 
 ### **Railway Deployment** (Recommended)
+
 ```bash
 # 1. Connect GitHub repository to Railway
 # 2. Set environment variables in Railway dashboard
@@ -331,6 +353,7 @@ META_ACCESS_TOKEN=your-meta-token
 ```
 
 ### **Production Checklist**
+
 - [x] ✅ Database migrations applied
 - [x] ✅ Environment variables configured
 - [x] ✅ HTTPS enabled
@@ -345,6 +368,7 @@ META_ACCESS_TOKEN=your-meta-token
 ## 📈 **SYSTEM METRICS**
 
 ### **Performance Benchmarks**
+
 | Metric | Before | After | Improvement |
 |--------|--------|-------|-------------|
 | **Vulnerabilities** | 3 critical | ✅ **0** | **100% reduction** |
@@ -355,6 +379,7 @@ META_ACCESS_TOKEN=your-meta-token
 | **Schema Stability** | Multiple heads | ✅ **Single head** | **100% stable** |
 
 ### **Infrastructure**
+
 - 🐘 **PostgreSQL 16**: Optimized with 6 composite indexes
 - 🔴 **Redis 7**: Caching + session management
 - 🐍 **Python 3.11+**: FastAPI with async/await
@@ -366,6 +391,7 @@ META_ACCESS_TOKEN=your-meta-token
 ## 🔄 **MAINTENANCE**
 
 ### **Database Operations**
+
 ```bash
 # Backup
 pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql
@@ -382,6 +408,7 @@ alembic heads
 ```
 
 ### **Cache Operations**
+
 ```bash
 # Redis health check
 redis-cli -u $REDIS_URL ping
@@ -394,6 +421,7 @@ redis-cli -u $REDIS_URL monitor
 ```
 
 ### **Log Analysis**
+
 ```bash
 # View structured logs
 tail -f logs/security_audit.log | jq '.'
@@ -410,6 +438,7 @@ grep "performance" logs/security_audit.log | jq '.metadata.performance_metrics'
 ## 🤝 **CONTRIBUTING**
 
 ### **Development Guidelines**
+
 1. **Fork** the repository
 2. **Create branch**: `git checkout -b feature/your-feature`
 3. **Follow patterns**: FastAPI + Next.js conventions
@@ -419,6 +448,7 @@ grep "performance" logs/security_audit.log | jq '.metadata.performance_metrics'
 7. **Pull Request**: Clear description + testing info
 
 ### **Code Standards**
+
 - **Python**: Black formatting + isort imports
 - **TypeScript**: ESLint + Prettier
 - **Tests**: pytest for backend, React Testing Library for frontend
@@ -429,12 +459,14 @@ grep "performance" logs/security_audit.log | jq '.metadata.performance_metrics'
 ## 📞 **SUPPORT & CONTACT**
 
 ### **Getting Help**
+
 - 🐛 **Issues**: [GitHub Issues](https://github.com/VANCIMJOAO/wppagent/issues)
 - 📚 **Documentation**: Check `docs/` directory
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/VANCIMJOAO/wppagent/discussions)
 
 ### **Enterprise Support**
-- 📧 **Email**: enterprise@whatsappagent.com
+
+- 📧 **Email**: <enterprise@whatsappagent.com>
 - 💼 **Business**: Custom solutions available
 - 🔧 **Professional Services**: Setup, training, customization
 
@@ -483,4 +515,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 **Status: 🚀 PRODUCTION READY**
 
 </div>
-

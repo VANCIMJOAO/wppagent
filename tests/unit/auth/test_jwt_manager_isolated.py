@@ -19,8 +19,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../"))
 def test_jwt_manager_basic_functionality():
     """Teste básico do JWT Manager sem dependências externas"""
     # Import direto do módulo
-    from app.auth.jwt_manager import (SimpleJWTManager,
-                                      get_current_user_from_token, jwt_manager)
+    from app.auth.jwt_manager import (
+        SimpleJWTManager,
+        get_current_user_from_token,
+        jwt_manager,
+    )
 
     # Test initialization
     manager = SimpleJWTManager()

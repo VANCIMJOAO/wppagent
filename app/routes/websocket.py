@@ -18,16 +18,26 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Set
 
-from fastapi import (APIRouter, Depends, HTTPException, WebSocket,
-                     WebSocketDisconnect, status)
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from fastapi.security import HTTPBearer
 from starlette.websockets import WebSocketState
 
 from app.auth import get_current_user_from_token
 from app.database import get_db
-from app.websocket.connection_manager import (ConnectionInfo, EventType,
-                                              RoomType, WebSocketMessage,
-                                              connection_manager)
+from app.websocket.connection_manager import (
+    ConnectionInfo,
+    EventType,
+    RoomType,
+    WebSocketMessage,
+    connection_manager,
+)
 
 logger = logging.getLogger(__name__)
 

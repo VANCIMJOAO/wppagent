@@ -120,9 +120,7 @@ async def get_dynamic_system_prompt_with_database() -> str:
                 services_text += f"✅ {service['name']}: {service['price']} - {service['duration_minutes']}min\n"
                 if service["description"]:
                     services_text += f"   📝 {service['description']}\n"
-            services_text += (
-                f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
-            )
+            services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
         else:
             services_text = "❌ ERRO: Nenhum serviço encontrado na database!"
 
@@ -225,7 +223,7 @@ Você é um assistente virtual inteligente para agendamentos via WhatsApp.
 Você trabalha para {company_name} e sua função é ajudar os clientes a:
 
 1. 📅 AGENDAR serviços
-2. ❌ CANCELAR agendamentos existentes  
+2. ❌ CANCELAR agendamentos existentes
 3. 📝 REAGENDAR compromissos
 4. ℹ️  FORNECER informações gerais sobre serviços, horários, formas de pagamento e políticas
 

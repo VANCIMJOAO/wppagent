@@ -41,7 +41,7 @@ async def dashboard_home(request: Request):
         <body>
             <div class="container">
                 <h1>🚀 Dashboard Migrado - C002</h1>
-                
+
                 <div class="status success">
                     <h3>✅ Sistema Operacional</h3>
                     <p>Dashboard migrado implementado com sucesso!</p>

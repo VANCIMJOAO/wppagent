@@ -11,9 +11,15 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse
 
 from ..services.cache_invalidation_manual import (
-    CacheInvalidationManager, CacheInvalidationRule, CacheInvalidationType,
-    CacheScope, InvalidationRequest, InvalidationResponse,
-    get_cache_invalidation_manager)
+    CacheInvalidationManager,
+    CacheInvalidationRule,
+    CacheInvalidationType,
+    CacheScope,
+    InvalidationRequest,
+    InvalidationResponse,
+    get_cache_invalidation_manager,
+)
+
 # from ..auth.dependencies import get_current_admin_user  # Comentado para desenvolvimento
 from ..services.structured_apm import StructuredLogger
 

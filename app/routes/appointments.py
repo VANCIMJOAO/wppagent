@@ -25,18 +25,23 @@ from sqlalchemy.orm import joinedload
 
 from app.database import get_db
 from app.decorators.cache_invalidation import (
-    invalidate_appointment_cache_on_success, invalidate_cache)
+    invalidate_appointment_cache_on_success,
+    invalidate_cache,
+)
 from app.models.database import Appointment, Business, Service, User
 from app.routes.admin_auth import AdminUser, get_current_admin_user
-from app.schemas.unified import (AppointmentCreateRequest,
-                                 AppointmentsListResponseUnified,
-                                 AppointmentUpdateRequest, SchemaTransformer,
-                                 UnifiedAppointmentResponse)
+from app.schemas.unified import (
+    AppointmentCreateRequest,
+    AppointmentsListResponseUnified,
+    AppointmentUpdateRequest,
+    SchemaTransformer,
+    UnifiedAppointmentResponse,
+)
 from app.services.cache_invalidation import CacheEvent
 from app.services.cache_optimized import CacheKeys, cache_service
+
 # WebSocket integration
-from app.services.websocket_manager import (WebSocketEventType,
-                                            websocket_manager)
+from app.services.websocket_manager import WebSocketEventType, websocket_manager
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -315,9 +320,7 @@ async def get_appointments_legacy(
         total_result = await session.execute(count_query)
         total = total_result.scalar()
 
-        logger.info(
-            f"✅ Encontrados {len(appointments)} agendamentos de {total} totais"
-        )
+        logger.info(f"✅ Encontrados {len(appointments)} agendamentos de {total} totais")
 
         return {
             "appointments": appointments,
@@ -832,7 +835,9 @@ async def test_performance(
         overall_status = (
             "✅ EXCELENTE"
             if total_duration < 100
-            else "⚠️ REVISAR" if total_duration < 500 else "❌ CRÍTICO"
+            else "⚠️ REVISAR"
+            if total_duration < 500
+            else "❌ CRÍTICO"
         )
 
         return {
@@ -950,7 +955,9 @@ async def test_data_integrity(
         overall_health = (
             "✅ EXCELENTE"
             if not integrity_issues
-            else "⚠️ ATENÇÃO" if severity_counts["HIGH"] == 0 else "❌ CRÍTICO"
+            else "⚠️ ATENÇÃO"
+            if severity_counts["HIGH"] == 0
+            else "❌ CRÍTICO"
         )
 
         return {

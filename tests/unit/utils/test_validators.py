@@ -3,7 +3,7 @@ Unit Tests for Validators
 
 Tests for:
 - Email validation
-- Phone number validation  
+- Phone number validation
 - Data validation patterns
 - Input sanitization
 - Error handling

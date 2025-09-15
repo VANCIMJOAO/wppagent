@@ -17,9 +17,12 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from app.websocket.connection_manager import (EventType, RoomType,
-                                              WebSocketMessage,
-                                              connection_manager)
+from app.websocket.connection_manager import (
+    EventType,
+    RoomType,
+    WebSocketMessage,
+    connection_manager,
+)
 
 logger = logging.getLogger(__name__)
 

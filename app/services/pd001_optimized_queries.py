@@ -28,8 +28,14 @@ from sqlalchemy import asc, desc, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload, subqueryload
 
-from app.models.database import (Appointment, Business, Conversation, Message,
-                                 Service, User)
+from app.models.database import (
+    Appointment,
+    Business,
+    Conversation,
+    Message,
+    Service,
+    User,
+)
 from app.services.structured_apm import get_structured_logger
 
 logger = get_structured_logger(__name__)
@@ -277,7 +283,9 @@ class OptimizedQueryServicePD001:
                 "performance_grade": (
                     "A"
                     if seq_scans == 0 and index_scans > 0
-                    else "B" if seq_scans == 0 else "C"
+                    else "B"
+                    if seq_scans == 0
+                    else "C"
                 ),
             }
 
@@ -313,20 +321,20 @@ class OptimizedQueryServicePD001:
 
         # 1. Test conversations query (problema N+1 original)
         old_query = """
-        SELECT c.*, u.nome, u.telefone, COUNT(m.id) 
-        FROM conversations c 
-        JOIN users u ON c.user_id = u.id 
-        LEFT JOIN messages m ON m.conversation_id = c.id 
+        SELECT c.*, u.nome, u.telefone, COUNT(m.id)
+        FROM conversations c
+        JOIN users u ON c.user_id = u.id
+        LEFT JOIN messages m ON m.conversation_id = c.id
         GROUP BY c.id, u.nome, u.telefone
         LIMIT 10
         """
 
         new_query = """
-        SELECT c.*, u.nome, u.telefone, 
+        SELECT c.*, u.nome, u.telefone,
             (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id) as message_count
-        FROM conversations c 
-        JOIN users u ON c.user_id = u.id 
-        ORDER BY c.last_message_at DESC 
+        FROM conversations c
+        JOIN users u ON c.user_id = u.id
+        ORDER BY c.last_message_at DESC
         LIMIT 10
         """
 

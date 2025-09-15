@@ -19,17 +19,27 @@ from app.database import get_db
 from app.models.database import MetaLog
 from app.services.data import ConversationService, MessageService, UserService
 from app.services.response_control import get_unified_response_control
-from app.services.structured_apm import (BusinessEvent, LogCategory,
-                                         get_structured_logger,
-                                         log_business_event, log_performance,
-                                         log_security_event)
+from app.services.structured_apm import (
+    BusinessEvent,
+    LogCategory,
+    get_structured_logger,
+    log_business_event,
+    log_performance,
+    log_security_event,
+)
+
 # 🔥 WebSocket Integration
-from app.services.websocket_integration import (notify_message_sent,
-                                                notify_new_whatsapp_message)
+from app.services.websocket_integration import (
+    notify_message_sent,
+    notify_new_whatsapp_message,
+)
 from app.services.whatsapp import whatsapp_service
 from app.services.whatsapp_security import WhatsAppSecurityService
-from app.utils.whatsapp_sanitizer import (sanitize_message, sanitize_phone,
-                                          sanitize_whatsapp_data)
+from app.utils.whatsapp_sanitizer import (
+    sanitize_message,
+    sanitize_phone,
+    sanitize_whatsapp_data,
+)
 
 # ✅ Unified Response Control (substitui webhook_rate_limiter)
 # from app.auth.webhook_rate_limiter import webhook_rate_limit, webhook_rate_limiter
@@ -225,10 +235,12 @@ async def receive_webhook(request: Request, db: AsyncSession = Depends(get_db)):
             batch_size = len(all_messages)
             start_time = time.time()
 
-            total_processed, total_blocked, metrics = (
-                await batch_processor.process_messages_optimized(
-                    messages=all_messages, db=db
-                )
+            (
+                total_processed,
+                total_blocked,
+                metrics,
+            ) = await batch_processor.process_messages_optimized(
+                messages=all_messages, db=db
             )
 
             processing_time = time.time() - start_time

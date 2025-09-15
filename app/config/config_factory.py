@@ -7,8 +7,13 @@ import os
 from functools import lru_cache
 from typing import Any, Dict, Optional, Type
 
-from .environment_config import (BaseConfig, DevelopmentConfig, Environment,
-                                 ProductionConfig, StagingConfig)
+from .environment_config import (
+    BaseConfig,
+    DevelopmentConfig,
+    Environment,
+    ProductionConfig,
+    StagingConfig,
+)
 from .environment_config import TestConfig as TestingConfig
 
 # Logger será inicializado após a configuração estar disponível

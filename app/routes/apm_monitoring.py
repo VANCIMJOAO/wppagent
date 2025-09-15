@@ -31,9 +31,12 @@ from app.routes.admin_auth import get_current_admin_user
 
 # Alias para compatibilidade
 require_admin = get_current_admin_user
-from app.services.structured_apm import (LogCategory, LogLevel,
-                                         get_current_context,
-                                         get_structured_logger)
+from app.services.structured_apm import (
+    LogCategory,
+    LogLevel,
+    get_current_context,
+    get_structured_logger,
+)
 
 router = APIRouter(prefix="/apm-logs", tags=["APM Monitoring"])
 

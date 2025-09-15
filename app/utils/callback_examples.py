@@ -8,8 +8,11 @@ Este arquivo demonstra as melhores práticas de segurança.
 from dash import Input, Output, State, callback, dbc, html
 
 from app.utils.logger import get_logger
-from app.utils.validators import (ValidationError, sanitize_dashboard_input,
-                                  validate_dashboard_form)
+from app.utils.validators import (
+    ValidationError,
+    sanitize_dashboard_input,
+    validate_dashboard_form,
+)
 
 logger = get_logger(__name__)
 # ==================== EXEMPLO DE CALLBACK SEGURO ====================
@@ -109,12 +112,12 @@ def handle_search(n_clicks, search_term, table_name):
         # 2. Montar query segura
         if validated_table == "users":
             query = """
-                SELECT nome, telefone, email, created_at 
-                FROM users 
-                WHERE nome ILIKE :search_term 
-                   OR telefone ILIKE :search_term 
+                SELECT nome, telefone, email, created_at
+                FROM users
+                WHERE nome ILIKE :search_term
+                   OR telefone ILIKE :search_term
                    OR email ILIKE :search_term
-                ORDER BY created_at DESC 
+                ORDER BY created_at DESC
                 LIMIT 50
             """
         elif validated_table == "messages":
@@ -238,12 +241,12 @@ def handle_date_filter(n_clicks, start_date, end_date):
 
         # 2. Query segura com filtro de data
         query = """
-            SELECT 
+            SELECT
                 DATE(created_at) as data,
                 COUNT(*) as total_mensagens,
                 COUNT(DISTINCT user_id) as usuarios_unicos
             FROM messages
-            WHERE created_at >= :start_date 
+            WHERE created_at >= :start_date
               AND created_at <= :end_date
             GROUP BY DATE(created_at)
             ORDER BY data DESC

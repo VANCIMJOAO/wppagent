@@ -28,10 +28,15 @@ from dash.exceptions import PreventUpdate
 from flask import Flask, g, jsonify, request
 
 from app.utils.logger import get_logger
-from app.utils.rate_limiter import (RateLimitConfig, RateLimitException,
-                                    RateLimitLevel, RateLimitStrategy,
-                                    create_rate_limit_response,
-                                    get_client_ip_from_request, rate_limiter)
+from app.utils.rate_limiter import (
+    RateLimitConfig,
+    RateLimitException,
+    RateLimitLevel,
+    RateLimitStrategy,
+    create_rate_limit_response,
+    get_client_ip_from_request,
+    rate_limiter,
+)
 
 logger = get_logger(__name__)
 
@@ -284,7 +289,10 @@ class RateLimitMonitor:
                 ),
                 # Violações recentes
                 html.Div(
-                    [html.H4("⚠️ Violações Recentes"), html.Div(id="recent-violations")],
+                    [
+                        html.H4("⚠️ Violações Recentes"),
+                        html.Div(id="recent-violations"),
+                    ],
                     className="mb-4",
                 ),
                 # Configurações

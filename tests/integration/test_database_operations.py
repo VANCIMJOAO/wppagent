@@ -92,8 +92,7 @@ class TestDatabaseIntegration:
             from decimal import Decimal
 
             from app.database import AsyncSessionLocal
-            from app.models.database import (Appointment, Business, Service,
-                                             User)
+            from app.models.database import Appointment, Business, Service, User
 
             async with AsyncSessionLocal() as session:
                 # Create dependencies first
@@ -203,8 +202,7 @@ class TestDatabaseRelationships:
             from sqlalchemy.orm import selectinload
 
             from app.database import AsyncSessionLocal
-            from app.models.database import (Appointment, Business, Service,
-                                             User)
+            from app.models.database import Appointment, Business, Service, User
 
             async with AsyncSessionLocal() as session:
                 # Create test data

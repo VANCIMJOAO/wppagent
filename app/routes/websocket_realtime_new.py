@@ -15,13 +15,18 @@ import logging
 from datetime import datetime
 from typing import List
 
-from fastapi import (APIRouter, Depends, HTTPException, Query, WebSocket,
-                     WebSocketDisconnect)
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+)
 
 from app.auth.jwt_manager import verify_token
 from app.routes.admin_auth import get_current_admin_user
-from app.services.websocket_manager import (WebSocketEventType,
-                                            websocket_manager)
+from app.services.websocket_manager import WebSocketEventType, websocket_manager
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

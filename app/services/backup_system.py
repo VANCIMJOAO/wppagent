@@ -26,8 +26,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import schedule
 
-from app.services.automated_alerts import (AlertCategory, AlertSeverity,
-                                           alert_manager)
+from app.services.automated_alerts import AlertCategory, AlertSeverity, alert_manager
 from app.services.production_logger import business_logger
 from app.utils.logger import get_logger
 
@@ -77,7 +76,6 @@ class DatabaseBackupManager:
         max_backups: int = 30,
         compress_backups: bool = True,
     ):
-
         self.backup_dir = Path(backup_dir)
         self.backup_dir.mkdir(parents=True, exist_ok=True)
 

@@ -121,8 +121,8 @@ class BusinessDataService:
                 # Buscar serviços IGUAL ao dynamic_prompts.py
                 services = await conn.fetch(
                     """
-                    SELECT * FROM services 
-                    WHERE business_id = $1 AND is_active = true 
+                    SELECT * FROM services
+                    WHERE business_id = $1 AND is_active = true
                     ORDER BY name
                 """,
                     self.business_id,
@@ -1059,7 +1059,7 @@ class BusinessDataService:
             # Buscar do banco
             query = """
                 SELECT id, name, description, price, duration_minutes, category, is_active
-                FROM services 
+                FROM services
                 WHERE business_id = 3 AND is_active = true
                 ORDER BY category, name
             """

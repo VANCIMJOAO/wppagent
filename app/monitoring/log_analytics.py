@@ -787,9 +787,7 @@ class LogAnalytics:
         report += f"\n🔍 TOP INSIGHTS ({len(insights)}):\n"
         for i, insight in enumerate(insights[:5], 1):
             severity_emoji = (
-                "🔴"
-                if insight.severity >= 8
-                else "🟡" if insight.severity >= 6 else "🟢"
+                "🔴" if insight.severity >= 8 else "🟡" if insight.severity >= 6 else "🟢"
             )
             report += f"  {i}. {severity_emoji} {insight.title}\n"
             report += f"     {insight.description}\n"
@@ -935,9 +933,7 @@ class LogAnalyticsDemo:
         print(f"🔍 Generated {len(insights)} insights:")
         for i, insight in enumerate(insights[:5], 1):
             severity_emoji = (
-                "🔴"
-                if insight.severity >= 8
-                else "🟡" if insight.severity >= 6 else "🟢"
+                "🔴" if insight.severity >= 8 else "🟡" if insight.severity >= 6 else "🟢"
             )
             print(
                 f"\n{i}. {severity_emoji} {insight.title} (Severity: {insight.severity}/10)"
@@ -983,7 +979,9 @@ class LogAnalyticsDemo:
             severity_emoji = (
                 "🔴"
                 if insight["severity"] >= 8
-                else "🟡" if insight["severity"] >= 6 else "🟢"
+                else "🟡"
+                if insight["severity"] >= 6
+                else "🟢"
             )
             print(f"   {severity_emoji} {insight['title']}")
 

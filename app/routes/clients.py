@@ -8,9 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..auth.middleware import require_admin
 from ..database import get_db
 from ..models.database import Appointment, Conversation, Message, User
-from ..schemas.clients import (ClientCreate, ClientDetailResponse,
-                               ClientResponse, ClientStatistics, ClientUpdate,
-                               PaginatedResponse)
+from ..schemas.clients import (
+    ClientCreate,
+    ClientDetailResponse,
+    ClientResponse,
+    ClientStatistics,
+    ClientUpdate,
+    PaginatedResponse,
+)
 
 router = APIRouter(prefix="/clients", tags=["Clients"])
 
@@ -127,7 +132,7 @@ async def get_client_stats(
     stats = await session.execute(
         text(
             """
-        SELECT 
+        SELECT
             COUNT(*) as total,
             COUNT(CASE WHEN last_msg.created_at > NOW() - INTERVAL '30 days' THEN 1 END) as active,
             COUNT(CASE WHEN u.created_at > NOW() - INTERVAL '30 days' THEN 1 END) as new_this_month,
@@ -135,7 +140,7 @@ async def get_client_stats(
         FROM users u
         LEFT JOIN (
             SELECT user_id, MAX(created_at) as created_at
-            FROM messages 
+            FROM messages
             GROUP BY user_id
         ) last_msg ON u.id = last_msg.user_id
     """
@@ -169,17 +174,17 @@ async def get_client_detail(
     stats = await session.execute(
         text(
             """
-        SELECT 
+        SELECT
             COUNT(DISTINCT c.id) as conversations,
             COUNT(DISTINCT m.id) as messages,
             COUNT(DISTINCT a.id) as appointments,
             MAX(m.created_at) as last_message,
-            AVG(CASE WHEN m.direction = 'out' THEN 
+            AVG(CASE WHEN m.direction = 'out' THEN
                 EXTRACT(EPOCH FROM m.created_at - lag(m.created_at) OVER (ORDER BY m.created_at))
             END) as avg_response_time
         FROM users u
         LEFT JOIN conversations c ON u.id = c.user_id
-        LEFT JOIN messages m ON u.id = m.user_id  
+        LEFT JOIN messages m ON u.id = m.user_id
         LEFT JOIN appointments a ON u.id = a.user_id
         WHERE u.id = :client_id
     """

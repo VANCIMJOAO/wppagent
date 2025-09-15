@@ -29,8 +29,11 @@ from app.models.database import MetaLog
 from app.services.data import ConversationService, MessageService, UserService
 from app.services.whatsapp import whatsapp_service
 from app.utils.logger import get_logger
-from app.utils.whatsapp_sanitizer import (sanitize_message, sanitize_phone,
-                                          sanitize_whatsapp_data)
+from app.utils.whatsapp_sanitizer import (
+    sanitize_message,
+    sanitize_phone,
+    sanitize_whatsapp_data,
+)
 
 logger = get_logger(__name__)
 
@@ -208,7 +211,7 @@ class SimplifiedResponseGenerator:
             "services": """📋 Aqui estão nossos serviços disponíveis:
 
 🔹 Limpeza de Pele Profunda - R$ 80,00 (60 min)
-🔹 Hidrofacial - R$ 150,00 (75 min)  
+🔹 Hidrofacial - R$ 150,00 (75 min)
 🔹 Radiofrequência - R$ 200,00 (45 min)
 🔹 Criolipólise - R$ 300,00 (60 min)
 🔹 Massagem Relaxante - R$ 120,00 (60 min)
@@ -267,7 +270,7 @@ São Paulo - SP
 
 🕐 **Horário de Funcionamento:**
 • Segunda a Sexta: 9h às 18h
-• Sábado: 9h às 16h  
+• Sábado: 9h às 16h
 • Domingo: Fechado
 
 🚗 **Estacionamento:** Disponível na rua
@@ -839,7 +842,5 @@ logger.info(
     "✅ Webhook RIGOROSAMENTE corrigido carregado com controle de resposta única"
 )
 logger.info("🚫 Proteções RÍGIDAS: Cache 60s, Intervalo 8s, Verificação tripla")
-logger.info(
-    "📊 Endpoints funcionais: /webhook/status, /webhook/control, /webhook/stats"
-)
+logger.info("📊 Endpoints funcionais: /webhook/status, /webhook/control, /webhook/stats")
 logger.info("🎯 Sistema simplificado com controle RIGOROSO de duplicação")

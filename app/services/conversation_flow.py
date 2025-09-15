@@ -1459,9 +1459,11 @@ class ConversationFlowService:
             # Importar aqui para evitar circular imports
             import asyncio
 
-            from app.services.conversation_flow import (ConversationState,
-                                                        FlowDecision,
-                                                        FlowTransition)
+            from app.services.conversation_flow import (
+                ConversationState,
+                FlowDecision,
+                FlowTransition,
+            )
 
             # 🚨 SOLUÇÃO SIMPLIFICADA - Evitar problemas de asyncio
             try:
@@ -1501,9 +1503,11 @@ class ConversationFlowService:
             logger.error(f"❌ Erro no process_message_flow: {e}")
 
             # Fallback para decisão padrão
-            from app.services.conversation_flow import (ConversationState,
-                                                        FlowDecision,
-                                                        FlowTransition)
+            from app.services.conversation_flow import (
+                ConversationState,
+                FlowDecision,
+                FlowTransition,
+            )
 
             return FlowDecision(
                 next_state=ConversationState.CONVERSATION,

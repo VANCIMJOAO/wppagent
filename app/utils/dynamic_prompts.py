@@ -13,8 +13,10 @@ logger = get_logger(__name__)
 
 # Importar funções de formatação
 try:
-    from app.services.business_data import (business_data_service,
-                                            get_database_services_formatted)
+    from app.services.business_data import (
+        business_data_service,
+        get_database_services_formatted,
+    )
 except ImportError as e:
     logger.warning(f"Não foi possível importar funções de formatação: {e}")
     get_database_services_formatted = None
@@ -130,8 +132,7 @@ async def get_dynamic_system_prompt_with_database(user_message: str = "") -> str
             try:
                 services_text = await get_database_services_formatted(user_message)
                 services_text = (
-                    "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
-                    + services_text
+                    "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n" + services_text
                 )
                 services_text += f"\n⚠️ CRÍTICO: {len(services)} SERVIÇOS REAIS CARREGADOS DA DATABASE!\n"
                 logger.info("✅ Formatação melhorada de serviços aplicada")
@@ -139,9 +140,7 @@ async def get_dynamic_system_prompt_with_database(user_message: str = "") -> str
                 logger.error(f"Erro ao formatar serviços melhorados: {e}")
                 # Fallback para formatação básica
                 if services:
-                    services_text = (
-                        "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
-                    )
+                    services_text = "🔧 SERVIÇOS REAIS DA DATABASE (USE APENAS ESTES):\n"
                     for service in services:
                         services_text += f"✅ {service['name']}: {service['price']} - {service['duration_minutes']}min\n"
                         if service["description"]:
@@ -324,7 +323,7 @@ Você é um assistente virtual inteligente para agendamentos via WhatsApp.
 Você trabalha para {company_name} e sua função é ajudar os clientes a:
 
 1. 📅 AGENDAR serviços
-2. ❌ CANCELAR agendamentos existentes  
+2. ❌ CANCELAR agendamentos existentes
 3. 📝 REAGENDAR compromissos
 4. ℹ️  FORNECER informações gerais sobre serviços, horários, formas de pagamento e políticas
 
@@ -390,12 +389,12 @@ EXEMPLO: "Quanto custa limpeza de pele?" ou "vocês fazem massagem?"
 3. RESPONDA: "✅ Oferecemos sim! *Limpeza de Pele Profunda* custa R$ 80,00..."
 
 ❌ PROCESSO ERRADO:
-1. Usuário pergunta: "Quanto custa limpeza de pele?"  
+1. Usuário pergunta: "Quanto custa limpeza de pele?"
 2. Resposta: "Desculpe, não oferecemos limpeza de pele"
 3. ❌ ISSO ESTÁ ERRADO! O serviço EXISTE na lista!
 
 🔍 TERMOS QUE DEVEM SER ENCONTRADOS:
-- "limpeza" → "Limpeza de Pele Profunda" 
+- "limpeza" → "Limpeza de Pele Profunda"
 - "massagem" → "Massagem Relaxante" + "Massagem Modeladora"
 - "radiofrequência" → "Radiofrequência"
 - "hidrofacial" → "Hidrofacial Diamante"
@@ -465,7 +464,7 @@ QUANDO o texto dos serviços já vem formatado da database:
 🏢 *{company_name}*
 🕘 *Horário de Funcionamento:*
 - _Segunda a Sexta_: Xh às Xh
-- _Sábado_: Xh às Xh  
+- _Sábado_: Xh às Xh
 - _Domingo_: 🚫 Fechado
 
 🏢 QUANDO DAR INFORMAÇÕES DA EMPRESA, USE OBRIGATORIAMENTE:

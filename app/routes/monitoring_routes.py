@@ -13,10 +13,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.config.config_factory import ConfigFactory
-from app.services.comprehensive_monitoring import (AlertSeverity,
-                                                   BusinessMetric, SLAMetric,
-                                                   get_monitoring_dashboard,
-                                                   monitoring_system)
+from app.services.comprehensive_monitoring import (
+    AlertSeverity,
+    BusinessMetric,
+    SLAMetric,
+    get_monitoring_dashboard,
+    monitoring_system,
+)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -116,106 +119,106 @@ async def get_dashboard_html():
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>WhatsApp Agent - Dashboard de Monitoramento</title>
             <style>
-                body {{ 
-                    font-family: Arial, sans-serif; 
-                    margin: 20px; 
-                    background-color: #f5f5f5; 
+                body {{
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    background-color: #f5f5f5;
                 }}
-                .container {{ 
-                    max-width: 1200px; 
-                    margin: 0 auto; 
-                    background: white; 
-                    padding: 20px; 
-                    border-radius: 8px; 
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+                .container {{
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }}
-                .header {{ 
-                    text-align: center; 
-                    margin-bottom: 30px; 
-                    padding-bottom: 20px; 
-                    border-bottom: 2px solid #e0e0e0; 
+                .header {{
+                    text-align: center;
+                    margin-bottom: 30px;
+                    padding-bottom: 20px;
+                    border-bottom: 2px solid #e0e0e0;
                 }}
-                .metrics-grid {{ 
-                    display: grid; 
-                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-                    gap: 20px; 
-                    margin-bottom: 30px; 
+                .metrics-grid {{
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 20px;
+                    margin-bottom: 30px;
                 }}
-                .metric-card {{ 
-                    background: #f8f9fa; 
-                    padding: 20px; 
-                    border-radius: 8px; 
-                    border-left: 4px solid #007bff; 
+                .metric-card {{
+                    background: #f8f9fa;
+                    padding: 20px;
+                    border-radius: 8px;
+                    border-left: 4px solid #007bff;
                 }}
-                .metric-title {{ 
-                    font-weight: bold; 
-                    color: #333; 
-                    margin-bottom: 10px; 
+                .metric-title {{
+                    font-weight: bold;
+                    color: #333;
+                    margin-bottom: 10px;
                 }}
-                .metric-value {{ 
-                    font-size: 24px; 
-                    font-weight: bold; 
-                    color: #007bff; 
+                .metric-value {{
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: #007bff;
                 }}
-                .metric-unit {{ 
-                    font-size: 14px; 
-                    color: #666; 
+                .metric-unit {{
+                    font-size: 14px;
+                    color: #666;
                 }}
-                .status-healthy {{ 
-                    color: #28a745; 
+                .status-healthy {{
+                    color: #28a745;
                 }}
-                .status-warning {{ 
-                    color: #ffc107; 
+                .status-warning {{
+                    color: #ffc107;
                 }}
-                .status-critical {{ 
-                    color: #dc3545; 
+                .status-critical {{
+                    color: #dc3545;
                 }}
-                .alerts-section {{ 
-                    margin-top: 30px; 
+                .alerts-section {{
+                    margin-top: 30px;
                 }}
-                .alert-item {{ 
-                    background: #fff3cd; 
-                    border: 1px solid #ffeaa7; 
-                    padding: 15px; 
-                    border-radius: 4px; 
-                    margin-bottom: 10px; 
+                .alert-item {{
+                    background: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    padding: 15px;
+                    border-radius: 4px;
+                    margin-bottom: 10px;
                 }}
-                .alert-critical {{ 
-                    background: #f8d7da; 
-                    border-color: #f5c6cb; 
+                .alert-critical {{
+                    background: #f8d7da;
+                    border-color: #f5c6cb;
                 }}
-                .alert-high {{ 
-                    background: #fff3cd; 
-                    border-color: #ffeaa7; 
+                .alert-high {{
+                    background: #fff3cd;
+                    border-color: #ffeaa7;
                 }}
-                .footer {{ 
-                    text-align: center; 
-                    margin-top: 30px; 
-                    padding-top: 20px; 
-                    border-top: 1px solid #e0e0e0; 
-                    color: #666; 
+                .footer {{
+                    text-align: center;
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #e0e0e0;
+                    color: #666;
                 }}
-                .refresh-btn {{ 
-                    background: #007bff; 
-                    color: white; 
-                    border: none; 
-                    padding: 10px 20px; 
-                    border-radius: 4px; 
-                    cursor: pointer; 
-                    margin: 10px; 
+                .refresh-btn {{
+                    background: #007bff;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    margin: 10px;
                 }}
-                .system-info {{ 
-                    background: #e9ecef; 
-                    padding: 15px; 
-                    border-radius: 4px; 
-                    margin-bottom: 20px; 
+                .system-info {{
+                    background: #e9ecef;
+                    padding: 15px;
+                    border-radius: 4px;
+                    margin-bottom: 20px;
                 }}
-                pre {{ 
-                    background: #f8f9fa; 
-                    padding: 15px; 
-                    border-radius: 4px; 
-                    overflow-x: auto; 
-                    font-size: 12px; 
+                pre {{
+                    background: #f8f9fa;
+                    padding: 15px;
+                    border-radius: 4px;
+                    overflow-x: auto;
+                    font-size: 12px;
                 }}
             </style>
         </head>
@@ -226,7 +229,7 @@ async def get_dashboard_html():
                     <p>Última atualização: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}</p>
                     <button class="refresh-btn" onclick="location.reload()">🔄 Atualizar</button>
                 </div>
-                
+
                 <!-- Informações do Sistema -->
                 <div class="system-info">
                     <h3>ℹ️ Informações do Sistema</h3>
@@ -235,7 +238,7 @@ async def get_dashboard_html():
                     <p><strong>Alertas:</strong> {'✅ Habilitado' if dashboard_data['system_info']['alerting_enabled'] else '❌ Desabilitado'}</p>
                     <p><strong>Uptime (24h):</strong> {dashboard_data['system_info']['uptime_percentage']:.2f}%</p>
                 </div>
-                
+
                 <!-- Métricas de SLA -->
                 <h2>📊 Status do SLA</h2>
                 <div class="metrics-grid">
@@ -256,7 +259,7 @@ async def get_dashboard_html():
                             <span class="metric-unit">{metric_data['unit']}</span>
                         </div>
                         <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                            Threshold: {metric_data['warning_threshold']:.2f}{metric_data['unit']} 
+                            Threshold: {metric_data['warning_threshold']:.2f}{metric_data['unit']}
                             {'✅' if is_healthy else '⚠️'}
                         </div>
                     </div>
@@ -265,7 +268,7 @@ async def get_dashboard_html():
         # Adicionar métricas de negócio
         html_content += """
                 </div>
-                
+
                 <h2>💼 Métricas de Negócio</h2>
                 <div class="metrics-grid">
         """
@@ -279,7 +282,9 @@ async def get_dashboard_html():
                 trend_icon = (
                     "📈"
                     if trends.get("direction") == "up"
-                    else "📉" if trends.get("direction") == "down" else "➡️"
+                    else "📉"
+                    if trends.get("direction") == "down"
+                    else "➡️"
                 )
 
                 html_content += f"""
@@ -297,7 +302,7 @@ async def get_dashboard_html():
         # Adicionar alertas ativos
         html_content += """
                 </div>
-                
+
                 <div class="alerts-section">
                     <h2>🚨 Alertas Ativos</h2>
         """
@@ -319,17 +324,17 @@ async def get_dashboard_html():
         # Adicionar dados JSON para debug
         html_content += f"""
                 </div>
-                
+
                 <details style="margin-top: 30px;">
                     <summary>🔧 Dados Brutos (JSON)</summary>
                     <pre>{json.dumps(dashboard_data, indent=2, ensure_ascii=False)}</pre>
                 </details>
-                
+
                 <div class="footer">
                     <p>WhatsApp Agent Monitoring System | Atualização automática a cada 30 segundos</p>
                 </div>
             </div>
-            
+
             <script>
                 // Auto-refresh a cada 30 segundos
                 setTimeout(function() {{

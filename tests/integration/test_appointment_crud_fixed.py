@@ -4,7 +4,7 @@ VL-001: Appointment CRUD Integration Tests - Fixed Version
 Tests for appointment operations including:
 - Create appointments with validation
 - Read single and multiple appointments
-- Update appointment details  
+- Update appointment details
 - Delete appointments with proper cleanup
 - Business logic validation
 - Data integrity checks

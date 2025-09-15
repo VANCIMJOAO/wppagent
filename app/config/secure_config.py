@@ -10,8 +10,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import FastAPI
 
-from app.services.secrets_manager import (SecretProvider, SecretsConfig,
-                                          secrets_manager)
+from app.services.secrets_manager import SecretProvider, SecretsConfig, secrets_manager
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)

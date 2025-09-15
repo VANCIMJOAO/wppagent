@@ -4,7 +4,7 @@
 
 Sistema completo para gerenciamento de certificados SSL:
 - Geração de certificados auto-assinados
-- Integração com Let's Encrypt  
+- Integração com Let's Encrypt
 - Validação de certificados
 - Renovação automática
 - Configuração HTTPS obrigatória
@@ -484,11 +484,11 @@ if [ $? -eq 0 ]; then
     # Copiar certificados atualizados
     cp /etc/letsencrypt/live/{domain}/fullchain.pem {self.cert_file}
     cp /etc/letsencrypt/live/{domain}/privkey.pem {self.key_file}
-    
+
     # Ajustar permissões
     chmod 644 {self.cert_file}
     chmod 600 {self.key_file}
-    
+
     echo "✅ Certificado renovado: $(date)"
 else
     echo "❌ Erro na renovação: $(date)"

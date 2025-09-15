@@ -9,14 +9,18 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import (APIRouter, BackgroundTasks, Depends, HTTPException, Query,
-                     Request)
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 
-from ..services.lgpd_compliance import (LGPDComplianceManager, LGPDRequest,
-                                        LGPDRequestStatus, LGPDRequestType,
-                                        get_lgpd_manager)
+from ..services.lgpd_compliance import (
+    LGPDComplianceManager,
+    LGPDRequest,
+    LGPDRequestStatus,
+    LGPDRequestType,
+    get_lgpd_manager,
+)
+
 # from ..auth.dependencies import get_current_user  # Comentado para desenvolvimento
 from ..services.structured_apm import get_structured_logger
 

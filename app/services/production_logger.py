@@ -164,7 +164,6 @@ class ProductionLoggerSetup:
         backup_count: int = 10,
         log_level: str = "INFO",
     ):
-
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(exist_ok=True)
         self.max_bytes = max_bytes

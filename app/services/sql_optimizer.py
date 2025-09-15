@@ -29,8 +29,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
 from app.database import get_db
-from app.models.database import (Appointment, Business, Conversation, Message,
-                                 Service, User)
+from app.models.database import (
+    Appointment,
+    Business,
+    Conversation,
+    Message,
+    Service,
+    User,
+)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -79,7 +85,7 @@ class SQLOptimizer:
             appointments = await session.execute(select(Appointment))
             for apt in appointments:
                 user = await session.get(User, apt.user_id)  # N queries
-                
+
             # ✅ SOLUÇÃO: Single query with JOIN
             result = await session.execute(
                 select(Appointment, User.nome, User.telefone)
@@ -95,7 +101,7 @@ class SQLOptimizer:
                     select(func.count(Message.id))
                     .where(Message.conversation_id == conv.id)
                 )  # N queries
-                
+
             # ✅ SOLUÇÃO: Single query with aggregation
             result = await session.execute(
                 select(
@@ -108,7 +114,7 @@ class SQLOptimizer:
             """,
             # Pattern: N+1 clients with related data
             "clients_with_relationships": """
-            # ❌ PROBLEMA: N+1 Query  
+            # ❌ PROBLEMA: N+1 Query
             clients = await session.execute(select(User))
             for client in clients:
                 conversations = await session.execute(
@@ -119,7 +125,7 @@ class SQLOptimizer:
                     select(func.count(Appointment.id))
                     .where(Appointment.user_id == client.id)
                 )  # N more queries
-                
+
             # ✅ SOLUÇÃO: Single query with multiple JOINs
             result = await session.execute(
                 select(
@@ -257,7 +263,6 @@ class SQLOptimizer:
                         abs(recent_queries[j][0] - recent_queries[j - 1][0]) < 5
                         for j in range(1, len(recent_queries))
                     ):
-
                         issues.append(
                             QueryIssue(
                                 type=QueryProblemType.N_PLUS_ONE,

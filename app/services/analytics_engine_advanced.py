@@ -31,8 +31,14 @@ from sqlalchemy import and_, func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models.database import (Appointment, Business, Conversation, Message,
-                                 Service, User)
+from app.models.database import (
+    Appointment,
+    Business,
+    Conversation,
+    Message,
+    Service,
+    User,
+)
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -198,7 +204,7 @@ class AdvancedAnalyticsEngine:
             # Query complexa para funil com timing detalhado
             funnel_query = """
             WITH funnel_data AS (
-                SELECT 
+                SELECT
                     u.id as user_id,
                     u.created_at as first_contact,
                     u.referral_source as channel,
@@ -217,7 +223,7 @@ class AdvancedAnalyticsEngine:
                 GROUP BY u.id, u.created_at, u.referral_source
             ),
             funnel_metrics AS (
-                SELECT 
+                SELECT
                     COUNT(*) as total_first_contact,
                     COUNT(first_bot_response) as bot_responded,
                     COUNT(conversation_started) as conversation_started,
@@ -225,24 +231,24 @@ class AdvancedAnalyticsEngine:
                     COUNT(first_confirmed) as appointment_confirmed,
                     COUNT(first_completed) as service_completed,
                     COUNT(*) FILTER (WHERE total_services > 1) as repeat_customers,
-                    
+
                     -- Tempo médio entre etapas (em minutos/horas)
                     AVG(EXTRACT(EPOCH FROM first_bot_response - first_contact)/60) as avg_response_time_minutes,
                     AVG(EXTRACT(EPOCH FROM conversation_started - first_contact)/60) as avg_conversation_time_minutes,
                     AVG(EXTRACT(EPOCH FROM first_appointment_attempt - first_contact)/3600) as avg_appointment_time_hours,
                     AVG(EXTRACT(EPOCH FROM first_confirmed - first_appointment_attempt)/3600) as avg_confirmation_time_hours,
                     AVG(EXTRACT(EPOCH FROM first_completed - first_confirmed)/24) as avg_completion_time_days,
-                    
+
                     -- Segmentação opcional
-                    CASE 
+                    CASE
                         WHEN $3 = 'channel' THEN COALESCE(channel, 'organic')
                         WHEN $3 = 'month' THEN TO_CHAR(first_contact, 'YYYY-MM')
                         WHEN $3 = 'week' THEN TO_CHAR(first_contact, 'YYYY-"W"IW')
                         ELSE 'all'
                     END as segment
                 FROM funnel_data
-                GROUP BY 
-                    CASE 
+                GROUP BY
+                    CASE
                         WHEN $3 = 'channel' THEN COALESCE(channel, 'organic')
                         WHEN $3 = 'month' THEN TO_CHAR(first_contact, 'YYYY-MM')
                         WHEN $3 = 'week' THEN TO_CHAR(first_contact, 'YYYY-"W"IW')
@@ -530,9 +536,7 @@ class AdvancedAnalyticsEngine:
             )
 
         if "Agendamento Confirmado" in bottlenecks:
-            recommendations.append(
-                "✅ Implementar lembretes automáticos de confirmação"
-            )
+            recommendations.append("✅ Implementar lembretes automáticos de confirmação")
             recommendations.append("📞 Adicionar confirmação proativa 24h antes")
 
         if "Serviço Realizado" in bottlenecks:
@@ -553,7 +557,7 @@ class AdvancedAnalyticsEngine:
         try:
             cohort_query = """
             WITH user_cohorts AS (
-                SELECT 
+                SELECT
                     u.id,
                     DATE_TRUNC('month', u.created_at) as cohort_month,
                     u.created_at as acquisition_date,
@@ -564,7 +568,7 @@ class AdvancedAnalyticsEngine:
                 GROUP BY u.id, DATE_TRUNC('month', u.created_at), u.created_at
             ),
             cohort_metrics AS (
-                SELECT 
+                SELECT
                     cohort_month,
                     COUNT(*) as cohort_size,
                     COUNT(*) FILTER (WHERE services_completed > 0) as active_users,
@@ -574,7 +578,7 @@ class AdvancedAnalyticsEngine:
                 GROUP BY cohort_month
                 ORDER BY cohort_month
             )
-            SELECT 
+            SELECT
                 TO_CHAR(cohort_month, 'YYYY-MM') as cohort,
                 cohort_size,
                 active_users,
@@ -622,7 +626,7 @@ class AdvancedAnalyticsEngine:
             return {"cohorts": [], "error": str(e)}
         """
         📈 Calcula funil de conversão detalhado com análise temporal
-        
+
         Etapas do funil:
         1. Primeiro Contato (WhatsApp)
         2. Resposta do Bot
@@ -640,22 +644,22 @@ class AdvancedAnalyticsEngine:
             funnel_query = (
                 """
             WITH user_journey AS (
-                SELECT 
+                SELECT
                     u.id as user_id,
                     u.nome,
                     u.wa_id,
                     u.created_at as first_contact,
-                    
+
                     -- Primeira resposta do bot
                     MIN(m.created_at) FILTER (
                         WHERE m.direction = 'out' AND m.message_type = 'text'
                     ) as first_bot_response,
-                    
+
                     -- Engajamento (mais de 3 mensagens)
-                    CASE WHEN COUNT(m.id) >= 3 THEN 
-                        MIN(m.created_at) + INTERVAL '1 hour' 
+                    CASE WHEN COUNT(m.id) >= 3 THEN
+                        MIN(m.created_at) + INTERVAL '1 hour'
                     END as engagement_start,
-                    
+
                     -- Interesse em agendamento (palavras-chave)
                     MIN(m.created_at) FILTER (
                         WHERE m.direction = 'in' AND (
@@ -666,34 +670,34 @@ class AdvancedAnalyticsEngine:
                             LOWER(m.content) LIKE '%atendimento%'
                         )
                     ) as interest_shown,
-                    
+
                     -- Primeiro agendamento tentado
                     MIN(a.created_at) as first_appointment_attempt,
-                    
+
                     -- Primeiro agendamento confirmado
                     MIN(a.created_at) FILTER (
                         WHERE a.status IN ('confirmado', 'confirmed')
                     ) as first_confirmed,
-                    
+
                     -- Primeiro serviço realizado
                     MIN(a.created_at) FILTER (
                         WHERE a.status IN ('realizado', 'completed')
                     ) as first_completed,
-                    
+
                     -- Cliente recorrente (2+ agendamentos realizados)
                     CASE WHEN COUNT(a.id) FILTER (
                         WHERE a.status IN ('realizado', 'completed')
-                    ) >= 2 THEN 
+                    ) >= 2 THEN
                         MAX(a.created_at) FILTER (
                             WHERE a.status IN ('realizado', 'completed')
                         )
                     END as became_recurring,
-                    
+
                     -- Métricas de engajamento
                     COUNT(m.id) as total_messages,
                     COUNT(DISTINCT DATE(m.created_at)) as active_days,
                     COALESCE(SUM(a.price), 0) as total_spent
-                    
+
                 FROM users u
                 LEFT JOIN messages m ON u.id = m.user_id
                 LEFT JOIN appointments a ON u.id = a.user_id
@@ -704,7 +708,7 @@ class AdvancedAnalyticsEngine:
                 GROUP BY u.id, u.nome, u.wa_id, u.created_at
             ),
             funnel_metrics AS (
-                SELECT 
+                SELECT
                     COUNT(*) as stage_1_first_contact,
                     COUNT(first_bot_response) as stage_2_bot_response,
                     COUNT(engagement_start) as stage_3_engagement,
@@ -713,7 +717,7 @@ class AdvancedAnalyticsEngine:
                     COUNT(first_confirmed) as stage_6_confirmed,
                     COUNT(first_completed) as stage_7_completed,
                     COUNT(became_recurring) as stage_8_recurring,
-                    
+
                     -- Tempos médios entre etapas (em horas)
                     AVG(EXTRACT(EPOCH FROM first_bot_response - first_contact)/3600) as avg_time_1_to_2,
                     AVG(EXTRACT(EPOCH FROM engagement_start - first_bot_response)/3600) as avg_time_2_to_3,
@@ -944,12 +948,12 @@ class AdvancedAnalyticsEngine:
             # Query avançada para RFM
             rfm_query = """
             WITH customer_rfm AS (
-                SELECT 
+                SELECT
                     u.id,
                     u.nome,
                     u.wa_id,
                     u.created_at as first_interaction,
-                    
+
                     -- RECENCY: dias desde última interação
                     COALESCE(
                         EXTRACT(DAYS FROM $1 - MAX(
@@ -960,18 +964,18 @@ class AdvancedAnalyticsEngine:
                         )),
                         EXTRACT(DAYS FROM $1 - u.created_at)
                     ) as recency_days,
-                    
+
                     -- FREQUENCY: frequência de interações
                     COUNT(DISTINCT c.id) as frequency_conversations,
                     COUNT(DISTINCT a.id) as frequency_appointments,
                     COUNT(DISTINCT DATE(m.created_at)) as frequency_active_days,
                     COUNT(m.id) as total_messages,
-                    
+
                     -- MONETARY: valor monetário
                     COALESCE(SUM(a.price) FILTER (WHERE a.status IN ('realizado', 'completed')), 0) as monetary_value,
                     COUNT(a.id) FILTER (WHERE a.status IN ('realizado', 'completed')) as completed_services,
                     COALESCE(AVG(a.price) FILTER (WHERE a.status IN ('realizado', 'completed')), 0) as avg_order_value
-                    
+
                 FROM users u
                 LEFT JOIN conversations c ON u.id = c.user_id
                 LEFT JOIN messages m ON u.id = m.user_id
@@ -983,25 +987,25 @@ class AdvancedAnalyticsEngine:
             rfm_scores AS (
                 SELECT *,
                     -- RECENCY SCORE (5 = mais recente, 1 = menos recente)
-                    CASE 
+                    CASE
                         WHEN recency_days <= 7 THEN 5
                         WHEN recency_days <= 30 THEN 4
                         WHEN recency_days <= 90 THEN 3
                         WHEN recency_days <= 180 THEN 2
                         ELSE 1
                     END as r_score,
-                    
+
                     -- FREQUENCY SCORE (5 = mais frequente, 1 = menos frequente)
-                    CASE 
+                    CASE
                         WHEN frequency_conversations >= 10 OR frequency_appointments >= 5 THEN 5
                         WHEN frequency_conversations >= 5 OR frequency_appointments >= 3 THEN 4
                         WHEN frequency_conversations >= 3 OR frequency_appointments >= 2 THEN 3
                         WHEN frequency_conversations >= 2 OR frequency_appointments >= 1 THEN 2
                         ELSE 1
                     END as f_score,
-                    
+
                     -- MONETARY SCORE (5 = maior valor, 1 = menor valor)
-                    CASE 
+                    CASE
                         WHEN monetary_value >= 500 THEN 5
                         WHEN monetary_value >= 200 THEN 4
                         WHEN monetary_value >= 100 THEN 3
@@ -1015,7 +1019,7 @@ class AdvancedAnalyticsEngine:
                 SELECT *,
                     CONCAT(r_score, f_score, m_score) as rfm_score,
                     -- Classificação em segmentos baseada em RFM
-                    CASE 
+                    CASE
                         WHEN r_score >= 4 AND f_score >= 4 AND m_score >= 4 THEN 'VIP Champions'
                         WHEN r_score >= 4 AND f_score >= 3 AND m_score >= 3 THEN 'Loyal Customers'
                         WHEN r_score >= 4 AND f_score <= 2 AND m_score <= 2 THEN 'New Customers'
@@ -1027,7 +1031,7 @@ class AdvancedAnalyticsEngine:
                     END as segment_name
                 FROM rfm_scores
             )
-            SELECT 
+            SELECT
                 segment_name,
                 COUNT(*) as customer_count,
                 ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) as percentage,
@@ -1035,17 +1039,17 @@ class AdvancedAnalyticsEngine:
                 ROUND(AVG(avg_order_value), 2) as avg_order_value,
                 ROUND(AVG(frequency_conversations), 2) as avg_frequency,
                 ROUND(AVG(recency_days), 2) as avg_recency_days,
-                
+
                 -- Análise de risco de churn baseada em recência
-                CASE 
+                CASE
                     WHEN AVG(r_score) <= 2 THEN 'high'
                     WHEN AVG(r_score) <= 3 THEN 'medium'
                     ELSE 'low'
                 END as churn_risk,
-                
+
                 -- Detalhes adicionais
                 STRING_AGG(DISTINCT nome, ', ' ORDER BY nome) FILTER (WHERE monetary_value > 0) as sample_customers
-                
+
             FROM segmented_customers
             GROUP BY segment_name
             ORDER BY customer_count DESC
@@ -1267,52 +1271,52 @@ class AdvancedAnalyticsEngine:
             # Query avançada para features de churn
             churn_query = """
             WITH customer_features AS (
-                SELECT 
+                SELECT
                     u.id,
                     u.nome,
                     u.wa_id,
                     u.created_at,
-                    
+
                     -- Features de Recência e Engagement
                     COALESCE(
                         EXTRACT(DAYS FROM $1 - MAX(m.created_at)),
                         EXTRACT(DAYS FROM $1 - u.created_at)
                     ) as days_since_last_contact,
-                    
+
                     COALESCE(
                         EXTRACT(DAYS FROM $1 - MAX(a.created_at)),
                         999
                     ) as days_since_last_appointment,
-                    
+
                     -- Features de Frequência (últimos 90 dias vs anteriores)
                     COUNT(m.id) FILTER (WHERE m.created_at >= $1 - INTERVAL '90 days') as messages_recent_90d,
-                    COUNT(m.id) FILTER (WHERE m.created_at >= $1 - INTERVAL '180 days' 
+                    COUNT(m.id) FILTER (WHERE m.created_at >= $1 - INTERVAL '180 days'
                                        AND m.created_at < $1 - INTERVAL '90 days') as messages_prev_90d,
-                    
+
                     COUNT(a.id) FILTER (WHERE a.created_at >= $1 - INTERVAL '90 days') as appointments_recent_90d,
-                    COUNT(a.id) FILTER (WHERE a.created_at >= $1 - INTERVAL '180 days' 
+                    COUNT(a.id) FILTER (WHERE a.created_at >= $1 - INTERVAL '180 days'
                                        AND a.created_at < $1 - INTERVAL '90 days') as appointments_prev_90d,
-                    
+
                     -- Features de Valor
                     COALESCE(SUM(a.price) FILTER (WHERE a.status IN ('realizado', 'completed')
                                                   AND a.created_at >= $1 - INTERVAL '90 days'), 0) as revenue_recent_90d,
                     COALESCE(SUM(a.price) FILTER (WHERE a.status IN ('realizado', 'completed')
                                                   AND a.created_at >= $1 - INTERVAL '180 days'
                                                   AND a.created_at < $1 - INTERVAL '90 days'), 0) as revenue_prev_90d,
-                    
+
                     -- Features de Comportamento
-                    COUNT(a.id) FILTER (WHERE a.status = 'cancelado' 
+                    COUNT(a.id) FILTER (WHERE a.status = 'cancelado'
                                        AND a.created_at >= $1 - INTERVAL '90 days') as cancellations_recent,
                     COUNT(a.id) FILTER (WHERE a.status IN ('reagendado')
                                        AND a.created_at >= $1 - INTERVAL '90 days') as reschedules_recent,
-                    
+
                     -- Features temporais
                     EXTRACT(DAYS FROM $1 - u.created_at) as customer_age_days,
-                    
+
                     -- Features de engagement patterns
-                    AVG(EXTRACT(DAYS FROM LAG(m.created_at) OVER (PARTITION BY u.id ORDER BY m.created_at) - m.created_at)) 
+                    AVG(EXTRACT(DAYS FROM LAG(m.created_at) OVER (PARTITION BY u.id ORDER BY m.created_at) - m.created_at))
                         FILTER (WHERE m.created_at >= $1 - INTERVAL '90 days') as avg_message_gap_days
-                    
+
                 FROM users u
                 LEFT JOIN messages m ON u.id = m.user_id
                 LEFT JOIN appointments a ON u.id = a.user_id
@@ -1322,7 +1326,7 @@ class AdvancedAnalyticsEngine:
             churn_scores AS (
                 SELECT *,
                     -- Score de Recência (0-100, onde 100 = alto risco de churn)
-                    CASE 
+                    CASE
                         WHEN days_since_last_contact <= 7 THEN 0
                         WHEN days_since_last_contact <= 14 THEN 10
                         WHEN days_since_last_contact <= 30 THEN 25
@@ -1330,10 +1334,10 @@ class AdvancedAnalyticsEngine:
                         WHEN days_since_last_contact <= 90 THEN 75
                         ELSE 100
                     END as recency_score,
-                    
+
                     -- Score de Declínio de Engagement (0-100)
-                    CASE 
-                        WHEN messages_prev_90d = 0 THEN 
+                    CASE
+                        WHEN messages_prev_90d = 0 THEN
                             CASE WHEN messages_recent_90d = 0 THEN 50 ELSE 0 END
                         WHEN messages_recent_90d = 0 THEN 100
                         WHEN messages_recent_90d >= messages_prev_90d THEN 0
@@ -1341,28 +1345,28 @@ class AdvancedAnalyticsEngine:
                         WHEN messages_recent_90d >= messages_prev_90d * 0.4 THEN 50
                         ELSE 80
                     END as engagement_decline_score,
-                    
+
                     -- Score de Declínio de Valor (0-100)
-                    CASE 
-                        WHEN revenue_prev_90d = 0 THEN 
+                    CASE
+                        WHEN revenue_prev_90d = 0 THEN
                             CASE WHEN revenue_recent_90d = 0 THEN 30 ELSE 0 END
                         WHEN revenue_recent_90d = 0 THEN 100
                         WHEN revenue_recent_90d >= revenue_prev_90d THEN 0
                         WHEN revenue_recent_90d >= revenue_prev_90d * 0.5 THEN 30
                         ELSE 70
                     END as value_decline_score,
-                    
+
                     -- Score de Comportamento Negativo (0-100)
-                    CASE 
+                    CASE
                         WHEN cancellations_recent >= 2 THEN 80
                         WHEN cancellations_recent = 1 THEN 40
                         WHEN reschedules_recent >= 2 THEN 30
                         WHEN reschedules_recent = 1 THEN 10
                         ELSE 0
                     END as negative_behavior_score,
-                    
+
                     -- Score de Idade do Cliente (0-100, clientes muito novos ou muito antigos inativos têm maior risco)
-                    CASE 
+                    CASE
                         WHEN customer_age_days <= 30 AND messages_recent_90d <= 1 THEN 60  -- Novos e já inativos
                         WHEN customer_age_days <= 7 THEN 20  -- Muito novos
                         WHEN customer_age_days >= 365 AND messages_recent_90d = 0 THEN 40  -- Antigos e inativos
@@ -1374,15 +1378,15 @@ class AdvancedAnalyticsEngine:
                 SELECT *,
                     -- Score final ponderado
                     ROUND(
-                        (recency_score * 0.3 + 
+                        (recency_score * 0.3 +
                          engagement_decline_score * 0.25 +
                          value_decline_score * 0.2 +
                          negative_behavior_score * 0.15 +
                          lifecycle_score * 0.1), 1
                     ) as churn_score,
-                    
+
                     -- Classificação de risco
-                    CASE 
+                    CASE
                         WHEN (recency_score * 0.3 + engagement_decline_score * 0.25 +
                               value_decline_score * 0.2 + negative_behavior_score * 0.15 +
                               lifecycle_score * 0.1) >= 70 THEN 'critical'
@@ -1394,16 +1398,16 @@ class AdvancedAnalyticsEngine:
                               lifecycle_score * 0.1) >= 30 THEN 'medium'
                         ELSE 'low'
                     END as risk_level,
-                    
+
                     -- Próxima data provável de churn
-                    $1 + INTERVAL '1 day' * $2 * 
+                    $1 + INTERVAL '1 day' * $2 *
                         ((recency_score * 0.3 + engagement_decline_score * 0.25 +
                           value_decline_score * 0.2 + negative_behavior_score * 0.15 +
                           lifecycle_score * 0.1) / 100.0) as predicted_churn_date
-                          
+
                 FROM churn_scores
             )
-            SELECT 
+            SELECT
                 risk_level,
                 COUNT(*) as customer_count,
                 ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) as percentage,
@@ -1413,15 +1417,15 @@ class AdvancedAnalyticsEngine:
                 COUNT(*) FILTER (WHERE cancellations_recent > 0) as customers_with_cancellations,
                 MIN(predicted_churn_date) as earliest_churn_date,
                 MAX(predicted_churn_date) as latest_churn_date
-            FROM final_predictions 
+            FROM final_predictions
             WHERE churn_score > 0
             GROUP BY risk_level
-            ORDER BY 
-                CASE risk_level 
-                    WHEN 'critical' THEN 1 
-                    WHEN 'high' THEN 2 
-                    WHEN 'medium' THEN 3 
-                    WHEN 'low' THEN 4 
+            ORDER BY
+                CASE risk_level
+                    WHEN 'critical' THEN 1
+                    WHEN 'high' THEN 2
+                    WHEN 'medium' THEN 3
+                    WHEN 'low' THEN 4
                 END
             """
 
@@ -1586,14 +1590,14 @@ class AdvancedAnalyticsEngine:
             # Query complexa para ROI por canal
             roi_query = """
             WITH customer_attribution AS (
-                SELECT 
+                SELECT
                     u.id as user_id,
                     u.nome,
                     u.wa_id,
                     u.created_at as acquisition_date,
-                    
+
                     -- Determinar canal de aquisição (exemplo baseado em padrões)
-                    CASE 
+                    CASE
                         WHEN u.wa_id LIKE '+55%' AND u.nome LIKE '%Instagram%' THEN 'instagram'
                         WHEN u.wa_id LIKE '+55%' AND u.nome LIKE '%Facebook%' THEN 'facebook'
                         WHEN u.wa_id LIKE '+55%' AND u.nome LIKE '%Google%' THEN 'google_ads'
@@ -1602,33 +1606,33 @@ class AdvancedAnalyticsEngine:
                         WHEN EXTRACT(dow FROM u.created_at) IN (0,6) THEN 'weekend_organic'
                         ELSE 'direct_organic'
                     END as acquisition_channel,
-                    
+
                     -- Métricas de valor do cliente
                     COALESCE(SUM(a.price) FILTER (WHERE a.status IN ('realizado', 'completed')), 0) as total_ltv,
                     COUNT(a.id) FILTER (WHERE a.status IN ('realizado', 'completed')) as completed_services,
                     COUNT(DISTINCT DATE(a.created_at)) FILTER (WHERE a.status IN ('realizado', 'completed')) as active_service_days,
-                    
+
                     -- Primeiro valor (conversão inicial)
                     MIN(a.price) FILTER (WHERE a.status IN ('realizado', 'completed')) as first_order_value,
                     MIN(a.created_at) FILTER (WHERE a.status IN ('realizado', 'completed')) as first_conversion_date,
-                    
+
                     -- Tempo até primeira conversão
-                    EXTRACT(DAYS FROM 
+                    EXTRACT(DAYS FROM
                         MIN(a.created_at) FILTER (WHERE a.status IN ('realizado', 'completed')) - u.created_at
                     ) as days_to_first_conversion,
-                    
+
                     -- Métricas de engagement
                     COUNT(DISTINCT c.id) as total_conversations,
                     COUNT(m.id) as total_messages,
-                    
+
                     -- Status atual do cliente
-                    CASE 
+                    CASE
                         WHEN MAX(m.created_at) >= $1 - INTERVAL '30 days' THEN 'active'
                         WHEN MAX(m.created_at) >= $1 - INTERVAL '90 days' THEN 'at_risk'
                         WHEN MAX(m.created_at) >= $1 - INTERVAL '180 days' THEN 'dormant'
                         ELSE 'lost'
                     END as customer_status
-                    
+
                 FROM users u
                 LEFT JOIN conversations c ON u.id = c.user_id
                 LEFT JOIN messages m ON u.id = m.user_id
@@ -1639,9 +1643,9 @@ class AdvancedAnalyticsEngine:
             channel_costs AS (
                 -- Custos estimados por canal (configurável)
                 SELECT channel, cost_per_acquisition FROM (
-                    VALUES 
+                    VALUES
                         ('instagram', 25.00),
-                        ('facebook', 20.00), 
+                        ('facebook', 20.00),
                         ('google_ads', 35.00),
                         ('organic_business_hours', 5.00),
                         ('evening_social', 8.00),
@@ -1650,50 +1654,50 @@ class AdvancedAnalyticsEngine:
                 ) AS costs(channel, cost_per_acquisition)
             ),
             roi_calculations AS (
-                SELECT 
+                SELECT
                     ca.acquisition_channel,
                     COUNT(DISTINCT ca.user_id) as total_customers,
                     COUNT(DISTINCT ca.user_id) FILTER (WHERE ca.total_ltv > 0) as converting_customers,
-                    
+
                     -- Métricas de conversão
                     ROUND(
-                        COUNT(DISTINCT ca.user_id) FILTER (WHERE ca.total_ltv > 0) * 100.0 / 
+                        COUNT(DISTINCT ca.user_id) FILTER (WHERE ca.total_ltv > 0) * 100.0 /
                         NULLIF(COUNT(DISTINCT ca.user_id), 0), 2
                     ) as conversion_rate,
-                    
+
                     -- Métricas financeiras
                     COALESCE(SUM(ca.total_ltv), 0) as total_revenue,
                     ROUND(AVG(ca.total_ltv) FILTER (WHERE ca.total_ltv > 0), 2) as avg_ltv,
                     ROUND(AVG(ca.first_order_value) FILTER (WHERE ca.first_order_value IS NOT NULL), 2) as avg_first_order,
-                    
+
                     -- Custos e ROI
                     COALESCE(cc.cost_per_acquisition, 10.00) as estimated_cac,
                     COUNT(DISTINCT ca.user_id) * COALESCE(cc.cost_per_acquisition, 10.00) as total_acquisition_cost,
-                    
+
                     -- ROI bruto
                     ROUND(
-                        (COALESCE(SUM(ca.total_ltv), 0) - 
-                         (COUNT(DISTINCT ca.user_id) * COALESCE(cc.cost_per_acquisition, 10.00))) * 100.0 / 
+                        (COALESCE(SUM(ca.total_ltv), 0) -
+                         (COUNT(DISTINCT ca.user_id) * COALESCE(cc.cost_per_acquisition, 10.00))) * 100.0 /
                         NULLIF(COUNT(DISTINCT ca.user_id) * COALESCE(cc.cost_per_acquisition, 10.00), 0), 1
                     ) as roi_percentage,
-                    
+
                     -- Métricas temporais
                     ROUND(AVG(ca.days_to_first_conversion) FILTER (WHERE ca.days_to_first_conversion IS NOT NULL), 1) as avg_days_to_convert,
-                    
+
                     -- Distribuição de status
                     COUNT(DISTINCT ca.user_id) FILTER (WHERE ca.customer_status = 'active') as active_customers,
                     COUNT(DISTINCT ca.user_id) FILTER (WHERE ca.customer_status = 'at_risk') as at_risk_customers,
                     COUNT(DISTINCT ca.user_id) FILTER (WHERE ca.customer_status = 'lost') as lost_customers,
-                    
+
                     -- Qualidade do canal
                     ROUND(AVG(ca.total_messages) FILTER (WHERE ca.total_ltv > 0), 1) as avg_engagement_score,
                     ROUND(AVG(ca.completed_services), 1) as avg_services_per_customer
-                    
+
                 FROM customer_attribution ca
                 LEFT JOIN channel_costs cc ON ca.acquisition_channel = cc.channel
                 GROUP BY ca.acquisition_channel, cc.cost_per_acquisition
             )
-            SELECT 
+            SELECT
                 acquisition_channel,
                 total_customers,
                 converting_customers,
@@ -1710,28 +1714,28 @@ class AdvancedAnalyticsEngine:
                 lost_customers,
                 avg_engagement_score,
                 avg_services_per_customer,
-                
+
                 -- Métricas calculadas adicionais
                 ROUND(total_revenue / NULLIF(total_customers, 0), 2) as revenue_per_customer,
                 ROUND(avg_ltv / NULLIF(estimated_cac, 0), 2) as ltv_cac_ratio,
-                
+
                 -- Payback period (meses)
-                CASE 
+                CASE
                     WHEN avg_first_order > estimated_cac THEN 0  -- Recupera no primeiro pedido
                     WHEN avg_ltv > 0 THEN ROUND((estimated_cac * 12.0) / NULLIF(avg_ltv, 0), 1)
                     ELSE NULL
                 END as payback_months,
-                
+
                 -- Score de eficiência do canal (0-100)
-                LEAST(100, GREATEST(0, 
+                LEAST(100, GREATEST(0,
                     ROUND(
-                        (conversion_rate * 0.3 + 
+                        (conversion_rate * 0.3 +
                          LEAST(100, roi_percentage) * 0.4 +
                          LEAST(100, avg_engagement_score) * 0.2 +
                          (100 - LEAST(100, avg_days_to_convert * 2)) * 0.1), 1
                     )
                 )) as channel_efficiency_score
-                
+
             FROM roi_calculations
             WHERE total_customers > 0
             ORDER BY roi_percentage DESC
@@ -2060,43 +2064,43 @@ class AdvancedAnalyticsEngine:
             # Query para features de churn
             churn_query = """
             WITH customer_features AS (
-                SELECT 
+                SELECT
                     u.id,
                     u.nome,
                     u.wa_id,
                     u.created_at as customer_since,
-                    
+
                     -- Recency features
                     COALESCE(EXTRACT(DAYS FROM $1 - MAX(m.created_at)), 999) as days_since_last_message,
                     COALESCE(EXTRACT(DAYS FROM $1 - MAX(a.created_at)), 999) as days_since_last_appointment,
-                    
+
                     -- Frequency features
                     COUNT(DISTINCT c.id) as total_conversations,
                     COUNT(DISTINCT a.id) as total_appointments,
                     COUNT(m.id) as total_messages,
                     COUNT(DISTINCT DATE(m.created_at)) as active_days,
-                    
+
                     -- Monetary features
                     COALESCE(SUM(a.price) FILTER (WHERE a.status IN ('realizado', 'completed')), 0) as total_spent,
                     COALESCE(AVG(a.price) FILTER (WHERE a.status IN ('realizado', 'completed')), 0) as avg_order_value,
                     COUNT(a.id) FILTER (WHERE a.status IN ('realizado', 'completed')) as completed_services,
-                    
+
                     -- Behavioral features
                     COUNT(a.id) FILTER (WHERE a.status = 'cancelado') as cancelled_appointments,
                     COUNT(a.id) FILTER (WHERE a.status = 'não_compareceu') as no_shows,
-                    
+
                     -- Engagement patterns
                     CASE WHEN COUNT(m.id) > 0 THEN
-                        AVG(EXTRACT(EPOCH FROM m.created_at - LAG(m.created_at) 
+                        AVG(EXTRACT(EPOCH FROM m.created_at - LAG(m.created_at)
                             OVER (PARTITION BY u.id ORDER BY m.created_at))/3600)
                     END as avg_message_interval_hours,
-                    
+
                     -- Customer lifecycle
                     EXTRACT(DAYS FROM $1 - u.created_at) as customer_age_days,
-                    
+
                     -- Recent activity trends (last 30 days vs previous 30)
                     COUNT(m.id) FILTER (WHERE m.created_at >= $1 - INTERVAL '30 days') as messages_last_30d,
-                    COUNT(m.id) FILTER (WHERE m.created_at >= $1 - INTERVAL '60 days' 
+                    COUNT(m.id) FILTER (WHERE m.created_at >= $1 - INTERVAL '60 days'
                                        AND m.created_at < $1 - INTERVAL '30 days') as messages_prev_30d
                 FROM users u
                 LEFT JOIN conversations c ON u.id = c.user_id
@@ -2109,7 +2113,7 @@ class AdvancedAnalyticsEngine:
             churn_scores AS (
                 SELECT *,
                     -- Recency Score (0-100, higher = more risk)
-                    CASE 
+                    CASE
                         WHEN days_since_last_message <= 7 THEN 0
                         WHEN days_since_last_message <= 14 THEN 10
                         WHEN days_since_last_message <= 30 THEN 25
@@ -2117,18 +2121,18 @@ class AdvancedAnalyticsEngine:
                         WHEN days_since_last_message <= 90 THEN 75
                         ELSE 100
                     END as recency_score,
-                    
+
                     -- Frequency Score (0-100, lower frequency = higher risk)
-                    CASE 
+                    CASE
                         WHEN total_conversations >= 5 THEN 0
                         WHEN total_conversations >= 3 THEN 15
                         WHEN total_conversations >= 2 THEN 30
                         WHEN total_conversations >= 1 THEN 50
                         ELSE 80
                     END as frequency_score,
-                    
+
                     -- Monetary Score (0-100, lower spend = higher risk)
-                    CASE 
+                    CASE
                         WHEN total_spent >= 500 THEN 0
                         WHEN total_spent >= 200 THEN 10
                         WHEN total_spent >= 100 THEN 20
@@ -2136,15 +2140,15 @@ class AdvancedAnalyticsEngine:
                         WHEN total_spent > 0 THEN 50
                         ELSE 70
                     END as monetary_score,
-                    
+
                     -- Engagement Score (0-100, poor engagement = higher risk)
-                    CASE 
+                    CASE
                         WHEN (cancelled_appointments + no_shows) * 1.0 / GREATEST(total_appointments, 1) >= 0.5 THEN 40
                         WHEN (cancelled_appointments + no_shows) * 1.0 / GREATEST(total_appointments, 1) >= 0.3 THEN 25
                         WHEN (cancelled_appointments + no_shows) * 1.0 / GREATEST(total_appointments, 1) >= 0.1 THEN 10
                         ELSE 0
                     END +
-                    CASE 
+                    CASE
                         WHEN messages_last_30d = 0 AND messages_prev_30d > 0 THEN 30  -- Declining activity
                         WHEN messages_last_30d < messages_prev_30d / 2.0 AND messages_prev_30d > 0 THEN 15  -- 50% decline
                         ELSE 0
@@ -2155,18 +2159,18 @@ class AdvancedAnalyticsEngine:
                 -- Weighted churn score
                 ROUND(
                     recency_score * 0.40 +
-                    frequency_score * 0.25 + 
+                    frequency_score * 0.25 +
                     monetary_score * 0.15 +
                     engagement_score * 0.20
                 ) as churn_score,
-                
+
                 -- Churn probability (0-1)
-                CASE 
-                    WHEN (recency_score * 0.40 + frequency_score * 0.25 + 
+                CASE
+                    WHEN (recency_score * 0.40 + frequency_score * 0.25 +
                           monetary_score * 0.15 + engagement_score * 0.20) >= 70 THEN 0.8
-                    WHEN (recency_score * 0.40 + frequency_score * 0.25 + 
+                    WHEN (recency_score * 0.40 + frequency_score * 0.25 +
                           monetary_score * 0.15 + engagement_score * 0.20) >= 50 THEN 0.6
-                    WHEN (recency_score * 0.40 + frequency_score * 0.25 + 
+                    WHEN (recency_score * 0.40 + frequency_score * 0.25 +
                           monetary_score * 0.15 + engagement_score * 0.20) >= 30 THEN 0.3
                     ELSE 0.1
                 END as churn_probability
@@ -2357,58 +2361,58 @@ class AdvancedAnalyticsEngine:
             # Query complexa para métricas de ROI
             roi_query = """
             WITH customer_metrics AS (
-                SELECT 
+                SELECT
                     u.id as user_id,
                     u.nome,
                     u.wa_id,
                     u.created_at as acquisition_date,
                     u.referral_source,
-                    
+
                     -- Revenue Metrics
                     COALESCE(SUM(a.price) FILTER (
-                        WHERE a.status IN ('realizado', 'completed') 
+                        WHERE a.status IN ('realizado', 'completed')
                         AND a.created_at BETWEEN $1 AND $2
                     ), 0) as period_revenue,
-                    
+
                     COALESCE(SUM(a.price) FILTER (
                         WHERE a.status IN ('realizado', 'completed')
                     ), 0) as total_revenue,
-                    
+
                     COUNT(a.id) FILTER (
                         WHERE a.status IN ('realizado', 'completed')
                         AND a.created_at BETWEEN $1 AND $2
                     ) as period_transactions,
-                    
+
                     COUNT(a.id) FILTER (
                         WHERE a.status IN ('realizado', 'completed')
                     ) as total_transactions,
-                    
+
                     -- Customer Lifecycle
                     EXTRACT(DAYS FROM COALESCE(MAX(a.created_at), u.created_at) - u.created_at) as customer_lifespan_days,
-                    
+
                     -- First and Last transaction
                     MIN(a.created_at) FILTER (WHERE a.status IN ('realizado', 'completed')) as first_purchase,
                     MAX(a.created_at) FILTER (WHERE a.status IN ('realizado', 'completed')) as last_purchase,
-                    
+
                     -- Average Order Value
                     COALESCE(AVG(a.price) FILTER (
                         WHERE a.status IN ('realizado', 'completed')
                     ), 0) as avg_order_value,
-                    
+
                     -- Frequency metrics
                     CASE WHEN COUNT(a.id) FILTER (WHERE a.status IN ('realizado', 'completed')) > 1
-                        THEN EXTRACT(DAYS FROM MAX(a.created_at) - MIN(a.created_at)) / 
+                        THEN EXTRACT(DAYS FROM MAX(a.created_at) - MIN(a.created_at)) /
                              NULLIF(COUNT(a.id) FILTER (WHERE a.status IN ('realizado', 'completed')) - 1, 0)
                         ELSE NULL
                     END as avg_days_between_purchases
-                    
+
                 FROM users u
                 LEFT JOIN appointments a ON u.id = a.user_id
                 WHERE u.created_at <= $2
                 GROUP BY u.id, u.nome, u.wa_id, u.created_at, u.referral_source
             ),
             channel_metrics AS (
-                SELECT 
+                SELECT
                     COALESCE(referral_source, 'organic') as channel,
                     COUNT(*) as customers_acquired,
                     COUNT(*) FILTER (WHERE total_revenue > 0) as paying_customers,
@@ -2417,18 +2421,18 @@ class AdvancedAnalyticsEngine:
                     AVG(total_revenue) as avg_customer_value,
                     AVG(avg_order_value) as channel_avg_order_value,
                     AVG(customer_lifespan_days) as avg_customer_lifespan,
-                    
+
                     -- Conversion rate: paying customers / total acquired
-                    CASE WHEN COUNT(*) > 0 
+                    CASE WHEN COUNT(*) > 0
                         THEN COUNT(*) FILTER (WHERE total_revenue > 0) * 100.0 / COUNT(*)
-                        ELSE 0 
+                        ELSE 0
                     END as conversion_rate
                 FROM customer_metrics
                 WHERE acquisition_date BETWEEN $1 AND $2
                 GROUP BY COALESCE(referral_source, 'organic')
             ),
             overall_metrics AS (
-                SELECT 
+                SELECT
                     SUM(period_revenue) as total_period_revenue,
                     SUM(total_revenue) as total_historical_revenue,
                     COUNT(*) as total_customers,
@@ -2441,7 +2445,7 @@ class AdvancedAnalyticsEngine:
                 FROM customer_metrics
                 WHERE acquisition_date BETWEEN $1 AND $2
             )
-            SELECT 
+            SELECT
                 -- Channel data
                 json_agg(
                     json_build_object(
@@ -2456,7 +2460,7 @@ class AdvancedAnalyticsEngine:
                         'avg_lifespan_days', c.avg_customer_lifespan
                     )
                 ) as channels,
-                
+
                 -- Overall metrics
                 (SELECT row_to_json(overall_metrics.*) FROM overall_metrics) as overall
             FROM channel_metrics c

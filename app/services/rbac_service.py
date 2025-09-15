@@ -14,10 +14,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import AsyncSessionLocal
-from app.models.rbac import (PERMISSION_DEFINITIONS, ROLE_CONFIGURATIONS,
-                             PermissionResponse, PermissionType,
-                             RBACPermission, RBACRole, RBACUser, RoleResponse,
-                             RoleType, UserResponse)
+from app.models.rbac import (
+    PERMISSION_DEFINITIONS,
+    ROLE_CONFIGURATIONS,
+    PermissionResponse,
+    PermissionType,
+    RBACPermission,
+    RBACRole,
+    RBACUser,
+    RoleResponse,
+    RoleType,
+    UserResponse,
+)
 
 logger = logging.getLogger(__name__)
 

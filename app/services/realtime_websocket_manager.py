@@ -539,9 +539,7 @@ class RealtimeWebSocketManager:
             results = await asyncio.gather(*tasks, return_exceptions=True)
             successful_sends = sum(1 for r in results if r is True)
 
-            logger.info(
-                f"📡 Broadcast global: {successful_sends}/{len(tasks)} conexões"
-            )
+            logger.info(f"📡 Broadcast global: {successful_sends}/{len(tasks)} conexões")
             return successful_sends
 
         return 0

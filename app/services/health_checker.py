@@ -18,9 +18,12 @@ from app.utils.logger import get_logger
 logger = get_logger(__name__)
 from sqlalchemy import text
 
-from app.services.alert_manager import (alert_database_connection_error,
-                                        alert_llm_service_error, alert_manager,
-                                        alert_whatsapp_api_error)
+from app.services.alert_manager import (
+    alert_database_connection_error,
+    alert_llm_service_error,
+    alert_manager,
+    alert_whatsapp_api_error,
+)
 from app.services.retry_handler import retry_handler
 
 logger = logging.getLogger(__name__)

@@ -29,7 +29,7 @@ async def csp_test_page():
     <body>
         <h1>🔒 CSP Testing Page</h1>
         <p>Esta página testa as políticas de Content Security Policy implementadas no S001.</p>
-        
+
         <div id="test-results">
             <h2>Testes CSP:</h2>
             <ul>
@@ -38,19 +38,19 @@ async def csp_test_page():
                 <li id="style-test">❓ Inline Style Test</li>
             </ul>
         </div>
-        
+
         <!-- Este script inline deve ser BLOQUEADO pela CSP -->
         <script>
             document.getElementById('inline-script-test').innerHTML = '❌ Inline Script Executado (CSP não está funcionando)';
         </script>
-        
+
         <!-- Este estilo inline deve ser BLOQUEADO pela CSP -->
         <div style="color: red;">Este texto não deve aparecer em vermelho se CSP estiver funcionando</div>
-        
+
         <script nonce="csp-test-nonce">
             // Este script com nonce deve funcionar
             document.getElementById('inline-script-test').innerHTML = '✅ CSP está funcionando (inline script bloqueado)';
-            
+
             // Testar script externo
             try {
                 fetch('/static/test.js')

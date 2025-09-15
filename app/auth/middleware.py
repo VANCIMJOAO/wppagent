@@ -219,9 +219,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         except Exception as jwt_error:
             # 🚨 Erro detalhado para debug
             logger.error(f"🚨 Token JWT inválido: {str(jwt_error)}")
-            logger.error(
-                f"🔑 Secret sendo usado: {self.jwt_manager.secret_key[:10]}..."
-            )
+            logger.error(f"🔑 Secret sendo usado: {self.jwt_manager.secret_key[:10]}...")
             raise HTTPException(
                 status_code=401, detail=f"Token inválido: {str(jwt_error)}"
             )
@@ -281,9 +279,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Strict-Transport-Security"] = (
-            "max-age=31536000; includeSubDomains"
-        )
+        response.headers[
+            "Strict-Transport-Security"
+        ] = "max-age=31536000; includeSubDomains"
         response.headers["Content-Security-Policy"] = "default-src 'self'"
 
 

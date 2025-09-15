@@ -353,9 +353,7 @@ async def conversations_benchmark_pd001(db: AsyncSession = Depends(get_db)):
         }
 
     except Exception as e:
-        logger.error(
-            f"❌ PD001 Benchmark failed: {str(e)}", category="performance_demo"
-        )
+        logger.error(f"❌ PD001 Benchmark failed: {str(e)}", category="performance_demo")
         raise HTTPException(status_code=500, detail=f"Benchmark failed: {str(e)}")
 
 
@@ -369,26 +367,26 @@ async def query_analysis_pd001(query_type: str, db: AsyncSession = Depends(get_d
     try:
         queries = {
             "conversations_old": """
-                SELECT c.*, u.nome, u.telefone, COUNT(m.id) 
-                FROM conversations c 
-                JOIN users u ON c.user_id = u.id 
-                LEFT JOIN messages m ON m.conversation_id = c.id 
+                SELECT c.*, u.nome, u.telefone, COUNT(m.id)
+                FROM conversations c
+                JOIN users u ON c.user_id = u.id
+                LEFT JOIN messages m ON m.conversation_id = c.id
                 GROUP BY c.id, u.nome, u.telefone
                 LIMIT 10
             """,
             "conversations_new": """
-                SELECT c.*, u.nome, u.telefone, 
+                SELECT c.*, u.nome, u.telefone,
                     (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id) as message_count
-                FROM conversations c 
-                JOIN users u ON c.user_id = u.id 
-                ORDER BY c.last_message_at DESC 
+                FROM conversations c
+                JOIN users u ON c.user_id = u.id
+                ORDER BY c.last_message_at DESC
                 LIMIT 10
             """,
             "appointments": """
                 SELECT a.*, u.nome as user_name, s.nome as service_name, b.nome as business_name
                 FROM appointments a
                 JOIN users u ON a.user_id = u.id
-                JOIN services s ON a.service_id = s.id  
+                JOIN services s ON a.service_id = s.id
                 JOIN businesses b ON a.business_id = b.id
                 ORDER BY a.date_time DESC
                 LIMIT 20
