@@ -1,5 +1,6 @@
-# 🐳 Dockerfile with Security Headers
-FROM python:3.11-slim
+# 🐳 Dockerfile with Security Headers and Resilient Image Pull
+# Using specific digest for Railway deployment reliability
+FROM python:3.11-slim@sha256:a0939570b38cddeb861b8e75d20b1c8218b21562b18f301171904b544e8cf228
 
 # Security: Create non-root user
 RUN useradd --create-home --shell /bin/bash app

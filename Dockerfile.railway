@@ -1,0 +1,48 @@
+# 🚄 Railway-Optimized Dockerfile
+# Specifically designed for Railway deployment with fallback strategies
+
+# Use the most reliable base image with digest
+FROM python:3.11-slim@sha256:a0939570b38cddeb861b8e75d20b1c8218b21562b18f301171904b544e8cf228
+
+# Set environment variables for better Railway compatibility
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PORT=8000
+
+# Install system dependencies in a single layer to reduce build time
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Security: Create non-root user
+RUN useradd --create-home --shell /bin/bash --uid 1000 app
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install dependencies with Railway-optimized settings
+RUN pip install --no-cache-dir --retries 5 --timeout 300 \
+    --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org \
+    -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Set ownership to app user
+RUN chown -R app:app /app
+
+# Switch to non-root user
+USER app
+
+# Expose port (Railway auto-detects from PORT env var)
+EXPOSE $PORT
+
+# Health check optimized for Railway
+HEALTHCHECK --interval=60s --timeout=30s --start-period=10s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:$PORT/health')" || exit 1
+
+# Start application for Railway
+CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
