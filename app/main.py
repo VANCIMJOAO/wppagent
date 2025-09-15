@@ -132,131 +132,145 @@ except ImportError:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gerenciamento do ciclo de vida da aplicação COM CORREÇÕES"""
+    # Check if Railway fast start is enabled
+    import os
+    RAILWAY_FAST_START = os.getenv('RAILWAY_FAST_START', 'false').lower() == 'true'
+    
     # Startup
-    logger.info("🚨 Iniciando WhatsApp Agent API COM CORREÇÕES DE RESPOSTA ÚNICA...")
+    if RAILWAY_FAST_START:
+        logger.info("� Iniciando WhatsApp Agent API - MODO RÁPIDO RAILWAY...")
+    else:
+        logger.info("�🚨 Iniciando WhatsApp Agent API COM CORREÇÕES DE RESPOSTA ÚNICA...")
 
     try:
-        # Inicializar banco de dados
+        # Core services (always needed)
         await init_db()
-        logger.info("Banco de dados inicializado")
+        logger.info("✅ Banco de dados inicializado")
 
-        # Inicializar cache service
         await cache_service.initialize()
-        logger.info("Cache service inicializado")
+        logger.info("✅ Cache service inicializado")
 
-        # Inicializar Cache Invalidation Manual System
-        if CACHE_INVALIDATION_AVAILABLE:
-            try:
-                from app.services.cache_invalidation_manual import (
-                    get_cache_invalidation_manager,
-                )
-
-                cache_invalidation_manager = get_cache_invalidation_manager()
-                # CacheInvalidationManager não precisa de initialize() - é configurado no __init__
-                logger.info("✅ Cache Invalidation Manager inicializado")
-            except Exception as e:
-                logger.error(f"⚠️ Erro ao inicializar Cache Invalidation Manager: {e}")
+        if RAILWAY_FAST_START:
+            # Fast startup for Railway - only essential services
+            logger.info("🚄 Modo Railway: Pulando serviços pesados para startup rápido")
+            logger.info("✅ WhatsApp Agent API iniciado com sucesso - MODO RÁPIDO!")
+            logger.info(f"📱 Webhook URL: {settings.webhook_url}")
+            logger.info("🔥 WebSocket endpoint disponível em: /ws")
         else:
-            logger.warning("⚠️ Cache Invalidation Manager não disponível")
+            # Full startup for production - all heavy services
+            # Inicializar Cache Invalidation Manual System
+            if CACHE_INVALIDATION_AVAILABLE:
+                try:
+                    from app.services.cache_invalidation_manual import (
+                        get_cache_invalidation_manager,
+                    )
 
-        # Inicializar LGPD Compliance System
-        if LGPD_COMPLIANCE_AVAILABLE:
+                    cache_invalidation_manager = get_cache_invalidation_manager()
+                    # CacheInvalidationManager não precisa de initialize() - é configurado no __init__
+                    logger.info("✅ Cache Invalidation Manager inicializado")
+                except Exception as e:
+                    logger.error(f"⚠️ Erro ao inicializar Cache Invalidation Manager: {e}")
+            else:
+                logger.warning("⚠️ Cache Invalidation Manager não disponível")
+
+            # Inicializar LGPD Compliance System
+            if LGPD_COMPLIANCE_AVAILABLE:
+                try:
+                    start_lgpd_scheduler()
+                    logger.info("✅ LGPD Compliance e Scheduler inicializados")
+                except Exception as e:
+                    logger.error(f"⚠️ Erro ao inicializar LGPD System: {e}")
+            else:
+                logger.warning("⚠️ LGPD Compliance System não disponível")
+
+            # 🌐 Inicializar WebSocket Real-Time Manager
             try:
-                start_lgpd_scheduler()
-                logger.info("✅ LGPD Compliance e Scheduler inicializados")
+                from app.services.realtime_websocket_manager import get_realtime_manager
+
+                websocket_manager = get_realtime_manager()
+                await websocket_manager.start_background_tasks()
+                logger.info("🌐 WebSocket Real-Time Manager inicializado")
             except Exception as e:
-                logger.error(f"⚠️ Erro ao inicializar LGPD System: {e}")
-        else:
-            logger.warning("⚠️ LGPD Compliance System não disponível")
-
-        # 🌐 Inicializar WebSocket Real-Time Manager
-        try:
-            from app.services.realtime_websocket_manager import get_realtime_manager
-
-            websocket_manager = get_realtime_manager()
-            await websocket_manager.start_background_tasks()
-            logger.info("🌐 WebSocket Real-Time Manager inicializado")
-        except Exception as e:
-            logger.warning(
-                f"⚠️ WebSocket Real-Time Manager não pôde ser inicializado: {e}"
-            )
-
-        # 🔄 Inicializar sistema de backup automatizado
-        try:
-            from app.services.backup_scheduler import backup_scheduler
-
-            await backup_scheduler.start()
-            logger.info("🔄 Sistema de backup automatizado inicializado")
-        except Exception as e:
-            logger.warning(f"⚠️ Sistema de backup não pôde ser inicializado: {e}")
-
-        # 🚀 Inicializar sistemas de performance (com tratamento de erro)
-        try:
-            db_optimizer = DatabaseOptimizer()
-            await db_optimizer.initialize()
-            logger.info("🚀 Database Optimizer ativado")
-        except Exception as e:
-            logger.warning(f"⚠️ Database Optimizer não pôde ser inicializado: {e}")
-
-        try:
-            optimized_cache = get_optimized_cache()
-            await optimized_cache.initialize()
-            logger.info("🚀 Cache Optimized ativado")
-        except Exception as e:
-            logger.warning(f"⚠️ Cache Optimized não pôde ser inicializado: {e}")
-
-        try:
-            cdn_manager = CDNManager()
-            await cdn_manager.initialize()
-            logger.info("🚀 CDN Manager ativado")
-        except Exception as e:
-            logger.warning(f"⚠️ CDN Manager não pôde ser inicializado: {e}")
-
-        # Iniciar limpeza periódica das correções
-        cleanup_task = asyncio.create_task(periodic_cleanup())
-
-        # 🔥 Iniciar serviço WebSocket de heartbeat
-        try:
-            from app.routes.websocket import periodic_heartbeat
-
-            heartbeat_task = asyncio.create_task(periodic_heartbeat())
-            logger.info("🔥 WebSocket heartbeat service iniciado")
-        except Exception as e:
-            logger.warning(f"⚠️ WebSocket heartbeat não pôde ser inicializado: {e}")
-
-        # 🔥 Inicializar integração WebSocket
-        try:
-            from app.services.websocket_integration import (
-                initialize_websocket_integration,
-            )
-
-            websocket_integration_success = await initialize_websocket_integration()
-            if websocket_integration_success:
-                logger.info("🔥 WebSocket integration service inicializado")
-            else:
-                logger.warning("⚠️ WebSocket integration falhou - modo standalone")
-        except Exception as e:
-            logger.warning(f"⚠️ WebSocket integration não pôde ser inicializado: {e}")
-
-        # ⚠️ Inicializar Sistema RBAC - Item 2
-        try:
-            from app.services.rbac_service import rbac_service
-
-            rbac_initialized = await rbac_service.initialize_system()
-            if rbac_initialized:
-                logger.info("⚠️ Sistema RBAC inicializado com sucesso - Item 2 ativo")
-            else:
                 logger.warning(
-                    "⚠️ RBAC não pôde ser inicializado - funcionalidade limitada"
+                    f"⚠️ WebSocket Real-Time Manager não pôde ser inicializado: {e}"
                 )
-        except Exception as e:
-            logger.warning(f"⚠️ Erro ao inicializar RBAC: {e}")
 
-        logger.info("✅ WhatsApp Agent API iniciado com sucesso COM CORREÇÕES!")
-        logger.info(f"📱 Webhook URL: {settings.webhook_url}")
-        logger.info("🛑 Sistema de controle de resposta única ATIVO")
-        logger.info("🔥 WebSocket endpoint disponível em: /ws")
-        logger.info("🌐 WebSocket Real-Time para chat implementado")
+            # 🔄 Inicializar sistema de backup automatizado
+            try:
+                from app.services.backup_scheduler import backup_scheduler
+
+                await backup_scheduler.start()
+                logger.info("🔄 Sistema de backup automatizado inicializado")
+            except Exception as e:
+                logger.warning(f"⚠️ Sistema de backup não pôde ser inicializado: {e}")
+
+            # 🚀 Inicializar sistemas de performance (com tratamento de erro)
+            try:
+                db_optimizer = DatabaseOptimizer()
+                await db_optimizer.initialize()
+                logger.info("🚀 Database Optimizer ativado")
+            except Exception as e:
+                logger.warning(f"⚠️ Database Optimizer não pôde ser inicializado: {e}")
+
+            try:
+                optimized_cache = get_optimized_cache()
+                await optimized_cache.initialize()
+                logger.info("🚀 Cache Optimized ativado")
+            except Exception as e:
+                logger.warning(f"⚠️ Cache Optimized não pôde ser inicializado: {e}")
+
+            try:
+                cdn_manager = CDNManager()
+                await cdn_manager.initialize()
+                logger.info("🚀 CDN Manager ativado")
+            except Exception as e:
+                logger.warning(f"⚠️ CDN Manager não pôde ser inicializado: {e}")
+
+            # Iniciar limpeza periódica das correções
+            cleanup_task = asyncio.create_task(periodic_cleanup())
+
+            # 🔥 Iniciar serviço WebSocket de heartbeat
+            try:
+                from app.routes.websocket import periodic_heartbeat
+
+                heartbeat_task = asyncio.create_task(periodic_heartbeat())
+                logger.info("🔥 WebSocket heartbeat service iniciado")
+            except Exception as e:
+                logger.warning(f"⚠️ WebSocket heartbeat não pôde ser inicializado: {e}")
+
+            # 🔥 Inicializar integração WebSocket
+            try:
+                from app.services.websocket_integration import (
+                    initialize_websocket_integration,
+                )
+
+                websocket_integration_success = await initialize_websocket_integration()
+                if websocket_integration_success:
+                    logger.info("🔥 WebSocket integration service inicializado")
+                else:
+                    logger.warning("⚠️ WebSocket integration falhou - modo standalone")
+            except Exception as e:
+                logger.warning(f"⚠️ WebSocket integration não pôde ser inicializado: {e}")
+
+            # ⚠️ Inicializar Sistema RBAC - Item 2
+            try:
+                from app.services.rbac_service import rbac_service
+
+                rbac_initialized = await rbac_service.initialize_system()
+                if rbac_initialized:
+                    logger.info("⚠️ Sistema RBAC inicializado com sucesso - Item 2 ativo")
+                else:
+                    logger.warning(
+                        "⚠️ RBAC não pôde ser inicializado - funcionalidade limitada"
+                    )
+            except Exception as e:
+                logger.warning(f"⚠️ Erro ao inicializar RBAC: {e}")
+
+            logger.info("✅ WhatsApp Agent API iniciado com sucesso COM CORREÇÕES!")
+            logger.info(f"📱 Webhook URL: {settings.webhook_url}")
+            logger.info("🛑 Sistema de controle de resposta única ATIVO")
+            logger.info("🔥 WebSocket endpoint disponível em: /ws")
+            logger.info("🌐 WebSocket Real-Time para chat implementado")
 
     except Exception as e:
         logger.error(f"❌ Erro na inicialização: {e}")
