@@ -37,6 +37,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # 🔐 Endpoints que NÃO requerem autenticação (apenas públicos legítimos)
         self.public_endpoints = {
             "/health",
+            "/ping",  # Railway healthcheck endpoint
             "/docs",
             "/openapi.json",
             "/webhook",  # WhatsApp webhook
