@@ -144,10 +144,23 @@ async def lifespan(app: FastAPI):
 
     try:
         # Core services (always needed)
-        await init_db()
-        logger.info("✅ Banco de dados inicializado")
+        try:
+            await init_db()
+            logger.info("✅ Banco de dados inicializado")
+        except Exception as e:
+            logger.warning(f"⚠️ Erro na inicialização do banco: {e}")
+            if not RAILWAY_FAST_START:
+                raise  # Re-raise in production mode
+            logger.info("🚄 Continuando sem banco em modo Railway...")
 
-        await cache_service.initialize()
+        try:
+            await cache_service.initialize()
+            logger.info("✅ Cache service inicializado")
+        except Exception as e:
+            logger.warning(f"⚠️ Erro na inicialização do cache: {e}")
+            if not RAILWAY_FAST_START:
+                raise
+            logger.info("🚄 Continuando sem cache em modo Railway...")
         logger.info("✅ Cache service inicializado")
 
         if RAILWAY_FAST_START:
@@ -971,6 +984,26 @@ app.include_router(push_router, tags=["Push Notifications"])
 async def simple_health_check():
     """Ultra-simple health check for Railway deployment"""
     return {"status": "ok", "service": "whatsapp-agent"}
+
+
+# 🛟 Railway Emergency Health Check - Direct response
+@app.get("/")
+async def root():
+    """Emergency root endpoint for Railway debugging"""
+    import os
+    return {
+        "message": "WhatsApp Agent API is running", 
+        "status": "healthy",
+        "railway_fast_start": os.getenv('RAILWAY_FAST_START', 'false'),
+        "port": os.getenv('PORT', '8000'),
+        "railway_env": os.getenv('RAILWAY_ENVIRONMENT', 'unknown')
+    }
+
+
+@app.get("/ping")
+async def ping():
+    """Simplest possible endpoint"""
+    return "pong"
 
 
 @app.get("/health", response_model=HealthCheckResponse)
