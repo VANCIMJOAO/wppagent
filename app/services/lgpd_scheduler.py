@@ -67,8 +67,8 @@ class LGPDRetentionScheduler:
         # Execução semanal aos domingos às 03:00 - Limpeza profunda
         schedule.every().sunday.at("03:00").do(self._run_weekly_deep_cleanup)
 
-        # Execução mensal no dia 1 às 04:00 - Relatório de auditoria
-        schedule.every().month.do(self._run_monthly_audit)
+        # Execução mensal no dia 1 às 04:00 - Relatório de auditoria (usando 30 dias como aproximação)
+        schedule.every(30).days.at("04:00").do(self._run_monthly_audit)
 
         # Execução a cada 6 horas - Verificação de dados expirados críticos
         schedule.every(6).hours.do(self._run_critical_cleanup)
@@ -76,7 +76,7 @@ class LGPDRetentionScheduler:
         logger.info("📅 Agendamentos LGPD configurados:")
         logger.info("   - Retenção diária: 02:00")
         logger.info("   - Limpeza semanal: Dom 03:00")
-        logger.info("   - Auditoria mensal: Dia 1, 04:00")
+        logger.info("   - Auditoria mensal: a cada 30 dias, 04:00")
         logger.info("   - Verificação crítica: a cada 6h")
 
     def _run_scheduler(self):

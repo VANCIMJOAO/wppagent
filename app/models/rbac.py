@@ -21,8 +21,11 @@ Base = declarative_base()
 user_roles = Table(
     "user_roles",
     Base.metadata,
-    Column("user_id", Integer, ForeignKey("rbac_users.id")),
-    Column("role_id", Integer, ForeignKey("rbac_roles.id")),
+    Column("user_id", Integer, ForeignKey("rbac_users.id"), nullable=False),
+    Column("role_id", Integer, ForeignKey("rbac_roles.id"), nullable=False),
+    Column("assigned_at", DateTime, default=datetime.utcnow, nullable=False),
+    Column("assigned_by", Integer, ForeignKey("rbac_users.id"), nullable=True),
+    Column("expires_at", DateTime, nullable=True),
 )
 
 # Tabela de associação many-to-many para roles e permissões
@@ -473,7 +476,11 @@ class RBACUser(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relacionamentos
-    roles = relationship("RBACRole", secondary=user_roles, back_populates="users")
+    roles = relationship(
+        "RBACRole", 
+        secondary=user_roles, 
+        back_populates="users"
+    )
 
     def has_permission(self, permission: PermissionType) -> bool:
         """Verificar se o usuário tem uma permissão específica"""
@@ -520,7 +527,11 @@ class RBACRole(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relacionamentos
-    users = relationship("RBACUser", secondary=user_roles, back_populates="roles")
+    users = relationship(
+        "RBACUser", 
+        secondary=user_roles, 
+        back_populates="roles"
+    )
     permissions = relationship(
         "RBACPermission", secondary=role_permissions, back_populates="roles"
     )
