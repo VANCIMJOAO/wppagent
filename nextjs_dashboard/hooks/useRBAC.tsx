@@ -55,7 +55,7 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
 
   // Verificar token no localStorage e carregar dados do usuário
   const checkAuthentication = useCallback(async () => {
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     
     if (!token) {
       setIsLoading(false);
@@ -76,11 +76,11 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
         setRoles(userData.roles || []);
       } else {
         // Token inválido, limpar localStorage
-        localStorage.removeItem('auth_token');
+        // ✅ REMOVIDO: Token inseguro;
       }
     } catch (error) {
       console.error('Erro ao verificar autenticação:', error);
-      localStorage.removeItem('auth_token');
+      // ✅ REMOVIDO: Token inseguro;
     } finally {
       setIsLoading(false);
     }
@@ -88,13 +88,13 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
 
   // Fazer login
   const login = async (token: string): Promise<void> => {
-    localStorage.setItem('auth_token', token);
+    // ✅ REMOVIDO: Token inseguro;
     await checkAuthentication();
   };
 
   // Fazer logout
   const logout = (): void => {
-    localStorage.removeItem('auth_token');
+    // ✅ REMOVIDO: Token inseguro;
     setUser(null);
     setPermissions([]);
     setRoles([]);
@@ -141,7 +141,7 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
   const refreshUser = async (): Promise<void> => {
     if (!isAuthenticated) return;
     
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     if (!token) return;
 
     try {
@@ -261,7 +261,7 @@ export const useRBACAdmin = () => {
       throw new Error('Sem permissão para criar usuários');
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     const response = await fetch('/api/rbac/users', {
       method: 'POST',
       headers: {
@@ -288,7 +288,7 @@ export const useRBACAdmin = () => {
       throw new Error('Sem permissão para atualizar usuários');
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     const response = await fetch(`/api/rbac/users/${userId}`, {
       method: 'PUT',
       headers: {
@@ -310,7 +310,7 @@ export const useRBACAdmin = () => {
       throw new Error('Sem permissão para gerenciar roles de usuário');
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     const response = await fetch(`/api/rbac/users/${userId}/roles/${roleName}`, {
       method: 'POST',
       headers: {
@@ -330,7 +330,7 @@ export const useRBACAdmin = () => {
       throw new Error('Sem permissão para gerenciar roles de usuário');
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     const response = await fetch(`/api/rbac/users/${userId}/roles/${roleName}`, {
       method: 'DELETE',
       headers: {
@@ -354,7 +354,7 @@ export const useRBACAdmin = () => {
       throw new Error('Sem permissão para criar roles');
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     const response = await fetch('/api/rbac/roles', {
       method: 'POST',
       headers: {
@@ -376,7 +376,7 @@ export const useRBACAdmin = () => {
       throw new Error('Sem permissão para visualizar usuários');
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     const response = await fetch('/api/rbac/users', {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -395,7 +395,7 @@ export const useRBACAdmin = () => {
       throw new Error('Sem permissão para visualizar roles');
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     const response = await fetch('/api/rbac/roles', {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -414,7 +414,7 @@ export const useRBACAdmin = () => {
       throw new Error('Sem permissão para visualizar estatísticas');
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = null // ✅ REMOVIDO: Token inseguro;
     const response = await fetch('/api/rbac/stats', {
       headers: {
         'Authorization': `Bearer ${token}`,

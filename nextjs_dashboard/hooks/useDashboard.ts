@@ -29,7 +29,7 @@ const dashboardApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
     
@@ -55,7 +55,7 @@ const dashboardApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
     
@@ -77,7 +77,7 @@ const dashboardApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
     

@@ -22,7 +22,7 @@ const conversationsApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
     
@@ -38,7 +38,7 @@ const conversationsApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
     
@@ -62,7 +62,7 @@ const conversationsApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       }
     })
     
@@ -78,7 +78,7 @@ const conversationsApi = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
       },
       body: JSON.stringify(data)
     })
@@ -248,7 +248,7 @@ export function useMarkAsRead() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
         },
         body: JSON.stringify({ message_ids: messageIds })
       })

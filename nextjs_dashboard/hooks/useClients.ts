@@ -41,8 +41,8 @@ export function useClients(filters: ClientsFilters = {}) {
         headers: {
           'Content-Type': 'application/json',
           // Tentar obter token do localStorage se disponível
-          ...(typeof window !== 'undefined' && localStorage.getItem('auth-token') 
-            ? { 'Authorization': `Bearer ${localStorage.getItem('auth-token')}` }
+          ...(typeof window !== 'undefined' && null // ✅ REMOVIDO: Token inseguro 
+            ? { 'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}` }
             : {})
         }
       })

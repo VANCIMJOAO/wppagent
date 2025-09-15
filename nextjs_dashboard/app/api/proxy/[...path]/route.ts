@@ -50,6 +50,10 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
     if (isDev) console.log('[Proxy] Authorization header presente:', !!authHeader);
     
+    // Extrair cookies do frontend
+    const cookieHeader = request.headers.get('Cookie');
+    if (isDev) console.log('[Proxy] Cookies present:', !!cookieHeader);
+    
     if (authHeader && isDev) {
       console.log('[Proxy] Authorization header preview:', authHeader.substring(0, 10) + '...');
     }
@@ -63,6 +67,11 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     // IMPORTANTE: Adicionar Authorization header se existir
     if (authHeader) {
       headers['Authorization'] = authHeader;
+    }
+    
+    // IMPORTANTE: Repassar cookies para o backend
+    if (cookieHeader) {
+      headers['Cookie'] = cookieHeader;
     }
     
     // Preparar body para métodos que precisam
@@ -118,13 +127,21 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
 
         console.log(`[Proxy] Redirect response status:`, redirectResponse.status);
         
+        // Extrair cookies Set-Cookie do redirect também
+        const redirectSetCookie = redirectResponse.headers.get('set-cookie');
+        const redirectHeaders: HeadersInit = {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        };
+        
+        if (redirectSetCookie) {
+          redirectHeaders['Set-Cookie'] = redirectSetCookie;
+        }
+        
         return NextResponse.json(data, { 
           status: redirectResponse.status,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          }
+          headers: redirectHeaders
         });
       }
     }
@@ -155,13 +172,23 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
       console.error(`[Proxy] Error response ${response.status}:`, data);
     }
 
+    // Extrair cookies Set-Cookie do backend para repassar
+    const setCookieHeader = response.headers.get('set-cookie');
+    const responseHeaders: HeadersInit = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    };
+    
+    // Repassar cookies Set-Cookie se existirem
+    if (setCookieHeader) {
+      responseHeaders['Set-Cookie'] = setCookieHeader;
+      if (isDev) console.log('[Proxy] Repassing Set-Cookie to frontend');
+    }
+
     return NextResponse.json(data, { 
       status: response.status,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      headers: responseHeaders
     });
 
   } catch (error) {

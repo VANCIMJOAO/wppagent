@@ -98,7 +98,7 @@ export function useApiEnhanced<T>(options: UseApiOptions = {}): UseApiResult<T> 
       // Get auth token if required
       let authHeaders: Record<string, string> = {};
       if (requireAuth) {
-        const token = localStorage.getItem('auth_token');
+        const token = null // ✅ REMOVIDO: Token inseguro;
         if (token) {
           authHeaders.Authorization = `Bearer ${token}`;
         }
@@ -195,7 +195,7 @@ export function useApiEnhanced<T>(options: UseApiOptions = {}): UseApiResult<T> 
 
       // Handle specific errors
       if (apiError.status === 401) {
-        localStorage.removeItem('auth_token');
+        // ✅ REMOVIDO: Token inseguro;
         // Could redirect to login here
       }
 

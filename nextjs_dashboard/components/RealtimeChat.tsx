@@ -55,7 +55,7 @@ const fetchMessages = async (conversationId?: number): Promise<Message[]> => {
     
     const response = await fetch(url, {
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
         }
     })
     
@@ -69,7 +69,7 @@ const fetchMessages = async (conversationId?: number): Promise<Message[]> => {
 const fetchConversations = async (): Promise<Conversation[]> => {
     const response = await fetch('/api/conversations', {
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
         }
     })
     
@@ -89,7 +89,7 @@ const sendMessageApi = async (data: {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
         },
         body: JSON.stringify(data)
     })

@@ -33,7 +33,7 @@ interface DashboardProps {
 const fetchDashboardStats = async (): Promise<DashboardStats> => {
     const response = await fetch('/api/dashboard/stats', {
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
         }
     })
     

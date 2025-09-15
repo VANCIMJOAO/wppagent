@@ -10,6 +10,10 @@ from pydantic.types import SecretStr
 import os
 import secrets
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class Environment(str, Enum):

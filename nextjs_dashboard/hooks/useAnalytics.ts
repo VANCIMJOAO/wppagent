@@ -138,7 +138,7 @@ export const useAnalytics = (
       const queryString = buildQueryString(memoizedFilters);
       const url = `/api/analytics/${endpoint}${queryString ? `?${queryString}` : ''}`;
       
-      const token = localStorage.getItem('auth_token');
+      const token = null // ✅ REMOVIDO: Token inseguro;
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -289,7 +289,7 @@ export const useAnalyticsExport = () => {
         ...filters.agents?.length && { agents: filters.agents.join(',') },
       }).toString();
 
-      const token = localStorage.getItem('auth_token');
+      const token = null // ✅ REMOVIDO: Token inseguro;
       const response = await fetch(`/api/analytics/export?${queryString}`, {
         headers: {
           'Authorization': `Bearer ${token}`,

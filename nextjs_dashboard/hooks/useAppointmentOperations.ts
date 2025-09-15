@@ -70,13 +70,11 @@ export interface AppointmentResponse {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 async function createAppointment(data: AppointmentCreateData): Promise<AppointmentResponse> {
-  const token = localStorage.getItem('authToken')
-  
   const response = await fetch(`${API_BASE}/appointments/`, {
     method: 'POST',
+    credentials: 'include', // ✅ HF-002: Usar cookies seguros
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
   })
@@ -90,13 +88,11 @@ async function createAppointment(data: AppointmentCreateData): Promise<Appointme
 }
 
 async function updateAppointment(id: number, data: AppointmentUpdateData): Promise<AppointmentResponse> {
-  const token = localStorage.getItem('authToken')
-  
   const response = await fetch(`${API_BASE}/appointments/${id}`, {
     method: 'PUT',
+    credentials: 'include', // ✅ HF-002: Usar cookies seguros
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
   })
@@ -110,12 +106,11 @@ async function updateAppointment(id: number, data: AppointmentUpdateData): Promi
 }
 
 async function deleteAppointment(id: number): Promise<{ message: string; id: number }> {
-  const token = localStorage.getItem('authToken')
-  
   const response = await fetch(`${API_BASE}/appointments/${id}`, {
     method: 'DELETE',
+    credentials: 'include', // ✅ HF-002: Usar cookies seguros
     headers: {
-      'Authorization': `Bearer ${token}`
+      'Content-Type': 'application/json'
     }
   })
   

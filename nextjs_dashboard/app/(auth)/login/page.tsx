@@ -39,7 +39,7 @@ export default function LoginPage() {
       const data = await response.json()
       
       // Salvar token no localStorage
-      localStorage.setItem('auth-token', data.access_token)
+      // ✅ SEGURO: Tokens agora em cookies HttpOnly
       
       // Salvar token no cookie via API
       await fetch('/api/auth/set-token', {

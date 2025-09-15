@@ -171,7 +171,7 @@ class DashboardErrorRecovery {
   
   // 5. Authenticated Fetch com Error Handling
   static async authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-    const token = localStorage.getItem('auth-token')
+    const token = null // ✅ REMOVIDO: Token inseguro
     
     const response = await fetch(url, {
       ...options,
@@ -188,7 +188,7 @@ class DashboardErrorRecovery {
     if (!response.ok) {
       if (response.status === 401) {
         // Token expirado
-        localStorage.removeItem('auth-token')
+        // ✅ REMOVIDO: Token inseguro
         throw new Error('Sessão expirada. Faça login novamente.')
       } else if (response.status === 403) {
         throw new Error('Acesso negado. Permissões insuficientes.')

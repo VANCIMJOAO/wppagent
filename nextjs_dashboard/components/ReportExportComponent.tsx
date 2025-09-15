@@ -130,7 +130,7 @@ const ReportExportComponent: React.FC = () => {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
 

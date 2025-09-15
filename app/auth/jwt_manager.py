@@ -12,6 +12,11 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional, Any
 
+# OB-001: Logs estruturados
+from app.utils.structured_logger import get_structured_logger
+
+logger = get_structured_logger('jwt-manager')
+
 class SimpleJWTManager:
     """JWT Manager simplificado para Railway"""
     
@@ -20,7 +25,12 @@ class SimpleJWTManager:
         self.secret_key = os.getenv('JWT_SECRET', os.getenv('SECRET_KEY', 'fallback-secret-key'))
         self.algorithm = "HS256"
         
-        print(f"🔧 JWT Manager inicializado com secret: {self.secret_key[:10]}...")
+        logger.info(
+            "jwt_manager_initialized",
+            algorithm=self.algorithm,
+            secret_length=len(self.secret_key),
+            secret_preview=self.secret_key[:10] + "...",
+        )
         
         # Configurações de tempo para refresh tokens
         self.access_token_expire = timedelta(minutes=15)  # 15 min (conforme especificação)
@@ -47,7 +57,16 @@ class SimpleJWTManager:
         }
         
         token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-        print(f"🔑 Token criado para {user_id} ({role}) - {token[:20]}...")
+        
+        logger.info(
+            "access_token_created",
+            user_id=user_id,
+            role=role,
+            permissions_count=len(permissions) if permissions else 0,
+            token_preview=token[:20] + "...",
+            expires_in_minutes=self.access_token_expire.total_seconds() / 60,
+            jti=payload["jti"]
+        )
         
         return token
     
@@ -62,14 +81,29 @@ class SimpleJWTManager:
                 options={"verify_aud": False, "verify_iss": False}
             )
             
-            print(f"✅ Token válido para usuário: {payload.get('sub')}")
+            logger.info(
+                "token_verified",
+                user_id=payload.get('sub'),
+                role=payload.get('role'),
+                token_type=payload.get('type'),
+                jti=payload.get('jti')
+            )
+            
             return payload
             
         except jwt.ExpiredSignatureError:
-            print("❌ Token expirado")
+            logger.warning(
+                "token_expired",
+                token_preview=token[:20] + "..." if token else "empty"
+            )
             raise jwt.InvalidTokenError("Token expirado")
         except jwt.InvalidTokenError as e:
-            print(f"❌ Token inválido: {e}")
+            logger.error(
+                "token_invalid",
+                error_type=type(e).__name__,
+                error_message=str(e),
+                token_preview=token[:20] + "..." if token else "empty"
+            )
             raise jwt.InvalidTokenError(f"Token inválido: {str(e)}")
     
     def create_refresh_token(self, user_id: str) -> str:

@@ -33,7 +33,7 @@ export function ExportButtons({
     try {
       setLoading(exportType)
       
-      const token = localStorage.getItem('access_token')
+      const token = null // ✅ REMOVIDO: Token inseguro
       if (!token) {
         showNotification(
           "Erro de Autenticação",

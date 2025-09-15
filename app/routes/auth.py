@@ -19,6 +19,14 @@ from ..auth.middleware import get_current_user, require_admin, require_2fa
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
+# Configurações de cookies seguros
+COOKIE_CONFIG = {
+    "httponly": True,
+    "secure": True,  # Apenas HTTPS em produção
+    "samesite": "strict",
+    "path": "/",
+}
+
 # Modelos Pydantic
 class LoginRequest(BaseModel):
     username: str
@@ -26,8 +34,7 @@ class LoginRequest(BaseModel):
     remember_me: bool = False
 
 class LoginResponse(BaseModel):
-    access_token: str
-    refresh_token: str
+    """Resposta de login segura - sem tokens expostos"""
     token_type: str = "bearer"
     expires_in: int
     requires_2fa: bool = False
@@ -50,8 +57,8 @@ class RevokeTokenRequest(BaseModel):
     revoke_all: bool = False
 
 @router.post("/login", response_model=LoginResponse)
-async def login(request: LoginRequest, http_request: Request):
-    """Endpoint de login com verificação de credenciais"""
+async def login(request: LoginRequest, http_request: Request, response: Response):
+    """Endpoint de login com verificação de credenciais e cookies seguros"""
     
     # Verificar rate limiting específico para login
     allowed, rate_result = rate_limiter.check_rate_limit(
@@ -82,9 +89,15 @@ async def login(request: LoginRequest, http_request: Request):
             user_id, role, ["2fa_pending"]
         )
         
+        # Definir cookie temporário para 2FA (5 minutos)
+        response.set_cookie(
+            key="temp_auth_token",
+            value=temp_token,
+            max_age=300,  # 5 minutos
+            **COOKIE_CONFIG
+        )
+        
         return LoginResponse(
-            access_token=temp_token,
-            refresh_token="",
             expires_in=300,  # 5 minutos para completar 2FA
             requires_2fa=True,
             user_info={
@@ -99,10 +112,25 @@ async def login(request: LoginRequest, http_request: Request):
     access_token = jwt_manager.create_access_token(user_id, role, permissions)
     refresh_token = jwt_manager.create_refresh_token(user_id)
     
+    # Definir cookies seguros
+    expires_in = 900 if role == "admin" else 3600  # 15min admin, 1h user
+    
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        max_age=expires_in,
+        **COOKIE_CONFIG
+    )
+    
+    response.set_cookie(
+        key="refresh_token", 
+        value=refresh_token,
+        max_age=86400 * 7,  # 7 dias
+        **COOKIE_CONFIG
+    )
+    
     return LoginResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        expires_in=900 if role == "admin" else 3600,  # 15min admin, 1h user
+        expires_in=expires_in,
         requires_2fa=False,
         user_info={
             "user_id": user_id,
@@ -160,9 +188,10 @@ async def confirm_2fa(
 @router.post("/2fa/verify")
 async def verify_2fa(
     request: TwoFactorVerifyRequest,
+    response: Response,
     user: Dict = Depends(get_current_user)
 ):
-    """Verificar código 2FA e completar login"""
+    """Verificar código 2FA e completar login com cookies seguros"""
     user_id = user["user_id"]
     
     # Verificar se está em estado de 2FA pendente
@@ -191,32 +220,90 @@ async def verify_2fa(
     access_token = jwt_manager.create_access_token(user_id, role, permissions)
     refresh_token = jwt_manager.create_refresh_token(user_id)
     
+    # Limpar cookie temporário
+    response.delete_cookie("temp_auth_token", **COOKIE_CONFIG)
+    
+    # Definir cookies seguros finais
+    expires_in = 900 if role == "admin" else 3600
+    
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        max_age=expires_in,
+        **COOKIE_CONFIG
+    )
+    
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        max_age=86400 * 7,  # 7 dias
+        **COOKIE_CONFIG
+    )
+    
     # Criar sessão 2FA
     session_token = secrets.token_urlsafe(32)
     session_key = f"2fa_session:{user_id}:{session_token}"
     rate_limiter.redis_client.setex(session_key, 3600, "valid")  # 1 hora
     
     return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
         "token_type": "bearer",
-        "expires_in": 900 if role == "admin" else 3600,
-        "2fa_session": session_token
+        "expires_in": expires_in,
+        "2fa_session": session_token,
+        "message": "2FA verification successful"
+    }
+
+@router.post("/logout")
+async def logout(response: Response, user: Dict = Depends(get_current_user)):
+    """Logout seguro removendo cookies e revogando tokens"""
+    user_id = user["user_id"]
+    
+    # Revogar todos os tokens do usuário
+    jwt_manager.revoke_all_user_tokens(user_id)
+    
+    # Remover todos os cookies de autenticação
+    response.delete_cookie("access_token", **COOKIE_CONFIG)
+    response.delete_cookie("refresh_token", **COOKIE_CONFIG) 
+    response.delete_cookie("temp_auth_token", **COOKIE_CONFIG)
+    
+    return {
+        "message": "Logout successful",
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @router.post("/refresh")
-async def refresh_token(request: RefreshTokenRequest):
-    """Renovar access token usando refresh token"""
+async def refresh_token(http_request: Request, response: Response):
+    """Renovar access token usando refresh token de cookie"""
+    # Obter refresh token do cookie
+    refresh_token = http_request.cookies.get("refresh_token")
+    
+    if not refresh_token:
+        raise HTTPException(
+            status_code=401,
+            detail="No refresh token found in cookies"
+        )
+    
     try:
-        access_token, new_refresh_token = jwt_manager.refresh_access_token(
-            request.refresh_token
+        access_token, new_refresh_token = jwt_manager.refresh_access_token(refresh_token)
+        
+        # Atualizar cookies
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            max_age=3600,
+            **COOKIE_CONFIG
+        )
+        
+        response.set_cookie(
+            key="refresh_token",
+            value=new_refresh_token,
+            max_age=86400 * 7,  # 7 dias
+            **COOKIE_CONFIG
         )
         
         return {
-            "access_token": access_token,
-            "refresh_token": new_refresh_token,
             "token_type": "bearer",
-            "expires_in": 3600
+            "expires_in": 3600,
+            "message": "Token refreshed successfully"
         }
     
     except Exception as e:

@@ -47,6 +47,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/metrics/system", 
             "/cors/test",  # Endpoint de teste CORS
             "/cors/debug",  # Endpoint de debug CORS
+            "/appointments/test",  # 🚀 PF-001: Rotas de teste sem autenticação
             "/",  # Endpoint raiz
         }
         
@@ -173,16 +174,26 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return False
     
     async def _authenticate_request(self, request: Request) -> Dict:
-        """Autentica requisição via JWT - SISTEMA UNIFICADO"""
-        auth_header = request.headers.get("Authorization")
+        """Autentica requisição via JWT - suportando cookies e headers"""
+        token = None
         
-        if not auth_header or not auth_header.startswith("Bearer "):
+        # Tentar obter token do header Authorization primeiro
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+        
+        # Se não encontrou no header, tentar nos cookies
+        if not token:
+            token = request.cookies.get("access_token")
+            # Para endpoints 2FA, verificar token temporário também
+            if not token:
+                token = request.cookies.get("temp_auth_token")
+        
+        if not token:
             raise HTTPException(
                 status_code=401,
-                detail="Missing or invalid authorization header"
+                detail="Missing authentication token in header or cookies"
             )
-        
-        token = auth_header.split(" ")[1]
         
         try:
             # 🔧 SISTEMA UNIFICADO: Usar apenas jwt_manager
@@ -273,19 +284,33 @@ class AuthMiddleware(BaseHTTPMiddleware):
         response.headers["Content-Security-Policy"] = "default-src 'self'"
 
 
-# Dependency para FastAPI
+# Dependency para FastAPI com suporte a cookies
 async def get_current_user(
+    request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
 ) -> Dict:
-    """Dependency para obter usuário atual"""
-    if not credentials:
+    """Dependency para obter usuário atual via header ou cookies"""
+    token = None
+    
+    # Tentar obter token do header Authorization primeiro  
+    if credentials:
+        token = credentials.credentials
+    
+    # Se não encontrou no header, tentar nos cookies
+    if not token:
+        token = request.cookies.get("access_token")
+        # Para endpoints 2FA, verificar token temporário também
+        if not token:
+            token = request.cookies.get("temp_auth_token")
+    
+    if not token:
         raise HTTPException(
             status_code=401,
-            detail="Authentication required"
+            detail="Authentication required - no token found"
         )
     
     try:
-        payload = jwt_manager.verify_token(credentials.credentials)
+        payload = jwt_manager.verify_token(token)
         
         if payload.get("type") != "access":
             raise HTTPException(

@@ -10,6 +10,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from app.config import settings
+from app.config.config_factory import is_development
 from app.schemas.health import (
     HealthCheckResponse, 
     DetailedHealthResponse, 
@@ -18,10 +19,14 @@ from app.schemas.health import (
     SystemHealth
 )
 
-# 🔍 SISTEMA APM E LOGGING ESTRUTURADO
+# 🔍 SISTEMA APM E LOGGING ESTRUTURADO - OB-001
 from app.services.structured_apm import (
     setup_structured_logging, get_structured_logger, APMMiddleware
 )
+
+# OB-001: Sistema de Logs Estruturados
+from app.utils.structured_logger import configure_structured_logging, get_structured_logger as get_ob001_logger
+from app.middleware.request_logging import add_request_logging_middleware
 
 from app.routes.webhook import router as webhook_router
 from app.database import init_db
@@ -280,14 +285,38 @@ app = FastAPI(
     title="WhatsApp Agent API",
     description="API para agente inteligente de WhatsApp",
     version="1.0.0",
-    debug=settings.debug,
+    debug=is_development(),
     lifespan=lifespan
 )
 
+# 📋 OB-001 - Configurar sistema de logs estruturados
+configure_structured_logging()
+ob001_logger = get_ob001_logger('whatsapp-agent-main')
+ob001_logger.info(
+    "application_startup",
+    message="OB-001 structured logging initialized",
+    service="whatsapp-agent",
+    version="1.0.0"
+)
+
+# 📋 OB-001 - Adicionar middleware de request logging estruturado (primeiro)
+add_request_logging_middleware(app)
+ob001_logger.info("middleware_registered", middleware="OB-001 RequestLoggingMiddleware")
+
 # Add CSP Security Middleware (first, before other middlewares)
-# 🔍 Adicionar middleware APM (primeiro para capturar todas as requests)
+# 🔍 Adicionar middleware APM (segundo para capturar todas as requests)
 app.add_middleware(APMMiddleware)
 logger.info("APM Middleware activated - Request tracking enabled")
+
+# 🚀 PF-001 - Adicionar middleware de performance de banco de dados
+try:
+    from app.middleware.database_performance import DatabasePerformanceMiddleware
+    app.add_middleware(DatabasePerformanceMiddleware)
+    logger.info("🚀 PF-001 - Database Performance Middleware ativado: monitoramento de N+1 queries")
+except ImportError as e:
+    logger.warning(f"⚠️ PF-001 - Database Performance Middleware não disponível: {e}")
+except Exception as e:
+    logger.error(f"❌ PF-001 - Erro ao inicializar Database Performance Middleware: {e}")
 
 # 🔒 S002 - Adicionar middlewares de logging seguro
 if S002_LOG_SANITIZATION_AVAILABLE:
@@ -311,7 +340,7 @@ else:
 from app.cors_config import setup_cors_middleware, add_cors_test_endpoint, get_cors_debug_info
 
 # Aplicar configuração CORS otimizada
-setup_cors_middleware(app, debug=settings.debug)
+setup_cors_middleware(app, debug=is_development())
 
 # Adicionar endpoints de teste CORS
 add_cors_test_endpoint(app)
@@ -322,13 +351,12 @@ logger.info("CORS configured with advanced settings for Railway")
 if HTTPS_MIDDLEWARE_AVAILABLE:
     app.add_middleware(
         HTTPSMiddleware,
-        force_https=not settings.debug,  # Forçar HTTPS apenas em produção
+        force_https=not is_development(),  # Forçar HTTPS apenas em produção
         hsts_max_age=31536000,  # 1 ano
         hsts_include_subdomains=True,
         hsts_preload=True,
-        allow_localhost=settings.debug,  # Permitir localhost apenas em desenvolvimento
-        development_mode=settings.debug,
-        enable_csp=False  # Desabilitar CSP pois temos CSPMiddleware dedicado
+        allow_localhost=is_development(),  # Permitir localhost apenas em desenvolvimento
+        development_mode=is_development()
     )
     logger.info("HTTPS Middleware activated")
 else:
@@ -387,11 +415,7 @@ app.add_middleware(MetricsMiddleware)
 # 🔄 C002 - Middleware de Padronização de Response Schemas  
 try:
     from app.middleware.response_standardizer import ApiResponseMiddleware
-    app.add_middleware(
-        ApiResponseMiddleware,
-        enable_auto_wrap=True,  # Aplicar wrapper automático
-        measure_time=True       # Medir tempo de execução
-    )
+    app.add_middleware(ApiResponseMiddleware)
     logger.info("✅ C002 - ApiResponseMiddleware ativado: responses padronizados {success, data, error}")
 except ImportError as e:
     logger.warning(f"⚠️ C002 - ApiResponseMiddleware não disponível: {e}")
@@ -508,6 +532,26 @@ logger.info("APM and Structured Logging Dashboard activated - Real-time monitori
 # 📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard
 from app.routes.appointments import router as appointments_router
 app.include_router(appointments_router, tags=["Dashboard - Appointments"])
+
+# 🚀 PF-001 - Rotas otimizadas para appointments (eliminação de N+1 queries)
+try:
+    from app.routes.appointments_pf001_optimized import router as appointments_pf001_router
+    app.include_router(appointments_pf001_router, tags=["PF-001 Optimized - Appointments"])
+    logger.info("🚀 PF-001 - Rotas otimizadas de appointments carregadas: N+1 queries eliminadas")
+except ImportError as e:
+    logger.warning(f"⚠️ PF-001 - Rotas otimizadas não disponíveis: {e}")
+except Exception as e:
+    logger.error(f"❌ PF-001 - Erro ao carregar rotas otimizadas: {e}")
+
+# 🧪 PF-001 - Rotas de teste sem autenticação (apenas para validação)
+try:
+    from app.routes.appointments_pf001_test import router as appointments_test_router
+    app.include_router(appointments_test_router, tags=["PF-001 Test - No Auth"])
+    logger.info("🧪 PF-001 - Rotas de teste carregadas: validação sem autenticação")
+except ImportError as e:
+    logger.warning(f"⚠️ PF-001 - Rotas de teste não disponíveis: {e}")
+except Exception as e:
+    logger.error(f"❌ PF-001 - Erro ao carregar rotas de teste: {e}")
 
 from app.routes.clients import router as clients_router
 

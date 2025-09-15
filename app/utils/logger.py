@@ -163,27 +163,43 @@ class ContextLogger:
         
         self.logger.handle(record)
     
-    def debug(self, message: str, extra_data: Optional[Dict[str, Any]] = None):
+    def debug(self, message: str, extra_data: Optional[Dict[str, Any]] = None, extra: Optional[Dict[str, Any]] = None):
         """Log debug com contexto"""
-        self._log_with_context(logging.DEBUG, message, extra_data)
+        # Compatibility: handle both extra_data and extra parameters
+        data = extra_data or extra
+        self._log_with_context(logging.DEBUG, message, data)
     
-    def info(self, message: str, extra_data: Optional[Dict[str, Any]] = None):
+    def info(self, message: str, extra_data: Optional[Dict[str, Any]] = None, extra: Optional[Dict[str, Any]] = None):
         """Log info com contexto"""
-        self._log_with_context(logging.INFO, message, extra_data)
+        # Compatibility: handle both extra_data and extra parameters
+        data = extra_data or extra
+        self._log_with_context(logging.INFO, message, data)
     
-    def warning(self, message: str, extra_data: Optional[Dict[str, Any]] = None):
+    def warning(self, message: str, extra_data: Optional[Dict[str, Any]] = None, extra: Optional[Dict[str, Any]] = None):
         """Log warning com contexto"""
-        self._log_with_context(logging.WARNING, message, extra_data)
+        # Compatibility: handle both extra_data and extra parameters
+        data = extra_data or extra
+        self._log_with_context(logging.WARNING, message, data)
     
-    def error(self, message: str, extra_data: Optional[Dict[str, Any]] = None, 
+    def error(self, message: str, extra_data: Optional[Dict[str, Any]] = None, extra: Optional[Dict[str, Any]] = None,
               exc_info: bool = False):
         """Log error com contexto"""
-        self._log_with_context(logging.ERROR, message, extra_data, exc_info)
+        # Compatibility: handle both extra_data and extra parameters
+        data = extra_data or extra
+        self._log_with_context(logging.ERROR, message, data, exc_info)
     
-    def critical(self, message: str, extra_data: Optional[Dict[str, Any]] = None, 
+    def critical(self, message: str, extra_data: Optional[Dict[str, Any]] = None, extra: Optional[Dict[str, Any]] = None,
                  exc_info: bool = False):
         """Log critical com contexto"""
-        self._log_with_context(logging.CRITICAL, message, extra_data, exc_info)
+        # Compatibility: handle both extra_data and extra parameters
+        data = extra_data or extra
+        self._log_with_context(logging.CRITICAL, message, data, exc_info)
+    
+    def log(self, level: int, message: str, extra_data: Optional[Dict[str, Any]] = None, extra: Optional[Dict[str, Any]] = None):
+        """Log com nível específico (compatibilidade com logging padrão)"""
+        # Compatibility: handle both extra_data and extra parameters
+        data = extra_data or extra
+        self._log_with_context(level, message, data)
     
     def exception(self, message: str, extra_data: Optional[Dict[str, Any]] = None):
         """Log exception com traceback automático"""

@@ -19,28 +19,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Verificar autenticação ao carregar
+  // Verificar autenticação ao carregar - APENAS via cookies seguros
   useEffect(() => {
-    const checkAuth = () => {
-      debugLog.auth('Verificando autenticação...')
+    const checkAuth = async () => {
+      debugLog.auth('Verificando autenticação via cookies seguros...')
       
-      // Verificar tanto cookies quanto localStorage
-      const authToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='));
-      
-      const userStorage = localStorage.getItem('user');
-      
-      debugLog.auth('Status de autenticação', !!authToken)
-      debugLog.info('User storage exists', !!userStorage)
-      
-      if (authToken || userStorage) {
-        debugLog.success('Usuário autenticado!')
-        setIsAuthenticated(true);
-      } else {
-        debugLog.info('Usuário não autenticado')
+      try {
+        // Tentar acessar endpoint protegido para verificar autenticação
+        const response = await fetch('/api/proxy/auth/status', {
+          method: 'GET',
+          credentials: 'include', // Inclui cookies HttpOnly
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          debugLog.success('Usuário autenticado via cookies seguros!');
+          setIsAuthenticated(true);
+        } else {
+          debugLog.info('Usuário não autenticado');
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        debugLog.error('Erro ao verificar autenticação:', error);
         setIsAuthenticated(false);
       }
+      
       setLoading(false);
     };
 
@@ -51,9 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       debugLog.auth(`Tentando fazer login com: ${email}`);
       
-      // Fazer login real com o backend
-      const response = await fetch('/api/proxy/admin/login', {
+      // Fazer login real com o backend usando cookies seguros
+      const response = await fetch('/api/proxy/auth/login', {
         method: 'POST',
+        credentials: 'include', // Inclui cookies HttpOnly
         headers: {
           'Content-Type': 'application/json'
         },
@@ -72,19 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
       debugLog.success('Login realizado com sucesso!');
       
-      // Salvar token real do backend
-      const token = data.access_token;
-      document.cookie = `auth-token=${token}; path=/; max-age=86400`;
-      
-      // Salvar também no localStorage
-      localStorage.setItem('user', JSON.stringify({
-        id: 1,
-        email: email,
-        name: 'Administrador',
-        role: 'admin',
-        avatar_url: null
-      }));
-      localStorage.setItem('auth-token', token);
+      // ✅ SEGURO: Tokens agora estão em cookies HttpOnly
+      // Não precisamos mais gerenciar tokens no frontend
       
       setIsAuthenticated(true);
       router.push('/dashboard');
@@ -96,15 +92,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshToken = async (): Promise<boolean> => {
     try {
-      debugLog.auth('Renovando token...');
+      debugLog.auth('Renovando token via cookies seguros...');
       
-      // ✅ SEGURO: Usar API route segura sem credenciais hardcoded
-      const response = await fetch('/api/auth/admin-login', {
+      const response = await fetch('/api/proxy/auth/refresh', {
         method: 'POST',
+        credentials: 'include', // Inclui cookies HttpOnly
         headers: {
           'Content-Type': 'application/json'
         }
-        // ✅ Sem credenciais - API route gerencia internamente
       });
 
       if (!response.ok) {
@@ -113,12 +108,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
-      const token = data.token; // ✅ Campo correto da nova API route
-      
-      // Atualizar token nos cookies e localStorage
-      document.cookie = `auth-token=${token}; path=/; max-age=86400`;
-      localStorage.setItem('auth-token', token);
-      
       debugLog.success('Token renovado com sucesso!');
       return true;
     } catch (error) {
@@ -127,9 +116,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      // Fazer logout seguro no backend
+      await fetch('/api/proxy/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // Inclui cookies HttpOnly
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      debugLog.success('Logout realizado com sucesso!');
+    } catch (error) {
+      debugLog.error('Erro no logout:', error);
+    }
+    
+    // ✅ SEGURO: Cookies HttpOnly são removidos pelo backend
+    // Apenas limpar estado local
     setIsAuthenticated(false);
     router.push('/login');
   };

@@ -81,27 +81,36 @@ class ApiResponseMiddleware(BaseHTTPMiddleware):
             
             # Se já está no formato padrão, retornar como está
             if isinstance(original_data, dict) and "success" in original_data:
+                # Copy headers but exclude Content-Length to let FastAPI recalculate it
+                headers = {k: v for k, v in response.headers.items() if k.lower() != "content-length"}
+                
                 return JSONResponse(
                     content=original_data,
                     status_code=response.status_code,
-                    headers=dict(response.headers)
+                    headers=headers
                 )
             
             # Padronizar para formato padrão
             standardized = self._create_success_response(original_data)
             
+            # Copy headers but exclude Content-Length to let FastAPI recalculate it
+            headers = {k: v for k, v in response.headers.items() if k.lower() != "content-length"}
+            
             return JSONResponse(
                 content=standardized,
                 status_code=response.status_code,
-                headers=dict(response.headers)
+                headers=headers
             )
             
         except (json.JSONDecodeError, UnicodeDecodeError):
             # Se não conseguir parsear, retornar como sucesso com dados raw
+            # Copy headers but exclude Content-Length to let FastAPI recalculate it
+            headers = {k: v for k, v in response.headers.items() if k.lower() != "content-length"}
+            
             return JSONResponse(
                 content=self._create_success_response({"raw": body.decode()}),
                 status_code=response.status_code,
-                headers=dict(response.headers)
+                headers=headers
             )
     
     def _create_success_response(self, data: Any) -> Dict[str, Any]:

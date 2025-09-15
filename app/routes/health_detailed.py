@@ -23,7 +23,7 @@ import time
 from datetime import datetime
 from typing import Dict, Any
 import aiohttp
-from app.services.structured_apm import get_structured_logger
+from app.utils.structured_logger import get_structured_logger
 
 logger = get_structured_logger(__name__)
 router = APIRouter(prefix="/health", tags=["Health Monitoring"])
@@ -50,18 +50,23 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
         "version": "1.0.0"
     }
     
-    logger.info("🔍 OM001 - Iniciando health check detalhado", category="health_check")
+    logger.info(
+        "🔍 OM001 - Iniciando health check detalhado",
+        category="health_check",
+        check_type="detailed"
+    )
     
     # 1. Database Health
     db_start = time.time()
     try:
         # Testar conexão básica
-        result = await db.execute("SELECT 1 as test")
+        from sqlalchemy import text
+        result = await db.execute(text("SELECT 1 as test"))
         result.fetchone()
         
         # Testar uma query mais complexa
-        count_result = await db.execute("SELECT COUNT(*) as total FROM appointments")
-        appointment_count = count_result.fetchone()[0] if count_result.fetchone() else 0
+        count_result = await db.execute(text("SELECT COUNT(*) as total FROM appointments"))
+        appointment_count = count_result.scalar() or 0
         
         db_time = time.time() - db_start
         
@@ -73,7 +78,14 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
             "last_check": datetime.utcnow().isoformat()
         }
         
-        logger.info(f"✅ OM001 Database healthy: {db_time*1000:.2f}ms", category="health_check")
+        logger.info(
+            "✅ OM001 Database healthy",
+            response_time_ms=round(db_time*1000, 2),
+            appointments_count=appointment_count,
+            category="health_check",
+            component="database",
+            status="healthy"
+        )
         
     except Exception as e:
         db_time = time.time() - db_start
@@ -86,32 +98,39 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
         }
         health_results["overall_status"] = "degraded"
         
-        logger.error(f"❌ OM001 Database unhealthy: {str(e)}", category="health_check")
+        logger.error(
+            "❌ OM001 Database unhealthy",
+            error=str(e),
+            response_time_ms=round(db_time * 1000, 2),
+            category="health_check",
+            component="database",
+            status="unhealthy"
+        )
     
     # 2. Redis/Cache Health  
     redis_start = time.time()
     try:
-        # Testar cache service com operações read/write
-        test_key = f"health_check_{int(time.time())}"
-        test_value = "om001_test_ok"
-        
-        await cache_service.set(test_key, test_value, ttl=5)
-        cache_result = await cache_service.get(test_key)
-        
-        # Cleanup
-        await cache_service.delete(test_key)
+        # Usar método específico de health check do cache service
+        cache_health = await cache_service.get_cache_health()
         
         redis_time = time.time() - redis_start
         
         health_results["components"]["redis"] = {
-            "status": "healthy" if cache_result == test_value else "degraded",
+            "status": "healthy" if cache_health.get("status") == "healthy" else "degraded",
             "response_time_ms": round(redis_time * 1000, 2),
-            "cache_working": cache_result == test_value,
-            "operations_tested": ["set", "get", "delete"],
-            "last_check": datetime.utcnow().isoformat()
+            "cache_working": cache_health.get("redis_available", False),
+            "operations_tested": ["health_check"],
+            "last_check": datetime.utcnow().isoformat(),
+            "redis_info": cache_health
         }
         
-        logger.info(f"✅ OM001 Redis healthy: {redis_time*1000:.2f}ms", category="health_check")
+        logger.info(
+            "✅ OM001 Redis healthy",
+            response_time_ms=round(redis_time*1000, 2),
+            category="health_check",
+            component="redis",
+            status="healthy"
+        )
         
     except Exception as e:
         redis_time = time.time() - redis_start
@@ -124,7 +143,14 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
         }
         health_results["overall_status"] = "degraded"
         
-        logger.error(f"❌ OM001 Redis unhealthy: {str(e)}", category="health_check")
+        logger.error(
+            "❌ OM001 Redis unhealthy",
+            error=str(e),
+            response_time_ms=round(redis_time * 1000, 2),
+            category="health_check",
+            component="redis",
+            status="unhealthy"
+        )
     
     # 3. Meta API Health (WhatsApp)
     meta_start = time.time()

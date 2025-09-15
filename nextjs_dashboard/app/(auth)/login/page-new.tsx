@@ -39,7 +39,7 @@ export default function LoginPage() {
       const data = await response.json()
       
       // Salvar token
-      localStorage.setItem('auth-token', data.access_token)
+      // ✅ SEGURO: Tokens agora em cookies HttpOnly
       
       // Decodificar JWT para user info
       const payload = JSON.parse(atob(data.access_token.split('.')[1]))

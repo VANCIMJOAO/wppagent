@@ -20,13 +20,13 @@ Data: 2025-09-12
 Status: PD001 Implementation - N+1 Query Optimization
 """
 
-from sqlalchemy.orm import selectinload, joinedload, subqueryload
-from sqlalchemy import select, func, text, desc, asc
+from sqlalchemy.orm import selectinload, joinedload, subqueryload, contains_eager
+from sqlalchemy import select, func, text, desc, asc, and_, case
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.database import Conversation, User, Message, Appointment, Business, Service
 from app.services.structured_apm import get_structured_logger
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 logger = get_structured_logger(__name__)

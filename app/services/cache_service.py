@@ -556,6 +556,66 @@ class CacheService:
                 "timestamp": datetime.now().isoformat()
             }
 
+    # ⚡ PF-001: Método get_or_set para otimizações
+    async def get_or_set(self, key: str, fetch_function, ttl: int = 3600, cache_type: str = 'general'):
+        """
+        PF-001: Cache pattern get_or_set
+        
+        Busca no cache, se não encontrar, executa função e armazena resultado.
+        Ideal para otimização de queries N+1.
+        
+        Args:
+            key: Chave do cache
+            fetch_function: Função async que retorna os dados quando cache miss
+            ttl: Time to live em segundos
+            cache_type: Tipo do cache para logs
+        
+        Returns:
+            Dados do cache ou resultado da função
+        """
+        try:
+            # Tentar buscar no cache primeiro
+            cached_value = await self._get_from_cache(key)
+            
+            if cached_value:
+                logger.debug(f"✅ Cache HIT para {cache_type}: {key}")
+                return json.loads(cached_value)
+            
+            # Cache MISS - executar função
+            logger.debug(f"❌ Cache MISS para {cache_type}: {key}")
+            result = await fetch_function()
+            
+            # Armazenar resultado no cache
+            # Properly serialize Pydantic models to JSON
+            if hasattr(result, '__iter__') and not isinstance(result, str):
+                # Handle list of Pydantic models
+                serialized_result = []
+                for item in result:
+                    if hasattr(item, 'model_dump'):
+                        serialized_result.append(item.model_dump())
+                    else:
+                        serialized_result.append(item)
+                await self._set_to_cache(key, json.dumps(serialized_result, default=str), ttl)
+            elif hasattr(result, 'model_dump'):
+                # Handle single Pydantic model
+                await self._set_to_cache(key, json.dumps(result.model_dump(), default=str), ttl)
+            else:
+                # Handle regular objects
+                await self._set_to_cache(key, json.dumps(result, default=str), ttl)
+            logger.debug(f"💾 Cached {cache_type} com TTL {ttl}s: {key}")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ Erro no get_or_set para {cache_type}: {e}")
+            # Fallback: executar função sem cache
+            return await fetch_function()
+
 
 # Instância global do serviço de cache
 cache_service = CacheService()
+
+# Dependency injection para FastAPI
+def get_cache_service() -> CacheService:
+    """Dependency injection para o cache service"""
+    return cache_service

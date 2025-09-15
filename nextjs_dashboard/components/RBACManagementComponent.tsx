@@ -93,7 +93,7 @@ const RBACManagementComponent: React.FC = () => {
     try {
       const response = await fetch('/api/rbac/users', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
       
@@ -110,7 +110,7 @@ const RBACManagementComponent: React.FC = () => {
     try {
       const response = await fetch('/api/rbac/roles', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
       
@@ -127,7 +127,7 @@ const RBACManagementComponent: React.FC = () => {
     try {
       const response = await fetch('/api/rbac/permissions', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
       
@@ -144,7 +144,7 @@ const RBACManagementComponent: React.FC = () => {
     try {
       const response = await fetch('/api/rbac/stats', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
         },
       });
       

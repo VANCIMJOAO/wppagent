@@ -1,13 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/react-query'
 import { toast } from 'sonner'
-import { normalizeAppointment, normalizeAppointments, toAppointmentCreateData, toAppointmentUpdateData } from '@/lib/appointment-normalizer'
+// ✅ CF-001: Using auto-generated types from OpenAPI
 import type { 
   Appointment, 
   AppointmentCreateRequest, 
   AppointmentUpdateRequest,
   AppointmentsListResponse 
-} from '@/types/api'
+} from '@/types/api-cf001'
+// TODO: CF-001 - Remove normalizers after full migration
+import { normalizeAppointment, normalizeAppointments, toAppointmentCreateData, toAppointmentUpdateData } from '@/lib/appointment-normalizer'
 
 // Simulando serviço de API - você pode substituir pela implementação real
 const api = {
@@ -31,8 +33,8 @@ const api = {
     const response = await fetch(`/api/appointments?${params}`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
+        // ✅ CF-001: HttpOnly cookies used instead of Authorization header
       }
     })
     
@@ -53,52 +55,78 @@ const api = {
     const response = await fetch(`/api/appointments/${id}`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       }
     })
     
     if (!response.ok) {
-      throw new Error(`Erro ao buscar agendamento: ${response.statusText}`)
+      throw new Error('Erro ao buscar agendamento: ' + response.statusText)
     }
     
     const data = await response.json()
     // ✅ Normalizar dados para garantir compatibilidade
-    return normalizeAppointment(data)
+    const normalized = normalizeAppointment(data)
+    return {
+      ...normalized,
+      userId: normalized.user_id ?? data.user_id,
+      businessId: normalized.business_id ?? data.businessId ?? data.business_id,
+      createdAt: normalized.created_at ?? data.createdAt ?? data.created_at,
+    }
   },
 
   async createAppointment(data: AppointmentCreateRequest): Promise<Appointment> {
     // ✅ Converter para formato brasileiro antes de enviar
-    const normalizedData = toAppointmentCreateData(data)
-    
-    const response = await fetch('/api/appointments', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(normalizedData)
+    const normalizedData = toAppointmentCreateData({
+      ...data,
+      service_id: data.service_id == null ? undefined : data.service_id,
+      notes: data.notes == null ? undefined : data.notes
     })
     
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.detail || `Erro ao criar agendamento: ${response.statusText}`)
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(normalizedData)
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || `Erro ao criar agendamento: ${response.statusText}`)
+      }
+      
+      const result = await response.json()
+      // ✅ Normalizar resposta
+      const normalized = normalizeAppointment(result)
+      return {
+        ...normalized,
+        userId: normalized.user_id ?? result.user_id,
+        businessId: normalized.business_id ?? result.businessId ?? result.business_id,
+        createdAt: normalized.created_at ?? result.createdAt ?? result.created_at,
+      }
+    } catch (error) {
+      // Garantir que sempre retorna um valor ou lança erro
+      throw error
     }
-    
-    const result = await response.json()
-    // ✅ Normalizar resposta
-    return normalizeAppointment(result)
   },
 
   async updateAppointment(id: number, data: AppointmentUpdateRequest): Promise<Appointment> {
     // ✅ Converter para formato brasileiro antes de enviar
-    const normalizedData = toAppointmentUpdateData(data)
+    const sanitizedData = {
+      ...data,
+      price: data.price == null ? undefined : data.price,
+      duration_minutes: data.duration_minutes == null ? undefined : data.duration_minutes,
+      date_time: data.date_time == null ? undefined : data.date_time,
+      status: data.status == null ? undefined : data.status,
+      notes: data.notes == null ? undefined : data.notes,
+    }
+    const normalizedData = toAppointmentUpdateData(sanitizedData)
     
     const response = await fetch(`/api/appointments/${id}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(normalizedData)
     })
@@ -110,15 +138,21 @@ const api = {
     
     const result = await response.json()
     // ✅ Normalizar resposta
-    return normalizeAppointment(result)
+    const normalized = normalizeAppointment(result)
+    return {
+      ...normalized,
+      userId: normalized.user_id ?? result.user_id,
+      businessId: normalized.business_id ?? result.businessId ?? result.business_id,
+      createdAt: normalized.created_at ?? result.createdAt ?? result.created_at,
+    }
   },
 
   async deleteAppointment(id: number): Promise<{ message: string; id: number }> {
     const response = await fetch(`/api/appointments/${id}`, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
+        // ✅ REMOVIDO: Authorization header inseguro
       }
     })
     
