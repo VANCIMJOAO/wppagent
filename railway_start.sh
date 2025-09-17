@@ -42,13 +42,32 @@ echo -e "\n🔧 ENVIRONMENT VARIABLES:"
 env | grep -E '^(PORT|HOST|RAILWAY|DATABASE|REDIS|JWT)' | sort
 
 echo -e "\n🌐 NETWORK TEST:"
-netstat -tlnp 2>/dev/null || echo "netstat not available"
+netstat -tlnp 2>/dev/null || echo "⚠️  netstat not available"
+
+# Test port binding capability
+echo "🔌 Testing port binding on ${PORT:-8000}..."
+python -c "
+import socket
+port = ${PORT:-8000}
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('0.0.0.0', port))
+    s.close()
+    print(f'✅ Port {port} is available for binding')
+except Exception as e:
+    print(f'❌ Port {port} binding test failed: {e}')
+"
 
 echo -e "\n🚀 STARTING UVICORN SERVER..."
-echo "Command: uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+echo "Command: uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info"
 
-# Start uvicorn with error handling
-uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} || {
+# Start uvicorn with enhanced logging
+exec uvicorn app.main:app \
+    --host 0.0.0.0 \
+    --port ${PORT:-8000} \
+    --log-level info \
+    --access-log \
+    --server-header || {
     echo "❌ uvicorn startup failed!"
     echo "Checking if port is already in use..."
     lsof -i :${PORT:-8000} 2>/dev/null || echo "Port check failed - lsof not available"

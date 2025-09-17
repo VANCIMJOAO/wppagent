@@ -30,9 +30,9 @@ USER app
 # Expose port
 EXPOSE 8000
 
-# Health check (using python instead of curl)
-HEALTHCHECK --interval=30s --timeout=20s --start-period=120s --retries=5 \
-  CMD python -c "import urllib.request, os; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", \"8000\")}/ping', timeout=15)" || exit 1
+# Enhanced Health check - socket based for Railway
+HEALTHCHECK --interval=45s --timeout=30s --start-period=180s --retries=3 \
+  CMD python -c "import socket, os; s=socket.socket(); s.settimeout(10); s.connect(('localhost', int(os.environ.get('PORT', '8000')))); s.close()" || exit 1
 
 # Start application with debug logging
 CMD ["./railway_start.sh"]
