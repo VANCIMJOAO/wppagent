@@ -25,12 +25,18 @@ echo "Railway PORT: ${RAILWAY_PORT:-'NOT_SET'}"
 echo "Railway PUBLIC DOMAIN: ${RAILWAY_PUBLIC_DOMAIN:-'NOT_SET'}"
 echo "Railway PRIVATE DOMAIN: ${RAILWAY_PRIVATE_DOMAIN:-'NOT_SET'}"
 
-# Railway-specific port handling
+# Railway-specific port handling with override for uvicorn vars
 if [ "$RAILWAY_DETECTED" = "true" ]; then
-    # Use Railway PORT or default to 8000
+    # Force Railway PORT, override any uvicorn defaults
     FINAL_PORT=${PORT:-8000}
     FINAL_HOST="0.0.0.0"
     echo "🚄 Railway mode: Using port $FINAL_PORT on host $FINAL_HOST"
+    
+    # Unset any conflicting uvicorn environment variables
+    unset UVICORN_PORT UVICORN_HOST
+    export PORT=$FINAL_PORT
+    export HOST=$FINAL_HOST
+    echo "🔧 Forced PORT=$PORT and unset UVICORN_* variables"
 else
     FINAL_PORT=${PORT:-8000}
     FINAL_HOST=${HOST:-"0.0.0.0"}
@@ -63,7 +69,15 @@ python -c "from app.main import app; print('✅ app import OK')" || {
 }
 
 echo -e "\n🔧 ENVIRONMENT VARIABLES:"
-env | grep -E '^(PORT|HOST|RAILWAY|DATABASE|REDIS|JWT)' | sort
+env | grep -E '^(PORT|HOST|RAILWAY|DATABASE|REDIS|JWT|UVICORN)' | sort
+
+echo -e "\n🔍 FINAL RESOLVED VARIABLES:"
+echo "FINAL_PORT: $FINAL_PORT"
+echo "FINAL_HOST: $FINAL_HOST"
+echo "Current PORT: ${PORT:-'NOT_SET'}"
+echo "Current HOST: ${HOST:-'NOT_SET'}"
+echo "UVICORN_PORT: ${UVICORN_PORT:-'NOT_SET'}"
+echo "UVICORN_HOST: ${UVICORN_HOST:-'NOT_SET'}"
 
 echo -e "\n🌐 NETWORK TEST:"
 netstat -tlnp 2>/dev/null || echo "⚠️ netstat not available"
