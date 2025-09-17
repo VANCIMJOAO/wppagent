@@ -1006,6 +1006,24 @@ async def ping():
     return "pong"
 
 
+@app.get("/")
+async def root():
+    """Railway root endpoint check"""
+    return {"status": "ok", "service": "whatsapp-agent", "railway": True}
+
+
+@app.get("/ready")
+async def ready():
+    """Railway readiness check"""
+    return Response(content="ready", media_type="text/plain")
+
+
+@app.get("/alive")
+async def alive():
+    """Railway liveness check"""
+    return Response(content="alive", media_type="text/plain")
+
+
 @app.get("/health", response_model=HealthCheckResponse)
 async def health_check():
     """Endpoint básico de health check"""
