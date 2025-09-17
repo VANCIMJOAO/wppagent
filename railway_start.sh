@@ -90,32 +90,57 @@ echo "Command: uvicorn app.main:app --host $FINAL_HOST --port $FINAL_PORT --log-
 # Railway-specific uvicorn configuration
 if [ "$RAILWAY_DETECTED" = "true" ]; then
     echo "🚄 Using Railway-optimized uvicorn settings"
-    # Railway production settings
-    exec uvicorn app.main:app \
+    echo "🔥 FINAL UVICORN COMMAND:"
+    echo "uvicorn app.main:app --host $FINAL_HOST --port $FINAL_PORT --log-level debug --access-log --server-header --forwarded-allow-ips='*' --proxy-headers"
+    
+    # Railway production settings with error capture
+    uvicorn app.main:app \
         --host "$FINAL_HOST" \
         --port "$FINAL_PORT" \
-        --log-level info \
+        --log-level debug \
         --access-log \
         --server-header \
         --forwarded-allow-ips="*" \
-        --proxy-headers || {
+        --proxy-headers 2>&1 | tee /tmp/uvicorn.log || {
         echo "❌ Railway uvicorn startup failed!"
-        echo "Checking if port is already in use..."
-        lsof -i :$FINAL_PORT 2>/dev/null || echo "Port check failed - lsof not available"
+        echo "📋 Error details:"
+        cat /tmp/uvicorn.log 2>/dev/null || echo "No log file found"
+        echo "🔍 Checking port status..."
+        ss -tlnp | grep :$FINAL_PORT 2>/dev/null || echo "Port not in use"
+        echo "🔍 Final debug info:"
+        python -c "
+import traceback
+import sys
+try:
+    from app.main import app
+    print('✅ App import successful')
+    print(f'App type: {type(app)}')
+    print(f'App details: {app}')
+except Exception as e:
+    print(f'❌ App import failed: {e}')
+    traceback.print_exc()
+"
+        sleep 10
         exit 1
     }
 else
     echo "🏠 Using local development settings"
-    # Local development settings
-    exec uvicorn app.main:app \
+    echo "🔥 FINAL UVICORN COMMAND:"
+    echo "uvicorn app.main:app --host $FINAL_HOST --port $FINAL_PORT --log-level debug --access-log --server-header"
+    
+    # Local development settings with error capture
+    uvicorn app.main:app \
         --host "$FINAL_HOST" \
         --port "$FINAL_PORT" \
-        --log-level info \
+        --log-level debug \
         --access-log \
-        --server-header || {
+        --server-header 2>&1 | tee /tmp/uvicorn.log || {
         echo "❌ Local uvicorn startup failed!"
-        echo "Checking if port is already in use..."
-        lsof -i :$FINAL_PORT 2>/dev/null || echo "Port check failed - lsof not available"
+        echo "📋 Error details:"
+        cat /tmp/uvicorn.log 2>/dev/null || echo "No log file found"
+        echo "🔍 Checking port status..."
+        ss -tlnp | grep :$FINAL_PORT 2>/dev/null || echo "Port not in use"
+        sleep 10
         exit 1
     }
 fi
