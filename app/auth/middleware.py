@@ -41,6 +41,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/docs",
             "/openapi.json",
             "/webhook",  # WhatsApp webhook - prefixo genérico
+            "/webhook/test",  # WhatsApp webhook - endpoint de teste
             "/api/v1/webhooks",  # WhatsApp webhook - rota completa
             "/auth/login",
             "/admin/login",  # Admin login endpoint
