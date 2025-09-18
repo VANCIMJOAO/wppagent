@@ -515,6 +515,17 @@ else:
 app.add_middleware(AuthMiddleware)
 logger.info("🔒 AuthMiddleware ativado - PRIMEIRO na ordem de execução")
 
+# 🔒 Adicionar middleware de bypass para endpoints críticos (ANTES de rate limiting)
+try:
+    from app.middleware.critical_endpoints import CriticalEndpointsMiddleware
+    
+    app.add_middleware(CriticalEndpointsMiddleware)
+    logger.info("🔒 CriticalEndpointsMiddleware ativado - bypass para endpoints críticos")
+except ImportError as e:
+    logger.warning(f"⚠️ CriticalEndpointsMiddleware não disponível: {e}")
+except Exception as e:
+    logger.error(f"❌ Erro ao inicializar CriticalEndpointsMiddleware: {e}")
+
 # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
 logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
 try:
