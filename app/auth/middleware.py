@@ -44,6 +44,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/webhook/test",  # WhatsApp webhook - endpoint de teste
             "/meta",  # Meta webhook específico - SEM JWT
             "/meta/webhook",  # Meta webhook específico - rota completa
+            "/debug",  # Debug endpoints (TEMPORÁRIO)
             "/api/v1/webhooks",  # WhatsApp webhook - rota completa
             "/auth/login",
             "/admin/login",  # Admin login endpoint

@@ -590,6 +590,11 @@ from app.routes.debug_webhook import router as debug_webhook_router
 
 app.include_router(debug_webhook_router, tags=["Debug"])
 
+# Debug middleware (TEMPORÁRIO - remover em produção)
+from app.routes.debug_middleware import router as debug_middleware_router
+
+app.include_router(debug_middleware_router, tags=["Debug Middleware"])
+
 # 🔒 Incluir rotas de autenticação e segurança
 from app.routes.auth import router as auth_router
 
