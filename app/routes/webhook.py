@@ -698,7 +698,13 @@ async def verify_webhook(
             severity="INFO",
         )
 
-        return int(hub_challenge)
+        # Retornar challenge - Meta espera exatamente o que foi enviado
+        try:
+            # Tentar converter para int se possível (para compatibilidade)
+            return int(hub_challenge)
+        except (ValueError, TypeError):
+            # Se não for número, retornar como string (padrão Meta)
+            return hub_challenge
     else:
         logger.warning(
             "Webhook verification failed",

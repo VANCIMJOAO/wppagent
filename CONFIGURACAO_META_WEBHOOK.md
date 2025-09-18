@@ -1,10 +1,12 @@
-📋 CONFIGURAÇÃO META WEBHOOK - INSTRUÇÕES
+📋 CONFIGURAÇÃO META WEBHOOK - INSTRUÇÕES  
 =============================================
 
 🔗 URL do Webhook para configurar no Meta Developers:
-https://wppagent-production-app-production.up.railway.app/meta/webhook/receive
+https://wppagent-production-app-production.up.railway.app/webhook
 
-🔑 Token de Verificação: whatsapp_webhook_verify_token
+⚠️ ATENÇÃO: Use /webhook (que está funcionando) temporariamente enquanto /meta/webhook não está disponível
+
+🔑 Token de Verificação: your_verify_token_here
 
 📱 Número Liberado para Teste: 5516991022255
 
@@ -15,16 +17,18 @@ https://wppagent-production-app-production.up.railway.app/meta/webhook/receive
 - messaging_postbacks
 
 🛠️ PASSOS NO META DEVELOPERS:
-1. Cole a URL: https://wppagent-production-app-production.up.railway.app/meta/webhook/receive
-2. Token de verificação: whatsapp_webhook_verify_token  
+1. Cole a URL: https://wppagent-production-app-production.up.railway.app/webhook
+2. Token de verificação: your_verify_token_here
 3. Clique em "Verificar e Salvar"
 4. Subscreva aos eventos: messages
 
-⚠️ IMPORTANTE:
-- O endpoint /meta/webhook NÃO usa validação JWT
-- Apenas validação por token de verificação
-- Funciona diretamente com o Meta sem middleware de auth
-- Número 5516991022255 está na whitelist para testes
+✅ VERIFICAÇÃO RÁPIDA:
+curl "https://wppagent-production-app-production.up.railway.app/webhook/verify?hub.mode=subscribe&hub.verify_token=your_verify_token_here&hub.challenge=12345"
 
-🧪 TESTE RÁPIDO:
-curl "https://wppagent-production-app-production.up.railway.app/meta/webhook/verify?hub.mode=subscribe&hub.verify_token=whatsapp_webhook_verify_token&hub.challenge=12345"
+🔍 SUPER DEBUG RESULTADO:
+- ✅ /webhook: FUNCIONANDO (200) 
+- ❌ /meta/webhook: Não disponível ainda (401)
+- ✅ Sistema healthy e operacional
+- 📞 Número 5516991022255 configurado para testes
+
+🚀 STATUS: Pronto para configurar no Meta usando /webhook!

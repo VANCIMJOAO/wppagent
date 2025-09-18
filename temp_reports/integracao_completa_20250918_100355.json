@@ -1,0 +1,215 @@
+{
+  "overall_success": false,
+  "success_rate": 0.75,
+  "total_interactions": 28,
+  "successful_interactions": 21,
+  "steps_passed": 4,
+  "total_steps": 7,
+  "step_results": {
+    "initial_connection": false,
+    "api_exploration": true,
+    "authentication": false,
+    "business_inquiry": true,
+    "integrations": true,
+    "performance": false,
+    "monitoring": true
+  },
+  "detailed_interactions": [
+    {
+      "step": "Acesso inicial à aplicação",
+      "success": true,
+      "details": "Status: 200",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:50.098437"
+    },
+    {
+      "step": "Verificação de saúde da API",
+      "success": false,
+      "details": "Status: 405",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:50.257679"
+    },
+    {
+      "step": "Acesso à documentação",
+      "success": true,
+      "details": "Status: 200",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:50.410166"
+    },
+    {
+      "step": "Endpoint Health API",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:50.571414"
+    },
+    {
+      "step": "Endpoint Autenticação",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:50.725184"
+    },
+    {
+      "step": "Endpoint Appointments",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:50.876190"
+    },
+    {
+      "step": "Endpoint Conversas",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:51.029929"
+    },
+    {
+      "step": "Endpoint Clientes",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:51.181371"
+    },
+    {
+      "step": "Endpoint Business Info",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:51.340109"
+    },
+    {
+      "step": "Verificação de proteção",
+      "success": true,
+      "details": "Rota protegida corretamente - Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:51.489579"
+    },
+    {
+      "step": "Tentativa de login",
+      "success": true,
+      "details": "Resposta adequada para credenciais inválidas - Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:51.640631"
+    },
+    {
+      "step": "Verificação de registro",
+      "success": false,
+      "details": "Endpoint de registro funcional - Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:51.789491"
+    },
+    {
+      "step": "Informações do negócio",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:51.945728"
+    },
+    {
+      "step": "Horários de atendimento",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:52.101845"
+    },
+    {
+      "step": "Status detalhado do sistema",
+      "success": false,
+      "details": "Status: 503",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:52.463999"
+    },
+    {
+      "step": "Webhook WhatsApp",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:52.618414"
+    },
+    {
+      "step": "Status dos Webhooks",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:52.769641"
+    },
+    {
+      "step": "Integrações disponíveis",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:52.919196"
+    },
+    {
+      "step": "Teste POST webhook",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:53.067808"
+    },
+    {
+      "step": "Teste de performance",
+      "success": false,
+      "details": "Taxa sucesso: 0.0%, Tempo médio: 0.16s",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:53.867979"
+    },
+    {
+      "step": "Cache test /health/basic",
+      "success": false,
+      "details": "Status: 405, Tempo: 0.16s",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:54.028422"
+    },
+    {
+      "step": "Cache test /health/detailed",
+      "success": false,
+      "details": "Status: 503, Tempo: 0.22s",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:54.247582"
+    },
+    {
+      "step": "Cache test /metrics",
+      "success": true,
+      "details": "Tempo: 0.60s",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:54.843469"
+    },
+    {
+      "step": "Métricas Prometheus",
+      "success": true,
+      "details": "Status: 200",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:55.001296"
+    },
+    {
+      "step": "Métricas Prometheus válidas",
+      "success": true,
+      "details": "Contém métricas: True",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:55.001341"
+    },
+    {
+      "step": "Health Check Detalhado",
+      "success": false,
+      "details": "Status: 503",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:55.232814"
+    },
+    {
+      "step": "API Health",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:55.388203"
+    },
+    {
+      "step": "Status Observabilidade",
+      "success": true,
+      "details": "Status: 401",
+      "data": null,
+      "timestamp": "2025-09-18T10:03:55.537947"
+    }
+  ]
+}

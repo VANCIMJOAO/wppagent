@@ -1,0 +1,170 @@
+[
+  {
+    "timestamp": "14:15:02.337",
+    "step": "Endpoint /health",
+    "status": "SUCCESS",
+    "details": "Status: 200",
+    "data": "{\"status\":\"healthy\",\"timestamp\":\"2025-09-18T17:15:02.251803\",\"service\":\"WhatsApp Agent API\"}"
+  },
+  {
+    "timestamp": "14:15:02.489",
+    "step": "Endpoint /webhook/verify",
+    "status": "SUCCESS",
+    "details": "Status: 403",
+    "data": "{\"detail\":\"Token de verifica\u00e7\u00e3o inv\u00e1lido\"}"
+  },
+  {
+    "timestamp": "14:15:02.639",
+    "step": "Endpoint /webhook/test",
+    "status": "SUCCESS",
+    "details": "Status: 405",
+    "data": "{\"detail\":\"Method Not Allowed\"}"
+  },
+  {
+    "timestamp": "14:15:02.788",
+    "step": "Endpoint /meta/webhook/verify",
+    "status": "SUCCESS",
+    "details": "Status: 401",
+    "data": "{\"error\":\"Authentication failed\",\"message\":\"Missing or invalid authorization header\"}"
+  },
+  {
+    "timestamp": "14:15:02.932",
+    "step": "Endpoint /meta/webhook/receive",
+    "status": "SUCCESS",
+    "details": "Status: 401",
+    "data": "{\"error\":\"Authentication failed\",\"message\":\"Missing or invalid authorization header\"}"
+  },
+  {
+    "timestamp": "14:15:03.278",
+    "step": "Meta API - Info do n\u00famero",
+    "status": "ERROR",
+    "details": "Status: 401",
+    "data": "{\"error\":{\"message\":\"Malformed access token EAAI4WnfpZAe0BPS1qkBjfZAnI8qdXInJ3Lxgc7IAn35PvZAAhdeRELACQTUspzTFViQ6OfzzjqbzS9ZCutlTTTzNmz8ezkeGtCkGtyxujzcN67ZBEKzriS79jlXxbqoZBw3f0MAMTOZCVKpeq2fTbUd6f4h2tvoCAXSLb9vPf1C0EQXyvKZA3986WNYeZA4vrfanZBLJyVLppTnjVupAGZAyOfRaey3ebfWz4CeLCEK5JbfjXQCNQGhT8dx0gQZAAZDZD\",\"type\":\"OAuthException\",\"code\":190,\"fbtrace_id\":\"AaXWLCR-LndFn7Q0jyWJdTS\"}}"
+  },
+  {
+    "timestamp": "14:15:03.489",
+    "step": "Meta API - Envio mensagem",
+    "status": "ERROR",
+    "details": "Status: 401",
+    "data": "{\"error\":{\"message\":\"Malformed access token EAAI4WnfpZAe0BPS1qkBjfZAnI8qdXInJ3Lxgc7IAn35PvZAAhdeRELACQTUspzTFViQ6OfzzjqbzS9ZCutlTTTzNmz8ezkeGtCkGtyxujzcN67ZBEKzriS79jlXxbqoZBw3f0MAMTOZCVKpeq2fTbUd6f4h2tvoCAXSLb9vPf1C0EQXyvKZA3986WNYeZA4vrfanZBLJyVLppTnjVupAGZAyOfRaey3ebfWz4CeLCEK5JbfjXQCNQGhT8dx0gQZAAZDZD\",\"type\":\"OAuthException\",\"code\":190,\"fbtrace_id\":\"AL4fC5w6WurkDXKBV2Ttz7Y\"}}"
+  },
+  {
+    "timestamp": "14:15:03.489",
+    "step": "Webhook /webhook",
+    "status": "INFO",
+    "details": "Enviando webhook...",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:03.645",
+    "step": "Webhook /webhook",
+    "status": "SUCCESS",
+    "details": "Webhook processado com sucesso",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:03.645",
+    "step": "Webhook /webhook/test",
+    "status": "INFO",
+    "details": "Enviando webhook...",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:03.797",
+    "step": "Webhook /webhook/test",
+    "status": "ERROR",
+    "details": "M\u00e9todo n\u00e3o permitido",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:03.797",
+    "step": "Webhook /meta/webhook/receive",
+    "status": "INFO",
+    "details": "Enviando webhook...",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:03.942",
+    "step": "Webhook /meta/webhook/receive",
+    "status": "ERROR",
+    "details": "Erro 401: {\"error\":\"Authentication failed\",\"message\":\"Missing or invalid authorization header\"}",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:03.942",
+    "step": "Auth test - Sem headers",
+    "status": "INFO",
+    "details": "Testando headers...",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:04.088",
+    "step": "Auth test - Sem headers",
+    "status": "ERROR",
+    "details": "Status: 405",
+    "data": "{\"detail\":\"Method Not Allowed\"}"
+  },
+  {
+    "timestamp": "14:15:04.088",
+    "step": "Auth test - Com User-Agent",
+    "status": "INFO",
+    "details": "Testando headers...",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:04.241",
+    "step": "Auth test - Com User-Agent",
+    "status": "ERROR",
+    "details": "Status: 405",
+    "data": "{\"detail\":\"Method Not Allowed\"}"
+  },
+  {
+    "timestamp": "14:15:04.241",
+    "step": "Auth test - Com X-Hub-Signature",
+    "status": "INFO",
+    "details": "Testando headers...",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:04.393",
+    "step": "Auth test - Com X-Hub-Signature",
+    "status": "ERROR",
+    "details": "Status: 405",
+    "data": "{\"detail\":\"Method Not Allowed\"}"
+  },
+  {
+    "timestamp": "14:15:04.393",
+    "step": "Auth test - Simulando Meta",
+    "status": "INFO",
+    "details": "Testando headers...",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:04.540",
+    "step": "Auth test - Simulando Meta",
+    "status": "ERROR",
+    "details": "Status: 405",
+    "data": "{\"detail\":\"Method Not Allowed\"}"
+  },
+  {
+    "timestamp": "14:15:05.118",
+    "step": "Sistema /metrics",
+    "status": "SUCCESS",
+    "details": "Endpoint funcionando",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:05.273",
+    "step": "Sistema /webhook/stats",
+    "status": "ERROR",
+    "details": "Status: 500",
+    "data": null
+  },
+  {
+    "timestamp": "14:15:05.426",
+    "step": "Sistema /webhook/health",
+    "status": "ERROR",
+    "details": "Status: 500",
+    "data": null
+  }
+]

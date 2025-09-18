@@ -1,0 +1,533 @@
+{
+  "num_clients": 3,
+  "satisfied_clients": 3,
+  "client_satisfaction_rate": 1.0,
+  "overall_success_rate": 0.90625,
+  "total_interactions": 64,
+  "successful_interactions": 58,
+  "individual_results": [
+    {
+      "client_satisfied": true,
+      "success_rate": 0.9545454545454546,
+      "total_interactions": 22,
+      "successful_interactions": 21,
+      "successful_steps": 6,
+      "total_steps": 7,
+      "journey_steps": {
+        "discovery": true,
+        "exploration": true,
+        "registration": false,
+        "testing": true,
+        "whatsapp_simulation": true,
+        "reliability_check": true,
+        "final_decision": true
+      },
+      "client_data": {
+        "name": "Maria Silva - Clínica Médica - 4be5bdea",
+        "phone": "55114be5bdea",
+        "email": "cliente4be5bdea@teste.com",
+        "business": "Empresa de Testes Ltda"
+      },
+      "detailed_interactions": [
+        {
+          "step": "discovery",
+          "action": "Primeiro acesso ao sistema",
+          "success": true,
+          "details": "Site carregou em 0.70s",
+          "timestamp": "2025-09-18T13:13:34.276896"
+        },
+        {
+          "step": "discovery",
+          "action": "Verificação da documentação",
+          "success": true,
+          "details": "Cliente impressionado com documentação profissional",
+          "timestamp": "2025-09-18T13:13:34.419890"
+        },
+        {
+          "step": "discovery",
+          "action": "Verificação de funcionamento",
+          "success": true,
+          "details": "Sistema com métricas ativas - parece confiável",
+          "timestamp": "2025-09-18T13:13:34.979983"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Agendamentos",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:35.127312"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Conversas WhatsApp",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:35.271194"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Gestão de Clientes",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:35.413319"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Informações do Negócio",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:35.554153"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Relatórios e Analytics",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:35.694733"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Integração WhatsApp",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:35.836873"
+        },
+        {
+          "step": "exploration",
+          "action": "Avaliação geral",
+          "success": true,
+          "details": "Cliente encontrou 6 funcionalidades interessantes!",
+          "timestamp": "2025-09-18T13:13:35.836900"
+        },
+        {
+          "step": "registration",
+          "action": "Tentativa de cadastro",
+          "success": false,
+          "details": "Endpoint não respondeu adequadamente - Status: 401",
+          "timestamp": "2025-09-18T13:13:35.981181"
+        },
+        {
+          "step": "registration",
+          "action": "Tentativa de login",
+          "success": true,
+          "details": "Sistema processou tentativa de login adequadamente",
+          "timestamp": "2025-09-18T13:13:36.121596"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de perfil",
+          "success": true,
+          "details": "Sistema de perfil está funcionando",
+          "timestamp": "2025-09-18T13:13:36.266799"
+        },
+        {
+          "step": "testing",
+          "action": "Criação de agendamento",
+          "success": true,
+          "details": "Sistema de agendamentos está ativo",
+          "timestamp": "2025-09-18T13:13:36.406532"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de conversas",
+          "success": true,
+          "details": "Sistema de conversas WhatsApp funcionando",
+          "timestamp": "2025-09-18T13:13:36.553056"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de analytics",
+          "success": true,
+          "details": "Sistema de relatórios funcionando",
+          "timestamp": "2025-09-18T13:13:36.698469"
+        },
+        {
+          "step": "testing",
+          "action": "Avaliação das funcionalidades",
+          "success": true,
+          "details": "Cliente testou 4/4 funcionalidades com sucesso",
+          "timestamp": "2025-09-18T13:13:36.698488"
+        },
+        {
+          "step": "whatsapp_sim",
+          "action": "Webhook WhatsApp processado",
+          "success": true,
+          "details": "Sistema processou mensagem WhatsApp corretamente!",
+          "timestamp": "2025-09-18T13:13:36.838810"
+        },
+        {
+          "step": "whatsapp_sim",
+          "action": "Verificação de conversa criada",
+          "success": true,
+          "details": "Sistema mantém registro das conversas",
+          "timestamp": "2025-09-18T13:13:37.978438"
+        },
+        {
+          "step": "reliability",
+          "action": "Sistema monitorado",
+          "success": true,
+          "details": "Cliente vê que sistema é profissionalmente monitorado",
+          "timestamp": "2025-09-18T13:13:38.535031"
+        },
+        {
+          "step": "reliability",
+          "action": "Teste de estabilidade",
+          "success": true,
+          "details": "Sistema estável em 100.0% das requisições",
+          "timestamp": "2025-09-18T13:13:39.293090"
+        },
+        {
+          "step": "decision",
+          "action": "Decisão de usar o sistema",
+          "success": true,
+          "details": "Cliente satisfeito - 95.2% de sucesso nas interações",
+          "timestamp": "2025-09-18T13:13:39.293135"
+        }
+      ]
+    },
+    {
+      "client_satisfied": true,
+      "success_rate": 0.9090909090909091,
+      "total_interactions": 22,
+      "successful_interactions": 20,
+      "successful_steps": 5,
+      "total_steps": 7,
+      "journey_steps": {
+        "discovery": true,
+        "exploration": true,
+        "registration": false,
+        "testing": true,
+        "whatsapp_simulation": true,
+        "reliability_check": false,
+        "final_decision": true
+      },
+      "client_data": {
+        "name": "João Santos - Advocacia - 35ae91bb",
+        "phone": "551135ae91bb",
+        "email": "cliente35ae91bb@teste.com",
+        "business": "Empresa de Testes Ltda"
+      },
+      "detailed_interactions": [
+        {
+          "step": "discovery",
+          "action": "Primeiro acesso ao sistema",
+          "success": true,
+          "details": "Site carregou em 0.73s",
+          "timestamp": "2025-09-18T13:13:42.022574"
+        },
+        {
+          "step": "discovery",
+          "action": "Verificação da documentação",
+          "success": true,
+          "details": "Cliente impressionado com documentação profissional",
+          "timestamp": "2025-09-18T13:13:42.184237"
+        },
+        {
+          "step": "discovery",
+          "action": "Verificação de funcionamento",
+          "success": true,
+          "details": "Sistema com métricas ativas - parece confiável",
+          "timestamp": "2025-09-18T13:13:42.789968"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Agendamentos",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:42.946234"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Conversas WhatsApp",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:43.102946"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Gestão de Clientes",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:43.255214"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Informações do Negócio",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:43.406408"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Relatórios e Analytics",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:43.558991"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Integração WhatsApp",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:43.711050"
+        },
+        {
+          "step": "exploration",
+          "action": "Avaliação geral",
+          "success": true,
+          "details": "Cliente encontrou 6 funcionalidades interessantes!",
+          "timestamp": "2025-09-18T13:13:43.711066"
+        },
+        {
+          "step": "registration",
+          "action": "Tentativa de cadastro",
+          "success": false,
+          "details": "Endpoint não respondeu adequadamente - Status: 401",
+          "timestamp": "2025-09-18T13:13:43.861924"
+        },
+        {
+          "step": "registration",
+          "action": "Tentativa de login",
+          "success": true,
+          "details": "Sistema processou tentativa de login adequadamente",
+          "timestamp": "2025-09-18T13:13:44.012843"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de perfil",
+          "success": true,
+          "details": "Sistema de perfil está funcionando",
+          "timestamp": "2025-09-18T13:13:44.164813"
+        },
+        {
+          "step": "testing",
+          "action": "Criação de agendamento",
+          "success": true,
+          "details": "Sistema de agendamentos está ativo",
+          "timestamp": "2025-09-18T13:13:44.318945"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de conversas",
+          "success": true,
+          "details": "Sistema de conversas WhatsApp funcionando",
+          "timestamp": "2025-09-18T13:13:44.474106"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de analytics",
+          "success": true,
+          "details": "Sistema de relatórios funcionando",
+          "timestamp": "2025-09-18T13:13:44.627855"
+        },
+        {
+          "step": "testing",
+          "action": "Avaliação das funcionalidades",
+          "success": true,
+          "details": "Cliente testou 4/4 funcionalidades com sucesso",
+          "timestamp": "2025-09-18T13:13:44.627874"
+        },
+        {
+          "step": "whatsapp_sim",
+          "action": "Webhook WhatsApp processado",
+          "success": true,
+          "details": "Sistema processou mensagem WhatsApp corretamente!",
+          "timestamp": "2025-09-18T13:13:44.780129"
+        },
+        {
+          "step": "whatsapp_sim",
+          "action": "Verificação de conversa criada",
+          "success": true,
+          "details": "Sistema mantém registro das conversas",
+          "timestamp": "2025-09-18T13:13:45.940118"
+        },
+        {
+          "step": "reliability",
+          "action": "Sistema monitorado",
+          "success": true,
+          "details": "Cliente vê que sistema é profissionalmente monitorado",
+          "timestamp": "2025-09-18T13:13:46.541519"
+        },
+        {
+          "step": "reliability",
+          "action": "Teste de estabilidade",
+          "success": false,
+          "details": "Sistema estável em 60.0% das requisições",
+          "timestamp": "2025-09-18T13:13:47.331772"
+        },
+        {
+          "step": "decision",
+          "action": "Decisão de usar o sistema",
+          "success": true,
+          "details": "Cliente satisfeito - 90.5% de sucesso nas interações",
+          "timestamp": "2025-09-18T13:13:47.331808"
+        }
+      ]
+    },
+    {
+      "client_satisfied": true,
+      "success_rate": 0.85,
+      "total_interactions": 20,
+      "successful_interactions": 17,
+      "successful_steps": 4,
+      "total_steps": 7,
+      "journey_steps": {
+        "discovery": false,
+        "exploration": true,
+        "registration": false,
+        "testing": true,
+        "whatsapp_simulation": true,
+        "reliability_check": false,
+        "final_decision": true
+      },
+      "client_data": {
+        "name": "Ana Costa - Estética - d5ae09a0",
+        "phone": "5511d5ae09a0",
+        "email": "cliented5ae09a0@teste.com",
+        "business": "Empresa de Testes Ltda"
+      },
+      "detailed_interactions": [
+        {
+          "step": "discovery",
+          "action": "Primeiro acesso ao sistema",
+          "success": false,
+          "details": "Site carregou em 0.96s",
+          "timestamp": "2025-09-18T13:13:50.297173"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Agendamentos",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:50.451287"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Conversas WhatsApp",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:50.611105"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Gestão de Clientes",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:50.772373"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Informações do Negócio",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:50.924836"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Relatórios e Analytics",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:51.077297"
+        },
+        {
+          "step": "exploration",
+          "action": "Descobriu: Integração WhatsApp",
+          "success": true,
+          "details": "Cliente animado com essa funcionalidade!",
+          "timestamp": "2025-09-18T13:13:51.227826"
+        },
+        {
+          "step": "exploration",
+          "action": "Avaliação geral",
+          "success": true,
+          "details": "Cliente encontrou 6 funcionalidades interessantes!",
+          "timestamp": "2025-09-18T13:13:51.227845"
+        },
+        {
+          "step": "registration",
+          "action": "Tentativa de cadastro",
+          "success": false,
+          "details": "Endpoint não respondeu adequadamente - Status: 401",
+          "timestamp": "2025-09-18T13:13:51.379904"
+        },
+        {
+          "step": "registration",
+          "action": "Tentativa de login",
+          "success": true,
+          "details": "Sistema processou tentativa de login adequadamente",
+          "timestamp": "2025-09-18T13:13:51.532198"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de perfil",
+          "success": true,
+          "details": "Sistema de perfil está funcionando",
+          "timestamp": "2025-09-18T13:13:51.688469"
+        },
+        {
+          "step": "testing",
+          "action": "Criação de agendamento",
+          "success": true,
+          "details": "Sistema de agendamentos está ativo",
+          "timestamp": "2025-09-18T13:13:51.841689"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de conversas",
+          "success": true,
+          "details": "Sistema de conversas WhatsApp funcionando",
+          "timestamp": "2025-09-18T13:13:51.995409"
+        },
+        {
+          "step": "testing",
+          "action": "Consulta de analytics",
+          "success": true,
+          "details": "Sistema de relatórios funcionando",
+          "timestamp": "2025-09-18T13:13:52.148037"
+        },
+        {
+          "step": "testing",
+          "action": "Avaliação das funcionalidades",
+          "success": true,
+          "details": "Cliente testou 4/4 funcionalidades com sucesso",
+          "timestamp": "2025-09-18T13:13:52.148058"
+        },
+        {
+          "step": "whatsapp_sim",
+          "action": "Webhook WhatsApp processado",
+          "success": true,
+          "details": "Sistema processou mensagem WhatsApp corretamente!",
+          "timestamp": "2025-09-18T13:13:52.299687"
+        },
+        {
+          "step": "whatsapp_sim",
+          "action": "Verificação de conversa criada",
+          "success": true,
+          "details": "Sistema mantém registro das conversas",
+          "timestamp": "2025-09-18T13:13:53.457548"
+        },
+        {
+          "step": "reliability",
+          "action": "Sistema monitorado",
+          "success": true,
+          "details": "Cliente vê que sistema é profissionalmente monitorado",
+          "timestamp": "2025-09-18T13:13:54.065822"
+        },
+        {
+          "step": "reliability",
+          "action": "Teste de estabilidade",
+          "success": false,
+          "details": "Sistema estável em 0.0% das requisições",
+          "timestamp": "2025-09-18T13:13:54.816153"
+        },
+        {
+          "step": "decision",
+          "action": "Decisão de usar o sistema",
+          "success": true,
+          "details": "Cliente satisfeito - 84.2% de sucesso nas interações",
+          "timestamp": "2025-09-18T13:13:54.816197"
+        }
+      ]
+    }
+  ]
+}
