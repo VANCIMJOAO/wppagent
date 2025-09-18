@@ -1,0 +1,34 @@
+{
+  "test_id": "292b47a4",
+  "timestamp": "2025-09-18T15:30:05.775709",
+  "client_data": {
+    "nome": "Luara Viana",
+    "telefone": "+5567913084675",
+    "email": "sofiapinto@example.net",
+    "cidade": "Câmara",
+    "estado": "Amazonas",
+    "idade": 57,
+    "preferencias": {
+      "horario_preferido": "noite",
+      "servico_preferido": "corte_barba",
+      "dia_preferido": "sabado"
+    }
+  },
+  "server_url": "https://wppagent-production-app-production.up.railway.app",
+  "results": {
+    "health_check": false,
+    "authentication": false,
+    "whatsapp_simulation": true,
+    "conversation_flow": true,
+    "appointment_creation": true,
+    "ai_processing": true,
+    "lead_scoring": true,
+    "analytics": true,
+    "notifications": true,
+    "file_processing": true,
+    "websocket": false
+  },
+  "success_rate": 72.72727272727273,
+  "total_tests": 11,
+  "passed_tests": 8
+}

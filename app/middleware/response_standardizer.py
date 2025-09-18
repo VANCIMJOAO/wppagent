@@ -39,8 +39,10 @@ class ApiResponseMiddleware(BaseHTTPMiddleware):
             "/redoc",
             "/openapi.json",
             "/health",
+            "/ping",  # Railway healthcheck endpoint
             "/static",
             "/webhook",  # Webhook precisa retornar formato específico
+            "/meta",  # Meta webhook endpoints
         }
 
     async def dispatch(self, request: Request, call_next):
@@ -149,8 +151,10 @@ class ResponseStandardizerConfig:
             "/redoc",
             "/openapi.json",
             "/health",
+            "/ping",  # Railway healthcheck endpoint
             "/static",
             "/webhook",
+            "/meta",  # Meta webhook endpoints
             "/metrics",
             "/favicon.ico",
         }

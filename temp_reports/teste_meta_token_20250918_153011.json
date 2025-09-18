@@ -1,0 +1,32 @@
+{
+  "test_id": "fa4e8816",
+  "timestamp": "2025-09-18T15:30:11.290581",
+  "server_url": "https://wppagent-production-app-production.up.railway.app",
+  "phone_id": "728348237027885",
+  "test_phone": "+5527926874551",
+  "results": {
+    "webhook_verification": true,
+    "webhook_security": true,
+    "token_valid_token": false,
+    "token_invalid_token": false,
+    "token_expired_token": false,
+    "token_malformed_token": false,
+    "token_empty_token": false,
+    "token_short_token": false,
+    "message_sending": true,
+    "meta_integration": true,
+    "token_refresh": true
+  },
+  "success_rate": 45.45454545454545,
+  "total_tests": 11,
+  "passed_tests": 5,
+  "token_analysis": {
+    "token_valid_token": false,
+    "token_invalid_token": false,
+    "token_expired_token": false,
+    "token_malformed_token": false,
+    "token_empty_token": false,
+    "token_short_token": false,
+    "token_refresh": true
+  }
+}

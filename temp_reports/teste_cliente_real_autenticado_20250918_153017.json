@@ -1,0 +1,35 @@
+{
+  "test_id": "0e726ffa",
+  "timestamp": "2025-09-18T15:30:17.530036",
+  "client_data": {
+    "nome": "Srta. Luana da Rocha",
+    "telefone": "+5519943487237",
+    "email": "stephany81@example.org",
+    "cidade": "Camargo",
+    "estado": "Acre",
+    "idade": 22,
+    "preferencias": {
+      "horario_preferido": "noite",
+      "servico_preferido": "barba",
+      "dia_preferido": "segunda"
+    }
+  },
+  "server_url": "https://wppagent-production-app-production.up.railway.app",
+  "results": {
+    "health_check_public": false,
+    "public_endpoints": true,
+    "whatsapp_webhook_public": true,
+    "documentation": true,
+    "health_detailed": false,
+    "metrics": true,
+    "cors": true,
+    "websocket": false,
+    "system_info": true,
+    "public_health": false
+  },
+  "success_rate": 60.0,
+  "total_tests": 10,
+  "passed_tests": 6,
+  "core_features": 2,
+  "api_features": 3
+}
