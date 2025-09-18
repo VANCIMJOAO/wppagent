@@ -511,8 +511,9 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
 else:
     logger.warning("HTTPS Middleware not available")
 
-# 🔒 Adicionar middleware de autenticação e autorização
+# 🔒 Adicionar middleware de autenticação e autorização (PRIMEIRO - antes de rate limiting)
 app.add_middleware(AuthMiddleware)
+logger.info("🔒 AuthMiddleware ativado - PRIMEIRO na ordem de execução")
 
 # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
 logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
