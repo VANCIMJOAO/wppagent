@@ -581,6 +581,10 @@ except Exception as e:
 # Incluir rotas
 app.include_router(webhook_router, tags=["webhook"])
 
+# Meta webhook específico (sem JWT)
+from app.routes.meta_webhook import router as meta_webhook_router
+app.include_router(meta_webhook_router, tags=["Meta Webhook"])
+
 # Debug webhook (TEMPORÁRIO - remover em produção)
 from app.routes.debug_webhook import router as debug_webhook_router
 
