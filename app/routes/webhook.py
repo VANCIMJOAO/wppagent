@@ -333,6 +333,106 @@ async def receive_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         return {"status": "error", "error": str(e)}
 
 
+@router.post("/test", summary="Endpoint de teste para webhooks sem validação de assinatura")
+@log_performance("webhook.test")
+async def receive_webhook_test(request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    WEBHOOK DE TESTE - SEM VALIDACAO DE ASSINATURA
+    
+    Este endpoint é específico para testes e desenvolvimento.
+    NÃO deve ser usado em produção pois não valida assinaturas.
+    
+    Permite testar o processamento de webhooks do Meta diretamente
+    sem a necessidade de configurar assinaturas X-Hub-Signature-256.
+    """
+    try:
+        logger.info(
+            "🧪 TEST WEBHOOK: Recebendo webhook de teste sem validação",
+            metadata={
+                "client_ip": request.client.host if request.client else None,
+                "user_agent": request.headers.get("user-agent", ""),
+                "endpoint": "/webhook/test",
+            },
+            category=LogCategory.WEBHOOK,
+        )
+
+        # Obter dados do webhook (sem validação de assinatura)
+        raw_data = await request.json()
+
+        # Log estruturado do webhook recebido
+        logger.info(
+            "TEST WEBHOOK: Dados recebidos",
+            metadata={
+                "webhook_size": len(json.dumps(raw_data)),
+                "entries_count": len(raw_data.get("entry", [])),
+                "client_ip": request.client.host if request.client else None,
+                "webhook_preview": json.dumps(raw_data, indent=2)[:500],
+            },
+            category=LogCategory.WEBHOOK,
+        )
+
+        # Log para auditoria
+        log_entry = MetaLog(
+            direction="in",
+            endpoint="/webhook/test",
+            method="POST",
+            status_code=200,
+            payload=raw_data,
+            headers=dict(request.headers) if hasattr(request, "headers") else None,
+        )
+        
+        db.add(log_entry)
+        await db.commit()
+
+        # Processar mensagens (mesmo código do webhook principal)
+        total_processed = 0
+        total_blocked = 0
+
+        if "entry" in raw_data:
+            for entry in raw_data["entry"]:
+                if "changes" in entry:
+                    for change in entry["changes"]:
+                        if "value" in change and "messages" in change["value"]:
+                            for message in change["value"]["messages"]:
+                                result = await process_single_message(message, db)
+                                if result.get("processed"):
+                                    total_processed += 1
+                                else:
+                                    total_blocked += 1
+
+        logger.info(
+            "TEST WEBHOOK: Processamento concluído",
+            metadata={
+                "total_processed": total_processed,
+                "total_blocked": total_blocked,
+                "endpoint": "/webhook/test",
+            },
+            category=LogCategory.WEBHOOK,
+        )
+
+        return {
+            "status": "success",
+            "processed": total_processed,
+            "blocked": total_blocked,
+            "timestamp": datetime.utcnow().isoformat(),
+            "test_mode": True,
+        }
+
+    except Exception as e:
+        logger.error(
+            "TEST WEBHOOK: Falha no processamento",
+            metadata={
+                "error_type": e.__class__.__name__,
+                "client_ip": request.client.host if request.client else None,
+                "endpoint": "/webhook/test",
+            },
+            category=LogCategory.WEBHOOK,
+            exception=e,
+        )
+
+        return {"status": "error", "error": str(e), "test_mode": True}
+
+
 @log_performance("webhook.process_message")
 async def process_single_message(
     message_data: Dict[str, Any], db: AsyncSession
