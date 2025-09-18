@@ -40,7 +40,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/ping",  # Railway healthcheck endpoint
             "/docs",
             "/openapi.json",
-            "/webhook",  # WhatsApp webhook
+            "/webhook",  # WhatsApp webhook - prefixo genérico
+            "/api/v1/webhooks",  # WhatsApp webhook - rota completa
             "/auth/login",
             "/admin/login",  # Admin login endpoint
             "/admin/create-initial-admin",  # TEMPORÁRIO: Criar admin inicial

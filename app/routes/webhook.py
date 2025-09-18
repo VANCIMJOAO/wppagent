@@ -578,7 +578,7 @@ async def verify_webhook(
     """Verificação do webhook do WhatsApp com logging estruturado"""
 
     # Verificar token (use uma variável de ambiente em produção)
-    expected_token = "your_verify_token_here"  # TODO: Mover para config
+    expected_token = "whatsapp_webhook_verify_token"  # Token configurado no Meta
 
     if hub_mode == "subscribe" and hub_verify_token == expected_token:
         logger.info(
