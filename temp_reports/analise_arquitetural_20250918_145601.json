@@ -1,0 +1,1398 @@
+{
+  "timestamp": "2025-09-18T14:56:01.799724",
+  "analysis_type": "complete_architecture",
+  "file_analysis": {
+    "app/main.py": {
+      "file": "app/main.py",
+      "description": "Arquivo principal da aplicação - configuração de routers e middleware",
+      "size": 70674,
+      "lines": 1924,
+      "content_preview": "\"\"\"\nAplicação principal WhatsApp Agent API\n\"\"\"\n\nimport asyncio\nimport logging\nfrom contextlib import asynccontextmanager\nfrom datetime import datetime\n\nimport uvicorn\nfrom fastapi import FastAPI, HTTPException\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom fastapi.responses import JSONResponse, Response\n\nfrom app.config import settings\nfrom app.config.config_factory import is_development\nfrom app.database import init_db\nfrom app.middleware.request_logging import add_request_logging_midd",
+      "exists": true
+    },
+    "app/auth/middleware.py": {
+      "file": "app/auth/middleware.py",
+      "description": "Middleware de autenticação - lógica de endpoints públicos",
+      "size": 13162,
+      "lines": 353,
+      "content_preview": "\"\"\"\nMiddleware de autenticação e autorização integrado - CORRIGIDO\nCombina JWT, 2FA, Rate Limiting e Secrets Management\n\"\"\"\n\nimport json\nimport logging\nfrom datetime import datetime, timezone\nfrom typing import Dict, List, Optional\n\nfrom fastapi import Depends, HTTPException, Request\nfrom fastapi.responses import JSONResponse\nfrom fastapi.security import HTTPAuthorizationCredentials, HTTPBearer\nfrom starlette.middleware.base import BaseHTTPMiddleware\n\nfrom app.config.redis_config import redis_ma",
+      "exists": true
+    },
+    "app/routes/meta_webhook.py": {
+      "file": "app/routes/meta_webhook.py",
+      "description": "Router específico do Meta webhook",
+      "size": 2316,
+      "lines": 63,
+      "content_preview": "\"\"\"\nWEBHOOK META PRODUCTION - SEM VALIDAÇÃO JWT\n============================================\nEndpoint específico para Meta webhook em produção\n\"\"\"\n\nfrom fastapi import APIRouter, Request, Query\nfrom fastapi.responses import PlainTextResponse\nimport hmac\nimport hashlib\nimport json\nfrom typing import Dict, Any\n\nrouter = APIRouter(prefix=\"/meta\", tags=[\"Meta Webhook\"])\n\n@router.get(\"/webhook/verify\")\nasync def verify_meta_webhook(\n    hub_mode: str = Query(None, alias=\"hub.mode\"),\n    hub_challenge",
+      "exists": true
+    },
+    "app/routes/webhook.py": {
+      "file": "app/routes/webhook.py",
+      "description": "Router principal de webhooks",
+      "size": 30590,
+      "lines": 878,
+      "content_preview": "\"\"\"\n🔧 WEBHOOK SIMPLIFICADO COM SISTEMA UNIFICADO\n============================================\n\nVersão limpa e otimizada que usa apenas o sistema unificado de controle,\neliminando sobreposições e redundâncias.\n\"\"\"\n\nimport asyncio\nimport json\nimport time  # ✅ Para métricas de performance\nfrom datetime import datetime\nfrom typing import Any, Dict, Optional\n\nfrom fastapi import APIRouter, Depends, HTTPException, Query, Request\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom app.database import",
+      "exists": true
+    },
+    "app/routes/debug_middleware.py": {
+      "file": "app/routes/debug_middleware.py",
+      "description": "Router de debug do middleware (recém criado)",
+      "size": 1750,
+      "lines": 49,
+      "content_preview": "\"\"\"\nDebug endpoint temporário para verificar configuração do middleware\n\"\"\"\n\nfrom fastapi import APIRouter\nfrom app.auth.middleware import AuthenticationMiddleware\n\nrouter = APIRouter(prefix=\"/debug\", tags=[\"Debug\"])\n\n@router.get(\"/public-endpoints\")\nasync def get_public_endpoints():\n    \"\"\"Retorna lista de endpoints públicos configurados no middleware\"\"\"\n    # Simular instância do middleware para pegar endpoints\n    middleware = AuthenticationMiddleware(app=None, secrets_manager=None)\n    \n    ",
+      "exists": true
+    },
+    "app/config.py": {
+      "file": "app/config.py",
+      "description": "Configurações da aplicação",
+      "size": 3852,
+      "lines": 122,
+      "content_preview": "from app.utils.logger import get_logger\n\nlogger = get_logger(__name__)\n\"\"\"\nConfigurações da aplicação usando Sistema Robusto por Ambiente\nDEPRECATED: Este arquivo será substituído pelo novo sistema de configuração\n\"\"\"\n\n# Import do novo sistema\nfrom .config.config_factory import (\n    get_database_url,\n    get_settings,\n    is_development,\n    is_production,\n)\n\n# Manter compatibilidade com código existente\nsettings = get_settings()\n\n\n# Para compatibilidade, manter algumas propriedades\nclass Compa",
+      "exists": true
+    },
+    "railway.toml": {
+      "file": "railway.toml",
+      "description": "Configuração do Railway",
+      "size": 475,
+      "lines": 22,
+      "content_preview": "# 🚄 Railway.app Configuration\n# Deployment configuration for Railway platform\n\n[build]\nbuilder = \"DOCKERFILE\"\ndockerfilePath = \"Dockerfile\"\n\n[deploy]\nhealthcheckPath = \"/ping\"\nhealthcheckTimeout = 120\nrestartPolicyType = \"ON_FAILURE\"\nrestartPolicyMaxRetries = 3\n\n[env]\n# Railway auto-provides PORT, but we can set defaults\nPYTHONUNBUFFERED = \"1\"\nPYTHONDONTWRITEBYTECODE = \"1\"\nRAILWAY_FAST_START = \"true\"\n\n[build.args]\n# Build arguments for Railway\nBUILDKIT_INLINE_CACHE = \"1\"",
+      "exists": true
+    },
+    "Dockerfile": {
+      "file": "Dockerfile",
+      "description": "Configuração do container",
+      "size": 1055,
+      "lines": 39,
+      "content_preview": "# 🐳 Dockerfile with Security Headers and Resilient Image Pull\n# Using specific digest for Railway deployment reliability\nFROM python:3.11-slim@sha256:a0939570b38cddeb861b8e75d20b1c8218b21562b18f301171904b544e8cf228\n\n# Security: Create non-root user\nRUN useradd --create-home --shell /bin/bash app\n\n# Set working directory\nWORKDIR /app\n\n# Copy requirements first for better caching\nCOPY requirements.txt .\n\n# Install dependencies\nRUN pip install --no-cache-dir -r requirements.txt\n\n# Copy application ",
+      "exists": true
+    },
+    "requirements.txt": {
+      "file": "requirements.txt",
+      "description": "Dependências Python",
+      "size": 1484,
+      "lines": 88,
+      "content_preview": "# Core Framework\nfastapi==0.115.9\nuvicorn[standard]==0.35.0\n\n# Database\nsqlalchemy==2.0.23\nasyncpg==0.30.0\npsycopg2-binary==2.9.9\nalembic==1.12.1\n\n# AI & External APIs\nopenai==1.97.1\nrequests==2.32.4\nhttpx==0.28.1\ncrewai==0.150.0\n\n# Dashboard\nstreamlit==1.39.0\nstreamlit-authenticator==0.2.3\npandas>=2.2.0\n\n# Cache\nredis[hiredis]>=4.0.0\nplotly==5.17.0\n\n# PDF & Reports Generation\nreportlab>=4.0.0\nopenpyxl>=3.1.0\nxlsxwriter>=3.1.0\n\n# Scheduling & Background Tasks\nAPScheduler==3.10.4\n\n# Configuration",
+      "exists": true
+    }
+  },
+  "middleware_search": {
+    "public_endpoints_definition": [
+      {
+        "line_number": 38,
+        "line_content": "self.public_endpoints = {",
+        "context": [
+          "        # 🔐 Endpoints que NÃO requerem autenticação (apenas públicos legítimos)",
+          "        self.public_endpoints = {",
+          "            \"/health\",",
+          "            \"/ping\",  # Railway healthcheck endpoint"
+        ]
+      }
+    ],
+    "meta_endpoint": [
+      {
+        "line_number": 45,
+        "line_content": "\"/meta\",  # Meta webhook específico - SEM JWT",
+        "context": [
+          "            \"/webhook/test\",  # WhatsApp webhook - endpoint de teste",
+          "            \"/meta\",  # Meta webhook específico - SEM JWT",
+          "            \"/meta/webhook\",  # Meta webhook específico - rota completa",
+          "            \"/debug\",  # Debug endpoints (TEMPORÁRIO)"
+        ]
+      }
+    ],
+    "middleware_class": [],
+    "dispatch_method": [
+      {
+        "line_number": 71,
+        "line_content": "async def dispatch(self, request: Request, call_next):",
+        "context": [
+          "",
+          "    async def dispatch(self, request: Request, call_next):",
+          "        \"\"\"Middleware principal\"\"\"",
+          ""
+        ]
+      }
+    ],
+    "is_public_endpoint": [
+      {
+        "line_number": 176,
+        "line_content": "def _is_public_endpoint(self, path: str) -> bool:",
+        "context": [
+          "",
+          "    def _is_public_endpoint(self, path: str) -> bool:",
+          "        \"\"\"Verifica se endpoint é público\"\"\"",
+          "        # 🔐 AUTENTICAÇÃO REAL IMPLEMENTADA"
+        ]
+      }
+    ],
+    "middleware_instantiation": [],
+    "app_add_middleware": []
+  },
+  "main_search": {
+    "middleware_import": [],
+    "middleware_add": [
+      {
+        "line_number": 448,
+        "line_content": "app.add_middleware(APMMiddleware)",
+        "context": [
+          "# 🔍 Adicionar middleware APM (segundo para capturar todas as requests)",
+          "app.add_middleware(APMMiddleware)",
+          "logger.info(\"APM Middleware activated - Request tracking enabled\")",
+          ""
+        ]
+      },
+      {
+        "line_number": 455,
+        "line_content": "app.add_middleware(DatabasePerformanceMiddleware)",
+        "context": [
+          "",
+          "    app.add_middleware(DatabasePerformanceMiddleware)",
+          "    logger.info(",
+          "        \"🚀 PF-001 - Database Performance Middleware ativado: monitoramento de N+1 queries\""
+        ]
+      },
+      {
+        "line_number": 474,
+        "line_content": "app.add_middleware(CSPMiddleware, report_only=False)",
+        "context": [
+          "if CSP_MIDDLEWARE_AVAILABLE:",
+          "    app.add_middleware(CSPMiddleware, report_only=False)",
+          "    logger.info(\"CSP Middleware added successfully\")",
+          "else:"
+        ]
+      },
+      {
+        "line_number": 501,
+        "line_content": "app.add_middleware(",
+        "context": [
+          "if HTTPS_MIDDLEWARE_AVAILABLE:",
+          "    app.add_middleware(",
+          "        HTTPSMiddleware,",
+          "        force_https=not is_development(),  # Forçar HTTPS apenas em produção"
+        ]
+      },
+      {
+        "line_number": 515,
+        "line_content": "app.add_middleware(AuthMiddleware)",
+        "context": [
+          "# 🔒 Adicionar middleware de autenticação e autorização",
+          "app.add_middleware(AuthMiddleware)",
+          "",
+          "# 🛡️ H003 - Adicionar middleware de rate limiting para webhooks"
+        ]
+      },
+      {
+        "line_number": 523,
+        "line_content": "app.add_middleware(WebhookRateLimitMiddleware)",
+        "context": [
+          "    logger.info(\"🔍 H003 Debug: Import realizado com sucesso\")",
+          "    app.add_middleware(WebhookRateLimitMiddleware)",
+          "    logger.info(\"🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP\")",
+          "except ImportError as e:"
+        ]
+      },
+      {
+        "line_number": 541,
+        "line_content": "#     app.add_middleware(H003SimpleMiddleware)",
+        "context": [
+          "#     logger.info(\"🔍 H003 Debug: Import H003Simple realizado com sucesso\")",
+          "#     app.add_middleware(H003SimpleMiddleware)",
+          "#     logger.info(\"🛡️ H003 Simple Test middleware ativado - teste de funcionamento\")",
+          "# except ImportError as e:"
+        ]
+      },
+      {
+        "line_number": 556,
+        "line_content": "app.add_middleware(UserRateLimitMiddleware)",
+        "context": [
+          "",
+          "    app.add_middleware(UserRateLimitMiddleware)",
+          "    logger.info(\"✅ User Rate Limiting middleware ativado\")",
+          "except ImportError as e:"
+        ]
+      },
+      {
+        "line_number": 566,
+        "line_content": "app.add_middleware(MetricsMiddleware)",
+        "context": [
+          "# Adicionar middleware de métricas (último para capturar todas as requests)",
+          "app.add_middleware(MetricsMiddleware)",
+          "",
+          "# 🔄 C002 - Middleware de Padronização de Response Schemas"
+        ]
+      },
+      {
+        "line_number": 572,
+        "line_content": "app.add_middleware(ApiResponseMiddleware)",
+        "context": [
+          "",
+          "    app.add_middleware(ApiResponseMiddleware)",
+          "    logger.info(",
+          "        \"✅ C002 - ApiResponseMiddleware ativado: responses padronizados {success, data, error}\""
+        ]
+      }
+    ],
+    "router_includes": [
+      {
+        "line_number": 582,
+        "line_content": "app.include_router(webhook_router, tags=[\"webhook\"])",
+        "context": [
+          "# Incluir rotas",
+          "app.include_router(webhook_router, tags=[\"webhook\"])",
+          "",
+          "# Meta webhook específico (sem JWT)"
+        ]
+      },
+      {
+        "line_number": 586,
+        "line_content": "app.include_router(meta_webhook_router, tags=[\"Meta Webhook\"])",
+        "context": [
+          "from app.routes.meta_webhook import router as meta_webhook_router",
+          "app.include_router(meta_webhook_router, tags=[\"Meta Webhook\"])",
+          "",
+          "# Debug webhook (TEMPORÁRIO - remover em produção)"
+        ]
+      },
+      {
+        "line_number": 591,
+        "line_content": "app.include_router(debug_webhook_router, tags=[\"Debug\"])",
+        "context": [
+          "",
+          "app.include_router(debug_webhook_router, tags=[\"Debug\"])",
+          "",
+          "# Debug middleware (TEMPORÁRIO - remover em produção)"
+        ]
+      },
+      {
+        "line_number": 596,
+        "line_content": "app.include_router(debug_middleware_router, tags=[\"Debug Middleware\"])",
+        "context": [
+          "",
+          "app.include_router(debug_middleware_router, tags=[\"Debug Middleware\"])",
+          "",
+          "# 🔒 Incluir rotas de autenticação e segurança"
+        ]
+      },
+      {
+        "line_number": 601,
+        "line_content": "app.include_router(auth_router, prefix=\"/auth\", tags=[\"Authentication\"])",
+        "context": [
+          "",
+          "app.include_router(auth_router, prefix=\"/auth\", tags=[\"Authentication\"])",
+          "",
+          "from app.routes.secrets import router as secrets_router"
+        ]
+      },
+      {
+        "line_number": 605,
+        "line_content": "app.include_router(secrets_router, prefix=\"/secrets\", tags=[\"Secrets Management\"])",
+        "context": [
+          "",
+          "app.include_router(secrets_router, prefix=\"/secrets\", tags=[\"Secrets Management\"])",
+          "",
+          "# 🔐 Incluir rotas de segurança e criptografia"
+        ]
+      },
+      {
+        "line_number": 610,
+        "line_content": "app.include_router(security_router, prefix=\"/security\", tags=[\"Security & Encryption\"])",
+        "context": [
+          "",
+          "app.include_router(security_router, prefix=\"/security\", tags=[\"Security & Encryption\"])",
+          "",
+          "# 🛡️ Incluir CSP Security Reporter"
+        ]
+      },
+      {
+        "line_number": 615,
+        "line_content": "app.include_router(csp_security_router, tags=[\"CSP Security\"])",
+        "context": [
+          "",
+          "app.include_router(csp_security_router, tags=[\"CSP Security\"])",
+          "",
+          "# 🔍 Incluir CSP Testing Routes"
+        ]
+      },
+      {
+        "line_number": 620,
+        "line_content": "app.include_router(csp_testing_router, tags=[\"CSP Testing\"])",
+        "context": [
+          "",
+          "app.include_router(csp_testing_router, tags=[\"CSP Testing\"])",
+          "",
+          "# Incluir rotas de administração de estratégias"
+        ]
+      },
+      {
+        "line_number": 625,
+        "line_content": "app.include_router(strategy_admin_router, tags=[\"Strategy Management\"])",
+        "context": [
+          "",
+          "app.include_router(strategy_admin_router, tags=[\"Strategy Management\"])",
+          "",
+          "# Incluir rotas de monitoramento de custos"
+        ]
+      },
+      {
+        "line_number": 629,
+        "line_content": "# app.include_router(cost_router, tags=[\"Cost Monitoring\"])",
+        "context": [
+          "# from app.routes.cost_monitoring import router as cost_router",
+          "# app.include_router(cost_router, tags=[\"Cost Monitoring\"])",
+          "",
+          "# Incluir rotas de autenticação admin"
+        ]
+      },
+      {
+        "line_number": 634,
+        "line_content": "app.include_router(auth_router, tags=[\"Admin Authentication\"])",
+        "context": [
+          "",
+          "app.include_router(auth_router, tags=[\"Admin Authentication\"])",
+          "",
+          "# 🔒 H003 - Incluir rotas administrativas de rate limiting webhook"
+        ]
+      },
+      {
+        "line_number": 640,
+        "line_content": "app.include_router(h003_admin_router, tags=[\"H003 Rate Limiting\"])",
+        "context": [
+          "",
+          "    app.include_router(h003_admin_router, tags=[\"H003 Rate Limiting\"])",
+          "    logger.info(\"✅ H003 Admin routes carregadas\")",
+          "except ImportError as e:"
+        ]
+      },
+      {
+        "line_number": 648,
+        "line_content": "app.include_router(db_optimization_router, tags=[\"Database Optimization\"])",
+        "context": [
+          "",
+          "app.include_router(db_optimization_router, tags=[\"Database Optimization\"])",
+          "",
+          "# 🔍 OM001/OM003 - Incluir rotas de observabilidade completa"
+        ]
+      },
+      {
+        "line_number": 654,
+        "line_content": "app.include_router(health_detailed_router, tags=[\"OM001 Health Monitoring\"])",
+        "context": [
+          "",
+          "    app.include_router(health_detailed_router, tags=[\"OM001 Health Monitoring\"])",
+          "",
+          "    from app.services.alerting import router as alerting_router"
+        ]
+      },
+      {
+        "line_number": 658,
+        "line_content": "app.include_router(alerting_router, tags=[\"OM003 Alert System\"])",
+        "context": [
+          "",
+          "    app.include_router(alerting_router, tags=[\"OM003 Alert System\"])",
+          "",
+          "    logger.info("
+        ]
+      },
+      {
+        "line_number": 672,
+        "line_content": "app.include_router(appointments_demo_router, tags=[\"CF002 Demo\"])",
+        "context": [
+          "",
+          "    app.include_router(appointments_demo_router, tags=[\"CF002 Demo\"])",
+          "",
+          "    from app.routes.health_cf002_demo import router as health_demo_router"
+        ]
+      },
+      {
+        "line_number": 676,
+        "line_content": "app.include_router(health_demo_router, tags=[\"CF002 Demo\"])",
+        "context": [
+          "",
+          "    app.include_router(health_demo_router, tags=[\"CF002 Demo\"])",
+          "",
+          "    logger.info("
+        ]
+      },
+      {
+        "line_number": 690,
+        "line_content": "app.include_router(pd001_demo_router, tags=[\"PD001 Performance Demo\"])",
+        "context": [
+          "",
+          "    app.include_router(pd001_demo_router, tags=[\"PD001 Performance Demo\"])",
+          "",
+          "    logger.info(\"✅ PD001 - Rotas de performance demo carregadas: /performance-demo/*\")"
+        ]
+      },
+      {
+        "line_number": 701,
+        "line_content": "app.include_router(backup_router, tags=[\"Backup System\"])",
+        "context": [
+          "",
+          "app.include_router(backup_router, tags=[\"Backup System\"])",
+          "",
+          "# 📊 Sistema de Rate Limiting por Usuário"
+        ]
+      },
+      {
+        "line_number": 706,
+        "line_content": "app.include_router(rate_limit_router, tags=[\"Rate Limiting\"])",
+        "context": [
+          "",
+          "app.include_router(rate_limit_router, tags=[\"Rate Limiting\"])",
+          "",
+          "# 🛡️ Sistema de Rate Limiting para Webhooks (Avançado)"
+        ]
+      },
+      {
+        "line_number": 713,
+        "line_content": "app.include_router(",
+        "context": [
+          "",
+          "app.include_router(",
+          "    webhook_rate_limit_admin_router, tags=[\"Webhook Rate Limiting Admin\"]",
+          ")"
+        ]
+      },
+      {
+        "line_number": 721,
+        "line_content": "app.include_router(apm_monitoring_router, tags=[\"APM & Structured Logging\"])",
+        "context": [
+          "",
+          "app.include_router(apm_monitoring_router, tags=[\"APM & Structured Logging\"])",
+          "logger.info(",
+          "    \"APM and Structured Logging Dashboard activated - Real-time monitoring enabled\""
+        ]
+      },
+      {
+        "line_number": 729,
+        "line_content": "app.include_router(appointments_router, tags=[\"Dashboard - Appointments\"])",
+        "context": [
+          "",
+          "app.include_router(appointments_router, tags=[\"Dashboard - Appointments\"])",
+          "",
+          "# 🚀 PF-001 - Rotas otimizadas para appointments (eliminação de N+1 queries)"
+        ]
+      },
+      {
+        "line_number": 737,
+        "line_content": "app.include_router(",
+        "context": [
+          "",
+          "    app.include_router(",
+          "        appointments_pf001_router, tags=[\"PF-001 Optimized - Appointments\"]",
+          "    )"
+        ]
+      },
+      {
+        "line_number": 752,
+        "line_content": "app.include_router(appointments_test_router, tags=[\"PF-001 Test - No Auth\"])",
+        "context": [
+          "",
+          "    app.include_router(appointments_test_router, tags=[\"PF-001 Test - No Auth\"])",
+          "    logger.info(\"🧪 PF-001 - Rotas de teste carregadas: validação sem autenticação\")",
+          "except ImportError as e:"
+        ]
+      },
+      {
+        "line_number": 763,
+        "line_content": "app.include_router(alerts_router, tags=[\"Alert System\"])",
+        "context": [
+          "",
+          "app.include_router(alerts_router, tags=[\"Alert System\"])",
+          "",
+          "# Router público para endpoints de saúde (sem autenticação)"
+        ]
+      },
+      {
+        "line_number": 768,
+        "line_content": "app.include_router(public_router, tags=[\"Public Health\"])",
+        "context": [
+          "",
+          "app.include_router(public_router, tags=[\"Public Health\"])",
+          "",
+          "# Dashboard Routes"
+        ]
+      },
+      {
+        "line_number": 773,
+        "line_content": "app.include_router(clients_router, tags=[\"Dashboard - Clients\"])",
+        "context": [
+          "",
+          "app.include_router(clients_router, tags=[\"Dashboard - Clients\"])",
+          "",
+          "# 📊 Dashboard migrado com padrão C002"
+        ]
+      },
+      {
+        "line_number": 778,
+        "line_content": "app.include_router(dashboard_router, tags=[\"Dashboard\"])",
+        "context": [
+          "",
+          "app.include_router(dashboard_router, tags=[\"Dashboard\"])",
+          "",
+          "# 🔄 C002 - Dashboard migrado para demonstrar novo padrão"
+        ]
+      },
+      {
+        "line_number": 784,
+        "line_content": "app.include_router(dashboard_migrated_router, tags=[\"Dashboard C002 - Migrated\"])",
+        "context": [
+          "",
+          "    app.include_router(dashboard_migrated_router, tags=[\"Dashboard C002 - Migrated\"])",
+          "    logger.info(",
+          "        \"✅ C002 - Dashboard migrado incluído: demonstra padrão {success, data, error}\""
+        ]
+      },
+      {
+        "line_number": 798,
+        "line_content": "app.include_router(clients_router, tags=[\"Dashboard - Clients\"])",
+        "context": [
+          "# Conversation & messaging routes",
+          "app.include_router(clients_router, tags=[\"Dashboard - Clients\"])",
+          "",
+          "# Dashboard Analytics (executivo)"
+        ]
+      },
+      {
+        "line_number": 801,
+        "line_content": "app.include_router(analytics_router, tags=[\"Dashboard - Analytics\"])",
+        "context": [
+          "# Dashboard Analytics (executivo)",
+          "app.include_router(analytics_router, tags=[\"Dashboard - Analytics\"])",
+          "app.include_router(dashboard_analytics_router, tags=[\"Dashboard - Real Data\"])",
+          ""
+        ]
+      },
+      {
+        "line_number": 802,
+        "line_content": "app.include_router(dashboard_analytics_router, tags=[\"Dashboard - Real Data\"])",
+        "context": [
+          "app.include_router(analytics_router, tags=[\"Dashboard - Analytics\"])",
+          "app.include_router(dashboard_analytics_router, tags=[\"Dashboard - Real Data\"])",
+          "",
+          "# � DEBUG ROUTER - Para testar autenticação"
+        ]
+      },
+      {
+        "line_number": 807,
+        "line_content": "app.include_router(debug_auth_router, tags=[\"Debug\"])",
+        "context": [
+          "",
+          "app.include_router(debug_auth_router, tags=[\"Debug\"])",
+          "logger.info(\"🔧 Debug Auth Router ativado - Para troubleshooting\")",
+          ""
+        ]
+      },
+      {
+        "line_number": 813,
+        "line_content": "app.include_router(advanced_analytics_router, tags=[\"Advanced Analytics\"])",
+        "context": [
+          "",
+          "app.include_router(advanced_analytics_router, tags=[\"Advanced Analytics\"])",
+          "logger.info(\"✅ Analytics Avançadas ativadas - Business Intelligence\")",
+          ""
+        ]
+      },
+      {
+        "line_number": 820,
+        "line_content": "app.include_router(",
+        "context": [
+          "",
+          "    app.include_router(",
+          "        cache_invalidation_router, prefix=\"/cache\", tags=[\"Cache Management\"]",
+          "    )"
+        ]
+      },
+      {
+        "line_number": 832,
+        "line_content": "app.include_router(lgpd_router, tags=[\"LGPD Compliance\"])",
+        "context": [
+          "",
+          "    app.include_router(lgpd_router, tags=[\"LGPD Compliance\"])",
+          "    logger.info(\"✅ LGPD Compliance ativado - Conformidade completa\")",
+          ""
+        ]
+      },
+      {
+        "line_number": 838,
+        "line_content": "app.include_router(lgpd_dashboard_router, tags=[\"LGPD Admin\"])",
+        "context": [
+          "",
+          "    app.include_router(lgpd_dashboard_router, tags=[\"LGPD Admin\"])",
+          "    logger.info(\"✅ LGPD Dashboard ativado - Interface administrativa\")",
+          ""
+        ]
+      },
+      {
+        "line_number": 851,
+        "line_content": "app.include_router(websocket_realtime_router, tags=[\"WebSocket Real-Time\"])",
+        "context": [
+          "",
+          "    app.include_router(websocket_realtime_router, tags=[\"WebSocket Real-Time\"])",
+          "    logger.info(\"🌐 WebSocket Real-Time ativado - Chat em tempo real implementado\")",
+          "except ImportError as e:"
+        ]
+      },
+      {
+        "line_number": 865,
+        "line_content": "app.include_router(cache_router, prefix=\"\", tags=[\"Cache Management\"])",
+        "context": [
+          "",
+          "        app.include_router(cache_router, prefix=\"\", tags=[\"Cache Management\"])",
+          "        logger.info(",
+          "            \"🗂️ Cache Invalidation Manual System ativado - Gerenciamento avançado\","
+        ]
+      },
+      {
+        "line_number": 876,
+        "line_content": "app.include_router(export_router, tags=[\"Data Export\"])",
+        "context": [
+          "",
+          "app.include_router(export_router, tags=[\"Data Export\"])",
+          "logger.info(\"✅ Sistema de Exportação ativado - CSV/Excel/PDF\")",
+          ""
+        ]
+      },
+      {
+        "line_number": 882,
+        "line_content": "app.include_router(reports_router, tags=[\"Reports Export\"])",
+        "context": [
+          "",
+          "app.include_router(reports_router, tags=[\"Reports Export\"])",
+          "logger.info(\"⚠️ Sistema de Exportação de Relatórios ativado - Item 2 implementado\")",
+          ""
+        ]
+      },
+      {
+        "line_number": 888,
+        "line_content": "app.include_router(rbac_router, tags=[\"RBAC Management\"])",
+        "context": [
+          "",
+          "app.include_router(rbac_router, tags=[\"RBAC Management\"])",
+          "logger.info(",
+          "    \"⚠️ Sistema RBAC ativado - Item 2: Controle granular de permissões implementado\""
+        ]
+      },
+      {
+        "line_number": 897,
+        "line_content": "app.include_router(conversations_router, tags=[\"Dashboard - Conversations\"])",
+        "context": [
+          "logger.info(\"✅ Usando rotas de conversas com correções SQL aplicadas\")",
+          "app.include_router(conversations_router, tags=[\"Dashboard - Conversations\"])",
+          "",
+          "from app.routes.dashboard import router as dashboard_router"
+        ]
+      },
+      {
+        "line_number": 901,
+        "line_content": "app.include_router(dashboard_router, tags=[\"Dashboard - Main\"])",
+        "context": [
+          "",
+          "app.include_router(dashboard_router, tags=[\"Dashboard - Main\"])",
+          "",
+          "# 🔥 WEBSOCKET - Sistema de Tempo Real Avançado (Novo)"
+        ]
+      },
+      {
+        "line_number": 906,
+        "line_content": "app.include_router(",
+        "context": [
+          "",
+          "app.include_router(",
+          "    websocket_realtime_router, prefix=\"/api/websocket\", tags=[\"WebSocket - Real Time\"]",
+          ")"
+        ]
+      },
+      {
+        "line_number": 912,
+        "line_content": "# app.include_router(websocket_test_router, prefix=\"/api/websocket-test\", tags=[\"WebSocket - Testing\"])",
+        "context": [
+          "# from app.routes.websocket_test import router as websocket_test_router",
+          "# app.include_router(websocket_test_router, prefix=\"/api/websocket-test\", tags=[\"WebSocket - Testing\"])",
+          "# logger.info(\"🧪 Endpoints de teste WebSocket ativados\")",
+          ""
+        ]
+      },
+      {
+        "line_number": 980,
+        "line_content": "app.include_router(websocket_router_realtime, tags=[\"WebSocket - Real Time\"])",
+        "context": [
+          "",
+          "    app.include_router(websocket_router_realtime, tags=[\"WebSocket - Real Time\"])",
+          "    logger.info(\"✅ WebSocket router existente incluído\")",
+          "except ImportError:"
+        ]
+      },
+      {
+        "line_number": 988,
+        "line_content": "app.include_router(push_router, tags=[\"Push Notifications\"])",
+        "context": [
+          "",
+          "app.include_router(push_router, tags=[\"Push Notifications\"])",
+          "",
+          ""
+        ]
+      }
+    ],
+    "meta_router_import": [
+      {
+        "line_number": 585,
+        "line_content": "from app.routes.meta_webhook import router as meta_webhook_router",
+        "context": [
+          "# Meta webhook específico (sem JWT)",
+          "from app.routes.meta_webhook import router as meta_webhook_router",
+          "app.include_router(meta_webhook_router, tags=[\"Meta Webhook\"])",
+          ""
+        ]
+      }
+    ],
+    "meta_router_include": [
+      {
+        "line_number": 586,
+        "line_content": "app.include_router(meta_webhook_router, tags=[\"Meta Webhook\"])",
+        "context": [
+          "from app.routes.meta_webhook import router as meta_webhook_router",
+          "app.include_router(meta_webhook_router, tags=[\"Meta Webhook\"])",
+          "",
+          "# Debug webhook (TEMPORÁRIO - remover em produção)"
+        ]
+      }
+    ],
+    "debug_router_import": [
+      {
+        "line_number": 594,
+        "line_content": "from app.routes.debug_middleware import router as debug_middleware_router",
+        "context": [
+          "# Debug middleware (TEMPORÁRIO - remover em produção)",
+          "from app.routes.debug_middleware import router as debug_middleware_router",
+          "",
+          "app.include_router(debug_middleware_router, tags=[\"Debug Middleware\"])"
+        ]
+      }
+    ],
+    "fastapi_app_creation": [
+      {
+        "line_number": 345,
+        "line_content": "app = FastAPI(",
+        "context": [
+          "# Criar aplicação FastAPI com documentação aprimorada",
+          "app = FastAPI(",
+          "    title=\"🤖 WhatsApp Agent API\",",
+          "    description=\"\"\""
+        ]
+      }
+    ],
+    "cors_middleware": [
+      {
+        "line_number": 12,
+        "line_content": "from fastapi.middleware.cors import CORSMiddleware",
+        "context": [
+          "from fastapi import FastAPI, HTTPException",
+          "from fastapi.middleware.cors import CORSMiddleware",
+          "from fastapi.responses import JSONResponse, Response",
+          ""
+        ]
+      }
+    ]
+  },
+  "middleware_order": [
+    {
+      "line": 448,
+      "content": "app.add_middleware(APMMiddleware)",
+      "context": [
+        "# 🔍 Adicionar middleware APM (segundo para capturar todas as requests)",
+        "app.add_middleware(APMMiddleware)",
+        "logger.info(\"APM Middleware activated - Request tracking enabled\")",
+        ""
+      ]
+    },
+    {
+      "line": 455,
+      "content": "app.add_middleware(DatabasePerformanceMiddleware)",
+      "context": [
+        "",
+        "    app.add_middleware(DatabasePerformanceMiddleware)",
+        "    logger.info(",
+        "        \"🚀 PF-001 - Database Performance Middleware ativado: monitoramento de N+1 queries\""
+      ]
+    },
+    {
+      "line": 474,
+      "content": "app.add_middleware(CSPMiddleware, report_only=False)",
+      "context": [
+        "if CSP_MIDDLEWARE_AVAILABLE:",
+        "    app.add_middleware(CSPMiddleware, report_only=False)",
+        "    logger.info(\"CSP Middleware added successfully\")",
+        "else:"
+      ]
+    },
+    {
+      "line": 501,
+      "content": "app.add_middleware(",
+      "context": [
+        "if HTTPS_MIDDLEWARE_AVAILABLE:",
+        "    app.add_middleware(",
+        "        HTTPSMiddleware,",
+        "        force_https=not is_development(),  # Forçar HTTPS apenas em produção"
+      ]
+    },
+    {
+      "line": 515,
+      "content": "app.add_middleware(AuthMiddleware)",
+      "context": [
+        "# 🔒 Adicionar middleware de autenticação e autorização",
+        "app.add_middleware(AuthMiddleware)",
+        "",
+        "# 🛡️ H003 - Adicionar middleware de rate limiting para webhooks"
+      ]
+    },
+    {
+      "line": 523,
+      "content": "app.add_middleware(WebhookRateLimitMiddleware)",
+      "context": [
+        "    logger.info(\"🔍 H003 Debug: Import realizado com sucesso\")",
+        "    app.add_middleware(WebhookRateLimitMiddleware)",
+        "    logger.info(\"🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP\")",
+        "except ImportError as e:"
+      ]
+    },
+    {
+      "line": 541,
+      "content": "#     app.add_middleware(H003SimpleMiddleware)",
+      "context": [
+        "#     logger.info(\"🔍 H003 Debug: Import H003Simple realizado com sucesso\")",
+        "#     app.add_middleware(H003SimpleMiddleware)",
+        "#     logger.info(\"🛡️ H003 Simple Test middleware ativado - teste de funcionamento\")",
+        "# except ImportError as e:"
+      ]
+    },
+    {
+      "line": 556,
+      "content": "app.add_middleware(UserRateLimitMiddleware)",
+      "context": [
+        "",
+        "    app.add_middleware(UserRateLimitMiddleware)",
+        "    logger.info(\"✅ User Rate Limiting middleware ativado\")",
+        "except ImportError as e:"
+      ]
+    },
+    {
+      "line": 566,
+      "content": "app.add_middleware(MetricsMiddleware)",
+      "context": [
+        "# Adicionar middleware de métricas (último para capturar todas as requests)",
+        "app.add_middleware(MetricsMiddleware)",
+        "",
+        "# 🔄 C002 - Middleware de Padronização de Response Schemas"
+      ]
+    },
+    {
+      "line": 572,
+      "content": "app.add_middleware(ApiResponseMiddleware)",
+      "context": [
+        "",
+        "    app.add_middleware(ApiResponseMiddleware)",
+        "    logger.info(",
+        "        \"✅ C002 - ApiResponseMiddleware ativado: responses padronizados {success, data, error}\""
+      ]
+    }
+  ],
+  "import_analysis": {
+    "auth_middleware_import": [],
+    "secrets_manager_import": [],
+    "fastapi_imports": [
+      {
+        "line_number": 11,
+        "line_content": "from fastapi import FastAPI, HTTPException",
+        "context": [
+          "import uvicorn",
+          "from fastapi import FastAPI, HTTPException",
+          "from fastapi.middleware.cors import CORSMiddleware",
+          "from fastapi.responses import JSONResponse, Response"
+        ]
+      },
+      {
+        "line_number": 915,
+        "line_content": "from fastapi import WebSocket, WebSocketDisconnect",
+        "context": [
+          "",
+          "from fastapi import WebSocket, WebSocketDisconnect",
+          "",
+          "# 🔥 WEBSOCKET - Comunicação em Tempo Real (Ativo com Cache Sync)"
+        ]
+      }
+    ],
+    "router_imports": [
+      {
+        "line_number": 19,
+        "line_content": "from app.routes.webhook import router as webhook_router",
+        "context": [
+          "from app.middleware.request_logging import add_request_logging_middleware",
+          "from app.routes.webhook import router as webhook_router",
+          "from app.schemas.health import (",
+          "    AppInfo,"
+        ]
+      },
+      {
+        "line_number": 247,
+        "line_content": "from app.routes.websocket import periodic_heartbeat",
+        "context": [
+          "            try:",
+          "                from app.routes.websocket import periodic_heartbeat",
+          "",
+          "                heartbeat_task = asyncio.create_task(periodic_heartbeat())"
+        ]
+      },
+      {
+        "line_number": 585,
+        "line_content": "from app.routes.meta_webhook import router as meta_webhook_router",
+        "context": [
+          "# Meta webhook específico (sem JWT)",
+          "from app.routes.meta_webhook import router as meta_webhook_router",
+          "app.include_router(meta_webhook_router, tags=[\"Meta Webhook\"])",
+          ""
+        ]
+      },
+      {
+        "line_number": 589,
+        "line_content": "from app.routes.debug_webhook import router as debug_webhook_router",
+        "context": [
+          "# Debug webhook (TEMPORÁRIO - remover em produção)",
+          "from app.routes.debug_webhook import router as debug_webhook_router",
+          "",
+          "app.include_router(debug_webhook_router, tags=[\"Debug\"])"
+        ]
+      },
+      {
+        "line_number": 594,
+        "line_content": "from app.routes.debug_middleware import router as debug_middleware_router",
+        "context": [
+          "# Debug middleware (TEMPORÁRIO - remover em produção)",
+          "from app.routes.debug_middleware import router as debug_middleware_router",
+          "",
+          "app.include_router(debug_middleware_router, tags=[\"Debug Middleware\"])"
+        ]
+      },
+      {
+        "line_number": 599,
+        "line_content": "from app.routes.auth import router as auth_router",
+        "context": [
+          "# 🔒 Incluir rotas de autenticação e segurança",
+          "from app.routes.auth import router as auth_router",
+          "",
+          "app.include_router(auth_router, prefix=\"/auth\", tags=[\"Authentication\"])"
+        ]
+      },
+      {
+        "line_number": 603,
+        "line_content": "from app.routes.secrets import router as secrets_router",
+        "context": [
+          "",
+          "from app.routes.secrets import router as secrets_router",
+          "",
+          "app.include_router(secrets_router, prefix=\"/secrets\", tags=[\"Secrets Management\"])"
+        ]
+      },
+      {
+        "line_number": 608,
+        "line_content": "from app.routes.security import router as security_router",
+        "context": [
+          "# 🔐 Incluir rotas de segurança e criptografia",
+          "from app.routes.security import router as security_router",
+          "",
+          "app.include_router(security_router, prefix=\"/security\", tags=[\"Security & Encryption\"])"
+        ]
+      },
+      {
+        "line_number": 618,
+        "line_content": "from app.routes.csp_testing import csp_testing_router",
+        "context": [
+          "# 🔍 Incluir CSP Testing Routes",
+          "from app.routes.csp_testing import csp_testing_router",
+          "",
+          "app.include_router(csp_testing_router, tags=[\"CSP Testing\"])"
+        ]
+      },
+      {
+        "line_number": 623,
+        "line_content": "from app.routes.strategy_admin import router as strategy_admin_router",
+        "context": [
+          "# Incluir rotas de administração de estratégias",
+          "from app.routes.strategy_admin import router as strategy_admin_router",
+          "",
+          "app.include_router(strategy_admin_router, tags=[\"Strategy Management\"])"
+        ]
+      },
+      {
+        "line_number": 628,
+        "line_content": "# from app.routes.cost_monitoring import router as cost_router",
+        "context": [
+          "# Incluir rotas de monitoramento de custos",
+          "# from app.routes.cost_monitoring import router as cost_router",
+          "# app.include_router(cost_router, tags=[\"Cost Monitoring\"])",
+          ""
+        ]
+      },
+      {
+        "line_number": 632,
+        "line_content": "from app.routes.admin_auth import auth_router",
+        "context": [
+          "# Incluir rotas de autenticação admin",
+          "from app.routes.admin_auth import auth_router",
+          "",
+          "app.include_router(auth_router, tags=[\"Admin Authentication\"])"
+        ]
+      },
+      {
+        "line_number": 638,
+        "line_content": "from app.routes.h003_admin import router as h003_admin_router",
+        "context": [
+          "try:",
+          "    from app.routes.h003_admin import router as h003_admin_router",
+          "",
+          "    app.include_router(h003_admin_router, tags=[\"H003 Rate Limiting\"])"
+        ]
+      },
+      {
+        "line_number": 646,
+        "line_content": "from app.routes.database_optimization import router as db_optimization_router",
+        "context": [
+          "# Incluir rotas de otimização do banco de dados",
+          "from app.routes.database_optimization import router as db_optimization_router",
+          "",
+          "app.include_router(db_optimization_router, tags=[\"Database Optimization\"])"
+        ]
+      },
+      {
+        "line_number": 652,
+        "line_content": "from app.routes.health_detailed import router as health_detailed_router",
+        "context": [
+          "try:",
+          "    from app.routes.health_detailed import router as health_detailed_router",
+          "",
+          "    app.include_router(health_detailed_router, tags=[\"OM001 Health Monitoring\"])"
+        ]
+      },
+      {
+        "line_number": 670,
+        "line_content": "from app.routes.appointments_cf002_demo import router as appointments_demo_router",
+        "context": [
+          "try:",
+          "    from app.routes.appointments_cf002_demo import router as appointments_demo_router",
+          "",
+          "    app.include_router(appointments_demo_router, tags=[\"CF002 Demo\"])"
+        ]
+      },
+      {
+        "line_number": 674,
+        "line_content": "from app.routes.health_cf002_demo import router as health_demo_router",
+        "context": [
+          "",
+          "    from app.routes.health_cf002_demo import router as health_demo_router",
+          "",
+          "    app.include_router(health_demo_router, tags=[\"CF002 Demo\"])"
+        ]
+      },
+      {
+        "line_number": 688,
+        "line_content": "from app.routes.pd001_performance_demo import router as pd001_demo_router",
+        "context": [
+          "try:",
+          "    from app.routes.pd001_performance_demo import router as pd001_demo_router",
+          "",
+          "    app.include_router(pd001_demo_router, tags=[\"PD001 Performance Demo\"])"
+        ]
+      },
+      {
+        "line_number": 699,
+        "line_content": "from app.routes.backup import router as backup_router",
+        "context": [
+          "# �🔄 Sistema de Backup Automatizado",
+          "from app.routes.backup import router as backup_router",
+          "",
+          "app.include_router(backup_router, tags=[\"Backup System\"])"
+        ]
+      },
+      {
+        "line_number": 704,
+        "line_content": "from app.routes.rate_limit import router as rate_limit_router",
+        "context": [
+          "# 📊 Sistema de Rate Limiting por Usuário",
+          "from app.routes.rate_limit import router as rate_limit_router",
+          "",
+          "app.include_router(rate_limit_router, tags=[\"Rate Limiting\"])"
+        ]
+      },
+      {
+        "line_number": 709,
+        "line_content": "from app.routes.webhook_rate_limit_admin import (",
+        "context": [
+          "# 🛡️ Sistema de Rate Limiting para Webhooks (Avançado)",
+          "from app.routes.webhook_rate_limit_admin import (",
+          "    router as webhook_rate_limit_admin_router,",
+          ")"
+        ]
+      },
+      {
+        "line_number": 719,
+        "line_content": "from app.routes.apm_monitoring import router as apm_monitoring_router",
+        "context": [
+          "# 🔍 APM E MONITORAMENTO DE LOGS ESTRUTURADOS",
+          "from app.routes.apm_monitoring import router as apm_monitoring_router",
+          "",
+          "app.include_router(apm_monitoring_router, tags=[\"APM & Structured Logging\"])"
+        ]
+      },
+      {
+        "line_number": 727,
+        "line_content": "from app.routes.appointments import router as appointments_router",
+        "context": [
+          "# 📊 DASHBOARD API - Endpoints REST críticos para funcionamento do Dashboard",
+          "from app.routes.appointments import router as appointments_router",
+          "",
+          "app.include_router(appointments_router, tags=[\"Dashboard - Appointments\"])"
+        ]
+      },
+      {
+        "line_number": 733,
+        "line_content": "from app.routes.appointments_pf001_optimized import (",
+        "context": [
+          "try:",
+          "    from app.routes.appointments_pf001_optimized import (",
+          "        router as appointments_pf001_router,",
+          "    )"
+        ]
+      },
+      {
+        "line_number": 750,
+        "line_content": "from app.routes.appointments_pf001_test import router as appointments_test_router",
+        "context": [
+          "try:",
+          "    from app.routes.appointments_pf001_test import router as appointments_test_router",
+          "",
+          "    app.include_router(appointments_test_router, tags=[\"PF-001 Test - No Auth\"])"
+        ]
+      },
+      {
+        "line_number": 760,
+        "line_content": "from app.routes.alerts import router as alerts_router",
+        "context": [
+          "# 🚨 Sistema de Alertas",
+          "from app.routes.alerts import router as alerts_router",
+          "from app.routes.clients import router as clients_router",
+          ""
+        ]
+      },
+      {
+        "line_number": 761,
+        "line_content": "from app.routes.clients import router as clients_router",
+        "context": [
+          "from app.routes.alerts import router as alerts_router",
+          "from app.routes.clients import router as clients_router",
+          "",
+          "app.include_router(alerts_router, tags=[\"Alert System\"])"
+        ]
+      },
+      {
+        "line_number": 766,
+        "line_content": "from app.routes.public_health import public_router",
+        "context": [
+          "# Router público para endpoints de saúde (sem autenticação)",
+          "from app.routes.public_health import public_router",
+          "",
+          "app.include_router(public_router, tags=[\"Public Health\"])"
+        ]
+      },
+      {
+        "line_number": 771,
+        "line_content": "from app.routes.clients import router as clients_router",
+        "context": [
+          "# Dashboard Routes",
+          "from app.routes.clients import router as clients_router",
+          "",
+          "app.include_router(clients_router, tags=[\"Dashboard - Clients\"])"
+        ]
+      },
+      {
+        "line_number": 776,
+        "line_content": "from app.routes.dashboard import router as dashboard_router",
+        "context": [
+          "# 📊 Dashboard migrado com padrão C002",
+          "from app.routes.dashboard import router as dashboard_router",
+          "",
+          "app.include_router(dashboard_router, tags=[\"Dashboard\"])"
+        ]
+      },
+      {
+        "line_number": 782,
+        "line_content": "from app.routes.dashboard_migrated import router as dashboard_migrated_router",
+        "context": [
+          "try:",
+          "    from app.routes.dashboard_migrated import router as dashboard_migrated_router",
+          "",
+          "    app.include_router(dashboard_migrated_router, tags=[\"Dashboard C002 - Migrated\"])"
+        ]
+      },
+      {
+        "line_number": 794,
+        "line_content": "from app.routes.analytics import router as analytics_router",
+        "context": [
+          "# Analytics routes - Relatórios Executivos",
+          "from app.routes.analytics import router as analytics_router",
+          "from app.routes.analytics_dashboard import router as dashboard_analytics_router",
+          ""
+        ]
+      },
+      {
+        "line_number": 795,
+        "line_content": "from app.routes.analytics_dashboard import router as dashboard_analytics_router",
+        "context": [
+          "from app.routes.analytics import router as analytics_router",
+          "from app.routes.analytics_dashboard import router as dashboard_analytics_router",
+          "",
+          "# Conversation & messaging routes"
+        ]
+      },
+      {
+        "line_number": 805,
+        "line_content": "from app.routes.debug_auth import router as debug_auth_router",
+        "context": [
+          "# � DEBUG ROUTER - Para testar autenticação",
+          "from app.routes.debug_auth import router as debug_auth_router",
+          "",
+          "app.include_router(debug_auth_router, tags=[\"Debug\"])"
+        ]
+      },
+      {
+        "line_number": 811,
+        "line_content": "from app.routes.analytics_advanced import router as advanced_analytics_router",
+        "context": [
+          "# � ANALYTICS AVANÇADAS - Business Intelligence - ATIVADO",
+          "from app.routes.analytics_advanced import router as advanced_analytics_router",
+          "",
+          "app.include_router(advanced_analytics_router, tags=[\"Advanced Analytics\"])"
+        ]
+      },
+      {
+        "line_number": 818,
+        "line_content": "from app.routes.cache_invalidation import router as cache_invalidation_router",
+        "context": [
+          "try:",
+          "    from app.routes.cache_invalidation import router as cache_invalidation_router",
+          "",
+          "    app.include_router("
+        ]
+      },
+      {
+        "line_number": 830,
+        "line_content": "from app.routes.lgpd_compliance import router as lgpd_router",
+        "context": [
+          "try:",
+          "    from app.routes.lgpd_compliance import router as lgpd_router",
+          "",
+          "    app.include_router(lgpd_router, tags=[\"LGPD Compliance\"])"
+        ]
+      },
+      {
+        "line_number": 847,
+        "line_content": "from app.routes.websocket_realtime_advanced import (",
+        "context": [
+          "try:",
+          "    from app.routes.websocket_realtime_advanced import (",
+          "        router as websocket_realtime_router,",
+          "    )"
+        ]
+      },
+      {
+        "line_number": 874,
+        "line_content": "from app.routes.export import router as export_router",
+        "context": [
+          "# 🟡 SISTEMA DE EXPORTAÇÃO - Relatórios CSV/Excel/PDF",
+          "from app.routes.export import router as export_router",
+          "",
+          "app.include_router(export_router, tags=[\"Data Export\"])"
+        ]
+      },
+      {
+        "line_number": 880,
+        "line_content": "from app.routes.reports import router as reports_router",
+        "context": [
+          "# ⚠️ SISTEMA DE EXPORTAÇÃO DE RELATÓRIOS - Item 2 da Lista",
+          "from app.routes.reports import router as reports_router",
+          "",
+          "app.include_router(reports_router, tags=[\"Reports Export\"])"
+        ]
+      },
+      {
+        "line_number": 886,
+        "line_content": "from app.routes.rbac import router as rbac_router",
+        "context": [
+          "# ⚠️ SISTEMA RBAC - Item 2: Controle Granular de Permissões",
+          "from app.routes.rbac import router as rbac_router",
+          "",
+          "app.include_router(rbac_router, tags=[\"RBAC Management\"])"
+        ]
+      },
+      {
+        "line_number": 894,
+        "line_content": "from app.routes.conversations import router as conversations_router",
+        "context": [
+          "# ✅ Usar versão corrigida das conversas - agora na versão principal",
+          "from app.routes.conversations import router as conversations_router",
+          "",
+          "logger.info(\"✅ Usando rotas de conversas com correções SQL aplicadas\")"
+        ]
+      },
+      {
+        "line_number": 899,
+        "line_content": "from app.routes.dashboard import router as dashboard_router",
+        "context": [
+          "",
+          "from app.routes.dashboard import router as dashboard_router",
+          "",
+          "app.include_router(dashboard_router, tags=[\"Dashboard - Main\"])"
+        ]
+      },
+      {
+        "line_number": 904,
+        "line_content": "from app.routes.websocket_realtime import router as websocket_realtime_router",
+        "context": [
+          "# 🔥 WEBSOCKET - Sistema de Tempo Real Avançado (Novo)",
+          "from app.routes.websocket_realtime import router as websocket_realtime_router",
+          "",
+          "app.include_router("
+        ]
+      },
+      {
+        "line_number": 911,
+        "line_content": "# from app.routes.websocket_test import router as websocket_test_router",
+        "context": [
+          "# 🧪 Endpoints de Teste para WebSocket (DESABILITADO - Arquivo de teste)",
+          "# from app.routes.websocket_test import router as websocket_test_router",
+          "# app.include_router(websocket_test_router, prefix=\"/api/websocket-test\", tags=[\"WebSocket - Testing\"])",
+          "# logger.info(\"🧪 Endpoints de teste WebSocket ativados\")"
+        ]
+      },
+      {
+        "line_number": 978,
+        "line_content": "from app.routes.websocket import router as websocket_router_realtime",
+        "context": [
+          "try:",
+          "    from app.routes.websocket import router as websocket_router_realtime",
+          "",
+          "    app.include_router(websocket_router_realtime, tags=[\"WebSocket - Real Time\"])"
+        ]
+      },
+      {
+        "line_number": 986,
+        "line_content": "from app.routes.push_notifications import router as push_router",
+        "context": [
+          "# 🔔 PUSH NOTIFICATIONS - Sistema de Notificações",
+          "from app.routes.push_notifications import router as push_router",
+          "",
+          "app.include_router(push_router, tags=[\"Push Notifications\"])"
+        ]
+      }
+    ]
+  }
+}

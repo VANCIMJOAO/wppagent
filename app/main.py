@@ -595,6 +595,11 @@ from app.routes.debug_middleware import router as debug_middleware_router
 
 app.include_router(debug_middleware_router, tags=["Debug Middleware"])
 
+# System info (TEMPORÁRIO - verificar deploy)
+from app.routes.system_info import router as system_info_router
+
+app.include_router(system_info_router, tags=["System Info"])
+
 # 🔒 Incluir rotas de autenticação e segurança
 from app.routes.auth import router as auth_router
 
