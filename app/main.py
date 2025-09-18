@@ -511,20 +511,20 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
 else:
     logger.warning("HTTPS Middleware not available")
 
-# 🔒 Adicionar middleware de autenticação e autorização (PRIMEIRO - antes de rate limiting)
-app.add_middleware(AuthMiddleware)
-logger.info("🔒 AuthMiddleware ativado - PRIMEIRO na ordem de execução")
-
-# 🔒 Adicionar middleware de bypass para endpoints críticos (ANTES de rate limiting)
+# 🔒 Adicionar middleware de bypass para endpoints críticos (PRIMEIRO - antes de autenticação)
 try:
     from app.middleware.critical_endpoints import CriticalEndpointsMiddleware
     
     app.add_middleware(CriticalEndpointsMiddleware)
-    logger.info("🔒 CriticalEndpointsMiddleware ativado - bypass para endpoints críticos")
+    logger.info("🔒 CriticalEndpointsMiddleware ativado - PRIMEIRO na ordem de execução")
 except ImportError as e:
     logger.warning(f"⚠️ CriticalEndpointsMiddleware não disponível: {e}")
 except Exception as e:
     logger.error(f"❌ Erro ao inicializar CriticalEndpointsMiddleware: {e}")
+
+# 🔒 Adicionar middleware de autenticação e autorização (SEGUNDO - depois de bypass)
+app.add_middleware(AuthMiddleware)
+logger.info("🔒 AuthMiddleware ativado - SEGUNDO na ordem de execução")
 
 # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
 logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
