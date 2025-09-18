@@ -3,7 +3,7 @@ Debug endpoint temporário para verificar configuração do middleware
 """
 
 from fastapi import APIRouter
-from app.auth.middleware import AuthenticationMiddleware
+from app.auth.middleware import AuthMiddleware
 
 router = APIRouter(prefix="/debug", tags=["Debug"])
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/debug", tags=["Debug"])
 async def get_public_endpoints():
     """Retorna lista de endpoints públicos configurados no middleware"""
     # Simular instância do middleware para pegar endpoints
-    middleware = AuthenticationMiddleware(app=None, secrets_manager=None)
+    middleware = AuthMiddleware(app=None)
     
     return {
         "public_endpoints": sorted(list(middleware.public_endpoints)),
@@ -23,7 +23,7 @@ async def get_public_endpoints():
 @router.get("/test-path-check/{path:path}")
 async def test_path_check(path: str):
     """Testa se um path específico seria considerado público"""
-    middleware = AuthenticationMiddleware(app=None, secrets_manager=None)
+    middleware = AuthMiddleware(app=None)
     
     # Reproduzir lógica _is_public_endpoint
     is_public = False

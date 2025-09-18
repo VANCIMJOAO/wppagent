@@ -1020,10 +1020,6 @@ async def ping():
     return "pong"
 
 
-@app.get("/")
-async def root():
-    """Railway root endpoint check"""
-    return {"status": "ok", "service": "whatsapp-agent", "railway": True}
 
 
 @app.get("/ready")
@@ -1209,16 +1205,6 @@ async def get_system_metrics():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/", response_model=AppInfo)
-async def root():
-    """Endpoint raiz da API"""
-    return AppInfo(
-        message="WhatsApp Agent API",
-        version="1.0.0",
-        status="running",
-        environment=getattr(settings, "environment", "production"),
-        docs_url="/docs",
-    )
 
 
 @app.get("/cors/debug")
