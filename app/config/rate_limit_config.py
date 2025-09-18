@@ -121,5 +121,7 @@ GRACEFUL_DEGRADATION = {
 EXEMPT_ENDPOINTS = {
     "GET /health",  # Health check básico sempre permitido
     "HEAD /health",  # Health check HEAD sempre permitido
+    "GET /ping",  # Railway healthcheck sempre permitido
+    "HEAD /ping",  # Railway healthcheck HEAD sempre permitido
     "OPTIONS /*",  # Preflight CORS sempre permitido
 }
