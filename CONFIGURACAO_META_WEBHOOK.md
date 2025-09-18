@@ -6,6 +6,8 @@ https://wppagent-production-app-production.up.railway.app/meta/webhook/receive
 
 🔑 Token de Verificação: whatsapp_webhook_verify_token
 
+📱 Número Liberado para Teste: 5516991022255
+
 📱 Eventos para subscrever:
 - messages
 - message_deliveries  
@@ -22,6 +24,7 @@ https://wppagent-production-app-production.up.railway.app/meta/webhook/receive
 - O endpoint /meta/webhook NÃO usa validação JWT
 - Apenas validação por token de verificação
 - Funciona diretamente com o Meta sem middleware de auth
+- Número 5516991022255 está na whitelist para testes
 
 🧪 TESTE RÁPIDO:
 curl "https://wppagent-production-app-production.up.railway.app/meta/webhook/verify?hub.mode=subscribe&hub.verify_token=whatsapp_webhook_verify_token&hub.challenge=12345"

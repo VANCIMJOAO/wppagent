@@ -73,10 +73,10 @@ def test_meta_api_direct():
     print("\n📤 Teste 3: Testando envio de mensagem...")
     message_url = f"https://graph.facebook.com/v18.0/{META_PHONE_NUMBER_ID}/messages"
     
-    # Use seu próprio número para teste
+    # Use o número que está liberado na whitelist Meta
     test_message = {
         "messaging_product": "whatsapp",
-        "to": "5511999999999",  # Substitua por um número válido para teste
+        "to": "5516991022255",  # Número liberado para teste
         "type": "text",
         "text": {
             "body": f"Teste direto da Meta API - {datetime.now().strftime('%H:%M:%S')}"
