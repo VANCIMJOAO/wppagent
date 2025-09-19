@@ -511,61 +511,64 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
 else:
     logger.warning("HTTPS Middleware not available")
 
-# 🔒 MIDDLEWARE DE BYPASS DIRETO PARA ENDPOINTS CRÍTICOS (PRIMEIRO - antes de autenticação)
+# 🔒 MIDDLEWARE DE BYPASS ULTRA SIMPLES PARA ENDPOINTS CRÍTICOS (PRIMEIRO - antes de autenticação)
 from fastapi.responses import JSONResponse
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
-class DirectCriticalEndpointsMiddleware(BaseHTTPMiddleware):
-    """Middleware de bypass DIRETO para endpoints críticos"""
-    
-    def __init__(self, app):
-        super().__init__(app)
-        self.critical_endpoints = {"/ping", "/health", "/meta/webhook/verify", "/meta/webhook", "/webhook", "/webhook/test"}
-        logger.info("🔒 DirectCriticalEndpointsMiddleware ativado - BYPASS DIRETO")
-    
-    def _is_critical_endpoint(self, path: str) -> bool:
-        """Verifica se endpoint é crítico"""
-        if path in self.critical_endpoints:
-            return True
-        for critical_path in self.critical_endpoints:
-            if path.startswith(critical_path + "/"):
-                return True
-        return False
+class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
+    """Middleware ULTRA SIMPLES de bypass para endpoints críticos"""
     
     async def dispatch(self, request: Request, call_next):
-        """Bypass DIRETO para endpoints críticos"""
+        """Bypass ULTRA SIMPLES para endpoints críticos"""
         path = request.url.path
         
-        if self._is_critical_endpoint(path):
-            logger.info(f"🔒 BYPASS DIRETO: {path}")
-            
-            if path == "/ping":
-                return JSONResponse(
-                    content={"status": "ok", "service": "whatsapp-agent", "railway": True},
-                    status_code=200
-                )
-            elif path == "/health":
-                return JSONResponse(
-                    content={"status": "healthy", "service": "whatsapp-agent"},
-                    status_code=200
-                )
-            elif path.startswith("/meta/webhook"):
-                return JSONResponse(
-                    content={"status": "ok", "webhook": "meta"},
-                    status_code=200
-                )
-            elif path.startswith("/webhook"):
-                return JSONResponse(
-                    content={"status": "ok", "webhook": "generic"},
-                    status_code=200
-                )
+        # BYPASS DIRETO para /ping
+        if path == "/ping":
+            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
+            return JSONResponse(
+                content={"status": "ok", "service": "whatsapp-agent", "railway": True},
+                status_code=200
+            )
         
+        # BYPASS DIRETO para /health
+        elif path == "/health":
+            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
+            return JSONResponse(
+                content={"status": "healthy", "service": "whatsapp-agent"},
+                status_code=200
+            )
+        
+        # BYPASS DIRETO para /meta/webhook/verify
+        elif path == "/meta/webhook/verify":
+            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
+            return JSONResponse(
+                content={"status": "ok", "webhook": "meta"},
+                status_code=200
+            )
+        
+        # BYPASS DIRETO para /meta/webhook
+        elif path.startswith("/meta/webhook"):
+            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
+            return JSONResponse(
+                content={"status": "ok", "webhook": "meta"},
+                status_code=200
+            )
+        
+        # BYPASS DIRETO para /webhook
+        elif path.startswith("/webhook"):
+            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
+            return JSONResponse(
+                content={"status": "ok", "webhook": "generic"},
+                status_code=200
+            )
+        
+        # Para outros endpoints, processar normalmente
         return await call_next(request)
 
-# Adicionar middleware de bypass DIRETO
-app.add_middleware(DirectCriticalEndpointsMiddleware)
-logger.info("🔒 DirectCriticalEndpointsMiddleware ativado - PRIMEIRO na ordem de execução")
+# Adicionar middleware ULTRA SIMPLES
+app.add_middleware(UltraSimpleCriticalMiddleware)
+logger.info("🔒 UltraSimpleCriticalMiddleware ativado - BYPASS ULTRA SIMPLES")
 
 # 🔒 Adicionar middleware de autenticação e autorização (SEGUNDO - depois de bypass)
 app.add_middleware(AuthMiddleware)
