@@ -28,6 +28,16 @@ COOKIE_CONFIG = {
     "path": "/",
 }
 
+# Armazenamento temporário de usuários (em produção usar banco de dados)
+registered_users = {
+    "admin": {
+        "password_hash": hashlib.sha256("admin123".encode()).hexdigest(),
+        "role": "admin",
+        "email": "admin@example.com",
+        "full_name": "Administrator"
+    }
+}
+
 
 # Modelos Pydantic
 class LoginRequest(BaseModel):
@@ -91,7 +101,24 @@ async def register(request: RegisterRequest, http_request: Request):
             detail=f"Too many registration attempts. Try again in {rate_result.get('retry_after', 60)} seconds",
         )
     
-    # Mock de registro (implementar com banco real)
+    # Verificar se usuário já existe
+    if request.username in registered_users:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists"
+        )
+    
+    # Criar hash da senha
+    password_hash = hashlib.sha256(request.password.encode()).hexdigest()
+    
+    # Salvar usuário no armazenamento temporário
+    registered_users[request.username] = {
+        "password_hash": password_hash,
+        "role": "user",
+        "email": request.email,
+        "full_name": request.full_name
+    }
+    
     user_id = f"user_{secrets.token_hex(8)}"
     
     return RegisterResponse(
@@ -421,30 +448,13 @@ async def security_events(limit: int = 50, user: Dict = Depends(require_admin)):
 async def _verify_credentials(
     username: str, password: str
 ) -> tuple[Optional[str], Optional[str]]:
-    """Verificar credenciais do usuário (mock)"""
-    # Em produção, verificar no banco de dados com hash
-
-    # Mock de usuários
-    users = {
-        "admin": {
-            "password_hash": hashlib.sha256(
-                "SECURE_PASSWORD_FROM_ENV".encode()
-            ).hexdigest(),
-            "role": "admin",
-        },
-        "user": {
-            "password_hash": hashlib.sha256(
-                "SECURE_USER_PASSWORD_FROM_ENV".encode()
-            ).hexdigest(),
-            "role": "user",
-        },
-    }
-
-    user_data = users.get(username)
+    """Verificar credenciais do usuário"""
+    # Buscar usuário no armazenamento
+    user_data = registered_users.get(username)
     if not user_data:
         return None, None
 
-    # Verificar senha (usar bcrypt em produção)
+    # Verificar senha
     password_hash = hashlib.sha256(password.encode()).hexdigest()
     if password_hash != user_data["password_hash"]:
         return None, None
