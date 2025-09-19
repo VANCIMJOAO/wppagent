@@ -470,10 +470,6 @@ if S002_LOG_SANITIZATION_AVAILABLE:
 else:
     logger.warning("⚠️ S002: Middlewares de logging seguro não disponíveis")
 
-# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware ANTES de TODOS os middlewares
-app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO ABSOLUTO")
-
 if CSP_MIDDLEWARE_AVAILABLE:
     app.add_middleware(CSPMiddleware, report_only=False)
     logger.info("CSP Middleware added successfully")
@@ -514,6 +510,10 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
     logger.info("HTTPS Middleware activated")
 else:
     logger.warning("HTTPS Middleware not available")
+
+# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware DEPOIS do HTTPSMiddleware
+app.add_middleware(UltraSimpleCriticalMiddleware)
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - DEPOIS do HTTPSMiddleware")
 
 # 🔍 DEBUG: Adicionar logs em todos os middlewares para rastrear fluxo
 import logging
