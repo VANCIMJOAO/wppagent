@@ -565,6 +565,26 @@ async def status():
     """Endpoint de status - SEM MIDDLEWARE"""
     return {"status": "healthy", "service": "whatsapp-agent"}
 
+
+@app.get("/ready")
+async def ready():
+    """Endpoint de readiness check - verifica se a aplicação está pronta para receber tráfego"""
+    return {
+        "status": "ready",
+        "timestamp": datetime.now().isoformat(),
+        "message": "Application is ready to receive traffic"
+    }
+
+
+@app.get("/alive")
+async def alive():
+    """Endpoint de liveness check - verifica se a aplicação está viva"""
+    return {
+        "status": "alive",
+        "timestamp": datetime.now().isoformat(),
+        "message": "Application is alive and running"
+    }
+
 # Middleware de produção - sem debug
 
 # 🔒 MIDDLEWARE ORDER FIX - ORDEM CORRETA PARA RAILWAY

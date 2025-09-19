@@ -93,6 +93,31 @@ Digite "mais serviços" para ver outras opções! 😊""",
 response_generator = SimplifiedResponseGenerator()
 
 
+@router.get("", summary="Verificar webhook do WhatsApp Business API")
+@log_performance("webhook.verify")
+async def verify_webhook(
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_challenge: str = Query(None, alias="hub.challenge"),
+    hub_verify_token: str = Query(None, alias="hub.verify_token")
+):
+    """
+    Verificação do webhook WhatsApp Business API
+    
+    Meta envia uma requisição GET para verificar o webhook com:
+    - hub.mode: subscribe
+    - hub.challenge: string aleatória
+    - hub.verify_token: token de verificação
+    """
+    if hub_mode == "subscribe" and hub_challenge and hub_verify_token:
+        # Verificar token (implementar validação real)
+        if hub_verify_token == "test_verify_token_123":  # Token de teste
+            return PlainTextResponse(content=hub_challenge)
+        else:
+            return PlainTextResponse(content="Forbidden", status_code=403)
+    
+    return PlainTextResponse(content="Bad Request", status_code=400)
+
+
 @router.post("", summary="Receber webhooks do WhatsApp Business API")
 # ✅ Rate limiting removido - usando unified_response_control para controle otimizado
 @log_performance("webhook.process")

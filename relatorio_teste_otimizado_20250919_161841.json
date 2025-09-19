@@ -1,0 +1,69 @@
+{
+  "summary": {
+    "total_tests": 8,
+    "passed_tests": 6,
+    "failed_tests": 2,
+    "success_rate": 75.0,
+    "avg_response_time": 0.30328019460042316
+  },
+  "results": [
+    {
+      "test": "GET /ping",
+      "status": "✅ PASS",
+      "details": "Health check principal - 200",
+      "response_time": 0.6938972473144531,
+      "timestamp": "2025-09-19T16:18:39.612543"
+    },
+    {
+      "test": "GET /health",
+      "status": "✅ PASS",
+      "details": "Health check alternativo - 200",
+      "response_time": 0.18843293190002441,
+      "timestamp": "2025-09-19T16:18:39.801380"
+    },
+    {
+      "test": "GET /emergency",
+      "status": "✅ PASS",
+      "details": "Endpoint de emergência - 200",
+      "response_time": 0.19562268257141113,
+      "timestamp": "2025-09-19T16:18:39.997326"
+    },
+    {
+      "test": "GET /railway",
+      "status": "✅ PASS",
+      "details": "Health check Railway - 200",
+      "response_time": 0.18921804428100586,
+      "timestamp": "2025-09-19T16:18:40.186954"
+    },
+    {
+      "test": "GET /status",
+      "status": "✅ PASS",
+      "details": "Status da aplicação - 200",
+      "response_time": 0.19802141189575195,
+      "timestamp": "2025-09-19T16:18:40.385327"
+    },
+    {
+      "test": "OpenAPI Schema",
+      "status": "❌ FAIL",
+      "details": "Status 500",
+      "response_time": 0,
+      "timestamp": "2025-09-19T16:18:40.587918"
+    },
+    {
+      "test": "Webhook Verification",
+      "status": "❌ FAIL",
+      "details": "Status 500",
+      "response_time": 0,
+      "timestamp": "2025-09-19T16:18:40.822228"
+    },
+    {
+      "test": "System Metrics",
+      "status": "✅ PASS",
+      "details": "Status 200",
+      "response_time": 0.3544888496398926,
+      "timestamp": "2025-09-19T16:18:41.177183"
+    }
+  ],
+  "timestamp": "2025-09-19T16:18:41.179700",
+  "railway_url": "https://wppagent-production.up.railway.app"
+}

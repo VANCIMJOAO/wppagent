@@ -36,6 +36,19 @@ class LoginRequest(BaseModel):
     remember_me: bool = False
 
 
+class RegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+    full_name: str
+
+
+class RegisterResponse(BaseModel):
+    success: bool
+    message: str
+    user_id: Optional[str] = None
+
+
 class LoginResponse(BaseModel):
     """Resposta de login segura - sem tokens expostos"""
 
@@ -63,6 +76,29 @@ class RefreshTokenRequest(BaseModel):
 class RevokeTokenRequest(BaseModel):
     token: str
     revoke_all: bool = False
+
+
+@router.post("/register", response_model=RegisterResponse)
+async def register(request: RegisterRequest, http_request: Request):
+    """Endpoint de registro de usuário"""
+    
+    # Verificar rate limiting específico para registro
+    allowed, rate_result = rate_limiter.check_rate_limit(http_request, None, "auth")
+    
+    if not allowed:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Too many registration attempts. Try again in {rate_result.get('retry_after', 60)} seconds",
+        )
+    
+    # Mock de registro (implementar com banco real)
+    user_id = f"user_{secrets.token_hex(8)}"
+    
+    return RegisterResponse(
+        success=True,
+        message="User registered successfully",
+        user_id=user_id
+    )
 
 
 @router.post("/login", response_model=LoginResponse)
