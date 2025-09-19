@@ -593,13 +593,13 @@ async def status():
     """Endpoint de status - SEM MIDDLEWARE"""
     return {"status": "healthy", "service": "whatsapp-agent"}
 
-# 🔒 RAILWAY FIX: AuthMiddleware PRIMEIRO para bypass correto
-app.add_middleware(AuthMiddleware)
-debug_logger.info("🔒 AuthMiddleware ativado - PRIMEIRO na ordem")
-
-# Depois UltraSimpleCriticalMiddleware
+# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware PRIMEIRO para bypass total
 app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - SEGUNDO na ordem")
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO na ordem")
+
+# Depois AuthMiddleware
+app.add_middleware(AuthMiddleware)
+debug_logger.info("🔒 AuthMiddleware ativado - SEGUNDO na ordem")
 
 # Depois APM
 app.add_middleware(APMMiddleware)
