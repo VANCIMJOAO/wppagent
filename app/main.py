@@ -500,14 +500,14 @@ logger.info("Enhanced API documentation configured with examples and schemas")
 if HTTPS_MIDDLEWARE_AVAILABLE:
     app.add_middleware(
         HTTPSMiddleware,
-        force_https=not is_development(),  # Forçar HTTPS apenas em produção
+        force_https=False,  # 🚨 RAILWAY FIX: Desabilitar HTTPS forçado
         hsts_max_age=31536000,  # 1 ano
         hsts_include_subdomains=True,
         hsts_preload=True,
-        allow_localhost=is_development(),  # Permitir localhost apenas em desenvolvimento
-        development_mode=is_development(),
+        allow_localhost=True,  # Permitir localhost sempre
+        development_mode=True,  # Modo desenvolvimento sempre
     )
-    logger.info("HTTPS Middleware activated")
+    logger.info("✅ HTTPS Middleware activated - FORCE_HTTPS DISABLED for Railway")
 else:
     logger.warning("HTTPS Middleware not available")
 
