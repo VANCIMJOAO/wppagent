@@ -630,13 +630,13 @@ class SuperDebugMiddleware(BaseHTTPMiddleware):
         
         return response
 
-# 🔍 SUPER DEBUG: Adicionar middleware de debug PRIMEIRO
-app.add_middleware(SuperDebugMiddleware)
-debug_logger.info("🔍 SUPER DEBUG: SuperDebugMiddleware ativado - PRIMEIRO")
-
-# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware PRIMEIRO - ANTES DE TUDO
+# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware ABSOLUTAMENTE PRIMEIRO - ANTES DE TUDO
 app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO DE TUDO")
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - ABSOLUTAMENTE PRIMEIRO")
+
+# 🔍 SUPER DEBUG: Adicionar middleware de debug SEGUNDO
+app.add_middleware(SuperDebugMiddleware)
+debug_logger.info("🔍 SUPER DEBUG: SuperDebugMiddleware ativado - SEGUNDO")
 
 # Depois AuthMiddleware
 app.add_middleware(AuthMiddleware)
