@@ -444,18 +444,13 @@ add_request_logging_middleware(app)
 ob001_logger.info("middleware_registered", middleware="OB-001 RequestLoggingMiddleware")
 
 # Add CSP Security Middleware (first, before other middlewares)
-# 🔍 Adicionar middleware APM (segundo para capturar todas as requests)
-app.add_middleware(APMMiddleware)
-logger.info("APM Middleware activated - Request tracking enabled")
+# 🔍 APM Middleware será adicionado depois do UltraSimpleCriticalMiddleware
 
 # 🚀 PF-001 - Adicionar middleware de performance de banco de dados
 try:
     from app.middleware.database_performance import DatabasePerformanceMiddleware
-
-    app.add_middleware(DatabasePerformanceMiddleware)
-    logger.info(
-        "🚀 PF-001 - Database Performance Middleware ativado: monitoramento de N+1 queries"
-    )
+    # DatabasePerformanceMiddleware será adicionado depois do UltraSimpleCriticalMiddleware
+    logger.info("🚀 PF-001 - Database Performance Middleware importado")
 except ImportError as e:
     logger.warning(f"⚠️ PF-001 - Database Performance Middleware não disponível: {e}")
 except Exception as e:
@@ -511,68 +506,55 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
 else:
     logger.warning("HTTPS Middleware not available")
 
-# 🔒 MIDDLEWARE DE BYPASS ULTRA SIMPLES PARA ENDPOINTS CRÍTICOS (PRIMEIRO - antes de autenticação)
-from fastapi.responses import JSONResponse
-from fastapi import Request
-from starlette.middleware.base import BaseHTTPMiddleware
+# 🔍 DEBUG: Adicionar logs em todos os middlewares para rastrear fluxo
+import logging
+debug_logger = logging.getLogger(__name__)
 
+# Fazer backup do UltraSimpleCriticalMiddleware e adicionar mais logs
 class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
     """Middleware ULTRA SIMPLES de bypass para endpoints críticos"""
     
     async def dispatch(self, request: Request, call_next):
         """Bypass ULTRA SIMPLES para endpoints críticos"""
         path = request.url.path
+        debug_logger.info(f"🟡 UltraSimple processando: {path}")
         
         # BYPASS DIRETO para /ping
         if path == "/ping":
-            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
             return JSONResponse(
                 content={"status": "ok", "service": "whatsapp-agent", "railway": True},
                 status_code=200
             )
         
-        # BYPASS DIRETO para /health
-        elif path == "/health":
-            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
+        # BYPASS DIRETO para outros endpoints críticos
+        critical_paths = ["/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway"]
+        if path in critical_paths:
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
             return JSONResponse(
-                content={"status": "healthy", "service": "whatsapp-agent"},
+                content={"status": "ok", "service": "whatsapp-agent"},
                 status_code=200
             )
         
-        # BYPASS DIRETO para /meta/webhook/verify
-        elif path == "/meta/webhook/verify":
-            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
-            return JSONResponse(
-                content={"status": "ok", "webhook": "meta"},
-                status_code=200
-            )
-        
-        # BYPASS DIRETO para /meta/webhook
-        elif path.startswith("/meta/webhook"):
-            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
-            return JSONResponse(
-                content={"status": "ok", "webhook": "meta"},
-                status_code=200
-            )
-        
-        # BYPASS DIRETO para /webhook
-        elif path.startswith("/webhook"):
-            logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path}")
-            return JSONResponse(
-                content={"status": "ok", "webhook": "generic"},
-                status_code=200
-            )
-        
+        debug_logger.info(f"🟡 UltraSimple passando adiante: {path}")
         # Para outros endpoints, processar normalmente
         return await call_next(request)
 
-# Adicionar middleware ULTRA SIMPLES
+# Adicionar middleware ULTRA SIMPLES PRIMEIRO
 app.add_middleware(UltraSimpleCriticalMiddleware)
-logger.info("🔒 UltraSimpleCriticalMiddleware ativado - BYPASS ULTRA SIMPLES")
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO na ordem")
 
-# 🔒 Adicionar middleware de autenticação e autorização (SEGUNDO - depois de bypass)
+# Depois APM
+app.add_middleware(APMMiddleware)
+debug_logger.info("🔍 APMMiddleware ativado")
+
+# Database Performance
+app.add_middleware(DatabasePerformanceMiddleware)
+debug_logger.info("🔍 DatabasePerformanceMiddleware ativado")
+
+# 🔒 Adicionar middleware de autenticação e autorização
 app.add_middleware(AuthMiddleware)
-logger.info("🔒 AuthMiddleware ativado - SEGUNDO na ordem de execução")
+debug_logger.info("🔍 AuthMiddleware ativado")
 
 # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
 logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
@@ -581,6 +563,7 @@ try:
 
     logger.info("🔍 H003 Debug: Import realizado com sucesso")
     app.add_middleware(WebhookRateLimitMiddleware)
+    debug_logger.info("🔍 WebhookRateLimitMiddleware ativado")
     logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
 except ImportError as e:
     logger.warning(f"⚠️ H003 Webhook Rate Limiting middleware não disponível: {e}")
@@ -614,6 +597,7 @@ try:
     from app.middleware.user_rate_limit import UserRateLimitMiddleware
 
     app.add_middleware(UserRateLimitMiddleware)
+    debug_logger.info("🔍 UserRateLimitMiddleware ativado")
     logger.info("✅ User Rate Limiting middleware ativado")
 except ImportError as e:
     logger.warning(f"⚠️ User Rate Limiting middleware não disponível: {e}")
@@ -624,12 +608,14 @@ logger.info("🔧 Sistema de rate limiting por usuário ativo")
 
 # Adicionar middleware de métricas (último para capturar todas as requests)
 app.add_middleware(MetricsMiddleware)
+debug_logger.info("🔍 MetricsMiddleware ativado")
 
 # 🔄 C002 - Middleware de Padronização de Response Schemas
 try:
     from app.middleware.response_standardizer import ApiResponseMiddleware
 
     app.add_middleware(ApiResponseMiddleware)
+    debug_logger.info("🔍 ApiResponseMiddleware ativado")
     logger.info(
         "✅ C002 - ApiResponseMiddleware ativado: responses padronizados {success, data, error}"
     )
