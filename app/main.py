@@ -470,6 +470,10 @@ if S002_LOG_SANITIZATION_AVAILABLE:
 else:
     logger.warning("⚠️ S002: Middlewares de logging seguro não disponíveis")
 
+# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware ANTES de TODOS os middlewares
+app.add_middleware(UltraSimpleCriticalMiddleware)
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO ABSOLUTO")
+
 if CSP_MIDDLEWARE_AVAILABLE:
     app.add_middleware(CSPMiddleware, report_only=False)
     logger.info("CSP Middleware added successfully")
@@ -593,13 +597,9 @@ async def status():
     """Endpoint de status - SEM MIDDLEWARE"""
     return {"status": "healthy", "service": "whatsapp-agent"}
 
-# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware PRIMEIRO para bypass total
-app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO na ordem")
-
 # Depois AuthMiddleware
 app.add_middleware(AuthMiddleware)
-debug_logger.info("🔒 AuthMiddleware ativado - SEGUNDO na ordem")
+debug_logger.info("🔒 AuthMiddleware ativado")
 
 # Depois APM
 app.add_middleware(APMMiddleware)
