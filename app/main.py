@@ -634,9 +634,9 @@ class SuperDebugMiddleware(BaseHTTPMiddleware):
 app.add_middleware(SuperDebugMiddleware)
 debug_logger.info("🔍 SUPER DEBUG: SuperDebugMiddleware ativado - PRIMEIRO")
 
-# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware ANTES do AuthMiddleware
+# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware PRIMEIRO - ANTES DE TUDO
 app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - ANTES do AuthMiddleware")
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO DE TUDO")
 
 # Depois AuthMiddleware
 app.add_middleware(AuthMiddleware)
