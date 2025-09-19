@@ -225,6 +225,21 @@ class SecureRequestLoggingMiddleware(BaseHTTPMiddleware):
 
         return any(pattern in path for pattern in sensitive_patterns)
 
+    def _log_security_event(
+        self, event_type: str, details: Dict[str, Any], severity: str = "INFO"
+    ):
+        """
+        HF002 FIX: Log de eventos de segurança sanitizado
+        """
+        if self.enable_hf002 and self.sanitizer:
+            details = self.sanitizer.sanitize_metadata(details)
+
+        logger.log(
+            getattr(logging, severity, logging.INFO),
+            f"🔒 HF002 SECURITY EVENT: {event_type}",
+            extra={"security_event": event_type, "details": details},
+        )
+
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
     """Middleware para adicionar contexto de requisição aos logs"""
@@ -284,21 +299,6 @@ def configure_request_logging_middleware(
                 sanitized[key] = value
 
         return sanitized
-
-    def _log_security_event(
-        self, event_type: str, details: Dict[str, Any], severity: str = "INFO"
-    ):
-        """
-        HF002 FIX: Log de eventos de segurança sanitizado
-        """
-        if self.enable_hf002 and self.sanitizer:
-            details = self.sanitizer.sanitize_metadata(details)
-
-        logger.log(
-            getattr(logging, severity, logging.INFO),
-            f"🔒 HF002 SECURITY EVENT: {event_type}",
-            extra={"security_event": event_type, "details": details},
-        )
 
 
 def get_request_context_middleware():
