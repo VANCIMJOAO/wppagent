@@ -60,14 +60,8 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
             path = request.url.path
             method = request.method
             
-            # 🔍 SUPER DEBUG: Log super detalhado
-            logger.info(f"🔒 HTTPS Middleware processando: {method} {path}")
-            logger.info(f"🔒 HTTPS headers: {dict(request.headers)}")
-            logger.info(f"🔒 HTTPS query: {dict(request.query_params)}")
-            logger.info(f"🔒 HTTPS scheme: {request.url.scheme}")
-            logger.info(f"🔒 HTTPS host: {request.headers.get('host', 'N/A')}")
-            logger.info(f"🔒 HTTPS x-forwarded-proto: {request.headers.get('x-forwarded-proto', 'N/A')}")
-            logger.info(f"🔒 HTTPS x-forwarded-for: {request.headers.get('x-forwarded-for', 'N/A')}")
+            # Log apenas para debug em desenvolvimento
+            logger.debug(f"HTTPS Middleware: {method} {path}")
             
             # Verificar se deve forçar HTTPS
             should_force = self._should_force_https(request)
@@ -100,14 +94,10 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
         """Determina se deve forçar HTTPS"""
         path = request.url.path
         
-        # 🔍 SUPER DEBUG: Log super detalhado
-        logger.info(f"🔒 _should_force_https chamado para: {path}")
-        logger.info(f"🔒 force_https: {self.force_https}")
-        logger.info(f"🔒 allow_localhost: {self.allow_localhost}")
-        logger.info(f"🔒 development_mode: {self.development_mode}")
+        # Log apenas para debug
+        logger.debug(f"_should_force_https: {path} - force_https: {self.force_https}")
         
         if not self.force_https:
-            logger.info(f"🔒 force_https = False, retornando False")
             return False
 
         # ✅ RAILWAY FIX: Permitir ALL healthcheck endpoints sem HTTPS

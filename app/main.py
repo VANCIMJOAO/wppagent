@@ -434,7 +434,11 @@ This API uses **JWT tokens with HttpOnly cookies** for maximum security:
     ],
 )
 
-# 📋 OB-001 - Configurar sistema de logs estruturados
+# 📋 Configurar sistema de logs otimizado para Railway
+from app.config.logging_config import setup_railway_logging
+setup_railway_logging()
+
+# 📋 OB-001 - Configurar sistema de logs estruturados (reduzido)
 configure_structured_logging()
 ob001_logger = get_ob001_logger("whatsapp-agent-main")
 ob001_logger.info(

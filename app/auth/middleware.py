@@ -80,14 +80,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
         path = request.url.path
         method = request.method
         
-        # 🔍 SUPER DEBUG: Log super detalhado
-        logger.info(f"🔍 AuthMiddleware processando: {method} {path}")
-        logger.info(f"🔍 AuthMiddleware headers: {dict(request.headers)}")
-        logger.info(f"🔍 AuthMiddleware query: {dict(request.query_params)}")
-        logger.info(f"🔍 AuthMiddleware user-agent: {request.headers.get('user-agent', 'N/A')}")
-        logger.info(f"🔍 AuthMiddleware host: {request.headers.get('host', 'N/A')}")
-        logger.info(f"🔍 AuthMiddleware x-forwarded-for: {request.headers.get('x-forwarded-for', 'N/A')}")
-        logger.info(f"🔍 AuthMiddleware x-real-ip: {request.headers.get('x-real-ip', 'N/A')}")
+        # Log apenas para endpoints críticos ou em caso de erro
+        is_critical = path in ['/ping', '/health', '/emergency', '/railway', '/status']
+        if is_critical:
+            logger.debug(f"AuthMiddleware: {method} {path}")
 
         # 🔧 CORS FIX: Permitir todas as requisições OPTIONS sem autenticação
         if request.method == "OPTIONS":
@@ -192,35 +188,26 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return "default"
 
     def _is_public_endpoint(self, path: str) -> bool:
-        """Verifica se endpoint é público - CORREÇÃO DEFINITIVA"""
-        
-        # 🔍 SUPER DEBUG: Log super detalhado
-        logger.info(f"🔍 _is_public_endpoint chamado para: {path}")
-        logger.info(f"🔍 critical_endpoints: {['/ping', '/health', '/emergency', '/railway-health', '/healthcheck', '/status', '/railway', '/ready', '/alive']}")
-        logger.info(f"🔍 public_endpoints: {list(self.public_endpoints)}")
+        """Verifica se endpoint é público - VERSÃO OTIMIZADA"""
         
         # 🚨 RAILWAY FIX: BYPASS DIRETO para endpoints críticos
         critical_endpoints = {"/ping", "/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway", "/ready", "/alive"}
         if path in critical_endpoints:
-            logger.info(f"🚨 BYPASS CRÍTICO AuthMiddleware: {path}")
-            logger.info(f"🚨 BYPASS CRÍTICO: path in critical_endpoints = True")
+            logger.debug(f"BYPASS CRÍTICO: {path}")
             return True
         
         # Verificação normal para outros endpoints usando o set   
         if path in self.public_endpoints:
-            logger.info(f"✅ ENDPOINT PÚBLICO (SET) AuthMiddleware: {path}")
-            logger.info(f"✅ ENDPOINT PÚBLICO: path in public_endpoints = True")
+            logger.debug(f"ENDPOINT PÚBLICO: {path}")
             return True
             
         # Verificação de prefixos
         for public_path in self.public_endpoints:
             if path.startswith(public_path + "/"):
-                logger.info(f"✅ ENDPOINT PÚBLICO (PREFIX) AuthMiddleware: {path}")
-                logger.info(f"✅ ENDPOINT PÚBLICO: path.startswith('{public_path}/') = True")
+                logger.debug(f"ENDPOINT PÚBLICO (PREFIX): {path}")
                 return True
         
-        logger.error(f"❌ ENDPOINT PRIVADO AuthMiddleware: {path} - REQUER AUTENTICAÇÃO")
-        logger.error(f"❌ ENDPOINT PRIVADO: path not in critical_endpoints and not in public_endpoints")
+        logger.debug(f"ENDPOINT PRIVADO: {path} - REQUER AUTENTICAÇÃO")
         return False
 
     async def _authenticate_request(self, request: Request) -> Dict:
