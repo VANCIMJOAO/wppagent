@@ -720,6 +720,10 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         debug_logger.info(f"🟡 UltraSimple resposta final: {response.status_code}")
         return response
 
+
+# 🔒 ADICIONAR MIDDLEWARE AO APP
+app.add_middleware(UltraSimpleCriticalMiddleware)
+logger.info("🔒 UltraSimpleCriticalMiddleware adicionado - PRIMEIRO")
 # MOVIDO PARA DEPOIS DA DEFINIÇÃO DA CLASSE
 
 logger.info("🔧 Sistema de rate limiting por usuário ativo")
