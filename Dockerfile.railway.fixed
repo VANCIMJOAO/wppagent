@@ -45,5 +45,5 @@ RUN pip list | grep fastapi
 ENV PORT=8000
 EXPOSE 8000
 
-# RAILWAY DEBUG: Test minimal startup
-CMD ["python", "app/railway_debug.py"]
+# RAILWAY DEBUG: Ultra minimal test
+CMD ["python", "-c", "import uvicorn; from fastapi import FastAPI; app = FastAPI(); app.add_api_route('/health', lambda: {'status': 'ok'}); uvicorn.run(app, host='0.0.0.0', port=int(__import__('os').getenv('PORT', '8000')))"]
