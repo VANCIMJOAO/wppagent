@@ -661,7 +661,7 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         # BYPASS DIRETO para /ping
         if path == "/ping":
             debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO 200")
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: Headers de resposta: {'Content-Type': 'application/json'}")
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: Headers de resposta: Content-Type: application/json")
             return JSONResponse(
                 content={"status": "ok", "service": "whatsapp-agent", "railway": True},
                 status_code=200
@@ -671,7 +671,7 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         critical_paths = ["/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway"]
         if path in critical_paths:
             debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO 200")
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: Headers de resposta: {'Content-Type': 'application/json'}")
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: Headers de resposta: Content-Type: application/json")
             return JSONResponse(
                 content={"status": "ok", "service": "whatsapp-agent"},
                 status_code=200
