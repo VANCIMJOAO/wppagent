@@ -132,9 +132,13 @@ except ImportError:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gerenciamento do ciclo de vida da aplicação COM CORREÇÕES"""
-    # Check if Railway fast start is enabled
     import os
     RAILWAY_FAST_START = os.getenv('RAILWAY_FAST_START', 'false').lower() == 'true'
+    
+    # RAILWAY DEBUG: Log everything
+    logger.info(f"🚄 RAILWAY STARTUP - Fast start: {RAILWAY_FAST_START}")
+    logger.info(f"🚄 PORT: {os.getenv('PORT', 'not set')}")
+    logger.info(f"🚄 RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'not set')}")
     
     # Startup
     if RAILWAY_FAST_START:
@@ -540,41 +544,24 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         # Para outros endpoints, processar normalmente
         return await call_next(request)
 
-# Adicionar middleware ULTRA SIMPLES PRIMEIRO
-app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO na ordem")
+# RAILWAY DEBUG: Apenas middlewares essenciais
+app.add_middleware(UltraSimpleCriticalMiddleware)  
+logger.info("🚄 RAILWAY: Only critical middleware loaded")
 
-# Depois APM
-app.add_middleware(APMMiddleware)
-debug_logger.info("🔍 APMMiddleware ativado")
+# COMENTE TODOS OS OUTROS add_middleware temporariamente
+# app.add_middleware(APMMiddleware)
+# app.add_middleware(DatabasePerformanceMiddleware)
+# app.add_middleware(AuthMiddleware)
 
-# Database Performance
-app.add_middleware(DatabasePerformanceMiddleware)
-debug_logger.info("🔍 DatabasePerformanceMiddleware ativado")
-
-# 🔒 Adicionar middleware de autenticação e autorização
-app.add_middleware(AuthMiddleware)
-debug_logger.info("🔍 AuthMiddleware ativado")
-
-# 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
-logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
-try:
-    from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
-
-    logger.info("🔍 H003 Debug: Import realizado com sucesso")
-    app.add_middleware(WebhookRateLimitMiddleware)
-    debug_logger.info("🔍 WebhookRateLimitMiddleware ativado")
-    logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
-except ImportError as e:
-    logger.warning(f"⚠️ H003 Webhook Rate Limiting middleware não disponível: {e}")
-    import traceback
-
-    logger.error(f"❌ H003 ImportError traceback: {traceback.format_exc()}")
-except Exception as e:
-    logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
-    import traceback
-
-    logger.error(f"❌ H003 Exception traceback: {traceback.format_exc()}")
+# COMENTADO TEMPORARIAMENTE PARA RAILWAY DEBUG
+# # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
+# logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
+# try:
+#     from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
+#     app.add_middleware(WebhookRateLimitMiddleware)
+#     logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
+# except Exception as e:
+#     logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
 
 # H003 Simple Test (comentado - teste concluído)
 # logger.info("🔍 H003 Debug: Tentando carregar H003SimpleMiddleware (teste)...")

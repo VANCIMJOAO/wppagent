@@ -36,12 +36,15 @@ RUN chown -R app:app /app
 # Switch to non-root user
 USER app
 
-# Expose port (Railway will override with $PORT)
-EXPOSE $PORT
+# Debug startup
+RUN echo "=== DEBUG: Checking Python installation ==="
+RUN python --version
+RUN pip list | grep fastapi
 
-# Health check - Railway uses /ping endpoint
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD python -c "import urllib.request, os; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", \"8000\")}/ping', timeout=5)" || exit 1
+# Debug port configuration  
+ENV PORT=8000
+EXPOSE 8000
 
-# Start application - Railway will set PORT environment variable
-CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --log-level info"]
+# Debug startup command
+RUN echo "=== DEBUG: Starting with Railway port ==="
+CMD ["sh", "-c", "echo 'Starting on port:' $PORT && python -c 'import uvicorn; print(f\"Uvicorn version: {uvicorn.__version__}\")' && uvicorn app.main:app --host 0.0.0.0 --port $PORT --log-level info"]
