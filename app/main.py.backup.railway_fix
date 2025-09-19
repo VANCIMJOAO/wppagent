@@ -529,14 +529,13 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         debug_logger.info(f"🟡 UltraSimple headers: {dict(request.headers)}")
         debug_logger.info(f"🟡 UltraSimple query: {dict(request.query_params)}")
         
-        # BYPASS DIRETO para /ping - PADRONIZADO JSON
+        # BYPASS DIRETO para /ping
         if path == "/ping":
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO JSON 200")
-            debug_logger.info(f"🔒 BYPASS RAILWAY: Middleware processando /ping diretamente")
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO 200")
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: Headers de resposta: {{'Content-Type': 'application/json'}}")
             return JSONResponse(
-                content={"message": "pong", "status": "ok", "service": "whatsapp-agent", "railway": True},
-                status_code=200,
-                headers={"Content-Type": "application/json"}
+                content={"status": "ok", "service": "whatsapp-agent", "railway": True},
+                status_code=200
             )
         
         # BYPASS DIRETO para outros endpoints críticos
@@ -631,139 +630,93 @@ class SuperDebugMiddleware(BaseHTTPMiddleware):
         
         return response
 
-# 🔒 MIDDLEWARE ORDER FIX - ORDEM CORRETA PARA RAILWAY
-# IMPORTANTE: No FastAPI, a ordem de app.add_middleware() é INVERSA da execução
-# O ÚLTIMO middleware adicionado é o PRIMEIRO a ser executado!
+# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware ABSOLUTAMENTE PRIMEIRO - ANTES DE TUDO
+app.add_middleware(UltraSimpleCriticalMiddleware)
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - ABSOLUTAMENTE PRIMEIRO")
 
-# 🔄 C002 - ApiResponseMiddleware (ÚLTIMO na cadeia - pode processar responses)
+# 🔍 SUPER DEBUG: Adicionar middleware de debug SEGUNDO
+app.add_middleware(SuperDebugMiddleware)
+debug_logger.info("🔍 SUPER DEBUG: SuperDebugMiddleware ativado - SEGUNDO")
+
+# Depois AuthMiddleware
+app.add_middleware(AuthMiddleware)
+debug_logger.info("🔒 AuthMiddleware ativado")
+
+# Depois APM
+app.add_middleware(APMMiddleware)
+debug_logger.info("🔍 APMMiddleware ativado")
+
+# Database Performance
+app.add_middleware(DatabasePerformanceMiddleware)
+debug_logger.info("🔍 DatabasePerformanceMiddleware ativado")
+
+# 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
+logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
 try:
-    from app.middleware.response_standardizer import ApiResponseMiddleware
-    app.add_middleware(ApiResponseMiddleware)
-    debug_logger.info("🔄 ApiResponseMiddleware ativado - ÚLTIMO na cadeia")
-    logger.info("✅ C002 - ApiResponseMiddleware ativado: responses padronizados {success, data, error}")
+    from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
+
+    logger.info("🔍 H003 Debug: Import realizado com sucesso")
+    app.add_middleware(WebhookRateLimitMiddleware)
+    debug_logger.info("🔍 WebhookRateLimitMiddleware ativado")
+    logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
 except ImportError as e:
-    logger.warning(f"⚠️ C002 - ApiResponseMiddleware não disponível: {e}")
+    logger.warning(f"⚠️ H003 Webhook Rate Limiting middleware não disponível: {e}")
+    import traceback
+
+    logger.error(f"❌ H003 ImportError traceback: {traceback.format_exc()}")
 except Exception as e:
-    logger.error(f"❌ C002 - Erro ao inicializar ApiResponseMiddleware: {e}")
+    logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
+    import traceback
 
-# 📊 MetricsMiddleware (penúltimo - captura métricas de todas requests)
-app.add_middleware(MetricsMiddleware)
-debug_logger.info("📊 MetricsMiddleware ativado - captura todas requests")
+    logger.error(f"❌ H003 Exception traceback: {traceback.format_exc()}")
 
-# 🔒 UserRateLimitMiddleware
+# H003 Simple Test (comentado - teste concluído)
+# logger.info("🔍 H003 Debug: Tentando carregar H003SimpleMiddleware (teste)...")
+# try:
+#     from app.middleware.h003_simple import H003SimpleMiddleware
+#     logger.info("🔍 H003 Debug: Import H003Simple realizado com sucesso")
+#     app.add_middleware(H003SimpleMiddleware)
+#     logger.info("🛡️ H003 Simple Test middleware ativado - teste de funcionamento")
+# except ImportError as e:
+#     logger.warning(f"⚠️ H003 Simple middleware não disponível: {e}")
+#     import traceback
+#     logger.error(f"❌ H003 Simple ImportError traceback: {traceback.format_exc()}")
+# except Exception as e:
+#     logger.error(f"❌ Erro ao inicializar H003 Simple middleware: {e}")
+#     import traceback
+#     logger.error(f"❌ H003 Simple Exception traceback: {traceback.format_exc()}")
+
+# � Adicionar middleware de rate limiting por usuário
 try:
     from app.middleware.user_rate_limit import UserRateLimitMiddleware
+
     app.add_middleware(UserRateLimitMiddleware)
-    debug_logger.info("🔒 UserRateLimitMiddleware ativado")
+    debug_logger.info("🔍 UserRateLimitMiddleware ativado")
     logger.info("✅ User Rate Limiting middleware ativado")
 except ImportError as e:
     logger.warning(f"⚠️ User Rate Limiting middleware não disponível: {e}")
 except Exception as e:
     logger.error(f"❌ Erro ao inicializar User Rate Limiting middleware: {e}")
 
-# 🛡️ WebhookRateLimitMiddleware
-logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
-try:
-    from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
-    logger.info("🔍 H003 Debug: Import realizado com sucesso")
-    app.add_middleware(WebhookRateLimitMiddleware)
-    debug_logger.info("🛡️ WebhookRateLimitMiddleware ativado")
-    logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
-except ImportError as e:
-    logger.warning(f"⚠️ H003 Webhook Rate Limiting middleware não disponível: {e}")
-except Exception as e:
-    logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
-
-# 🚀 DatabasePerformanceMiddleware
-app.add_middleware(DatabasePerformanceMiddleware)
-debug_logger.info("🚀 DatabasePerformanceMiddleware ativado")
-
-# 🔍 APMMiddleware
-app.add_middleware(APMMiddleware)
-debug_logger.info("🔍 APMMiddleware ativado")
-
-# 🔒 AuthMiddleware (CRÍTICO: deve vir DEPOIS do UltraSimpleCriticalMiddleware)
-app.add_middleware(AuthMiddleware)
-debug_logger.info("🔒 AuthMiddleware ativado - APÓS UltraSimple")
-
-# 🔍 SuperDebugMiddleware (para debug detalhado)
-class SuperDebugMiddleware(BaseHTTPMiddleware):
-    """Middleware de debug super detalhado"""
-    
-    async def dispatch(self, request: Request, call_next):
-        path = request.url.path
-        method = request.method
-        
-        # Log super detalhado
-        debug_logger.info(f"🔍 SUPER DEBUG: {method} {path}")
-        debug_logger.info(f"🔍 SUPER DEBUG: Headers: {dict(request.headers)}")
-        debug_logger.info(f"🔍 SUPER DEBUG: Query params: {dict(request.query_params)}")
-        
-        # Verificar se é endpoint crítico
-        critical_endpoints = {"/ping", "/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway", "/ready", "/alive"}
-        if path in critical_endpoints:
-            debug_logger.info(f"🚨 SUPER DEBUG: ENDPOINT CRÍTICO DETECTADO: {path}")
-            debug_logger.info(f"🚨 SUPER DEBUG: Deveria fazer bypass total!")
-        
-        # Processar request
-        response = await call_next(request)
-        
-        # Log da resposta
-        debug_logger.info(f"🔍 SUPER DEBUG: Response status: {response.status_code}")
-        debug_logger.info(f"🔍 SUPER DEBUG: Response headers: {dict(response.headers)}")
-        
-        return response
-
-app.add_middleware(SuperDebugMiddleware)
-debug_logger.info("🔍 SUPER DEBUG: SuperDebugMiddleware ativado")
-
-# 🔒 UltraSimpleCriticalMiddleware - DEVE SER O ÚLTIMO ADICIONADO = PRIMEIRO EXECUTADO!
-class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
-    """Middleware ULTRA SIMPLES de bypass para endpoints críticos - PRIMEIRA EXECUÇÃO"""
-    
-    async def dispatch(self, request: Request, call_next):
-        """Bypass ULTRA SIMPLES para endpoints críticos - EXECUTADO PRIMEIRO"""
-        path = request.url.path
-        method = request.method
-        
-        # 🔍 SUPER DEBUG: Log super detalhado
-        debug_logger.info(f"🟡 UltraSimple processando: {method} {path}")
-        debug_logger.info(f"🟡 UltraSimple headers: {dict(request.headers)}")
-        debug_logger.info(f"🟡 UltraSimple PRIMEIRA EXECUÇÃO - BYPASS DIRETO!")
-        
-        # BYPASS DIRETO para /ping - PADRONIZADO JSON
-        if path == "/ping":
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO JSON 200 IMEDIATAMENTE")
-            debug_logger.info(f"🔒 BYPASS RAILWAY: Middleware processando /ping SEM PASSAR POR AuthMiddleware")
-            return JSONResponse(
-                content={"message": "pong", "status": "ok", "service": "whatsapp-agent", "railway": True, "middleware": "UltraSimpleCritical"},
-                status_code=200,
-                headers={"Content-Type": "application/json", "X-Bypass": "UltraSimpleCritical"}
-            )
-        
-        # BYPASS DIRETO para outros endpoints críticos
-        critical_paths = ["/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway"]
-        if path in critical_paths:
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO JSON 200 IMEDIATAMENTE")
-            debug_logger.info(f"🔒 BYPASS RAILWAY: Middleware processando {path} SEM PASSAR POR AuthMiddleware")
-            return JSONResponse(
-                content={"status": "ok", "service": "whatsapp-agent", "middleware": "UltraSimpleCritical"},
-                status_code=200,
-                headers={"Content-Type": "application/json", "X-Bypass": "UltraSimpleCritical"}
-            )
-        
-        debug_logger.info(f"🟡 UltraSimple passando para próximo middleware: {path}")
-        # Para outros endpoints, processar normalmente pela cadeia de middlewares
-        response = await call_next(request)
-        debug_logger.info(f"🟡 UltraSimple resposta final: {response.status_code}")
-        return response
-
-# 🚨 CRÍTICO: UltraSimpleCriticalMiddleware deve ser o ÚLTIMO adicionado = PRIMEIRO executado!
-app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🚨 CRÍTICO: UltraSimpleCriticalMiddleware ativado - ÚLTIMO ADICIONADO = PRIMEIRO EXECUTADO!")
-debug_logger.info("🎯 ORDEM DE EXECUÇÃO: UltraSimple → SuperDebug → Auth → APM → Database → Webhook → User → Metrics → ApiResponse")
-
 logger.info("🔧 Sistema de rate limiting por usuário ativo")
+
+# Adicionar middleware de métricas (último para capturar todas as requests)
+app.add_middleware(MetricsMiddleware)
+debug_logger.info("🔍 MetricsMiddleware ativado")
+
+# 🔄 C002 - Middleware de Padronização de Response Schemas
+try:
+    from app.middleware.response_standardizer import ApiResponseMiddleware
+
+    app.add_middleware(ApiResponseMiddleware)
+    debug_logger.info("🔍 ApiResponseMiddleware ativado")
+    logger.info(
+        "✅ C002 - ApiResponseMiddleware ativado: responses padronizados {success, data, error}"
+    )
+except ImportError as e:
+    logger.warning(f"⚠️ C002 - ApiResponseMiddleware não disponível: {e}")
+except Exception as e:
+    logger.error(f"❌ C002 - Erro ao inicializar ApiResponseMiddleware: {e}")
 
 # Incluir rotas
 app.include_router(webhook_router, tags=["webhook"])
@@ -1178,6 +1131,30 @@ except ImportError:
 from app.routes.push_notifications import router as push_router
 
 app.include_router(push_router, tags=["Push Notifications"])
+
+
+# 🚀 Railway Health Check - Simplified for reliable deployment
+@app.get("/health/simple")
+async def simple_health_check():
+    """Ultra-simple health check for Railway deployment"""
+    return {"status": "ok", "service": "whatsapp-agent"}
+
+
+# Endpoints duplicados removidos - agora estão antes dos middlewares
+
+
+
+
+@app.get("/ready")
+async def ready():
+    """Railway readiness check"""
+    return Response(content="ready", media_type="text/plain")
+
+
+@app.get("/alive")
+async def alive():
+    """Railway liveness check"""
+    return Response(content="alive", media_type="text/plain")
 
 
 @app.get("/health", response_model=HealthCheckResponse)
