@@ -515,45 +515,7 @@ else:
 import logging
 debug_logger = logging.getLogger(__name__)
 
-# Fazer backup do UltraSimpleCriticalMiddleware e adicionar mais logs
-class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
-    """Middleware ULTRA SIMPLES de bypass para endpoints críticos"""
-    
-    async def dispatch(self, request: Request, call_next):
-        """Bypass ULTRA SIMPLES para endpoints críticos"""
-        path = request.url.path
-        method = request.method
-        
-        # 🔍 SUPER DEBUG: Log super detalhado
-        debug_logger.info(f"🟡 UltraSimple processando: {method} {path}")
-        debug_logger.info(f"🟡 UltraSimple headers: {dict(request.headers)}")
-        debug_logger.info(f"🟡 UltraSimple query: {dict(request.query_params)}")
-        
-        # BYPASS DIRETO para /ping - PADRONIZADO JSON
-        if path == "/ping":
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO JSON 200")
-            debug_logger.info(f"🔒 BYPASS RAILWAY: Middleware processando /ping diretamente")
-            return JSONResponse(
-                content={"message": "pong", "status": "ok", "service": "whatsapp-agent", "railway": True},
-                status_code=200,
-                headers={"Content-Type": "application/json"}
-            )
-        
-        # BYPASS DIRETO para outros endpoints críticos
-        critical_paths = ["/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway"]
-        if path in critical_paths:
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO 200")
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: Headers de resposta: {{'Content-Type': 'application/json'}}")
-            return JSONResponse(
-                content={"status": "ok", "service": "whatsapp-agent"},
-                status_code=200
-            )
-        
-        debug_logger.info(f"🟡 UltraSimple passando adiante: {path}")
-        # Para outros endpoints, processar normalmente
-        response = await call_next(request)
-        debug_logger.info(f"🟡 UltraSimple resposta: {response.status_code}")
-        return response
+# REMOVIDO - Classe duplicada que estava causando conflito
 
 # 🚨 EMERGENCY ENDPOINTS - ANTES DE QUALQUER MIDDLEWARE
 @app.get("/emergency")
