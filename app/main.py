@@ -511,10 +511,6 @@ if HTTPS_MIDDLEWARE_AVAILABLE:
 else:
     logger.warning("HTTPS Middleware not available")
 
-# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware DEPOIS do HTTPSMiddleware
-app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - DEPOIS do HTTPSMiddleware")
-
 # 🔍 DEBUG: Adicionar logs em todos os middlewares para rastrear fluxo
 import logging
 debug_logger = logging.getLogger(__name__)
@@ -548,6 +544,10 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         debug_logger.info(f"🟡 UltraSimple passando adiante: {path}")
         # Para outros endpoints, processar normalmente
         return await call_next(request)
+
+# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware DEPOIS do HTTPSMiddleware
+app.add_middleware(UltraSimpleCriticalMiddleware)
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - DEPOIS do HTTPSMiddleware")
 
 # 🚨 EMERGENCY ENDPOINTS - ANTES DE QUALQUER MIDDLEWARE
 @app.get("/emergency")
