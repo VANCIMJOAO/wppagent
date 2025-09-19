@@ -480,7 +480,8 @@ class RBACUser(Base):
         "RBACRole", 
         secondary=user_roles, 
         back_populates="users",
-        foreign_keys=[user_roles.c.user_id]
+        primaryjoin="RBACUser.id == user_roles.c.user_id",
+        secondaryjoin="RBACRole.id == user_roles.c.role_id"
     )
 
     def has_permission(self, permission: PermissionType) -> bool:
@@ -532,7 +533,8 @@ class RBACRole(Base):
         "RBACUser", 
         secondary=user_roles, 
         back_populates="roles",
-        foreign_keys=[user_roles.c.role_id]
+        primaryjoin="RBACRole.id == user_roles.c.role_id",
+        secondaryjoin="RBACUser.id == user_roles.c.user_id"
     )
     permissions = relationship(
         "RBACPermission", secondary=role_permissions, back_populates="roles"
