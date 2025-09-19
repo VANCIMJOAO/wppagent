@@ -686,7 +686,7 @@ app.include_router(system_info_router, tags=["System Info"])
 # 🔒 Incluir rotas de autenticação e segurança
 from app.routes.auth import router as auth_router
 
-app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(auth_router, tags=["Authentication"])
 
 from app.routes.secrets import router as secrets_router
 
