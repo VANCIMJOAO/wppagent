@@ -57,12 +57,32 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         """Processar requisição e aplicar segurança HTTPS"""
         try:
+            path = request.url.path
+            method = request.method
+            
+            # 🔍 SUPER DEBUG: Log super detalhado
+            logger.info(f"🔒 HTTPS Middleware processando: {method} {path}")
+            logger.info(f"🔒 HTTPS headers: {dict(request.headers)}")
+            logger.info(f"🔒 HTTPS query: {dict(request.query_params)}")
+            logger.info(f"🔒 HTTPS scheme: {request.url.scheme}")
+            logger.info(f"🔒 HTTPS host: {request.headers.get('host', 'N/A')}")
+            logger.info(f"🔒 HTTPS x-forwarded-proto: {request.headers.get('x-forwarded-proto', 'N/A')}")
+            logger.info(f"🔒 HTTPS x-forwarded-for: {request.headers.get('x-forwarded-for', 'N/A')}")
+            
             # Verificar se deve forçar HTTPS
-            if self._should_force_https(request):
-                return self._redirect_to_https(request)
+            should_force = self._should_force_https(request)
+            logger.info(f"🔒 HTTPS should_force_https: {should_force}")
+            
+            if should_force:
+                logger.info(f"🔒 Forçando HTTPS para: {path}")
+                redirect_response = self._redirect_to_https(request)
+                logger.info(f"🔒 HTTPS redirect status: {redirect_response.status_code}")
+                return redirect_response
 
             # Processar requisição
+            logger.info(f"🔒 HTTPS processando normalmente: {path}")
             response = await call_next(request)
+            logger.info(f"🔒 HTTPS resposta: {response.status_code}")
 
             # Adicionar headers de segurança
             self._add_security_headers(request, response)
@@ -78,7 +98,16 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
 
     def _should_force_https(self, request: Request) -> bool:
         """Determina se deve forçar HTTPS"""
+        path = request.url.path
+        
+        # 🔍 SUPER DEBUG: Log super detalhado
+        logger.info(f"🔒 _should_force_https chamado para: {path}")
+        logger.info(f"🔒 force_https: {self.force_https}")
+        logger.info(f"🔒 allow_localhost: {self.allow_localhost}")
+        logger.info(f"🔒 development_mode: {self.development_mode}")
+        
         if not self.force_https:
+            logger.info(f"🔒 force_https = False, retornando False")
             return False
 
         # ✅ RAILWAY FIX: Permitir ALL healthcheck endpoints sem HTTPS
@@ -86,26 +115,39 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
             "/health", "/ping", "/healthcheck", "/status",
             "/railway-health", "/emergency", "/railway", "/ready", "/alive"
         }
-        if request.url.path in railway_healthcheck_paths:
+        logger.info(f"🔒 railway_healthcheck_paths: {railway_healthcheck_paths}")
+        logger.info(f"🔒 path in railway_healthcheck_paths: {path in railway_healthcheck_paths}")
+        if path in railway_healthcheck_paths:
+            logger.info(f"🔒 path é healthcheck, retornando False")
             return False
 
         # Verificar se já é HTTPS
-        if request.url.scheme == "https":
+        is_https = request.url.scheme == "https"
+        logger.info(f"🔒 is_https: {is_https}")
+        if is_https:
+            logger.info(f"🔒 já é HTTPS, retornando False")
             return False
 
         # Permitir localhost em desenvolvimento
-        if self.allow_localhost and self._is_localhost(request):
+        is_localhost = self._is_localhost(request)
+        logger.info(f"🔒 is_localhost: {is_localhost}")
+        if self.allow_localhost and is_localhost:
+            logger.info(f"🔒 allow_localhost=True e is_localhost=True, retornando False")
             return False
 
         # Verificar headers de proxy (X-Forwarded-Proto)
         forwarded_proto = request.headers.get("X-Forwarded-Proto", "").lower()
+        logger.info(f"🔒 forwarded_proto: {forwarded_proto}")
         if forwarded_proto == "https":
+            logger.info(f"🔒 forwarded_proto=https, retornando False")
             return False
 
         # Modo desenvolvimento pode ser menos restritivo
         if self.development_mode:
+            logger.info(f"🔒 development_mode=True, retornando False")
             return False
 
+        logger.info(f"🔒 todas as verificações falharam, retornando True")
         return True
 
     def _is_localhost(self, request: Request) -> bool:
