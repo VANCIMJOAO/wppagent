@@ -47,33 +47,53 @@ def configure_enhanced_openapi(app: FastAPI) -> None:
     """
 
     def custom_openapi():
-        if app.openapi_schema:
-            return app.openapi_schema
+        try:
+            if app.openapi_schema:
+                return app.openapi_schema
 
-        openapi_schema = get_openapi(
-            title=app.title,
-            version=app.version,
-            description=app.description,
-            routes=app.routes,
-            servers=app.servers,
-            tags=app.tags_metadata,
-        )
+            openapi_schema = get_openapi(
+                title=app.title,
+                version=app.version,
+                description=app.description,
+                routes=app.routes,
+                servers=app.servers,
+                tags=app.tags_metadata,
+            )
+        except Exception as e:
+            logger.error(f"❌ Erro ao gerar OpenAPI schema: {e}")
+            # Retornar schema básico em caso de erro
+            return {
+                "openapi": "3.0.2",
+                "info": {
+                    "title": app.title or "WhatsApp Agent API",
+                    "version": app.version or "1.0.0",
+                    "description": app.description or "WhatsApp Business API"
+                },
+                "paths": {},
+                "components": {}
+            }
 
-        # Add custom security scheme
-        openapi_schema["components"]["securitySchemes"] = {
-            "HTTPBearer": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT",
-                "description": "JWT token authentication via Bearer header or HttpOnly cookies",
-            },
-            "ApiKey": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "X-API-Key",
-                "description": "API key for external integrations",
-            },
-        }
+        try:
+            # Add custom security scheme
+            if "components" not in openapi_schema:
+                openapi_schema["components"] = {}
+            
+            openapi_schema["components"]["securitySchemes"] = {
+                "HTTPBearer": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT",
+                    "description": "JWT token authentication via Bearer header or HttpOnly cookies",
+                },
+                "ApiKey": {
+                    "type": "apiKey",
+                    "in": "header",
+                    "name": "X-API-Key",
+                    "description": "API key for external integrations",
+                },
+            }
+        except Exception as e:
+            logger.error(f"❌ Erro ao adicionar security schemes: {e}")
 
         # Add global examples
         openapi_schema["components"]["examples"] = {
@@ -167,8 +187,12 @@ def configure_enhanced_openapi(app: FastAPI) -> None:
             "url": "https://docs.whatsappagent.com/api",
         }
 
-        app.openapi_schema = openapi_schema
-        return app.openapi_schema
+        try:
+            app.openapi_schema = openapi_schema
+            return app.openapi_schema
+        except Exception as e:
+            logger.error(f"❌ Erro ao definir OpenAPI schema: {e}")
+            return openapi_schema
 
     app.openapi = custom_openapi
 
