@@ -545,10 +545,6 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         # Para outros endpoints, processar normalmente
         return await call_next(request)
 
-# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware DEPOIS do HTTPSMiddleware
-app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - DEPOIS do HTTPSMiddleware")
-
 # 🚨 EMERGENCY ENDPOINTS - ANTES DE QUALQUER MIDDLEWARE
 @app.get("/emergency")
 async def emergency():
@@ -596,6 +592,10 @@ async def railway_health():
 async def status():
     """Endpoint de status - SEM MIDDLEWARE"""
     return {"status": "healthy", "service": "whatsapp-agent"}
+
+# 🔒 RAILWAY FIX: UltraSimpleCriticalMiddleware ANTES do AuthMiddleware
+app.add_middleware(UltraSimpleCriticalMiddleware)
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - ANTES do AuthMiddleware")
 
 # Depois AuthMiddleware
 app.add_middleware(AuthMiddleware)
