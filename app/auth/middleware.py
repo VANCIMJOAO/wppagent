@@ -38,6 +38,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self.public_endpoints = {
             "/health",
             "/ping",  # Railway healthcheck endpoint
+            "/emergency",  # Emergency endpoint
+            "/railway-health",  # Railway health endpoint
+            "/healthcheck",  # Alternative healthcheck
+            "/status",  # Status endpoint
+            "/railway",  # Railway endpoint
             "/docs",
             "/openapi.json",
             "/webhook",  # WhatsApp webhook - prefixo genérico
