@@ -544,6 +544,54 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         # Para outros endpoints, processar normalmente
         return await call_next(request)
 
+# 🚨 EMERGENCY ENDPOINTS - ANTES DE QUALQUER MIDDLEWARE
+@app.get("/emergency")
+async def emergency():
+    """Endpoint de emergência - BYPASS TOTAL"""
+    return {"status": "ok", "emergency": True, "railway": True}
+
+@app.get("/railway")
+async def railway():
+    """Endpoint Railway - BYPASS TOTAL"""
+    return {"status": "ok", "railway": True}
+
+@app.get("/health")
+async def health():
+    """Endpoint Health - BYPASS TOTAL"""
+    return {"status": "healthy", "service": "whatsapp-agent"}
+
+@app.get("/ping")
+async def ping():
+    """Simplest possible endpoint"""
+    return "pong"
+
+@app.get("/")
+async def root():
+    """Emergency root endpoint for Railway debugging"""
+    import os
+    return {
+        "message": "WhatsApp Agent API is running", 
+        "status": "healthy",
+        "railway_fast_start": os.getenv('RAILWAY_FAST_START', 'false'),
+        "port": os.getenv('PORT', '8000'),
+        "railway_env": os.getenv('RAILWAY_ENVIRONMENT', 'unknown')
+    }
+
+@app.get("/healthcheck")
+async def healthcheck():
+    """Endpoint alternativo para healthcheck do Railway - BYPASS COMPLETO"""
+    return {"status": "ok", "service": "whatsapp-agent", "railway": True, "healthcheck": "alternative"}
+
+@app.get("/railway-health")
+async def railway_health():
+    """Endpoint ULTRA SIMPLES para Railway - SEM MIDDLEWARE"""
+    return {"status": "ok", "railway": True}
+
+@app.get("/status")
+async def status():
+    """Endpoint de status - SEM MIDDLEWARE"""
+    return {"status": "healthy", "service": "whatsapp-agent"}
+
 # RAILWAY DEBUG: Apenas middlewares essenciais
 app.add_middleware(UltraSimpleCriticalMiddleware)  
 logger.info("🚄 RAILWAY: Only critical middleware loaded")
@@ -1033,55 +1081,7 @@ async def simple_health_check():
     return {"status": "ok", "service": "whatsapp-agent"}
 
 
-# 🚨 EMERGENCY ENDPOINTS - ANTES DE QUALQUER MIDDLEWARE
-@app.get("/emergency")
-async def emergency():
-    """Endpoint de emergência - BYPASS TOTAL"""
-    return {"status": "ok", "emergency": True, "railway": True}
-
-@app.get("/railway")
-async def railway():
-    """Endpoint Railway - BYPASS TOTAL"""
-    return {"status": "ok", "railway": True}
-
-@app.get("/health")
-async def health():
-    """Endpoint Health - BYPASS TOTAL"""
-    return {"status": "healthy", "service": "whatsapp-agent"}
-
-# 🛟 Railway Emergency Health Check - Direct response
-@app.get("/")
-async def root():
-    """Emergency root endpoint for Railway debugging"""
-    import os
-    return {
-        "message": "WhatsApp Agent API is running", 
-        "status": "healthy",
-        "railway_fast_start": os.getenv('RAILWAY_FAST_START', 'false'),
-        "port": os.getenv('PORT', '8000'),
-        "railway_env": os.getenv('RAILWAY_ENVIRONMENT', 'unknown')
-    }
-
-@app.get("/healthcheck")
-async def healthcheck():
-    """Endpoint alternativo para healthcheck do Railway - BYPASS COMPLETO"""
-    return {"status": "ok", "service": "whatsapp-agent", "railway": True, "healthcheck": "alternative"}
-
-@app.get("/railway-health")
-async def railway_health():
-    """Endpoint ULTRA SIMPLES para Railway - SEM MIDDLEWARE"""
-    return {"status": "ok", "railway": True}
-
-@app.get("/status")
-async def status():
-    """Endpoint de status - SEM MIDDLEWARE"""
-    return {"status": "healthy", "service": "whatsapp-agent"}
-
-
-@app.get("/ping")
-async def ping():
-    """Simplest possible endpoint"""
-    return "pong"
+# Endpoints duplicados removidos - agora estão antes dos middlewares
 
 
 
