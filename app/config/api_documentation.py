@@ -13,10 +13,13 @@ Status: DOC-001 Task 7 - API Documentation Enhancement
 """
 
 from typing import Any, Dict
+import logging
 
 from fastapi import FastAPI, Request
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+logger = logging.getLogger(__name__)
 
 # Security scheme para documentação
 security_scheme = HTTPBearer(

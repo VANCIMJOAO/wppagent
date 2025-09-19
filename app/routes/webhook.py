@@ -139,19 +139,21 @@ async def receive_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         if not await security_service.validate_webhook_request(request):
             log_security_event(
                 event_type="webhook_signature_invalid",
-                source_ip=request.client.host if request.client else "unknown",
-                user_agent=request.headers.get("user-agent", ""),
-                severity="HIGH",
-                description="HF001 PROTECTION: Webhook com assinatura invalida rejeitado",
-                metadata={
-                    "fix_applied": "HF001",
-                    "endpoint": "/webhook",
-                    "signature_header": request.headers.get(
-                        "X-Hub-Signature-256", "missing"
-                    ),
-                    "content_type": request.headers.get("Content-Type", ""),
+                details={
+                    "source_ip": request.client.host if request.client else "unknown",
                     "user_agent": request.headers.get("user-agent", ""),
+                    "description": "HF001 PROTECTION: Webhook com assinatura invalida rejeitado",
+                    "metadata": {
+                        "fix_applied": "HF001",
+                        "endpoint": "/webhook",
+                        "signature_header": request.headers.get(
+                            "X-Hub-Signature-256", "missing"
+                        ),
+                        "content_type": request.headers.get("Content-Type", ""),
+                        "user_agent": request.headers.get("user-agent", ""),
+                    },
                 },
+                severity="HIGH",
             )
 
             logger.error(
