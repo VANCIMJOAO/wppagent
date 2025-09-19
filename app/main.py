@@ -720,10 +720,7 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
         debug_logger.info(f"🟡 UltraSimple resposta final: {response.status_code}")
         return response
 
-# 🚨 CRÍTICO: UltraSimpleCriticalMiddleware deve ser o ÚLTIMO adicionado = PRIMEIRO executado!
-app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🚨 CRÍTICO: UltraSimpleCriticalMiddleware ativado - ÚLTIMO ADICIONADO = PRIMEIRO EXECUTADO!")
-debug_logger.info("🎯 ORDEM DE EXECUÇÃO: UltraSimple → SuperDebug → Auth → APM → Database → Webhook → User → Metrics → ApiResponse")
+# MOVIDO PARA DEPOIS DA DEFINIÇÃO DA CLASSE
 
 logger.info("🔧 Sistema de rate limiting por usuário ativo")
 
