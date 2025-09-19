@@ -592,24 +592,41 @@ async def status():
     """Endpoint de status - SEM MIDDLEWARE"""
     return {"status": "healthy", "service": "whatsapp-agent"}
 
-# RAILWAY DEBUG: Apenas middlewares essenciais
-app.add_middleware(UltraSimpleCriticalMiddleware)  
-logger.info("🚄 RAILWAY: Only critical middleware loaded")
+# Adicionar middleware ULTRA SIMPLES PRIMEIRO
+app.add_middleware(UltraSimpleCriticalMiddleware)
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO na ordem")
 
-# COMENTE TODOS OS OUTROS add_middleware temporariamente
-# app.add_middleware(APMMiddleware)
-# app.add_middleware(DatabasePerformanceMiddleware)
-# app.add_middleware(AuthMiddleware)
+# Depois APM
+app.add_middleware(APMMiddleware)
+debug_logger.info("🔍 APMMiddleware ativado")
 
-# COMENTADO TEMPORARIAMENTE PARA RAILWAY DEBUG
-# # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
-# logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
-# try:
-#     from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
-#     app.add_middleware(WebhookRateLimitMiddleware)
-#     logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
-# except Exception as e:
-#     logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
+# Database Performance
+app.add_middleware(DatabasePerformanceMiddleware)
+debug_logger.info("🔍 DatabasePerformanceMiddleware ativado")
+
+# 🔒 Adicionar middleware de autenticação e autorização
+app.add_middleware(AuthMiddleware)
+debug_logger.info("🔍 AuthMiddleware ativado")
+
+# 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
+logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
+try:
+    from app.middleware.webhook_rate_limit import WebhookRateLimitMiddleware
+
+    logger.info("🔍 H003 Debug: Import realizado com sucesso")
+    app.add_middleware(WebhookRateLimitMiddleware)
+    debug_logger.info("🔍 WebhookRateLimitMiddleware ativado")
+    logger.info("🛡️ H003 Webhook Rate Limiting middleware ativado - 100 req/min per IP")
+except ImportError as e:
+    logger.warning(f"⚠️ H003 Webhook Rate Limiting middleware não disponível: {e}")
+    import traceback
+
+    logger.error(f"❌ H003 ImportError traceback: {traceback.format_exc()}")
+except Exception as e:
+    logger.error(f"❌ Erro ao inicializar H003 Webhook Rate Limiting middleware: {e}")
+    import traceback
+
+    logger.error(f"❌ H003 Exception traceback: {traceback.format_exc()}")
 
 # H003 Simple Test (comentado - teste concluído)
 # logger.info("🔍 H003 Debug: Tentando carregar H003SimpleMiddleware (teste)...")
