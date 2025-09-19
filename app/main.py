@@ -492,6 +492,10 @@ add_cors_test_endpoint(app)
 
 logger.info("CORS configured with advanced settings for Railway")
 
+# 🔒 PRIMEIRO: UltraSimpleCriticalMiddleware - DEVE SER EXECUTADO PRIMEIRO!
+app.add_middleware(UltraSimpleCriticalMiddleware)
+logger.info("🔒 UltraSimpleCriticalMiddleware adicionado - PRIMEIRO")
+
 # 📚 Configurar documentação API aprimorada
 configure_enhanced_openapi(app)
 logger.info("Enhanced API documentation configured with examples and schemas")
@@ -722,9 +726,6 @@ class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
 
 
 # 🔒 ADICIONAR MIDDLEWARE AO APP
-app.add_middleware(UltraSimpleCriticalMiddleware)
-logger.info("🔒 UltraSimpleCriticalMiddleware adicionado - PRIMEIRO")
-# MOVIDO PARA DEPOIS DA DEFINIÇÃO DA CLASSE
 
 logger.info("🔧 Sistema de rate limiting por usuário ativo")
 
