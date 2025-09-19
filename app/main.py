@@ -644,6 +644,49 @@ debug_logger.info("🚀 DatabasePerformanceMiddleware ativado")
 app.add_middleware(APMMiddleware)
 debug_logger.info("🔍 APMMiddleware ativado")
 
+# 🔒 UltraSimpleCriticalMiddleware - DEVE SER ADICIONADO ANTES DO AuthMiddleware!
+class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
+    """Middleware ULTRA SIMPLES de bypass para endpoints críticos - PRIMEIRA EXECUÇÃO"""
+    
+    async def dispatch(self, request: Request, call_next):
+        """Bypass ULTRA SIMPLES para endpoints críticos"""
+        path = request.url.path
+        method = request.method
+        
+        # 🔍 SUPER DEBUG: Log super detalhado
+        debug_logger.info(f"🟡 UltraSimple processando: {method} {path}")
+        debug_logger.info(f"🟡 UltraSimple headers: {dict(request.headers)}")
+        debug_logger.info(f"🟡 UltraSimple query: {dict(request.query_params)}")
+        
+        # BYPASS DIRETO para /ping
+        if path == "/ping":
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO 200")
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: Headers de resposta: {'Content-Type': 'application/json'}")
+            return JSONResponse(
+                content={"status": "ok", "service": "whatsapp-agent", "railway": True},
+                status_code=200
+            )
+        
+        # BYPASS DIRETO para outros endpoints críticos
+        critical_paths = ["/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway"]
+        if path in critical_paths:
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO 200")
+            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: Headers de resposta: {'Content-Type': 'application/json'}")
+            return JSONResponse(
+                content={"status": "ok", "service": "whatsapp-agent"},
+                status_code=200
+            )
+        
+        debug_logger.info(f"🟡 UltraSimple passando adiante: {path}")
+        # Para outros endpoints, processar normalmente
+        response = await call_next(request)
+        debug_logger.info(f"🟡 UltraSimple resposta: {response.status_code}")
+        return response
+
+# 🔒 UltraSimpleCriticalMiddleware - DEVE SER ADICIONADO ANTES DO AuthMiddleware!
+app.add_middleware(UltraSimpleCriticalMiddleware)
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO!")
+
 # 🔒 AuthMiddleware (CRÍTICO: deve vir DEPOIS do UltraSimpleCriticalMiddleware)
 app.add_middleware(AuthMiddleware)
 debug_logger.info("🔒 AuthMiddleware ativado - APÓS UltraSimple")
@@ -679,52 +722,6 @@ class SuperDebugMiddleware(BaseHTTPMiddleware):
 app.add_middleware(SuperDebugMiddleware)
 debug_logger.info("🔍 SUPER DEBUG: SuperDebugMiddleware ativado")
 
-# 🔒 UltraSimpleCriticalMiddleware - DEVE SER O ÚLTIMO ADICIONADO = PRIMEIRO EXECUTADO!
-class UltraSimpleCriticalMiddleware(BaseHTTPMiddleware):
-    """Middleware ULTRA SIMPLES de bypass para endpoints críticos - PRIMEIRA EXECUÇÃO"""
-    
-    async def dispatch(self, request: Request, call_next):
-        """Bypass ULTRA SIMPLES para endpoints críticos - EXECUTADO PRIMEIRO"""
-        path = request.url.path
-        method = request.method
-        
-        # 🔍 SUPER DEBUG: Log super detalhado
-        debug_logger.info(f"🟡 UltraSimple processando: {method} {path}")
-        debug_logger.info(f"🟡 UltraSimple headers: {dict(request.headers)}")
-        debug_logger.info(f"🟡 UltraSimple PRIMEIRA EXECUÇÃO - BYPASS DIRETO!")
-        
-        # BYPASS DIRETO para /ping - PADRONIZADO JSON
-        if path == "/ping":
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO JSON 200 IMEDIATAMENTE")
-            debug_logger.info(f"🔒 BYPASS RAILWAY: Middleware processando /ping SEM PASSAR POR AuthMiddleware")
-            return JSONResponse(
-                content={"message": "pong", "status": "ok", "service": "whatsapp-agent", "railway": True, "middleware": "UltraSimpleCritical"},
-                status_code=200,
-                headers={"Content-Type": "application/json", "X-Bypass": "UltraSimpleCritical"}
-            )
-        
-        # BYPASS DIRETO para outros endpoints críticos
-        critical_paths = ["/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway"]
-        if path in critical_paths:
-            debug_logger.info(f"🔒 BYPASS ULTRA SIMPLES: {path} - RETORNANDO JSON 200 IMEDIATAMENTE")
-            debug_logger.info(f"🔒 BYPASS RAILWAY: Middleware processando {path} SEM PASSAR POR AuthMiddleware")
-            return JSONResponse(
-                content={"status": "ok", "service": "whatsapp-agent", "middleware": "UltraSimpleCritical"},
-                status_code=200,
-                headers={"Content-Type": "application/json", "X-Bypass": "UltraSimpleCritical"}
-            )
-        
-        debug_logger.info(f"🟡 UltraSimple passando para próximo middleware: {path}")
-        # Para outros endpoints, processar normalmente pela cadeia de middlewares
-        response = await call_next(request)
-        debug_logger.info(f"🟡 UltraSimple resposta final: {response.status_code}")
-        return response
-
-
-# 🔒 ADICIONAR MIDDLEWARE AO APP
-app.add_middleware(UltraSimpleCriticalMiddleware)
-logger.info("🔒 UltraSimpleCriticalMiddleware adicionado - PRIMEIRO")
-# MOVIDO PARA DEPOIS DA DEFINIÇÃO DA CLASSE
 
 logger.info("🔧 Sistema de rate limiting por usuário ativo")
 
