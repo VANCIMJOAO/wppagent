@@ -8,6 +8,7 @@ dockerfilePath = "Dockerfile"
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 300
+# ✅ RAILWAY FIX: /health é melhor que /ping para healthcheck
 restartPolicyType = "ON_FAILURE" 
 restartPolicyMaxRetries = 5
 

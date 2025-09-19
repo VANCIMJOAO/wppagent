@@ -81,8 +81,12 @@ class HTTPSMiddleware(BaseHTTPMiddleware):
         if not self.force_https:
             return False
 
-        # Permitir health check sem HTTPS para containers Docker
-        if request.url.path == "/health":
+        # ✅ RAILWAY FIX: Permitir ALL healthcheck endpoints sem HTTPS
+        railway_healthcheck_paths = {
+            "/health", "/ping", "/healthcheck", "/status",
+            "/railway-health", "/emergency", "/railway", "/ready", "/alive"
+        }
+        if request.url.path in railway_healthcheck_paths:
             return False
 
         # Verificar se já é HTTPS

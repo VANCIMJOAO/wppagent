@@ -8,9 +8,10 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.config import settings
 from app.config.config_factory import is_development
