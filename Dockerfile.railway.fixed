@@ -45,6 +45,5 @@ RUN pip list | grep fastapi
 ENV PORT=8000
 EXPOSE 8000
 
-# Debug startup command
-RUN echo "=== DEBUG: Starting with Railway port ==="
-CMD ["sh", "-c", "echo 'Starting on port:' $PORT && python -c 'import uvicorn; print(f\"Uvicorn version: {uvicorn.__version__}\")' && uvicorn app.main:app --host 0.0.0.0 --port $PORT --log-level info"]
+# RAILWAY DEBUG: Test minimal startup
+CMD ["python", "app/railway_debug.py"]
