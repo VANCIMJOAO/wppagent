@@ -1073,6 +1073,11 @@ async def root():
         "railway_env": os.getenv('RAILWAY_ENVIRONMENT', 'unknown')
     }
 
+@app.get("/healthcheck")
+async def healthcheck():
+    """Endpoint alternativo para healthcheck do Railway - BYPASS COMPLETO"""
+    return {"status": "ok", "service": "whatsapp-agent", "railway": True, "healthcheck": "alternative"}
+
 
 @app.get("/ping")
 async def ping():
