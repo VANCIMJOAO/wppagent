@@ -17,10 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Copy startup script
-COPY railway_start.sh .
-RUN chmod +x railway_start.sh
-
 # Set ownership to app user
 RUN chown -R app:app /app
 
@@ -34,5 +30,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:' + str(${PORT:-8000}) + '/ping', timeout=5)" || exit 1
 
-# Start application with debug logging
-CMD ["./railway_start.sh"]
+# Start application directly with uvicorn
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info"]
