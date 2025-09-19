@@ -71,6 +71,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         """Middleware principal"""
+        
+        path = request.url.path
+        logger.info(f"🔍 AuthMiddleware processando: {path}")
 
         # 🔧 CORS FIX: Permitir todas as requisições OPTIONS sem autenticação
         if request.method == "OPTIONS":
@@ -175,12 +178,21 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return "default"
 
     def _is_public_endpoint(self, path: str) -> bool:
-        """Verifica se endpoint é público"""
-        # 🔐 AUTENTICAÇÃO REAL IMPLEMENTADA
+        """Verifica se endpoint é público - CORREÇÃO DEFINITIVA"""
+        
+        # 🚨 BYPASS DIRETO para endpoints críticos
+        critical_endpoints = {"/ping", "/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway"}
+        if path in critical_endpoints:
+            logger.info(f"🚨 BYPASS CRÍTICO AuthMiddleware: {path}")
+            return True
+        
+        # Verificação normal para outros endpoints    
         for public_path in self.public_endpoints:
             if path == public_path or path.startswith(public_path + "/"):
+                logger.info(f"✅ ENDPOINT PÚBLICO AuthMiddleware: {path}")
                 return True
-
+        
+        logger.warning(f"❌ ENDPOINT PRIVADO AuthMiddleware: {path}")
         return False
 
     async def _authenticate_request(self, request: Request) -> Dict:
