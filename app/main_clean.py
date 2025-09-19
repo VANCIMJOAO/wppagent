@@ -1,31 +1,38 @@
 """
-Aplicação principal WhatsApp Agent API - VERSÃO ULTRA LIMPA
-Sem dependências complexas, apenas o essencial para resolver /ping 401
+Aplicação principal WhatsApp Agent API - VERSÃO LIMPA
+Refatoração completa para resolver problema Railway /ping 401
 """
 
+import asyncio
 import logging
+from contextlib import asynccontextmanager
 from datetime import datetime
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
-# ============================================================================
-# CONFIGURAÇÃO DE LOGGING SIMPLES
-# ============================================================================
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+from app.config import settings
+from app.config.config_factory import is_development
+from app.database import init_db
+from app.routes.webhook import router as webhook_router
+from app.schemas.health import (
+    AppInfo,
+    DetailedHealthResponse,
+    HealthCheckResponse,
+    SystemHealth,
+    SystemMetrics,
 )
+
+# Sistema de Logging
 logger = logging.getLogger(__name__)
 
 # ============================================================================
-# MIDDLEWARE DE BYPASS CRÍTICO - ULTRA SIMPLES
+# MIDDLEWARE DE BYPASS CRÍTICO - VERSÃO LIMPA E SIMPLES
 # ============================================================================
 
-class CriticalBypassMiddleware(BaseHTTPMiddleware):
+class CriticalEndpointsBypassMiddleware(BaseHTTPMiddleware):
     """
     Middleware ULTRA SIMPLES para bypass de endpoints críticos
     Deve ser o PRIMEIRO middleware a ser executado
@@ -38,7 +45,7 @@ class CriticalBypassMiddleware(BaseHTTPMiddleware):
             "/ping", "/health", "/emergency", "/railway-health", 
             "/healthcheck", "/status", "/railway", "/ready", "/alive", "/"
         }
-        logger.info("🔒 CriticalBypassMiddleware inicializado")
+        logger.info("🔒 CriticalEndpointsBypassMiddleware inicializado")
     
     async def dispatch(self, request: Request, call_next):
         """Bypass direto para endpoints críticos"""
@@ -57,7 +64,7 @@ class CriticalBypassMiddleware(BaseHTTPMiddleware):
                 "service": "whatsapp-agent",
                 "timestamp": datetime.now().isoformat(),
                 "endpoint": path,
-                "bypass": "CriticalBypassMiddleware"
+                "bypass": "CriticalEndpointsBypassMiddleware"
             }
             
             # Resposta específica para /ping
@@ -70,7 +77,7 @@ class CriticalBypassMiddleware(BaseHTTPMiddleware):
                 status_code=200,
                 headers={
                     "Content-Type": "application/json",
-                    "X-Bypass": "CriticalBypassMiddleware",
+                    "X-Bypass": "CriticalEndpointsBypassMiddleware",
                     "X-Endpoint": path
                 }
             )
@@ -129,13 +136,32 @@ class SimpleAuthMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 # ============================================================================
-# CRIAÇÃO DA APLICAÇÃO FASTAPI
+# CONFIGURAÇÃO DA APLICAÇÃO
 # ============================================================================
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Gerenciamento do ciclo de vida da aplicação"""
+    logger.info("🚀 Iniciando WhatsApp Agent API...")
+    
+    # Inicialização
+    try:
+        await init_db()
+        logger.info("✅ Banco de dados inicializado")
+    except Exception as e:
+        logger.error(f"❌ Erro ao inicializar banco: {e}")
+    
+    yield
+    
+    # Shutdown
+    logger.info("🛑 Finalizando WhatsApp Agent API...")
+
+# Criar aplicação FastAPI
 app = FastAPI(
-    title="WhatsApp Agent API - Ultra Clean",
-    description="API para gerenciamento de WhatsApp - Versão Ultra Limpa",
-    version="1.0.0"
+    title="WhatsApp Agent API",
+    description="API para gerenciamento de WhatsApp",
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # ============================================================================
@@ -144,7 +170,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Em produção, especificar origens
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -155,8 +181,8 @@ app.add_middleware(
 # ============================================================================
 
 # 1. PRIMEIRO: Bypass de endpoints críticos (deve ser o último adicionado)
-app.add_middleware(CriticalBypassMiddleware)
-logger.info("🔒 CriticalBypassMiddleware adicionado - PRIMEIRO")
+app.add_middleware(CriticalEndpointsBypassMiddleware)
+logger.info("🔒 CriticalEndpointsBypassMiddleware adicionado - PRIMEIRO")
 
 # 2. SEGUNDO: Autenticação simplificada
 app.add_middleware(SimpleAuthMiddleware)
@@ -170,7 +196,7 @@ logger.info("🔐 SimpleAuthMiddleware adicionado - SEGUNDO")
 async def root():
     """Endpoint raiz"""
     return {
-        "message": "WhatsApp Agent API - Ultra Clean",
+        "message": "WhatsApp Agent API",
         "status": "running",
         "timestamp": datetime.now().isoformat()
     }
@@ -212,14 +238,27 @@ async def api_status():
         "timestamp": datetime.now().isoformat()
     }
 
+# Incluir rotas do webhook
+app.include_router(webhook_router, tags=["webhook"])
+
+# ============================================================================
+# CONFIGURAÇÃO DE LOGGING
+# ============================================================================
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+logger.info("✅ WhatsApp Agent API configurada com sucesso!")
+
 # ============================================================================
 # INICIALIZAÇÃO DO SERVIDOR
 # ============================================================================
 
 if __name__ == "__main__":
-    logger.info("✅ WhatsApp Agent API Ultra Clean configurada com sucesso!")
     uvicorn.run(
-        "app.main_ultra_clean:app",
+        "app.main_clean:app",
         host="0.0.0.0",
         port=8000,
         reload=True,
