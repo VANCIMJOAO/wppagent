@@ -185,19 +185,24 @@ class AuthMiddleware(BaseHTTPMiddleware):
     def _is_public_endpoint(self, path: str) -> bool:
         """Verifica se endpoint é público - CORREÇÃO DEFINITIVA"""
         
-        # 🚨 BYPASS DIRETO para endpoints críticos
-        critical_endpoints = {"/ping", "/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway"}
+        # 🚨 RAILWAY FIX: BYPASS DIRETO para endpoints críticos
+        critical_endpoints = {"/ping", "/health", "/emergency", "/railway-health", "/healthcheck", "/status", "/railway", "/ready", "/alive"}
         if path in critical_endpoints:
             logger.info(f"🚨 BYPASS CRÍTICO AuthMiddleware: {path}")
             return True
         
-        # Verificação normal para outros endpoints    
+        # Verificação normal para outros endpoints usando o set   
+        if path in self.public_endpoints:
+            logger.info(f"✅ ENDPOINT PÚBLICO (SET) AuthMiddleware: {path}")
+            return True
+            
+        # Verificação de prefixos
         for public_path in self.public_endpoints:
-            if path == public_path or path.startswith(public_path + "/"):
-                logger.info(f"✅ ENDPOINT PÚBLICO AuthMiddleware: {path}")
+            if path.startswith(public_path + "/"):
+                logger.info(f"✅ ENDPOINT PÚBLICO (PREFIX) AuthMiddleware: {path}")
                 return True
         
-        logger.warning(f"❌ ENDPOINT PRIVADO AuthMiddleware: {path}")
+        logger.error(f"❌ ENDPOINT PRIVADO AuthMiddleware: {path} - REQUER AUTENTICAÇÃO")
         return False
 
     async def _authenticate_request(self, request: Request) -> Dict:

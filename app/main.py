@@ -593,9 +593,13 @@ async def status():
     """Endpoint de status - SEM MIDDLEWARE"""
     return {"status": "healthy", "service": "whatsapp-agent"}
 
-# Adicionar middleware ULTRA SIMPLES PRIMEIRO
+# 🔒 RAILWAY FIX: AuthMiddleware PRIMEIRO para bypass correto
+app.add_middleware(AuthMiddleware)
+debug_logger.info("🔒 AuthMiddleware ativado - PRIMEIRO na ordem")
+
+# Depois UltraSimpleCriticalMiddleware
 app.add_middleware(UltraSimpleCriticalMiddleware)
-debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - PRIMEIRO na ordem")
+debug_logger.info("🔒 UltraSimpleCriticalMiddleware ativado - SEGUNDO na ordem")
 
 # Depois APM
 app.add_middleware(APMMiddleware)
@@ -604,10 +608,6 @@ debug_logger.info("🔍 APMMiddleware ativado")
 # Database Performance
 app.add_middleware(DatabasePerformanceMiddleware)
 debug_logger.info("🔍 DatabasePerformanceMiddleware ativado")
-
-# 🔒 Adicionar middleware de autenticação e autorização
-app.add_middleware(AuthMiddleware)
-debug_logger.info("🔍 AuthMiddleware ativado")
 
 # 🛡️ H003 - Adicionar middleware de rate limiting para webhooks
 logger.info("🔍 H003 Debug: Tentando carregar WebhookRateLimitMiddleware...")
