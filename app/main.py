@@ -873,6 +873,12 @@ from app.routes.debug_simple import router as debug_simple_router
 app.include_router(debug_simple_router, tags=["Debug Simple"])
 logger.info("🔍 Debug simple ativado - Para testes básicos")
 
+# 🔍 Debug WhatsApp (sem autenticação)
+from app.routes.debug_whatsapp import router as debug_whatsapp_router
+
+app.include_router(debug_whatsapp_router, tags=["Debug WhatsApp"])
+logger.info("🔍 Debug WhatsApp ativado - Para investigar envio")
+
 # Dashboard Routes
 from app.routes.clients import router as clients_router
 
