@@ -520,6 +520,44 @@ async def create_initial_admin(session: AsyncSession = Depends(get_db)):
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
 
+# Endpoint temporário para resetar senha do admin
+@auth_router.post("/reset-admin-password", include_in_schema=False, dependencies=[])
+async def reset_admin_password(session: AsyncSession = Depends(get_db)):
+    """
+    🚨 ENDPOINT TEMPORÁRIO - Resetar senha do admin para 'admin123'
+    """
+    try:
+        # Buscar admin
+        result = await session.execute(
+            select(AdminUser).where(AdminUser.username == "admin")
+        )
+        admin_user = result.scalar_one_or_none()
+
+        if not admin_user:
+            return {
+                "status": "admin_not_found",
+                "message": "Admin não encontrado"
+            }
+
+        # Resetar senha para 'admin123'
+        new_password = "admin123"
+        admin_user.set_password(new_password)
+        
+        await session.commit()
+
+        return {
+            "status": "success",
+            "message": "Senha do admin resetada para 'admin123'",
+            "username": "admin",
+            "new_password": new_password
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Erro ao resetar senha do admin: {e}")
+        await session.rollback()
+        raise HTTPException(500, f"Erro interno: {str(e)}")
+
+
 # Endpoint temporário para debug de login
 @auth_router.post("/debug-admin", include_in_schema=False, dependencies=[])
 async def debug_admin(credentials: AdminLogin, session: AsyncSession = Depends(get_db)):
