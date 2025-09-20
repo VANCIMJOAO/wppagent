@@ -567,10 +567,11 @@ async def create_rbac_tables(session: AsyncSession = Depends(get_db)):
     """
     try:
         from app.models.rbac import Base as RBACBase
-        from app.database import engine
+        from app.database import AsyncSessionLocal
         
-        # Criar todas as tabelas RBAC
-        await RBACBase.metadata.create_all(bind=engine)
+        # Criar todas as tabelas RBAC usando sessão assíncrona
+        async with AsyncSessionLocal() as async_session:
+            await async_session.run_sync(RBACBase.metadata.create_all)
         
         return {
             "status": "success",
