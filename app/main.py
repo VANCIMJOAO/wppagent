@@ -984,6 +984,12 @@ logger.info(
     "⚠️ Sistema RBAC ativado - Item 2: Controle granular de permissões implementado"
 )
 
+# 🔧 ADMIN RBAC - Endpoints administrativos para RBAC
+from app.routes.admin_rbac import router as admin_rbac_router
+
+app.include_router(admin_rbac_router, tags=["Admin RBAC Management"])
+logger.info("🔧 Admin RBAC endpoints ativados - /admin/rbac/")
+
 # ✅ Usar versão corrigida das conversas - agora na versão principal
 from app.routes.conversations import router as conversations_router
 
