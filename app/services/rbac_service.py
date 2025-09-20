@@ -428,19 +428,47 @@ class RBACService:
             permissions = result.scalars().all()
             
             return [
-                PermissionResponse(
-                    id=perm.id,
-                    permission_type=perm.permission_type.value,
-                    name=perm.name,
-                    description=perm.description,
-                    category=perm.category.value if perm.category else None,
-                    risk_level=perm.risk_level.value if perm.risk_level else None,
-                    requires_2fa=perm.requires_2fa,
-                    is_active=perm.is_active,
-                    created_at=perm.created_at,
-                )
+                self._permission_to_response(perm)
                 for perm in permissions
             ]
+
+    def _permission_to_response(self, perm: RBACPermission) -> PermissionResponse:
+        """Converter permissão para resposta da API"""
+        # Tratar permission_type que pode vir como string do banco
+        permission_type_value = None
+        if perm.permission_type:
+            if hasattr(perm.permission_type, 'value'):
+                permission_type_value = perm.permission_type.value
+            else:
+                permission_type_value = str(perm.permission_type)
+        
+        # Tratar category que pode vir como string do banco
+        category_value = None
+        if perm.category:
+            if hasattr(perm.category, 'value'):
+                category_value = perm.category.value
+            else:
+                category_value = str(perm.category)
+        
+        # Tratar risk_level que pode vir como string do banco
+        risk_level_value = None
+        if perm.risk_level:
+            if hasattr(perm.risk_level, 'value'):
+                risk_level_value = perm.risk_level.value
+            else:
+                risk_level_value = str(perm.risk_level)
+        
+        return PermissionResponse(
+            id=perm.id,
+            permission_type=permission_type_value,
+            name=perm.name,
+            description=perm.description,
+            category=category_value,
+            risk_level=risk_level_value,
+            requires_2fa=perm.requires_2fa,
+            is_active=perm.is_active,
+            created_at=perm.created_at,
+        )
 
     async def get_system_stats(self) -> Dict:
         """Obter estatísticas do sistema RBAC"""
