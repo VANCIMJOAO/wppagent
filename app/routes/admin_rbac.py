@@ -311,3 +311,20 @@ async def rbac_health_check():
             "timestamp": datetime.utcnow().isoformat(),
             "error": str(e),
         }
+
+
+@router.get("/test")
+async def rbac_test():
+    """Endpoint de teste simples para RBAC"""
+    try:
+        return {
+            "status": "ok",
+            "message": "RBAC service is working",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"RBAC service error: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
