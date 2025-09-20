@@ -33,7 +33,7 @@ async def debug_process_message(
     try:
         debug_info = {
             "timestamp": datetime.utcnow().isoformat(),
-            "message_data": str(message_data),  # Converter para string
+            "message_data": message_data,  # Manter como dict
             "steps": []
         }
         
@@ -45,7 +45,7 @@ async def debug_process_message(
                 "success": True,
                 "wa_id": wa_id,
                 "clean_content": clean_content,
-                "contact_info": contact_info
+                "contact_info": str(contact_info)  # Converter para string
             })
         except Exception as e:
             debug_info["steps"].append({
@@ -201,13 +201,17 @@ async def debug_process_message(
         debug_info["steps"].append({
             "step": "final_result",
             "success": True,
-            "processed": True
+            "processed": True,
+            "response_text": response_text  # Incluir resposta gerada
         })
         
         return {
             "debug_info": debug_info,
             "processed": True,
-            "message": "Debug processamento concluído com sucesso"
+            "message": "Debug processamento concluído com sucesso",
+            "response_text": response_text,  # Incluir resposta no resultado final
+            "user_id": user.id,
+            "conversation_id": conversation.id
         }
         
     except Exception as e:
