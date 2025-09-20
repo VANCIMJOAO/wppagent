@@ -82,7 +82,12 @@ class ReportExportService:
 
         # Buscar dados
         async with AsyncSessionLocal() as session:
-            query = select(Appointment)
+            from sqlalchemy.orm import selectinload
+            
+            query = select(Appointment).options(
+                selectinload(Appointment.user),
+                selectinload(Appointment.service)
+            )
 
             # Filtros
             conditions = []
@@ -105,14 +110,26 @@ class ReportExportService:
         # Converter para dados estruturados
         data = []
         for apt in appointments:
+            # Buscar dados relacionados
+            user_name = "N/A"
+            user_phone = "N/A"
+            service_name = "Geral"
+            
+            if hasattr(apt, 'user') and apt.user:
+                user_name = apt.user.nome or "N/A"
+                user_phone = apt.user.telefone or "N/A"
+            
+            if hasattr(apt, 'service') and apt.service:
+                service_name = apt.service.name or "Geral"
+            
             data.append(
                 {
                     "ID": apt.id,
-                    "Data/Hora": apt.date_time.strftime("%d/%m/%Y %H:%M"),
-                    "Cliente": apt.user_name or "N/A",
-                    "Telefone": apt.user_phone or "N/A",
+                    "Data/Hora": apt.date_time.strftime("%d/%m/%Y %H:%M") if apt.date_time else "N/A",
+                    "Cliente": user_name,
+                    "Telefone": user_phone,
                     "Status": self._translate_status(apt.status),
-                    "Serviço": apt.service_type or "Geral",
+                    "Serviço": service_name,
                     "Observações": apt.notes or "",
                     "Criado em": (
                         apt.created_at.strftime("%d/%m/%Y %H:%M")
