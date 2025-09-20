@@ -160,6 +160,9 @@ async def debug_process_message(
         
         # Step 7: Testar geração de resposta
         try:
+            # Usar a mesma lógica do webhook principal
+            from app.routes.webhook_unified import SimplifiedResponseGenerator
+            response_generator = SimplifiedResponseGenerator()
             response_text = response_generator.generate_single_response(clean_content)
             debug_info["steps"].append({
                 "step": "generate_response",
