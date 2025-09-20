@@ -11,10 +11,11 @@ ENDPOINT_RATE_LIMITS = {
     # Webhook - crítico, limite moderado
     "POST /webhook": {"requests": 500, "window": 60, "burst": 50},
     "GET /webhook/status": {"requests": 100, "window": 60},
-    # Autenticação - limite restrito por segurança
-    "POST /auth/login": {"requests": 10, "window": 300, "burst": 3},  # 5 min window
-    "POST /auth/refresh": {"requests": 20, "window": 60, "burst": 5},
-    "POST /auth/logout": {"requests": 5, "window": 60},
+    # Autenticação - limite aumentado para testes
+    "POST /auth/login": {"requests": 100, "window": 60, "burst": 20},  # 100 req/min
+    "POST /auth/refresh": {"requests": 50, "window": 60, "burst": 10},
+    "POST /auth/logout": {"requests": 20, "window": 60},
+    "POST /auth/register": {"requests": 50, "window": 60, "burst": 10},  # Adicionar registro
     # Admin endpoints - limite alto para admins, será multiplicado
     "POST /admin/auth/login": {"requests": 20, "window": 300, "burst": 5},
     "GET /admin/rate-limit/status": {"requests": 100, "window": 60},
