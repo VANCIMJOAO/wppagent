@@ -88,7 +88,7 @@ class PermissionType(str, Enum):
 class PermissionCategory(str, Enum):
     """Categorias de permissões"""
 
-    BASIC = "basic"  # Categoria básica para compatibilidade
+    BASIC = "basic"  # Categoria básica para compatibilidade (minúsculo)
     DASHBOARD = "DASHBOARD"
     APPOINTMENTS = "APPOINTMENTS"
     CONVERSATIONS = "CONVERSATIONS"
@@ -548,7 +548,7 @@ class RBACPermission(Base):
     permission_type = Column(String(100), unique=True, nullable=False)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    category = Column(SQLEnum(PermissionCategory), nullable=False)
+    category = Column(SQLEnum(PermissionCategory, values_callable=lambda obj: [e.value for e in obj]), nullable=False)
     risk_level = Column(SQLEnum(RiskLevel), nullable=False)
     requires_2fa = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
