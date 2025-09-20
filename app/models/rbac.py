@@ -88,6 +88,7 @@ class PermissionType(str, Enum):
 class PermissionCategory(str, Enum):
     """Categorias de permissões"""
 
+    BASIC = "basic"  # Categoria básica para compatibilidade
     DASHBOARD = "DASHBOARD"
     APPOINTMENTS = "APPOINTMENTS"
     CONVERSATIONS = "CONVERSATIONS"
@@ -103,17 +104,6 @@ class RiskLevel(str, Enum):
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
     CRITICAL = "CRITICAL"
-
-
-class PermissionCategory(str, Enum):
-    """Categorias de permissões"""
-
-    DASHBOARD = "DASHBOARD"
-    APPOINTMENTS = "APPOINTMENTS"
-    CONVERSATIONS = "CONVERSATIONS"
-    CLIENTS = "CLIENTS"
-    REPORTS = "REPORTS"
-    SYSTEM = "SYSTEM"
 
 
 class RoleType(str, Enum):
