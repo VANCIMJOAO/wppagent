@@ -292,8 +292,8 @@ class TesteCompletoTodasFuncoes:
             ("/metrics", "Métricas do sistema"),
             ("/test/dashboard", "Dashboard principal (teste)"),
             ("/test/analytics", "Analytics (teste)"),
-            ("/admin/users", "Lista de usuários"),
-            ("/admin/backup", "Backup do sistema")
+            ("/admin/rbac/users", "Lista de usuários RBAC"),
+            ("/admin/backup/status", "Status do backup")
         ]
         
         for endpoint, description in protected_endpoints:

@@ -558,6 +558,61 @@ async def reset_admin_password(session: AsyncSession = Depends(get_db)):
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
 
+# Endpoint definitivo para sincronizar admin com RBAC
+@auth_router.post("/sync-admin-rbac", include_in_schema=False, dependencies=[])
+async def sync_admin_rbac(session: AsyncSession = Depends(get_db)):
+    """
+    🔧 SINCRONIZAR ADMIN COM RBAC - DEFINITIVO
+    Cria o admin user no sistema RBAC com permissões de super admin
+    """
+    try:
+        from app.services.rbac_service import rbac_service
+        from app.models.rbac import RBACUser, RoleType
+        from sqlalchemy import select as rbac_select
+        
+        # 1. Inicializar sistema RBAC se necessário
+        await rbac_service.initialize_system()
+        
+        # 2. Verificar se admin já existe no RBAC
+        rbac_result = await session.execute(
+            rbac_select(RBACUser).where(RBACUser.username == "admin")
+        )
+        rbac_admin = rbac_result.scalar_one_or_none()
+        
+        if rbac_admin:
+            return {
+                "status": "already_exists",
+                "message": "Admin já existe no sistema RBAC",
+                "rbac_user_id": rbac_admin.id
+            }
+        
+        # 3. Criar admin no sistema RBAC com role de SUPER_ADMIN
+        rbac_admin = await rbac_service.create_user(
+            username="admin",
+            email="admin@example.com",
+            full_name="Administrator",
+            role_types=[RoleType.SUPER_ADMIN],
+            requires_2fa=False
+        )
+        
+        if not rbac_admin:
+            raise HTTPException(500, "Erro ao criar admin no sistema RBAC")
+        
+        logger.info(f"✅ Admin sincronizado com RBAC - ID: {rbac_admin.id}")
+        
+        return {
+            "status": "success",
+            "message": "Admin sincronizado com sistema RBAC",
+            "rbac_user_id": rbac_admin.id,
+            "roles": [role.role_type.value for role in rbac_admin.roles]
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Erro ao sincronizar admin com RBAC: {e}")
+        await session.rollback()
+        raise HTTPException(500, f"Erro interno: {str(e)}")
+
+
 # Endpoint temporário para debug de login
 @auth_router.post("/debug-admin", include_in_schema=False, dependencies=[])
 async def debug_admin(credentials: AdminLogin, session: AsyncSession = Depends(get_db)):
