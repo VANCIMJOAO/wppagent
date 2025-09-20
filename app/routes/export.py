@@ -58,7 +58,7 @@ async def export_appointments_csv(
 
         # Criar serviços
         analytics = AdvancedAnalyticsEngine(session)
-        export_service = ReportExportService(analytics)
+        export_service = ReportExportService()
 
         # Gerar CSV
         csv_data, content_type = await export_service.export_appointments_report(
@@ -114,7 +114,7 @@ async def export_analytics_excel(
     try:
         # Criar serviços
         analytics = AdvancedAnalyticsEngine(session)
-        export_service = ReportExportService(analytics)
+        export_service = ReportExportService()
 
         # Gerar Excel
         excel_data, content_type = await export_service.export_dashboard_report(
@@ -168,7 +168,7 @@ async def export_executive_pdf(
     try:
         # Criar serviços
         analytics = AdvancedAnalyticsEngine(session)
-        export_service = ReportExportService(analytics)
+        export_service = ReportExportService()
 
         # Gerar PDF
         pdf_data, content_type = await export_service.export_dashboard_report(
