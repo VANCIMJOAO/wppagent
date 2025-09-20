@@ -1,114 +1,218 @@
 """
-🔍 Endpoint de Debug para Webhook Secret
-======================================
+🔍 DEBUG WEBHOOK ENDPOINT
+========================
 
-Endpoint temporário para debugar problemas de webhook signature.
+Endpoint específico para debug do processamento de mensagens.
 """
 
-import hashlib
-import hmac
 import json
 import logging
-import os
+from datetime import datetime
+from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.security import HTTPBearer
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
-from app.services.whatsapp_security import WhatsAppSecurityService
+from app.database import get_db
+from app.services.response_control import get_unified_response_control
+from app.utils.whatsapp_data_extractor import sanitize_whatsapp_data
 
 logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/debug", tags=["Debug Webhook"])
 
-router = APIRouter()
 
-
-# Endpoint público para debug (sem autenticação)
-@router.get("/public/webhook-secret-info")
-async def public_webhook_secret_info():
+@router.post("/process-message")
+async def debug_process_message(
+    message_data: Dict[str, Any],
+    request: Request,
+    db: AsyncSession = Depends(get_db)
+):
     """
-    Endpoint público para debug do webhook secret - REMOVER EM PRODUÇÃO
-    """
-    try:
-        service = WhatsAppSecurityService()
-
-        result = {
-            "webhook_secret_configured": bool(service.webhook_secret),
-            "webhook_secret_length": (
-                len(service.webhook_secret) if service.webhook_secret else 0
-            ),
-            "timestamp": "2025-08-13T01:10:00Z",
-            "debug_mode": True,
-        }
-
-        if service.webhook_secret:
-            # Criar uma assinatura de teste
-            test_payload = '{"test": "payload"}'
-            test_signature = hmac.new(
-                service.webhook_secret.encode("utf-8"),
-                test_payload.encode("utf-8"),
-                hashlib.sha256,
-            ).hexdigest()
-
-            result.update(
-                {
-                    "webhook_secret_first_8": service.webhook_secret[:8],
-                    "webhook_secret_last_8": service.webhook_secret[-8:],
-                    "full_secret_for_meta_console": service.webhook_secret,  # APENAS PARA DEBUG
-                    "test_payload": test_payload,
-                    "test_signature": f"sha256={test_signature}",
-                    "validation_info": "Configure este secret no Meta Developers Console",
-                    "current_signature_mismatch": {
-                        "received_from_meta": "d2d86b5217f9683c9d81cbedc8d7294aa42c3aab15e07e33f41c6eddc187da5f",
-                        "expected_by_app": "35a55f92ec03aa5f74f0631964c6ac90144e85866d21114f381e18d6355134ca",
-                    },
-                }
-            )
-
-        return result
-
-    except Exception as e:
-        logger.error(f"❌ Erro no debug webhook secret: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/debug/webhook-test")
-async def test_webhook_signature(request: Request):
-    """
-    Endpoint para testar validação de assinatura - REMOVER EM PRODUÇÃO
+    Debug específico para processamento de mensagem
     """
     try:
-        service = WhatsAppSecurityService()
-
-        # Obter payload e signature
-        payload = await request.body()
-        signature = request.headers.get("X-Hub-Signature-256", "")
-
-        # Tentar validar
-        is_valid = service.validate_webhook_signature(payload, signature)
-
-        result = {
-            "signature_provided": signature,
-            "payload_length": len(payload),
-            "validation_result": is_valid,
-            "webhook_secret_configured": bool(service.webhook_secret),
+        debug_info = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "message_data": message_data,
+            "steps": []
         }
-
-        if service.webhook_secret and payload:
-            # Calcular assinatura esperada
-            expected_signature = hmac.new(
-                service.webhook_secret.encode("utf-8"), payload, hashlib.sha256
-            ).hexdigest()
-
-            result.update(
-                {
-                    "expected_signature": f"sha256={expected_signature}",
-                    "signature_match": signature == f"sha256={expected_signature}"
-                    or signature == expected_signature,
-                }
+        
+        # Step 1: Sanitizar dados
+        try:
+            wa_id, clean_content, contact_info = sanitize_whatsapp_data(message_data)
+            debug_info["steps"].append({
+                "step": "sanitize_whatsapp_data",
+                "success": True,
+                "wa_id": wa_id,
+                "clean_content": clean_content,
+                "contact_info": contact_info
+            })
+        except Exception as e:
+            debug_info["steps"].append({
+                "step": "sanitize_whatsapp_data",
+                "success": False,
+                "error": str(e)
+            })
+            return {"debug_info": debug_info, "error": "sanitize_failed"}
+        
+        # Step 2: Verificar dados válidos
+        if not wa_id or not clean_content:
+            debug_info["steps"].append({
+                "step": "validate_data",
+                "success": False,
+                "wa_id_valid": bool(wa_id),
+                "content_valid": bool(clean_content),
+                "reason": "invalid_data"
+            })
+            return {"debug_info": debug_info, "error": "invalid_data"}
+        
+        debug_info["steps"].append({
+            "step": "validate_data",
+            "success": True,
+            "wa_id": wa_id,
+            "content_length": len(clean_content)
+        })
+        
+        # Step 3: Verificar controle unificado
+        try:
+            unified_control = get_unified_response_control()
+            can_process, reason = await unified_control.can_process_message(wa_id, clean_content)
+            debug_info["steps"].append({
+                "step": "unified_control",
+                "success": True,
+                "can_process": can_process,
+                "reason": reason
+            })
+        except Exception as e:
+            debug_info["steps"].append({
+                "step": "unified_control",
+                "success": False,
+                "error": str(e)
+            })
+            return {"debug_info": debug_info, "error": "unified_control_failed"}
+        
+        if not can_process:
+            debug_info["steps"].append({
+                "step": "message_blocked",
+                "success": False,
+                "reason": reason
+            })
+            return {"debug_info": debug_info, "blocked": True, "reason": reason}
+        
+        # Step 4: Verificar serviços
+        try:
+            from app.services.data import UserService, ConversationService, MessageService
+            from app.services.whatsapp import whatsapp_service
+            from app.services.response_generator import response_generator
+            
+            debug_info["steps"].append({
+                "step": "import_services",
+                "success": True,
+                "services_available": True
+            })
+        except Exception as e:
+            debug_info["steps"].append({
+                "step": "import_services",
+                "success": False,
+                "error": str(e)
+            })
+            return {"debug_info": debug_info, "error": "import_services_failed"}
+        
+        # Step 5: Testar criação de usuário
+        try:
+            user = await UserService.get_or_create_user(
+                db=db,
+                wa_id=wa_id,
+                nome=contact_info.get("name"),
+                telefone=wa_id
             )
-
-        return result
-
+            debug_info["steps"].append({
+                "step": "create_user",
+                "success": True,
+                "user_id": user.id,
+                "user_name": user.nome
+            })
+        except Exception as e:
+            debug_info["steps"].append({
+                "step": "create_user",
+                "success": False,
+                "error": str(e)
+            })
+            return {"debug_info": debug_info, "error": "create_user_failed"}
+        
+        # Step 6: Testar criação de conversa
+        try:
+            conversation = await ConversationService.get_or_create_conversation(
+                db=db, user_id=user.id
+            )
+            debug_info["steps"].append({
+                "step": "create_conversation",
+                "success": True,
+                "conversation_id": conversation.id
+            })
+        except Exception as e:
+            debug_info["steps"].append({
+                "step": "create_conversation",
+                "success": False,
+                "error": str(e)
+            })
+            return {"debug_info": debug_info, "error": "create_conversation_failed"}
+        
+        # Step 7: Testar geração de resposta
+        try:
+            response_text = response_generator.generate_single_response(clean_content)
+            debug_info["steps"].append({
+                "step": "generate_response",
+                "success": True,
+                "response_length": len(response_text),
+                "response_preview": response_text[:100]
+            })
+        except Exception as e:
+            debug_info["steps"].append({
+                "step": "generate_response",
+                "success": False,
+                "error": str(e)
+            })
+            return {"debug_info": debug_info, "error": "generate_response_failed"}
+        
+        # Step 8: Testar envio via WhatsApp (simulado)
+        try:
+            # Simular envio sem realmente enviar
+            whatsapp_response = {
+                "success": True,
+                "message_id": f"debug_{int(datetime.utcnow().timestamp())}",
+                "simulated": True
+            }
+            debug_info["steps"].append({
+                "step": "whatsapp_send",
+                "success": True,
+                "simulated": True,
+                "response": whatsapp_response
+            })
+        except Exception as e:
+            debug_info["steps"].append({
+                "step": "whatsapp_send",
+                "success": False,
+                "error": str(e)
+            })
+            return {"debug_info": debug_info, "error": "whatsapp_send_failed"}
+        
+        # Se chegou até aqui, tudo funcionou
+        debug_info["steps"].append({
+            "step": "final_result",
+            "success": True,
+            "processed": True
+        })
+        
+        return {
+            "debug_info": debug_info,
+            "processed": True,
+            "message": "Debug processamento concluído com sucesso"
+        }
+        
     except Exception as e:
-        logger.error(f"❌ Erro no teste webhook: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Erro no debug: {e}")
+        return {
+            "debug_info": {"error": str(e)},
+            "error": "debug_failed"
+        }

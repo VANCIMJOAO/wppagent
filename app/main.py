@@ -861,6 +861,12 @@ from app.routes.public_test import router as public_test_router
 app.include_router(public_test_router, tags=["Public Test"])
 logger.info("🧪 Rotas públicas de teste ativadas - Para validação sem autenticação")
 
+# 🔍 Debug webhook (sem autenticação)
+from app.routes.debug_webhook import router as debug_webhook_router
+
+app.include_router(debug_webhook_router, tags=["Debug Webhook"])
+logger.info("🔍 Debug webhook ativado - Para investigação de problemas")
+
 # Dashboard Routes
 from app.routes.clients import router as clients_router
 
