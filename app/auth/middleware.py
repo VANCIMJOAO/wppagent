@@ -59,6 +59,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/admin/debug-jwt",  # TEMPORÁRIO: Debug JWT
             "/admin/rbac/test",  # TEMPORÁRIO: Teste RBAC
             "/admin/rbac/health",  # TEMPORÁRIO: Health RBAC
+            "/admin/rbac/test-auth",  # TEMPORÁRIO: Teste RBAC Auth
             "/auth/register",
             "/metrics",
             "/metrics/system",

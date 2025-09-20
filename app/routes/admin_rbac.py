@@ -328,3 +328,22 @@ async def rbac_test():
             "message": f"RBAC service error: {str(e)}",
             "timestamp": datetime.utcnow().isoformat(),
         }
+
+
+@router.get("/test-auth")
+async def rbac_test_auth(current_user=Depends(RequirePermission(PermissionType.USER_MANAGEMENT))):
+    """Endpoint de teste com autenticação RBAC"""
+    try:
+        return {
+            "status": "ok",
+            "message": "RBAC auth is working",
+            "user_id": current_user.id,
+            "username": current_user.username,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"RBAC auth error: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
