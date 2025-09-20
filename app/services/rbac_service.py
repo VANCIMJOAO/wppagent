@@ -524,17 +524,33 @@ class RBACService:
 
     def _role_to_response(self, role: RBACRole) -> RoleResponse:
         """Converter role para resposta da API"""
+        # Tratar role_type que pode vir como string do banco
+        role_type_value = None
+        if role.role_type:
+            if hasattr(role.role_type, 'value'):
+                role_type_value = role.role_type.value
+            else:
+                role_type_value = str(role.role_type)
+        
+        # Tratar permission_type que pode vir como string do banco
+        permissions_list = []
+        for perm in role.permissions:
+            if hasattr(perm.permission_type, 'value'):
+                permissions_list.append(perm.permission_type.value)
+            else:
+                permissions_list.append(str(perm.permission_type))
+        
         return RoleResponse(
             id=role.id,
             name=role.name,
             description=role.description,
-            role_type=role.role_type.value if role.role_type else None,
+            role_type=role_type_value,
             is_active=role.is_active,
             is_system_role=role.is_system_role,
             can_be_deleted=role.can_be_deleted,
             permissions_count=len(role.permissions),
             users_count=len(role.users),
-            permissions=[perm.permission_type.value for perm in role.permissions],
+            permissions=permissions_list,
             created_at=role.created_at,
         )
 
