@@ -200,7 +200,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return True
         
         # 🚨 BYPASS para endpoints de sincronização RBAC
-        if path in ["/admin/sync-admin-rbac-public", "/admin/reset-admin-password", "/admin/run-rbac-migrations"]:
+        if path in ["/admin/sync-admin-rbac-public", "/admin/reset-admin-password", "/admin/run-rbac-migrations", "/admin/create-rbac-tables"]:
             logger.debug(f"BYPASS RBAC SYNC: {path}")
             return True
         
