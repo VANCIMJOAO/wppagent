@@ -33,7 +33,7 @@ async def debug_process_message(
     try:
         debug_info = {
             "timestamp": datetime.utcnow().isoformat(),
-            "message_data": message_data,
+            "message_data": str(message_data),  # Converter para string
             "steps": []
         }
         
