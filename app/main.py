@@ -867,6 +867,12 @@ from app.routes.debug_webhook import router as debug_webhook_router
 app.include_router(debug_webhook_router, tags=["Debug Webhook"])
 logger.info("🔍 Debug webhook ativado - Para investigação de problemas")
 
+# 🔍 Debug simple (sem autenticação)
+from app.routes.debug_simple import router as debug_simple_router
+
+app.include_router(debug_simple_router, tags=["Debug Simple"])
+logger.info("🔍 Debug simple ativado - Para testes básicos")
+
 # Dashboard Routes
 from app.routes.clients import router as clients_router
 
