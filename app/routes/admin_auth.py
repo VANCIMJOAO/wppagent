@@ -558,9 +558,9 @@ async def reset_admin_password(session: AsyncSession = Depends(get_db)):
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
 
-# Endpoint definitivo para sincronizar admin com RBAC
-@auth_router.post("/sync-admin-rbac", include_in_schema=False, dependencies=[])
-async def sync_admin_rbac(session: AsyncSession = Depends(get_db)):
+# Endpoint público para sincronizar admin com RBAC (temporário)
+@auth_router.post("/sync-admin-rbac-public", include_in_schema=False, dependencies=[])
+async def sync_admin_rbac_public(session: AsyncSession = Depends(get_db)):
     """
     🔧 SINCRONIZAR ADMIN COM RBAC - DEFINITIVO
     Cria o admin user no sistema RBAC com permissões de super admin
