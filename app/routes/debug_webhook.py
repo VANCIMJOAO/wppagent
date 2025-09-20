@@ -161,7 +161,42 @@ async def debug_process_message(
         # Step 7: Testar geração de resposta
         try:
             # Usar a mesma lógica do webhook principal
-            from app.routes.webhook_unified import SimplifiedResponseGenerator
+            class SimplifiedResponseGenerator:
+                def __init__(self):
+                    self.responses = {
+                        "greeting": "Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar? 🌟",
+                        "services": """📋 Aqui estão nossos serviços:
+
+🔹 Limpeza de Pele - R$ 80,00 (60 min)
+🔹 Hidrofacial - R$ 150,00 (75 min)
+🔹 Criolipólise - R$ 300,00 (60 min)
+🔹 Massagem - R$ 120,00 (60 min)
+
+Digite "mais serviços" para ver outras opções! 😊""",
+                        "default": "Como posso ajudar você? 😊\\n\\nPosso falar sobre serviços, preços, agendamentos ou informações!",
+                    }
+
+                def generate_single_response(self, message: str) -> str:
+                    """Gera resposta única baseada na mensagem"""
+                    message_lower = message.lower().strip()
+
+                    # Saudações
+                    if any(
+                        word in message_lower
+                        for word in ["ola", "olá", "oi", "bom dia", "boa tarde", "boa noite"]
+                    ):
+                        return self.responses["greeting"]
+
+                    # Serviços
+                    if any(
+                        word in message_lower
+                        for word in ["serviço", "serviços", "preço", "valor", "quanto"]
+                    ):
+                        return self.responses["services"]
+
+                    # Resposta padrão
+                    return self.responses["default"]
+            
             response_generator = SimplifiedResponseGenerator()
             response_text = response_generator.generate_single_response(clean_content)
             debug_info["steps"].append({
