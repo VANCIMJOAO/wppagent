@@ -467,7 +467,6 @@ class RBACService:
             risk_level=risk_level_value,
             requires_2fa=perm.requires_2fa,
             is_active=perm.is_active,
-            created_at=perm.created_at,
         )
 
     async def get_system_stats(self) -> Dict:
