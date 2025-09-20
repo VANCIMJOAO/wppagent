@@ -1,0 +1,193 @@
+{
+  "summary": {
+    "total_tests": 25,
+    "passed_tests": 19,
+    "failed_tests": 2,
+    "skipped_tests": 4,
+    "not_implemented": 0,
+    "success_rate": 76.0,
+    "avg_response_time": 0.2124721426712839,
+    "auth_working": false,
+    "admin_working": false
+  },
+  "results": [
+    {
+      "test": "GET /ping",
+      "status": "✅ PASS",
+      "details": "Health check principal - 200",
+      "response_time": 0.7095520496368408,
+      "timestamp": "2025-09-20T10:27:43.541424"
+    },
+    {
+      "test": "GET /health",
+      "status": "✅ PASS",
+      "details": "Health check alternativo - 200",
+      "response_time": 0.16772961616516113,
+      "timestamp": "2025-09-20T10:27:43.709532"
+    },
+    {
+      "test": "GET /emergency",
+      "status": "✅ PASS",
+      "details": "Endpoint de emergência - 200",
+      "response_time": 0.16621899604797363,
+      "timestamp": "2025-09-20T10:27:43.876067"
+    },
+    {
+      "test": "GET /railway",
+      "status": "✅ PASS",
+      "details": "Health check Railway - 200",
+      "response_time": 0.16643118858337402,
+      "timestamp": "2025-09-20T10:27:44.042818"
+    },
+    {
+      "test": "GET /status",
+      "status": "✅ PASS",
+      "details": "Status da aplicação - 200",
+      "response_time": 0.16544675827026367,
+      "timestamp": "2025-09-20T10:27:44.208567"
+    },
+    {
+      "test": "GET /",
+      "status": "✅ PASS",
+      "details": "Endpoint raiz - 200",
+      "response_time": 0.19468069076538086,
+      "timestamp": "2025-09-20T10:27:44.403565"
+    },
+    {
+      "test": "GET /ready",
+      "status": "✅ PASS",
+      "details": "Endpoint ready - 200",
+      "response_time": 0.17997074127197266,
+      "timestamp": "2025-09-20T10:27:44.583926"
+    },
+    {
+      "test": "GET /alive",
+      "status": "✅ PASS",
+      "details": "Endpoint alive - 200",
+      "response_time": 0.1778576374053955,
+      "timestamp": "2025-09-20T10:27:44.762177"
+    },
+    {
+      "test": "OpenAPI Schema",
+      "status": "✅ PASS",
+      "details": "Estrutura válida - 0 endpoints",
+      "response_time": 0.1806793212890625,
+      "timestamp": "2025-09-20T10:27:44.945576"
+    },
+    {
+      "test": "Webhook Verification",
+      "status": "✅ PASS",
+      "details": "Verificação funcionando",
+      "response_time": 0.19347906112670898,
+      "timestamp": "2025-09-20T10:27:45.139963"
+    },
+    {
+      "test": "User Registration",
+      "status": "✅ PASS",
+      "details": "Status 200",
+      "response_time": 0.20761322975158691,
+      "timestamp": "2025-09-20T10:27:45.348654"
+    },
+    {
+      "test": "User Login",
+      "status": "❌ FAIL",
+      "details": "Token não encontrado na resposta",
+      "response_time": 0,
+      "timestamp": "2025-09-20T10:27:45.628966"
+    },
+    {
+      "test": "Admin Login",
+      "status": "❌ FAIL",
+      "details": "Token admin não encontrado",
+      "response_time": 0,
+      "timestamp": "2025-09-20T10:27:46.522464"
+    },
+    {
+      "test": "Protected Endpoints",
+      "status": "⚠️ SKIP",
+      "details": "Nenhum token disponível",
+      "response_time": 0,
+      "timestamp": "2025-09-20T10:27:46.522984"
+    },
+    {
+      "test": "Create Appointment",
+      "status": "✅ PASS",
+      "details": "Status 401",
+      "response_time": 0.16649770736694336,
+      "timestamp": "2025-09-20T10:27:46.690100"
+    },
+    {
+      "test": "System Metrics",
+      "status": "✅ PASS",
+      "details": "Status 200",
+      "response_time": 0.32316017150878906,
+      "timestamp": "2025-09-20T10:27:47.013549"
+    },
+    {
+      "test": "Analytics",
+      "status": "✅ PASS",
+      "details": "Status 401",
+      "response_time": 0.1736752986907959,
+      "timestamp": "2025-09-20T10:27:47.187515"
+    },
+    {
+      "test": "WebSocket Endpoint",
+      "status": "✅ PASS",
+      "details": "Status 401",
+      "response_time": 0.182295560836792,
+      "timestamp": "2025-09-20T10:27:47.371252"
+    },
+    {
+      "test": "RBAC System",
+      "status": "⚠️ SKIP",
+      "details": "Token admin não disponível",
+      "response_time": 0,
+      "timestamp": "2025-09-20T10:27:47.371654"
+    },
+    {
+      "test": "Data Export",
+      "status": "⚠️ SKIP",
+      "details": "Token admin não disponível",
+      "response_time": 0,
+      "timestamp": "2025-09-20T10:27:47.371978"
+    },
+    {
+      "test": "LGPD Compliance",
+      "status": "⚠️ SKIP",
+      "details": "Token admin não disponível",
+      "response_time": 0,
+      "timestamp": "2025-09-20T10:27:47.372288"
+    },
+    {
+      "test": "Performance /ping",
+      "status": "✅ PASS",
+      "details": "Avg: 0.167s, Max: 0.169s",
+      "response_time": 0.1666964054107666,
+      "timestamp": "2025-09-20T10:27:48.206128"
+    },
+    {
+      "test": "Performance /health",
+      "status": "✅ PASS",
+      "details": "Avg: 0.167s, Max: 0.171s",
+      "response_time": 0.16749949455261232,
+      "timestamp": "2025-09-20T10:27:49.044000"
+    },
+    {
+      "test": "Performance /status",
+      "status": "✅ PASS",
+      "details": "Avg: 0.167s, Max: 0.173s",
+      "response_time": 0.1669706344604492,
+      "timestamp": "2025-09-20T10:27:49.879293"
+    },
+    {
+      "test": "Performance /metrics",
+      "status": "✅ PASS",
+      "details": "Avg: 0.181s, Max: 0.184s",
+      "response_time": 0.18051614761352539,
+      "timestamp": "2025-09-20T10:27:50.782194"
+    }
+  ],
+  "timestamp": "2025-09-20T10:27:51.625010",
+  "railway_url": "https://wppagent-production.up.railway.app",
+  "status": "TESTE_COMPLETO_TODAS_FUNCOES"
+}

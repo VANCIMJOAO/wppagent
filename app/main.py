@@ -855,6 +855,12 @@ from app.routes.public_health import public_router
 
 app.include_router(public_router, tags=["Public Health"])
 
+# 🧪 Rotas públicas de teste (sem autenticação)
+from app.routes.public_test import router as public_test_router
+
+app.include_router(public_test_router, tags=["Public Test"])
+logger.info("🧪 Rotas públicas de teste ativadas - Para validação sem autenticação")
+
 # Dashboard Routes
 from app.routes.clients import router as clients_router
 

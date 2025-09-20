@@ -21,6 +21,20 @@ ENDPOINT_RATE_LIMITS = {
     "POST /admin/rate-limit/reset": {"requests": 50, "window": 60},
     "GET /admin/rate-limit/config": {"requests": 100, "window": 60},
     "POST /admin/rate-limit/config/update": {"requests": 20, "window": 60},
+    # RBAC endpoints - aumentar limites
+    "GET /admin/rbac/permissions": {"requests": 200, "window": 60},
+    "GET /admin/rbac/roles": {"requests": 200, "window": 60},
+    "GET /admin/rbac/users": {"requests": 200, "window": 60},
+    "POST /admin/rbac/assign": {"requests": 100, "window": 60},
+    # Export endpoints - aumentar limites
+    "GET /admin/export/appointments/csv": {"requests": 50, "window": 60},
+    "GET /admin/export/conversations/excel": {"requests": 50, "window": 60},
+    "GET /admin/export/analytics/pdf": {"requests": 50, "window": 60},
+    # LGPD endpoints - aumentar limites
+    "GET /admin/lgpd/dashboard": {"requests": 100, "window": 60},
+    "GET /admin/lgpd/audit": {"requests": 100, "window": 60},
+    "GET /admin/lgpd/export": {"requests": 50, "window": 60},
+    "GET /admin/lgpd/retention": {"requests": 50, "window": 60},
     # Dashboard endpoints - limite moderado
     "GET /dashboard": {"requests": 200, "window": 60},
     "GET /dashboard/analytics": {"requests": 100, "window": 60},
