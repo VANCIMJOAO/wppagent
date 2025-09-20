@@ -558,6 +558,46 @@ async def reset_admin_password(session: AsyncSession = Depends(get_db)):
         raise HTTPException(500, f"Erro interno: {str(e)}")
 
 
+# Endpoint público para executar migrações RBAC
+@auth_router.post("/run-rbac-migrations", include_in_schema=False, dependencies=[])
+async def run_rbac_migrations(session: AsyncSession = Depends(get_db)):
+    """
+    🔧 EXECUTAR MIGRAÇÕES RBAC - PÚBLICO
+    Executa as migrações do Alembic para criar as tabelas RBAC
+    """
+    try:
+        import subprocess
+        import os
+        
+        # Executar migrações Alembic
+        result = subprocess.run(
+            ["alembic", "upgrade", "head"],
+            capture_output=True,
+            text=True,
+            cwd=os.getcwd()
+        )
+        
+        if result.returncode == 0:
+            return {
+                "status": "success",
+                "message": "Migrações RBAC executadas com sucesso",
+                "output": result.stdout
+            }
+        else:
+            return {
+                "status": "error",
+                "message": "Erro ao executar migrações",
+                "error": result.stderr
+            }
+
+    except Exception as e:
+        logger.error(f"❌ Erro ao executar migrações RBAC: {e}")
+        return {
+            "status": "error",
+            "message": f"Erro interno: {str(e)}"
+        }
+
+
 # Endpoint público para sincronizar admin com RBAC (temporário)
 @auth_router.post("/sync-admin-rbac-public", include_in_schema=False, dependencies=[])
 async def sync_admin_rbac_public(session: AsyncSession = Depends(get_db)):
