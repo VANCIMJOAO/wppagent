@@ -36,7 +36,7 @@ from app.services.websocket_integration import (
 )
 from app.services.whatsapp import whatsapp_service
 from app.services.whatsapp_security import WhatsAppSecurityService
-from app.utils.whatsapp_sanitizer import (
+from app.utils.whatsapp_data_extractor import (
     sanitize_message,
     sanitize_phone,
     sanitize_whatsapp_data,

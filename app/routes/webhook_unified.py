@@ -26,7 +26,7 @@ from app.services.websocket_integration import (
 )
 from app.services.whatsapp import whatsapp_service
 from app.utils.logger import get_logger
-from app.utils.whatsapp_sanitizer import (
+from app.utils.whatsapp_data_extractor import (
     sanitize_message,
     sanitize_phone,
     sanitize_whatsapp_data,
