@@ -191,14 +191,14 @@ class LGPDComplianceManager:
                 processing_purpose=LGPDProcessingPurpose.LEGAL_COMPLIANCE,
                 legal_basis="Art. 7º, II - cumprimento de obrigação legal",
             ),
-            "clients": LGPDDataMap(
-                category=LGPDDataCategory.PERSONAL_BASIC,
-                table_name="clients",
-                columns=["id", "name", "phone", "email", "notes", "created_at"],
-                retention_period=LGPDRetentionPeriod.YEARS_5,
-                processing_purpose=LGPDProcessingPurpose.CUSTOMER_SERVICE,
-                legal_basis="Art. 7º, I - consentimento",
-            ),
+            # "clients": LGPDDataMap(
+            #     category=LGPDDataCategory.PERSONAL_BASIC,
+            #     table_name="clients",
+            #     columns=["id", "name", "phone", "email", "notes", "created_at"],
+            #     retention_period=LGPDRetentionPeriod.YEARS_5,
+            #     processing_purpose=LGPDProcessingPurpose.CUSTOMER_SERVICE,
+            #     legal_basis="Art. 7º, I - consentimento",
+            # ),
         }
 
     async def get_user_data_for_portability(
