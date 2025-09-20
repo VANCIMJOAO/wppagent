@@ -14,6 +14,7 @@ from app.auth.rbac_decorators import (
     RequireRole,
     RequireSuperAdmin,
     get_current_user,
+    get_current_user_id,
 )
 from app.models.rbac import (
     PERMISSION_DEFINITIONS,
