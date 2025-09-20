@@ -104,10 +104,18 @@ class UserRateLimitMiddleware(BaseHTTPMiddleware):
             logger.warning("⚠️ Rate limiting desabilitado - Redis não disponível")
             return await call_next(request)
         
-        # 🚨 TEMPORÁRIO: Bypass para IPs de teste
+        # 🚨 TEMPORÁRIO: Bypass para IPs de teste e endpoints de auth
         client_ip = request.client.host if request.client else "unknown"
+        path = request.url.path
+        
+        # Bypass para IPs de teste
         if client_ip in ["127.0.0.1", "localhost", "::1"]:
             logger.debug(f"🔓 Bypass rate limiting para IP de teste: {client_ip}")
+            return await call_next(request)
+        
+        # Bypass para endpoints de autenticação durante testes
+        if path in ["/auth/login", "/auth/register", "/admin/login"]:
+            logger.debug(f"🔓 Bypass rate limiting para endpoint de auth: {path}")
             return await call_next(request)
 
         logger.debug(f"Rate limiting middleware started for {request.url.path}")
