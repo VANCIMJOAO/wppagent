@@ -831,7 +831,7 @@ class LGPDComplianceManager:
                     report["processing_purposes"][purpose].append(data_key)
 
                     # Agrupar políticas de retenção
-                    retention = data_map.retention_period.value
+                    retention = str(data_map.retention_period.value)
                     if retention not in report["retention_policies"]:
                         report["retention_policies"][retention] = []
                     report["retention_policies"][retention].append(data_key)
