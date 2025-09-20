@@ -421,6 +421,27 @@ class RBACService:
             result = await session.execute(select(func.count(RBACPermission.id)))
             return result.scalar() or 0
 
+    async def list_permissions(self) -> List[PermissionResponse]:
+        """Listar todas as permissões"""
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(RBACPermission))
+            permissions = result.scalars().all()
+            
+            return [
+                PermissionResponse(
+                    id=perm.id,
+                    permission_type=perm.permission_type.value,
+                    name=perm.name,
+                    description=perm.description,
+                    category=perm.category.value if perm.category else None,
+                    risk_level=perm.risk_level.value if perm.risk_level else None,
+                    requires_2fa=perm.requires_2fa,
+                    is_active=perm.is_active,
+                    created_at=perm.created_at,
+                )
+                for perm in permissions
+            ]
+
     async def get_system_stats(self) -> Dict:
         """Obter estatísticas do sistema RBAC"""
         async with AsyncSessionLocal() as session:
