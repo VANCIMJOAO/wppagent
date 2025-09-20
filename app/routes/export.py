@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.middleware import require_admin
 from app.database import get_db
 from app.services.analytics_engine import AdvancedAnalyticsEngine
-from app.services.export_service import ReportExportService
+from app.services.report_export_service import ReportExportService
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -61,7 +61,11 @@ async def export_appointments_csv(
         export_service = ReportExportService(analytics)
 
         # Gerar CSV
-        csv_data = await export_service.export_appointments_csv(start_date, end_date)
+        csv_data, content_type = await export_service.export_appointments_report(
+            format_type="csv",
+            date_from=start_date.date(),
+            date_to=end_date.date()
+        )
 
         # Nome do arquivo com timestamp
         filename = f"agendamentos_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
@@ -71,11 +75,11 @@ async def export_appointments_csv(
         )
 
         return StreamingResponse(
-            io.BytesIO(csv_data.getvalue()),
-            media_type="text/csv; charset=utf-8",
+            io.BytesIO(csv_data),
+            media_type=content_type,
             headers={
                 "Content-Disposition": f"attachment; filename={filename}",
-                "Content-Type": "text/csv; charset=utf-8",
+                "Content-Type": content_type,
             },
         )
 
@@ -113,7 +117,11 @@ async def export_analytics_excel(
         export_service = ReportExportService(analytics)
 
         # Gerar Excel
-        excel_data = await export_service.export_analytics_excel(period_days)
+        excel_data, content_type = await export_service.export_dashboard_report(
+            format_type="excel",
+            date_from=(datetime.now() - timedelta(days=period_days)).date(),
+            date_to=datetime.now().date()
+        )
 
         # Nome do arquivo com timestamp
         filename = f"analytics_{period_days}dias_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
@@ -123,11 +131,11 @@ async def export_analytics_excel(
         )
 
         return StreamingResponse(
-            io.BytesIO(excel_data.getvalue()),
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            io.BytesIO(excel_data),
+            media_type=content_type,
             headers={
                 "Content-Disposition": f"attachment; filename={filename}",
-                "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "Content-Type": content_type,
             },
         )
 
@@ -163,7 +171,11 @@ async def export_executive_pdf(
         export_service = ReportExportService(analytics)
 
         # Gerar PDF
-        pdf_data = await export_service.export_executive_pdf(period_days)
+        pdf_data, content_type = await export_service.export_dashboard_report(
+            format_type="pdf",
+            date_from=(datetime.now() - timedelta(days=period_days)).date(),
+            date_to=datetime.now().date()
+        )
 
         # Nome do arquivo com timestamp
         filename = f"relatorio_executivo_{period_days}dias_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
@@ -173,11 +185,11 @@ async def export_executive_pdf(
         )
 
         return StreamingResponse(
-            io.BytesIO(pdf_data.getvalue()),
-            media_type="application/pdf",
+            io.BytesIO(pdf_data),
+            media_type=content_type,
             headers={
                 "Content-Disposition": f"attachment; filename={filename}",
-                "Content-Type": "application/pdf",
+                "Content-Type": content_type,
             },
         )
 

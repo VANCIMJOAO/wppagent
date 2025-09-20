@@ -400,19 +400,28 @@ class TesteCompletoTodasFuncoes:
         headers = {"Authorization": f"Bearer {self.admin_token}"}
         
         rbac_endpoints = [
-            ("/admin/rbac/permissions", "Lista de permissões"),
-            ("/admin/rbac/roles", "Lista de roles"),
-            ("/admin/rbac/users", "Usuários RBAC"),
-            ("/admin/rbac/assign", "Atribuir permissões")
+            ("/admin/rbac/permissions", "Lista de permissões", "GET"),
+            ("/admin/rbac/roles", "Lista de roles", "GET"),
+            ("/admin/rbac/users", "Usuários RBAC", "GET"),
+            ("/admin/rbac/assign", "Atribuir permissões", "POST")
         ]
         
-        for endpoint, description in rbac_endpoints:
+        for endpoint, description, method in rbac_endpoints:
             try:
                 start_time = time.time()
-                response = await self.session.get(f"{self.base_url}{endpoint}", headers=headers)
+                
+                if method == "GET":
+                    response = await self.session.get(f"{self.base_url}{endpoint}", headers=headers)
+                elif method == "POST":
+                    # Para POST, enviar dados válidos
+                    data = {"user_id": 1, "role_id": 1}
+                    response = await self.session.post(f"{self.base_url}{endpoint}", headers=headers, json=data)
+                else:
+                    response = await self.session.get(f"{self.base_url}{endpoint}", headers=headers)
+                
                 response_time = time.time() - start_time
                 
-                if response.status_code in [200, 401, 404]:
+                if response.status_code == 200:
                     self.log_result(f"RBAC {endpoint}", "✅ PASS", f"{description} - {response.status_code}", response_time)
                 else:
                     self.log_result(f"RBAC {endpoint}", "❌ FAIL", f"Status {response.status_code}", response_time)
@@ -431,9 +440,9 @@ class TesteCompletoTodasFuncoes:
         headers = {"Authorization": f"Bearer {self.admin_token}"}
         
         export_endpoints = [
-            ("/admin/export/appointments/csv", "Exportar agendamentos CSV"),
-            ("/admin/export/conversations/excel", "Exportar conversas Excel"),
-            ("/admin/export/analytics/pdf", "Exportar analytics PDF")
+            ("/export/appointments/csv", "Exportar agendamentos CSV"),
+            ("/export/analytics/excel", "Exportar analytics Excel"),
+            ("/export/executive/pdf", "Exportar relatório executivo PDF")
         ]
         
         for endpoint, description in export_endpoints:
@@ -442,7 +451,7 @@ class TesteCompletoTodasFuncoes:
                 response = await self.session.get(f"{self.base_url}{endpoint}", headers=headers)
                 response_time = time.time() - start_time
                 
-                if response.status_code in [200, 401, 404]:
+                if response.status_code == 200:
                     self.log_result(f"Export {endpoint}", "✅ PASS", f"{description} - {response.status_code}", response_time)
                 else:
                     self.log_result(f"Export {endpoint}", "❌ FAIL", f"Status {response.status_code}", response_time)
@@ -473,7 +482,7 @@ class TesteCompletoTodasFuncoes:
                 response = await self.session.get(f"{self.base_url}{endpoint}", headers=headers)
                 response_time = time.time() - start_time
                 
-                if response.status_code in [200, 401, 404]:
+                if response.status_code == 200:
                     self.log_result(f"LGPD {endpoint}", "✅ PASS", f"{description} - {response.status_code}", response_time)
                 else:
                     self.log_result(f"LGPD {endpoint}", "❌ FAIL", f"Status {response.status_code}", response_time)
