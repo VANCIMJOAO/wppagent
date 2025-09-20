@@ -403,6 +403,24 @@ class RBACService:
     # AUDITORIA E RELATÓRIOS
     # ========================================
 
+    async def count_users(self) -> int:
+        """Contar total de usuários"""
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(func.count(RBACUser.id)))
+            return result.scalar() or 0
+
+    async def count_roles(self) -> int:
+        """Contar total de roles"""
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(func.count(RBACRole.id)))
+            return result.scalar() or 0
+
+    async def count_permissions(self) -> int:
+        """Contar total de permissões"""
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(func.count(RBACPermission.id)))
+            return result.scalar() or 0
+
     async def get_system_stats(self) -> Dict:
         """Obter estatísticas do sistema RBAC"""
         async with AsyncSessionLocal() as session:
