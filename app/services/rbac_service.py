@@ -261,6 +261,93 @@ class RBACService:
             self.logger.error(f"❌ Erro ao atualizar roles: {e}")
             return False
 
+    async def assign_role_to_user(self, user_id: int, role_id: int) -> bool:
+        """Atribuir role a usuário"""
+        try:
+            async with AsyncSessionLocal() as session:
+                # Buscar usuário
+                user_result = await session.execute(
+                    select(RBACUser)
+                    .options(selectinload(RBACUser.roles))
+                    .where(RBACUser.id == user_id)
+                )
+                user = user_result.scalar()
+
+                if not user:
+                    self.logger.error(f"❌ Usuário {user_id} não encontrado")
+                    return False
+
+                # Buscar role
+                role_result = await session.execute(
+                    select(RBACRole).where(RBACRole.id == role_id)
+                )
+                role = role_result.scalar()
+
+                if not role:
+                    self.logger.error(f"❌ Role {role_id} não encontrado")
+                    return False
+
+                # Verificar se já tem o role
+                if role in user.roles:
+                    self.logger.info(f"✅ Usuário {user_id} já tem o role {role_id}")
+                    return True
+
+                # Atribuir role
+                user.roles.append(role)
+                user.updated_at = datetime.utcnow()
+
+                await session.commit()
+
+                self.logger.info(f"✅ Role {role_id} atribuído ao usuário {user_id}")
+                return True
+
+        except Exception as e:
+            self.logger.error(f"❌ Erro ao atribuir role: {e}")
+            return False
+
+    async def remove_role_from_user(self, user_id: int, role_id: int) -> bool:
+        """Remover role de usuário"""
+        try:
+            async with AsyncSessionLocal() as session:
+                # Buscar usuário
+                user_result = await session.execute(
+                    select(RBACUser)
+                    .options(selectinload(RBACUser.roles))
+                    .where(RBACUser.id == user_id)
+                )
+                user = user_result.scalar()
+
+                if not user:
+                    self.logger.error(f"❌ Usuário {user_id} não encontrado")
+                    return False
+
+                # Buscar role
+                role_result = await session.execute(
+                    select(RBACRole).where(RBACRole.id == role_id)
+                )
+                role = role_result.scalar()
+
+                if not role:
+                    self.logger.error(f"❌ Role {role_id} não encontrado")
+                    return False
+
+                # Remover role
+                if role in user.roles:
+                    user.roles.remove(role)
+                    user.updated_at = datetime.utcnow()
+
+                    await session.commit()
+
+                    self.logger.info(f"✅ Role {role_id} removido do usuário {user_id}")
+                    return True
+                else:
+                    self.logger.info(f"✅ Usuário {user_id} não tinha o role {role_id}")
+                    return True
+
+        except Exception as e:
+            self.logger.error(f"❌ Erro ao remover role: {e}")
+            return False
+
     async def deactivate_user(self, user_id: int) -> bool:
         """Desativar usuário"""
         try:
