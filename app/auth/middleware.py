@@ -57,6 +57,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/admin/create-initial-admin",  # TEMPORÁRIO: Criar admin inicial
             "/admin/debug-admin",  # TEMPORÁRIO: Debug admin
             "/admin/debug-jwt",  # TEMPORÁRIO: Debug JWT
+            "/admin/rbac/test",  # TEMPORÁRIO: Teste RBAC
+            "/admin/rbac/health",  # TEMPORÁRIO: Health RBAC
             "/auth/register",
             "/metrics",
             "/metrics/system",
