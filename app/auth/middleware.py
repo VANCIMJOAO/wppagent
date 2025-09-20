@@ -199,6 +199,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
             logger.debug(f"BYPASS CRÍTICO: {path}")
             return True
         
+        # 🚨 BYPASS para endpoints de sincronização RBAC
+        if path in ["/admin/sync-admin-rbac-public", "/admin/reset-admin-password"]:
+            logger.debug(f"BYPASS RBAC SYNC: {path}")
+            return True
+        
         # Verificação normal para outros endpoints usando o set   
         if path in self.public_endpoints:
             logger.debug(f"ENDPOINT PÚBLICO: {path}")
