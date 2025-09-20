@@ -470,16 +470,23 @@ class TesteCompletoTodasFuncoes:
         headers = {"Authorization": f"Bearer {self.admin_token}"}
         
         lgpd_endpoints = [
-            ("/admin/lgpd/dashboard", "Dashboard LGPD"),
-            ("/admin/lgpd/audit", "Auditoria LGPD"),
-            ("/admin/lgpd/export", "Exportar dados LGPD"),
-            ("/admin/lgpd/retention", "Política de retenção")
+            ("/admin/lgpd/dashboard", "Dashboard LGPD", "GET"),
+            ("/api/lgpd/data-processing-report", "Relatório de Tratamento de Dados", "GET"),
+            ("/api/lgpd/apply-retention-policies", "Aplicar Políticas de Retenção", "POST"),
+            ("/api/lgpd/privacy-policy", "Política de Privacidade", "GET")
         ]
         
-        for endpoint, description in lgpd_endpoints:
+        for endpoint, description, method in lgpd_endpoints:
             try:
                 start_time = time.time()
-                response = await self.session.get(f"{self.base_url}{endpoint}", headers=headers)
+                
+                if method == "GET":
+                    response = await self.session.get(f"{self.base_url}{endpoint}", headers=headers)
+                elif method == "POST":
+                    response = await self.session.post(f"{self.base_url}{endpoint}", headers=headers)
+                else:
+                    response = await self.session.get(f"{self.base_url}{endpoint}", headers=headers)
+                
                 response_time = time.time() - start_time
                 
                 if response.status_code == 200:
