@@ -60,6 +60,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/admin/rbac/test",  # TEMPORÁRIO: Teste RBAC
             "/admin/rbac/health",  # TEMPORÁRIO: Health RBAC
             "/admin/rbac/test-auth",  # TEMPORÁRIO: Teste RBAC Auth
+            "/admin/rbac/test-roles",  # TEMPORÁRIO: Teste list_roles
+            "/admin/rbac/test-permissions",  # TEMPORÁRIO: Teste list_permissions
             "/auth/register",
             "/metrics",
             "/metrics/system",

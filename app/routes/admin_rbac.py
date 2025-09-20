@@ -330,6 +330,46 @@ async def rbac_test():
         }
 
 
+@router.get("/test-roles")
+async def rbac_test_roles():
+    """Endpoint de teste para list_roles"""
+    try:
+        roles = await rbac_service.list_roles()
+        return {
+            "status": "ok",
+            "message": "list_roles funcionando",
+            "roles_count": len(roles),
+            "roles": roles,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"list_roles error: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+
+@router.get("/test-permissions")
+async def rbac_test_permissions():
+    """Endpoint de teste para list_permissions"""
+    try:
+        permissions = await rbac_service.list_permissions()
+        return {
+            "status": "ok",
+            "message": "list_permissions funcionando",
+            "permissions_count": len(permissions),
+            "permissions": permissions,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"list_permissions error: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+
 @router.get("/test-auth")
 async def rbac_test_auth(current_user=Depends(RequirePermission(PermissionType.USER_MANAGEMENT))):
     """Endpoint de teste com autenticação RBAC"""
@@ -345,5 +385,49 @@ async def rbac_test_auth(current_user=Depends(RequirePermission(PermissionType.U
         return {
             "status": "error",
             "message": f"RBAC auth error: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+
+@router.get("/debug-user")
+async def debug_user(user_id: int = Depends(get_current_user_id)):
+    """Endpoint de debug para verificar usuário RBAC"""
+    try:
+        from app.services.rbac_service import rbac_service
+        
+        # Buscar usuário
+        user = await rbac_service.get_user_by_id(user_id)
+        
+        if not user:
+            return {
+                "status": "error",
+                "message": "User not found",
+                "user_id": user_id
+            }
+        
+        # Verificar roles e permissões
+        roles_info = []
+        for role in user.roles:
+            roles_info.append({
+                "id": role.id,
+                "name": role.name,
+                "role_type": role.role_type.value if role.role_type else None,
+                "permissions": [perm.permission_type for perm in role.permissions]
+            })
+        
+        return {
+            "status": "ok",
+            "user_id": user.id,
+            "username": user.username,
+            "is_active": user.is_active,
+            "roles": roles_info,
+            "all_permissions": [perm.value for perm in user.get_all_permissions()],
+            "has_user_management": user.has_permission(PermissionType.USER_MANAGEMENT),
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Debug error: {str(e)}",
             "timestamp": datetime.utcnow().isoformat(),
         }
