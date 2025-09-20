@@ -566,17 +566,72 @@ async def create_rbac_tables(session: AsyncSession = Depends(get_db)):
     Cria as tabelas RBAC diretamente via SQL
     """
     try:
-        from app.models.rbac import Base as RBACBase
-        from app.database import AsyncSessionLocal
+        from sqlalchemy import text
         
-        # Criar todas as tabelas RBAC usando sessão assíncrona
-        async with AsyncSessionLocal() as async_session:
-            await async_session.run_sync(RBACBase.metadata.create_all)
+        # SQL para criar tabelas RBAC principais
+        rbac_sql = """
+        -- Criar tabela rbac_permissions
+        CREATE TABLE IF NOT EXISTS rbac_permissions (
+            id SERIAL PRIMARY KEY,
+            permission_type VARCHAR(50) UNIQUE NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            description TEXT,
+            category VARCHAR(50),
+            risk_level VARCHAR(20),
+            requires_2fa BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        -- Criar tabela rbac_roles
+        CREATE TABLE IF NOT EXISTS rbac_roles (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            description TEXT,
+            role_type VARCHAR(50) UNIQUE NOT NULL,
+            is_system_role BOOLEAN DEFAULT FALSE,
+            can_be_deleted BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        -- Criar tabela rbac_users
+        CREATE TABLE IF NOT EXISTS rbac_users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            full_name VARCHAR(255),
+            is_active BOOLEAN DEFAULT TRUE,
+            is_verified BOOLEAN DEFAULT FALSE,
+            requires_2fa BOOLEAN DEFAULT FALSE,
+            last_login TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        -- Criar tabela de relacionamento user_roles
+        CREATE TABLE IF NOT EXISTS user_roles (
+            user_id INTEGER REFERENCES rbac_users(id) ON DELETE CASCADE,
+            role_id INTEGER REFERENCES rbac_roles(id) ON DELETE CASCADE,
+            PRIMARY KEY (user_id, role_id)
+        );
+        
+        -- Criar tabela de relacionamento role_permissions
+        CREATE TABLE IF NOT EXISTS role_permissions (
+            role_id INTEGER REFERENCES rbac_roles(id) ON DELETE CASCADE,
+            permission_id INTEGER REFERENCES rbac_permissions(id) ON DELETE CASCADE,
+            PRIMARY KEY (role_id, permission_id)
+        );
+        """
+        
+        # Executar SQL
+        await session.execute(text(rbac_sql))
+        await session.commit()
         
         return {
             "status": "success",
             "message": "Tabelas RBAC criadas com sucesso",
-            "tables_created": list(RBACBase.metadata.tables.keys())
+            "tables_created": ["rbac_permissions", "rbac_roles", "rbac_users", "user_roles", "role_permissions"]
         }
 
     except Exception as e:
