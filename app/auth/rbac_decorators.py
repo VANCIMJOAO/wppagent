@@ -68,23 +68,23 @@ async def get_current_user_id(
 ) -> int:
     """Extrair ID do usuário do token JWT"""
     try:
-        # Decodificar token JWT
-        # Note: Você deve ajustar isso de acordo com seu sistema de JWT atual
+        from app.auth.jwt_manager import jwt_manager
+        
+        # Decodificar token JWT usando o jwt_manager existente
         token = credentials.credentials
-
-        # Por enquanto, simular extração do user_id
-        # Em produção, você fará algo como:
-        # payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        # user_id = payload.get("user_id")
-
-        # Simulação para demonstração
-        # Você deve integrar com seu sistema JWT existente
-        user_id = 1  # Placeholder - substituir pela lógica real
-
+        payload = jwt_manager.verify_token(token)
+        
+        # Extrair user_id do payload
+        user_id = payload.get("sub")
+        
         if not user_id:
-            raise RBACException("Token inválido", 401)
+            raise RBACException("Token inválido - user_id não encontrado", 401)
 
-        return user_id
+        # Converter para int se necessário
+        try:
+            return int(user_id)
+        except (ValueError, TypeError):
+            raise RBACException("Token inválido - user_id inválido", 401)
 
     except jwt.InvalidTokenError:
         raise RBACException("Token inválido", 401)
