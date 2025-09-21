@@ -38,6 +38,11 @@ export default function LoginPage() {
 
       const data = await response.json()
 
+      // Verificar se a resposta tem a estrutura esperada
+      if (!data.success || !data.data || !data.data.access_token) {
+        throw new Error('Resposta inválida do servidor')
+      }
+
       // Salvar token no localStorage
       // ✅ SEGURO: Tokens agora em cookies HttpOnly
 
@@ -47,11 +52,11 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token: data.access_token })
+        body: JSON.stringify({ token: data.data.access_token })
       })
 
       // Decodificar JWT para user info
-      const payload = JSON.parse(atob(data.access_token.split('.')[1]))
+      const payload = JSON.parse(atob(data.data.access_token.split('.')[1]))
       const userData = {
         username: payload.sub,
         role: payload.role,

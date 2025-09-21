@@ -40,27 +40,35 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 🔐 Validar token com backend (opcional, para máxima segurança)
+    // 🔐 Validar token JWT localmente (mais rápido e confiável)
     try {
-      const backendResponse = await fetch(`${config.apiBaseUrl}/api/auth/verify`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
+      // Decodificar JWT para verificar se é válido
+      const tokenParts = authToken.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        const now = Math.floor(Date.now() / 1000);
+        
+        // Verificar se o token não expirou
+        if (payload.exp && payload.exp < now) {
+          return NextResponse.json({
+            isAuthenticated: false,
+            error: 'Token expirado'
+          });
         }
-      });
 
-      if (backendResponse.ok) {
-        const backendData = await backendResponse.json();
-
+        // Token válido
         return NextResponse.json({
           isAuthenticated: true,
-          user: backendData.user || userData?.user,
-          tokenExpiry: userData?.tokenExpiry
+          user: {
+            id: payload.sub,
+            role: payload.role,
+            permissions: payload.permissions || []
+          },
+          tokenExpiry: payload.exp ? payload.exp * 1000 : null
         });
       }
     } catch (error) {
-      console.error('Erro ao validar com backend:', error);
+      console.error('Erro ao decodificar token:', error);
     }
 
     // 📋 Fallback: usar dados do cookie se backend não disponível

@@ -25,8 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       debugLog.auth('Verificando autenticação via cookies seguros...')
 
       try {
-        // Tentar acessar endpoint protegido para verificar autenticação
-        const response = await fetch('/api/proxy/auth/status', {
+        // Tentar acessar endpoint de status de autenticação
+        const response = await fetch('/api/auth/status', {
           method: 'GET',
           credentials: 'include', // Inclui cookies HttpOnly
           headers: {

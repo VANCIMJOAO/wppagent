@@ -5,6 +5,7 @@ import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErr
 import { ErrorProvider } from '@/components/error-boundaries/ErrorProvider'
 import { ToastProvider } from '@/components/error-boundaries/ToastProvider'
 import { PWAWrapper, PWAInstallDetector } from '@/components/pwa/PWAWrapper'
+import { ReactQueryProvider } from '@/components/providers/react-query-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -86,14 +87,16 @@ export default function RootLayout({
               context="Root Application"
               showErrorDetails={false}
             >
-              <PWAWrapper>
-                <AuthProvider>
-                  <div className="min-h-screen bg-gray-50">
-                    {children}
-                  </div>
-                  <PWAInstallDetector />
-                </AuthProvider>
-              </PWAWrapper>
+              <ReactQueryProvider>
+                <PWAWrapper>
+                  <AuthProvider>
+                    <div className="min-h-screen bg-gray-50">
+                      {children}
+                    </div>
+                    <PWAInstallDetector />
+                  </AuthProvider>
+                </PWAWrapper>
+              </ReactQueryProvider>
             </AdvancedErrorBoundary>
           </ToastProvider>
         </ErrorProvider>

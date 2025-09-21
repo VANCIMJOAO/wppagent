@@ -65,6 +65,13 @@ class BaseConfig(BaseSettings):
     )
 
     debug: bool = Field(default=True, alias="DEBUG", description="Modo debug")
+    
+    @field_validator('debug', mode='before')
+    @classmethod
+    def parse_debug(cls, v):
+        if isinstance(v, str):
+            return v.lower() in ('true', '1', 'yes', 'on')
+        return bool(v)
 
     # ==============================
     # APLICAÇÃO

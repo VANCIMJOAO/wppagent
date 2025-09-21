@@ -1,0 +1,233 @@
+{
+  "testConfig": {
+    "baseUrl": "http://localhost:3000",
+    "timeout": 30000,
+    "retries": 2,
+    "workers": 4,
+    "reporter": "html",
+    "browsers": ["chromium", "firefox", "webkit"],
+    "mobileBrowsers": ["Mobile Chrome", "Mobile Safari"],
+    "viewports": [
+      { "width": 375, "height": 667, "name": "Mobile" },
+      { "width": 768, "height": 1024, "name": "Tablet" },
+      { "width": 1920, "height": 1080, "name": "Desktop" }
+    ]
+  },
+  "credentials": {
+    "admin": {
+      "username": "admin",
+      "password": "admin123"
+    },
+    "user": {
+      "username": "user",
+      "password": "user123"
+    }
+  },
+  "testData": {
+    "appointment": {
+      "clientName": "João Silva",
+      "clientPhone": "11999999999",
+      "service": "Limpeza de Pele",
+      "date": "2024-12-25",
+      "time": "14:00",
+      "status": "agendado"
+    },
+    "client": {
+      "name": "Maria Santos",
+      "phone": "11888888888",
+      "email": "maria@email.com",
+      "address": "Rua das Flores, 123",
+      "status": "ativo"
+    },
+    "user": {
+      "username": "novo_usuario",
+      "email": "novo@email.com",
+      "password": "senha123",
+      "role": "USER"
+    },
+    "blockedTime": {
+      "startDate": "2024-12-25",
+      "endDate": "2024-12-25",
+      "startTime": "09:00",
+      "endTime": "12:00",
+      "type": "recorrente",
+      "reason": "Feriado de Natal"
+    }
+  },
+  "selectors": {
+    "login": {
+      "username": "input[name='username']",
+      "password": "input[name='password']",
+      "submit": "button[type='submit']"
+    },
+    "dashboard": {
+      "title": "h1",
+      "totalClients": "[data-testid='total-clients']",
+      "totalConversations": "[data-testid='total-conversations']",
+      "totalAppointments": "[data-testid='total-appointments']",
+      "conversionRate": "[data-testid='conversion-rate']",
+      "backendStatus": "[data-testid='backend-status']"
+    },
+    "appointments": {
+      "title": "h1",
+      "newButton": "button:has-text('Novo Agendamento')",
+      "form": "[data-testid='appointment-form']",
+      "clientName": "input[name='clientName']",
+      "clientPhone": "input[name='clientPhone']",
+      "service": "select[name='service']",
+      "date": "input[name='date']",
+      "time": "input[name='time']",
+      "status": "select[name='status']",
+      "saveButton": "button:has-text('Salvar')",
+      "editButton": "button[data-testid='edit-appointment']",
+      "deleteButton": "button[data-testid='delete-appointment']",
+      "searchInput": "input[placeholder*='buscar']",
+      "filterSelect": "select",
+      "list": "[data-testid='appointments-list']"
+    },
+    "clients": {
+      "title": "h1",
+      "newButton": "button:has-text('Novo Cliente')",
+      "form": "[data-testid='client-form']",
+      "name": "input[name='name']",
+      "phone": "input[name='phone']",
+      "email": "input[name='email']",
+      "address": "textarea[name='address']",
+      "status": "select[name='status']",
+      "saveButton": "button:has-text('Salvar')",
+      "editButton": "button[data-testid='edit-client']",
+      "deleteButton": "button[data-testid='delete-client']",
+      "searchInput": "input[placeholder*='buscar']",
+      "filterSelect": "select",
+      "table": "[data-testid='clients-table']"
+    },
+    "conversations": {
+      "title": "h1",
+      "sidebar": "[data-testid='conversations-sidebar']",
+      "chatArea": "[data-testid='chat-area']",
+      "searchInput": "input[placeholder*='buscar conversas']",
+      "messageInput": "[data-testid='message-input']",
+      "sendButton": "button:has-text('Enviar')"
+    },
+    "analytics": {
+      "title": "h1",
+      "overviewTab": "button:has-text('Overview')",
+      "drillDownTab": "button:has-text('Drill-down')",
+      "alertsTab": "button:has-text('Alertas')",
+      "chartContainer": "[data-testid='chart-container']",
+      "kpiCard": "[data-testid='kpi-card']"
+    },
+    "reports": {
+      "title": "h1",
+      "overviewTab": "button:has-text('Visão Geral')",
+      "funnelTab": "button:has-text('Funil')",
+      "performanceTab": "button:has-text('Performance')",
+      "trendsTab": "button:has-text('Tendências')",
+      "csvButton": "button:has-text('Exportar CSV')",
+      "excelButton": "button:has-text('Exportar Excel')",
+      "pdfButton": "button:has-text('Exportar PDF')"
+    },
+    "settings": {
+      "title": "h1",
+      "companyTab": "button:has-text('Empresa')",
+      "botTab": "button:has-text('Bot & IA')",
+      "scheduleTab": "button:has-text('Horários')",
+      "notificationsTab": "button:has-text('Notificações')",
+      "securityTab": "button:has-text('Segurança')",
+      "companyName": "input[name='companyName']",
+      "botName": "input[name='botName']"
+    },
+    "profile": {
+      "title": "h1",
+      "personalInfoTab": "button:has-text('Informações Pessoais')",
+      "securityTab": "button:has-text('Segurança')",
+      "preferencesTab": "button:has-text('Preferências')",
+      "editButton": "button:has-text('Editar')",
+      "nameInput": "input[name='name']",
+      "currentPassword": "input[name='currentPassword']"
+    },
+    "monitoring": {
+      "title": "h1",
+      "whatsappStatus": "[data-testid='whatsapp-status']",
+      "databaseStatus": "[data-testid='database-status']",
+      "cacheStatus": "[data-testid='cache-status']",
+      "webhookStatus": "[data-testid='webhook-status']",
+      "responseTime": "[data-testid='response-time']",
+      "errorRate": "[data-testid='error-rate']",
+      "uptime": "[data-testid='uptime']"
+    },
+    "blocked": {
+      "title": "h1",
+      "newButton": "button:has-text('Novo Bloqueio')",
+      "form": "[data-testid='block-form']",
+      "startDate": "input[name='startDate']",
+      "endDate": "input[name='endDate']",
+      "startTime": "input[name='startTime']",
+      "endTime": "input[name='endTime']",
+      "type": "select[name='type']",
+      "reason": "textarea[name='reason']",
+      "saveButton": "button:has-text('Salvar')",
+      "editButton": "button[data-testid='edit-block']",
+      "deleteButton": "button[data-testid='delete-block']"
+    },
+    "support": {
+      "title": "h1",
+      "faqSection": "[data-testid='faq-section']",
+      "subjectInput": "input[name='subject']",
+      "messageTextarea": "textarea[name='message']",
+      "prioritySelect": "select[name='priority']",
+      "sendButton": "button:has-text('Enviar Ticket')"
+    },
+    "rbac": {
+      "title": "h1",
+      "usersTable": "[data-testid='users-table']",
+      "newUserButton": "button:has-text('Novo Usuário')",
+      "userForm": "[data-testid='user-form']",
+      "username": "input[name='username']",
+      "email": "input[name='email']",
+      "password": "input[name='password']",
+      "role": "select[name='role']",
+      "saveButton": "button:has-text('Salvar')",
+      "editButton": "button[data-testid='edit-user']",
+      "deleteButton": "button[data-testid='delete-user']",
+      "manageRolesButton": "button:has-text('Gerenciar Roles')",
+      "managePermissionsButton": "button:has-text('Gerenciar Permissões')",
+      "assignRoleButton": "button[data-testid='assign-role']"
+    },
+    "reports": {
+      "title": "h1",
+      "csvButton": "button:has-text('CSV')",
+      "excelButton": "button:has-text('Excel')",
+      "pdfButton": "button:has-text('PDF')",
+      "appointmentsButton": "button:has-text('Agendamentos')",
+      "conversationsButton": "button:has-text('Conversas')",
+      "dashboardButton": "button:has-text('Dashboard')"
+    },
+    "diagnostic": {
+      "title": "h1",
+      "backendStatus": "[data-testid='backend-status']",
+      "databaseStatus": "[data-testid='database-status']",
+      "redisStatus": "[data-testid='redis-status']",
+      "testButton": "button:has-text('Testar Conexão')"
+    },
+    "common": {
+      "loadingSpinner": "[data-testid='loading-spinner']",
+      "errorBoundary": "[data-testid='error-boundary']",
+      "successMessage": "[data-testid='success-message']",
+      "offlineIndicator": "[data-testid='offline-indicator']",
+      "mobileMenu": "[data-testid='mobile-menu']",
+      "sidebar": "[data-testid='sidebar']"
+    }
+  },
+  "timeouts": {
+    "short": 5000,
+    "medium": 10000,
+    "long": 30000,
+    "veryLong": 60000
+  },
+  "retries": {
+    "network": 3,
+    "ui": 2,
+    "api": 5
+  }
+}

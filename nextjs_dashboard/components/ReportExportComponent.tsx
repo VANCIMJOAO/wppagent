@@ -130,7 +130,7 @@ const ReportExportComponent: React.FC = () => {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`,
+          'Authorization': `Bearer ${null}`, // ✅ REMOVIDO: Token inseguro
         },
       });
 

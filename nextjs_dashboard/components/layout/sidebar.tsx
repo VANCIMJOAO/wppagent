@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import useAuth from '@/hooks/useAuth'
+// import { useAuth } from '@/contexts/auth-context' // Removido - usando estado local
 import {
   LayoutDashboard,
   MessageCircle,
@@ -46,25 +46,60 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ children }: SidebarProps) {
-  const { user, isAuthenticated, logout } = useAuth()
+  const [user, setUser] = useState<User | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
-    // Verificar se está autenticado
-    const checkAuth = async () => {
-      if (!isAuthenticated) {
+    // Verificar autenticação via localStorage (mais simples e confiável)
+    const checkAuth = () => {
+      try {
+        const userData = localStorage.getItem('user')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setUser(parsedUser)
+          setIsAuthenticated(true)
+        } else {
+          setIsAuthenticated(false)
+          router.push('/login')
+          return
+        }
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error)
+        setIsAuthenticated(false)
         router.push('/login')
-      } else {
-        setIsLoading(false)
+        return
       }
+      setIsLoading(false)
     }
 
     checkAuth()
-    setIsLoading(false)
   }, [router])
+
+  // Função de logout simples
+  const logout = async () => {
+    try {
+      // Limpar localStorage
+      localStorage.removeItem('user')
+      
+      // Limpar cookie via API
+      await fetch('/api/auth/clear-token', {
+        method: 'POST',
+        credentials: 'include',
+      })
+      
+      // Redirecionar para login
+      router.push('/login')
+    } catch (error) {
+      console.error('Erro no logout:', error)
+      // Mesmo com erro, limpar estado local
+      localStorage.removeItem('user')
+      router.push('/login')
+    }
+  }
 
   // Fechar menu mobile em resize para desktop
   useEffect(() => {
@@ -93,8 +128,37 @@ export default function Sidebar({ children }: SidebarProps) {
   }, [isMobileMenuOpen])
 
   const handleLogout = async () => {
-    await logout()
-    router.push('/login')
+    console.log('🚪 Iniciando logout...')
+    try {
+      // Limpar localStorage primeiro
+      localStorage.removeItem('user')
+      console.log('🧹 localStorage limpo')
+      
+      // Limpar cookie via API (não bloquear se falhar)
+      try {
+        const response = await fetch('/api/auth/clear-token', {
+          method: 'POST',
+          credentials: 'include',
+        })
+        
+        if (!response.ok) {
+          console.warn('Failed to clear token on server, but continuing with logout')
+        } else {
+          console.log('🍪 Cookie limpo no servidor')
+        }
+      } catch (apiError) {
+        console.warn('API call failed during logout, but continuing:', apiError)
+      }
+      
+      // Redirecionar para login imediatamente
+      console.log('🔄 Redirecionando para login...')
+      router.push('/login')
+    } catch (error) {
+      console.error('Erro no logout:', error)
+      // Mesmo com erro, limpar estado local e redirecionar
+      localStorage.removeItem('user')
+      router.push('/login')
+    }
   }
 
   const handleMenuItemClick = (href: string) => {
@@ -202,8 +266,14 @@ export default function Sidebar({ children }: SidebarProps) {
     )
   }
 
-  if (isLoading || !user) {
+  // Mostrar loading apenas se ainda está carregando
+  if (isLoading) {
     return <div>Carregando...</div>
+  }
+
+  // Se não está autenticado, redirecionar (já feito no useEffect)
+  if (!isAuthenticated) {
+    return <div>Redirecionando...</div>
   }
 
   return (
@@ -379,9 +449,9 @@ export default function Sidebar({ children }: SidebarProps) {
             <div className="flex items-center space-x-4">
               {/* Mobile space for hamburger menu */}
               <div className="w-10 md:w-0"></div>
-              <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+              <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
                 {menuItems.find(item => item.href === pathname)?.label || 'Dashboard'}
-              </h1>
+              </h2>
             </div>
 
             <div className="flex items-center space-x-4">

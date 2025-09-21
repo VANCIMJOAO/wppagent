@@ -63,7 +63,7 @@ export function middleware(request: NextRequest) {
   // Se está autenticado e tenta acessar login
   if (isAuthenticated && pathname === '/login') {
     if (isDev) console.log('Middleware: Redirecionando para dashboard (já autenticado)')
-    return NextResponse.redirect(new URL('/dashboard/dashboard', request.url));
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   if (isDev) console.log('Middleware: Permitindo acesso')
