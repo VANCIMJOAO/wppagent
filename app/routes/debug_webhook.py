@@ -103,7 +103,6 @@ async def debug_process_message(
         try:
             from app.services.data import UserService, ConversationService, MessageService
             from app.services.whatsapp import whatsapp_service
-            from app.services.response_generator import response_generator
             
             debug_info["steps"].append({
                 "step": "import_services",
