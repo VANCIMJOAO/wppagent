@@ -52,7 +52,13 @@ class ResponseControlStats:
     def reset_if_needed(self):
         """Reset estatísticas a cada hora"""
         if time.time() - self.last_reset > 3600:  # 1 hora
-            self.__post_init__()
+            self.messages_processed = 0
+            self.messages_blocked = 0
+            self.messages_allowed = 0
+            self.duplicates_prevented = 0
+            self.redis_operations = 0
+            self.fallback_operations = 0
+            self.errors = 0
             self.last_reset = time.time()
             logger.info("📊 Estatísticas resetadas")
 
