@@ -1,94 +1,170 @@
 /**
  * 🔐 API Route Segura para Login Admin
- * Credenciais são mantidas apenas no servidor
+ * Autenticação local via PostgreSQL
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { Pool } from 'pg';
 
-// ✅ SEGURO: Credenciais apenas no servidor via environment variables
-const BACKEND_URL = process.env.BACKEND_URL || 'https://wppagent-production.up.railway.app';
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
-// Validação de configuração segura
-if (!ADMIN_PASSWORD) {
-  console.error('❌ ADMIN_PASSWORD não configurado nas variáveis de ambiente!');
-}
+// Configuração do banco PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway',
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔐 Login admin via API route segura...');
+    console.log('🔐 Login admin via autenticação local PostgreSQL...');
 
-    // Validar configuração
-    if (!ADMIN_PASSWORD) {
+    // Obter credenciais do body da requisição
+    let username, password;
+    try {
+      const body = await request.json();
+      username = body.username;
+      password = body.password;
+    } catch (jsonError) {
+      console.error('❌ Erro ao fazer parse do JSON:', jsonError);
       return NextResponse.json(
-        { error: 'Configuração de autenticação inválida' },
-        { status: 500 }
+        { error: 'Dados inválidos no corpo da requisição' },
+        { status: 400 }
       );
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    if (!username || !password) {
+      console.log('❌ Username ou password ausentes:', { username: !!username, password: !!password });
+      return NextResponse.json(
+        { error: 'Username e password são obrigatórios' },
+        { status: 400 }
+      );
+    }
 
+    console.log('🔍 Tentando login para usuário:', username);
+
+    // Verificar credenciais na database
+    let client;
     try {
-      // ✅ SEGURO: Credenciais ficam apenas no servidor
-      const response = await fetch(`${BACKEND_URL}/auth/admin/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          username: ADMIN_USERNAME,
-          password: ADMIN_PASSWORD
-        }),
-        signal: controller.signal
-      });
+      client = await pool.connect();
+      console.log('✅ Conectado ao banco PostgreSQL');
+    } catch (dbError) {
+      console.error('❌ Erro ao conectar com o banco:', dbError);
+      return NextResponse.json(
+        { error: 'Erro de conexão com o banco de dados' },
+        { status: 500 }
+      );
+    }
+    
+    try {
+      // Buscar usuário admin na tabela admin_users
+      const adminResult = await client.query(
+        'SELECT id, username, password_hash, full_name, is_active FROM admin_users WHERE username = $1 AND is_active = true',
+        [username]
+      );
 
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        console.error(`❌ Login falhou: ${response.status} ${response.statusText}`);
+      if (adminResult.rows.length === 0) {
+        console.log('❌ Usuário admin não encontrado:', username);
         return NextResponse.json(
-          { error: 'Falha na autenticação' },
-          { status: response.status }
+          { error: 'Credenciais inválidas' },
+          { status: 401 }
         );
       }
 
-      const data = await response.json();
+      const admin = adminResult.rows[0];
+      console.log('✅ Usuário admin encontrado:', admin.username);
 
-      if (!data.token) {
-        console.error('❌ Token não encontrado na resposta do backend');
+      // Verificar senha (usando bcrypt)
+      const bcrypt = require('bcryptjs');
+      const isValidPassword = await bcrypt.compare(password, admin.password_hash);
+
+      if (!isValidPassword) {
+        console.log('❌ Senha inválida para usuário:', username);
         return NextResponse.json(
-          { error: 'Token inválido recebido' },
+          { error: 'Credenciais inválidas' },
+          { status: 401 }
+        );
+      }
+
+      console.log('✅ Login realizado com sucesso para:', admin.username);
+
+      // ✅ CORREÇÃO: Fazer login no Railway para obter token real
+      console.log('🚀 Fazendo login no Railway...');
+      const railwayLoginResponse = await fetch('https://wppagent-production.up.railway.app/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: admin.username,
+          password: password // Usar a senha original
+        })
+      });
+
+      if (!railwayLoginResponse.ok) {
+        console.error('❌ Erro ao fazer login no Railway:', railwayLoginResponse.status);
+        const railwayError = await railwayLoginResponse.text();
+        console.error('❌ Erro Railway:', railwayError);
+        
+        return NextResponse.json(
+          { error: 'Erro ao autenticar com o servidor Railway' },
           { status: 500 }
         );
       }
 
-      console.log('✅ Login admin realizado com sucesso via API route');
-
-      // ✅ SEGURO: Apenas o token é retornado ao cliente
-      return NextResponse.json({
-        token: data.token,
-        expires_in: data.expires_in || 14 * 60 * 1000, // 14 minutos
-      });
-
-    } catch (fetchError: any) {
-      clearTimeout(timeoutId);
-
-      if (fetchError.name === 'AbortError') {
-        console.error('❌ Timeout no login - backend não respondeu');
+      const railwayData = await railwayLoginResponse.json();
+      console.log('✅ Login Railway realizado com sucesso');
+      
+      if (!railwayData.success || !railwayData.data?.access_token) {
+        console.error('❌ Railway não retornou token válido:', railwayData);
         return NextResponse.json(
-          { error: 'Timeout na autenticação' },
-          { status: 504 }
+          { error: 'Token inválido do Railway' },
+          { status: 500 }
         );
       }
 
-      console.error('❌ Erro na requisição de login:', fetchError.message);
-      return NextResponse.json(
-        { error: 'Erro interno na autenticação' },
-        { status: 500 }
-      );
+      const token = railwayData.data.access_token;
+      console.log('🔑 Token Railway obtido, length:', token.length);
+      console.log('🔑 Token primeiros 50 chars:', token.substring(0, 50));
+
+      // ✅ SEGURO: Definir cookies HttpOnly seguros
+      const loginResponse = NextResponse.json({
+        success: true,
+        message: 'Login realizado com sucesso'
+      });
+
+      // Definir cookie de autenticação
+          loginResponse.cookies.set('access_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000, // 24 horas
+            path: '/'
+          });
+
+      // Definir cookie de sessão com informações do usuário
+      const sessionInfo = {
+        isAuthenticated: true,
+        user: {
+          id: admin.id,
+          name: admin.full_name,
+          username: admin.username,
+          role: 'admin'
+        },
+        tokenExpiry: Date.now() + (24 * 60 * 60 * 1000) // 24 horas
+      };
+
+          loginResponse.cookies.set('session-info', JSON.stringify(sessionInfo), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000, // 24 horas
+            path: '/'
+          });
+
+      return loginResponse;
+
+    } finally {
+      client.release();
     }
 
   } catch (error: any) {

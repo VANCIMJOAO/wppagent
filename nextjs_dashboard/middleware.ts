@@ -55,11 +55,11 @@ export function middleware(request: NextRequest) {
     if (isDev) console.log('Middleware: Sem token, usuário não autenticado')
   }
 
-      // ✅ Exceções para páginas de debug e fix - permitir acesso sem autenticação
-      if (pathname === '/dashboard-debug' || pathname === '/simple-debug' || pathname === '/fix-loop.html' || pathname === '/ultimate-fix.html' || pathname === '/emergency-stop.html' || pathname === '/stop-loop-now.html' || pathname === '/stop-loop-simple.html') {
-        if (isDev) console.log('Middleware: Permitindo acesso à página de debug/fix/emergency/stop-loop')
-        return NextResponse.next();
-      }
+  // ✅ Exceções para páginas de debug e fix - permitir acesso sem autenticação
+  if (pathname === '/dashboard-debug' || pathname === '/simple-debug' || pathname === '/debug-token' || pathname === '/fix-loop.html' || pathname === '/ultimate-fix.html' || pathname === '/emergency-stop.html' || pathname === '/stop-loop-now.html' || pathname === '/stop-loop-simple.html') {
+    if (isDev) console.log('Middleware: Permitindo acesso à página de debug/fix/emergency/stop-loop')
+    return NextResponse.next();
+  }
 
   // Rotas que requerem autenticação
   const protectedRoutes = ['/dashboard', '/conversas', '/agendamentos', '/monitoring'];
