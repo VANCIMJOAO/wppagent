@@ -44,17 +44,23 @@ export default function ConversasPage() {
     sendMessage,
   } = useMessages(selectedConversationId);
 
-  // Filtrar conversas por termo de busca
-  const filteredConversations = conversations.filter(conv =>
-    conv.user.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conv.user.telefone.includes(searchTerm) ||
-    conv.last_message?.content.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrar conversas por termo de busca - ✅ CORRIGIDO: Usar campos reais da database
+  const filteredConversations = (conversations || []).filter(conv => {
+    const nome = conv.nome || '';
+    const phone = conv.phone || '';
+    const lastMessage = conv.last_message || '';
+    
+    return nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           phone.includes(searchTerm) ||
+           lastMessage.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  const selectedConversation = (conversations || []).find(
+    conv => String(conv.id) === selectedConversationId
   );
 
-  const selectedConversation = conversations.find(conv => conv.id === selectedConversationId);
-
   const handleSelectConversation = (conversation: Conversation) => {
-    setSelectedConversationId(conversation.id);
+    setSelectedConversationId(String(conversation.id));
   };
 
   const handleSendMessage = async () => {
@@ -195,7 +201,7 @@ export default function ConversasPage() {
                   key={conversation.id}
                   onClick={() => handleSelectConversation(conversation)}
                   className={`p-4 cursor-pointer hover:bg-gray-50 border-l-4 ${
-                    selectedConversationId === conversation.id
+                    selectedConversationId === String(conversation.id)
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-transparent'
                   }`}
@@ -212,26 +218,26 @@ export default function ConversasPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <h3 className="font-medium text-gray-900 truncate">
-                          {conversation.user.nome || 'Usuário sem nome'}
+                          {conversation.nome || 'Usuário sem nome'}
                         </h3>
                         <span className="text-xs text-gray-500">
-                          {conversation.last_message_at ? formatDate(conversation.last_message_at) : '--:--'}
+                          {conversation.last_message_time ? formatDate(conversation.last_message_time) : '--:--'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between mt-1">
                         <p className="text-sm text-gray-600 truncate">
-                          {conversation.last_message?.content || 'Sem mensagens'}
+                          {conversation.last_message || 'Sem mensagens'}
                         </p>
-                        {conversation.messages_count > 0 && (
+                        {conversation.message_count > 0 && (
                           <Badge variant="secondary" className="text-xs">
-                            {conversation.messages_count}
+                            {conversation.message_count}
                           </Badge>
                         )}
                       </div>
                       <div className="flex items-center space-x-2 mt-1">
                         <Phone className="h-3 w-3 text-gray-400" />
                         <span className="text-xs text-gray-500">
-                          {conversation.user.telefone}
+                          {conversation.phone}
                         </span>
                         <span className="text-xs text-gray-400">•</span>
                         <span className="text-xs text-gray-500">
@@ -260,12 +266,12 @@ export default function ConversasPage() {
                   </div>
                   <div>
                     <h2 className="font-medium text-gray-900">
-                      {selectedConversation.user.nome || 'Usuário sem nome'}
+                      {selectedConversation.nome || 'Usuário sem nome'}
                     </h2>
                     <div className="flex items-center space-x-2">
                       <Phone className="h-3 w-3 text-gray-400" />
                       <span className="text-sm text-gray-500">
-                        {selectedConversation.user.telefone}
+                        {selectedConversation.phone || 'Telefone não informado'}
                       </span>
                       <span className="text-sm text-gray-400">•</span>
                       <span className="text-sm text-gray-500">

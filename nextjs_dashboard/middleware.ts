@@ -12,8 +12,8 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/api/proxy/')) {
     if (isDev) console.log('Middleware: Interceptando rota de proxy')
 
-    // Obter o token de autenticação
-    const authToken = request.cookies.get('auth-token')?.value;
+    // Obter o token de autenticação - ✅ CORRIGIDO: Usar access_token
+    const authToken = request.cookies.get('access_token')?.value;
 
     if (authToken) {
       if (isDev) console.log('Middleware: Adicionando token ao header de autorização')
@@ -44,9 +44,22 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Verificar se existe um token de autenticação
-  const isAuthenticated = request.cookies.get('auth-token')?.value;
-  if (isDev) console.log('Middleware: Token existe:', !!isAuthenticated)
+  // Verificar se existe um token de autenticação - ✅ CORRIGIDO: Usar access_token
+  const authToken = request.cookies.get('access_token')?.value;
+  const isAuthenticated = !!authToken; // Apenas verificar se o token existe
+  if (isDev) console.log('Middleware: Token existe:', isAuthenticated, 'Token:', authToken ? 'Presente' : 'Ausente')
+  if (isDev) console.log('Middleware: Valor do token (primeiros 20 chars):', authToken ? authToken.substring(0, 20) + '...' : 'null')
+  
+  // ✅ Verificação adicional: se não há token, não é autenticado
+  if (!authToken) {
+    if (isDev) console.log('Middleware: Sem token, usuário não autenticado')
+  }
+
+      // ✅ Exceções para páginas de debug e fix - permitir acesso sem autenticação
+      if (pathname === '/dashboard-debug' || pathname === '/simple-debug' || pathname === '/fix-loop.html' || pathname === '/ultimate-fix.html' || pathname === '/emergency-stop.html' || pathname === '/stop-loop-now.html' || pathname === '/stop-loop-simple.html') {
+        if (isDev) console.log('Middleware: Permitindo acesso à página de debug/fix/emergency/stop-loop')
+        return NextResponse.next();
+      }
 
   // Rotas que requerem autenticação
   const protectedRoutes = ['/dashboard', '/conversas', '/agendamentos', '/monitoring'];
@@ -60,10 +73,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Se está autenticado e tenta acessar login
+  // ✅ CORREÇÃO: Permitir acesso a /login mesmo com token presente
+  // O auth-context irá validar se o token é válido e redirecionar se necessário
   if (isAuthenticated && pathname === '/login') {
-    if (isDev) console.log('Middleware: Redirecionando para dashboard (já autenticado)')
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    if (isDev) console.log('Middleware: Token presente, mas permitindo acesso a /login para validação pelo auth-context')
+    // Não redirecionar automaticamente - deixar auth-context validar
+    return NextResponse.next();
   }
 
   if (isDev) console.log('Middleware: Permitindo acesso')

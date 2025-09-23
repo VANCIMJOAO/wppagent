@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { debugLog } from '@/lib/debug';
+import { useTokenRefresh } from '@/hooks/use-token-refresh';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -17,30 +18,44 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  
+  // ✅ Hook para renovação automática de token
+  const { refreshToken, checkTokenValidity } = useTokenRefresh();
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Verificar autenticação ao carregar - APENAS via cookies seguros
   useEffect(() => {
+    if (!mounted) return;
+
     const checkAuth = async () => {
       debugLog.auth('Verificando autenticação via cookies seguros...')
 
       try {
-        // Tentar acessar endpoint de status de autenticação
-        const response = await fetch('/api/auth/status', {
-          method: 'GET',
-          credentials: 'include', // Inclui cookies HttpOnly
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
+        // ✅ Usar o novo sistema de verificação de token
+        const isValid = await checkTokenValidity();
+        
+        if (isValid) {
           debugLog.success('Usuário autenticado via cookies seguros!');
           setIsAuthenticated(true);
         } else {
           debugLog.info('Usuário não autenticado');
           setIsAuthenticated(false);
+          
+          // ✅ Redirecionar para login se não autenticado e não estiver na página de login
+          if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+            debugLog.info('🔄 Redirecionando para login - usuário não autenticado');
+            debugLog.info('🔄 Caminho atual:', window.location.pathname);
+            debugLog.info('🔄 Tentando router.push para /login...');
+            // ✅ CORREÇÃO: Usar router do Next.js ao invés de window.location para evitar loop
+            router.push('/login');
+            debugLog.info('🔄 router.push executado');
+          }
         }
       } catch (error) {
         debugLog.error('Erro ao verificar autenticação:', error);
@@ -51,14 +66,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-  }, []);
+  }, [mounted]); // Removido checkTokenValidity da dependência
 
   const login = async (email: string, password: string) => {
     try {
       debugLog.auth(`Tentando fazer login com: ${email}`);
 
       // Fazer login real com o backend usando cookies seguros
-      const response = await fetch('/api/proxy/auth/login', {
+      const response = await fetch('/api/auth/admin-login', {
         method: 'POST',
         credentials: 'include', // Inclui cookies HttpOnly
         headers: {
@@ -78,48 +93,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       debugLog.success('Login realizado com sucesso!');
+      debugLog.info('Dados do login:', data);
 
       // ✅ SEGURO: Tokens agora estão em cookies HttpOnly
       // Não precisamos mais gerenciar tokens no frontend
 
+      debugLog.info('Definindo isAuthenticated como true...');
       setIsAuthenticated(true);
-      router.push('/dashboard');
+      
+      debugLog.info('Redirecionando para /dashboard...');
+      debugLog.info('Router disponível:', !!router);
+      
+      // ✅ CORREÇÃO: Redirecionamento simples e direto
+      debugLog.info('🔄 Executando redirecionamento...');
+      
+      // Usar window.location.href para navegação mais robusta em desenvolvimento
+      if (typeof window !== 'undefined') {
+        debugLog.info('🔄 Usando window.location.href para redirecionamento robusto');
+        window.location.href = '/dashboard';
+      } else {
+        // Fallback para router.push se window não disponível
+        router.push('/dashboard');
+        debugLog.info('✅ router.push executado como fallback');
+      }
     } catch (error) {
       debugLog.error('Erro no login', error);
       throw error;
     }
   };
 
-  const refreshToken = async (): Promise<boolean> => {
-    try {
-      debugLog.auth('Renovando token via cookies seguros...');
-
-      const response = await fetch('/api/proxy/auth/refresh', {
-        method: 'POST',
-        credentials: 'include', // Inclui cookies HttpOnly
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        debugLog.error('Falha ao renovar token');
-        return false;
-      }
-
-      const data = await response.json();
-      debugLog.success('Token renovado com sucesso!');
-      return true;
-    } catch (error) {
-      debugLog.error('Erro ao renovar token', error);
-      return false;
-    }
+  const refreshTokenWrapper = async (): Promise<boolean> => {
+    // ✅ Usar o hook de renovação de token
+    return await refreshToken();
   };
 
   const logout = async () => {
     try {
       // Fazer logout seguro no backend
-      await fetch('/api/proxy/auth/logout', {
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include', // Inclui cookies HttpOnly
         headers: {
@@ -139,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading, refreshToken }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading, refreshToken: refreshTokenWrapper }}>
       {children}
     </AuthContext.Provider>
   );

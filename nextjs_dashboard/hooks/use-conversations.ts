@@ -1,25 +1,15 @@
 import { useState, useEffect } from 'react';
 
 export interface Conversation {
-  id: string;
+  id: number;
   user_id: number;
   status: 'active' | 'human' | 'closed';
-  last_message_at: string;
+  phone: string; // COALESCE(c.phone_number, u.telefone)
+  nome: string; // u.nome
+  last_message: string;
+  last_message_time: string;
+  message_count: number;
   created_at: string;
-  updated_at: string;
-  user: {
-    id: number;
-    wa_id: string;
-    nome: string;
-    telefone: string;
-    created_at: string;
-  };
-  messages_count: number;
-  last_message?: {
-    content: string;
-    created_at: string;
-    direction: 'in' | 'out';
-  };
 }
 
 export interface Message {
@@ -35,12 +25,14 @@ export interface Message {
 export interface ConversationsResponse {
   conversations: Conversation[];
   total: number;
-  page: number;
   limit: number;
-  total_pages: number;
+  offset: number;
+  has_more: boolean;
 }
 
 export interface MessagesResponse {
+  error: string;
+  success: any;
   messages: Message[];
   total: number;
   conversation_id: string;
@@ -52,26 +44,40 @@ export function useConversations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   const fetchConversations = async (pageNum: number = 1, limit: number = 20) => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/conversations?page=${pageNum}&limit=${limit}`);
+      // Converter page para offset (page 1 = offset 0)
+      const offset = (pageNum - 1) * limit;
+      const response = await fetch(`/api/conversations?offset=${offset}&limit=${limit}`);
       
       if (!response.ok) {
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
       }
 
-      const data: ConversationsResponse = await response.json();
+      const apiResponse = await response.json();
       
-      setConversations(data.conversations);
-      setTotal(data.total);
-      setPage(data.page);
-      setTotalPages(data.total_pages);
+      console.log('🔍 Resposta completa da API:', apiResponse);
+      
+      // ✅ Extrair dados da estrutura aninhada { success: true, data: { conversations: [...] } }
+      const data = apiResponse.data || apiResponse;
+      
+      console.log('🔍 Dados extraídos:', data);
+      console.log('🔍 Conversas encontradas:', data.conversations?.length || 0);
+      
+      if (data.conversations && data.conversations.length > 0) {
+        console.log('📝 Primeira conversa:', data.conversations[0]);
+      }
+      
+      setConversations(data.conversations || []);
+      setTotal(data.total || 0);
+      setOffset(data.offset || 0);
+      setHasMore(data.has_more || false);
       
     } catch (err) {
       console.error('❌ Erro ao buscar conversas:', err);
@@ -82,7 +88,8 @@ export function useConversations() {
   };
 
   const refreshConversations = () => {
-    fetchConversations(page);
+    const currentPage = Math.floor(offset / 20) + 1;
+    fetchConversations(currentPage);
   };
 
   useEffect(() => {
@@ -94,8 +101,8 @@ export function useConversations() {
     loading,
     error,
     total,
-    page,
-    totalPages,
+    offset,
+    hasMore,
     fetchConversations,
     refreshConversations,
   };

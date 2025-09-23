@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import apiService from '@/lib/api-service-robust';
+import { useAuth } from '@/contexts/auth-context';
 
 // Tipos para os dados de analytics
 interface DashboardSummary {
@@ -16,7 +17,7 @@ interface DashboardSummary {
     total_conversations: number;
     total_appointments: number;
     overall_conversion_rate: number;
-    avg_response_time_minutes: number;
+    avg_response_time_minutes?: number;
     satisfaction_score: number;
   };
   funnel: {
@@ -139,6 +140,7 @@ let globalState = {
 
 export function useRealAnalytics(): UseRealAnalyticsReturn {
   const { toast } = useToast();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const mounted = useRef(true);
 
   // Local state
@@ -166,6 +168,9 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
 
   // Subscribe to global state changes
   useEffect(() => {
+    // ✅ CORREÇÃO: Garantir que mounted seja true no início
+    mounted.current = true;
+    
     const updateState = () => {
       if (mounted.current) {
         setDashboardSummary(globalState.dashboardSummary);
@@ -211,25 +216,34 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
 
   // Fetch Dashboard Summary with global coordination
   const refreshDashboard = useCallback(async (days: number = 30) => {
-    if (!mounted.current) return;
+    console.log('🔄 refreshDashboard chamado com days:', days);
+    console.log('🔄 mounted.current:', mounted.current);
+    
+    if (!mounted.current) {
+      console.log('🚫 Componente não montado, abortando refresh');
+      return;
+    }
 
     // Check if data is fresh (less than 30 seconds old)
     const now = Date.now();
     const cacheAge = now - globalState.lastFetch;
     const cacheLimit = 30000; // 30 seconds
 
+    console.log('📦 Verificando cache - idade:', cacheAge, 'limite:', cacheLimit);
+
     if (globalState.dashboardSummary && cacheAge < cacheLimit) {
-      console.log('📦 Using fresh global cache for dashboard');
+      console.log('📦 Usando cache global fresco para dashboard');
       setDashboardSummary(globalState.dashboardSummary);
       return;
     }
 
     // Prevent duplicate requests
     if (globalState.loadingDashboard) {
-      console.log('⏳ Dashboard request already in progress');
+      console.log('⏳ Requisição de dashboard já em andamento');
       return;
     }
 
+    console.log('🚀 Iniciando carregamento do dashboard...');
     globalState.loadingDashboard = true;
     setLoadingDashboard(true);
     setDashboardError(null);
@@ -237,26 +251,42 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
     try {
       console.log(`📊 Carregando dashboard summary - ${days} dias`);
 
-      // Usar método específico para overview
-      const result = await apiService.getBusinessOverview();
+      // Usar API real do PostgreSQL
+      console.log('📡 Fazendo requisição para /analytics/real-dashboard-summary');
+      const result = await apiService.makeRequest('/analytics/real-dashboard-summary');
+      
+      console.log('📡 Resposta da API:', result);
 
       if (!result.success) {
+        console.error('❌ API retornou erro:', result.error);
         throw new Error(result.error || 'Falha ao carregar dashboard');
       }
 
+      // Usar dados reais do PostgreSQL diretamente
+      const realData = result.data;
+      console.log('📊 Dados reais obtidos do PostgreSQL:', realData);
+
+      // Usar dados reais do PostgreSQL diretamente
+      const mappedData = realData;
+      
+      console.log('📊 Dados mapeados:', mappedData);
+
       // Update global state
-      globalState.dashboardSummary = result.data;
+      globalState.dashboardSummary = mappedData;
       globalState.lastFetch = now;
+
+      console.log('📦 Estado global atualizado');
 
       // Notify all subscribers
       globalState.subscribers.forEach(callback => callback());
 
       // Always update local state - force update
-      setDashboardSummary(result.data);
+      setDashboardSummary(mappedData);
+      console.log('✅ Estado local atualizado com dados do dashboard');
 
-      console.log(`✅ Dashboard carregado:`, {
-        customers: result.data.key_metrics?.total_customers,
-        conversion: result.data.key_metrics?.overall_conversion_rate?.toFixed(1) + '%',
+      console.log(`✅ Dashboard carregado com sucesso:`, {
+        customers: mappedData.key_metrics?.total_customers,
+        conversion: mappedData.key_metrics?.overall_conversion_rate?.toFixed(1) + '%',
         source: 'backend'
       });
 
@@ -269,13 +299,16 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       });
 
     } catch (error) {
+      console.error('❌ Erro no refreshDashboard:', error);
       if (!mounted.current) return;
       const errorMsg = handleError(error, 'dashboard summary');
       setDashboardError(errorMsg);
     } finally {
+      console.log('🏁 Finalizando refreshDashboard');
       if (mounted.current) {
         globalState.loadingDashboard = false;
         setLoadingDashboard(false);
+        console.log('✅ Estados de loading limpos');
       }
     }
   }, [handleError, toast]);
@@ -407,13 +440,36 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
     }
   }, [handleError]);
 
-  // Auto-load dashboard summary on mount - only if not already loaded
+  // Auto-load dashboard summary on mount - always load fresh data when authenticated
   useEffect(() => {
-    if (!globalState.dashboardSummary || (Date.now() - globalState.lastFetch > 60000)) {
-      console.log('🚀 useRealAnalytics: carregando dados iniciais');
-      refreshDashboard(30);
+    if (authLoading) {
+      console.log('⏳ useRealAnalytics: aguardando verificação de autenticação...');
+      return; // Aguardar verificação de autenticação
     }
-  }, [refreshDashboard]);
+    
+    if (!isAuthenticated) {
+      console.log('🚫 useRealAnalytics: usuário não autenticado, não carregando dados');
+      return;
+    }
+    
+    // Sempre carregar dados frescos quando o componente for montado
+    console.log('🚀 useRealAnalytics: usuário autenticado, carregando dados iniciais...');
+    
+    // Adicionar timeout para evitar loading infinito
+    const timeoutId = setTimeout(() => {
+      if (loadingDashboard && !dashboardSummary) {
+        console.warn('⚠️ Timeout no carregamento do dashboard, forçando estado de erro');
+        setDashboardError('Timeout ao carregar dados do dashboard');
+        setLoadingDashboard(false);
+      }
+    }, 10000); // 10 segundos de timeout
+    
+    refreshDashboard(30).finally(() => {
+      clearTimeout(timeoutId);
+    });
+    
+    return () => clearTimeout(timeoutId);
+  }, [refreshDashboard, isAuthenticated, authLoading, loadingDashboard, dashboardSummary]);
 
   return {
     // Dashboard Summary

@@ -90,13 +90,14 @@ async def get_conversations(
             f"📊 Parâmetros: limit={limit}, offset={offset}, status={status}, search={search}"
         )
 
-        # Query principal com correção para evitar ambiguidade e contagem duplicada
+        # Query principal com última mensagem e telefone correto
         query = (
             select(
                 Conversation,
                 User.nome.label("user_name"),
-                User.telefone.label("user_phone"),
+                func.coalesce(Conversation.phone_number, User.telefone).label("user_phone"),
                 func.count(func.distinct(Message.id)).label("total_messages"),
+                func.max(Message.created_at).label("last_message_time"),
             )
             .select_from(Conversation)
             .join(User, Conversation.user_id == User.id)
@@ -133,6 +134,38 @@ async def get_conversations(
         rows = result.fetchall()
         logger.info(f"📊 Query executada: {len(rows)} resultados encontrados")
 
+        # Buscar últimas mensagens para cada conversa
+        logger.info("💬 Buscando últimas mensagens...")
+        conversation_ids = [row.Conversation.id for row in rows]
+        
+        if conversation_ids:
+            # Subquery para última mensagem de cada conversa
+            last_messages_query = (
+                select(
+                    Message.conversation_id,
+                    Message.content,
+                    func.row_number().over(
+                        partition_by=Message.conversation_id,
+                        order_by=desc(Message.created_at)
+                    ).label('rn')
+                )
+                .where(Message.conversation_id.in_(conversation_ids))
+            ).alias('ranked_messages')
+            
+            # Query final para pegar apenas a última mensagem
+            final_messages_query = (
+                select(
+                    last_messages_query.c.conversation_id,
+                    last_messages_query.c.content
+                )
+                .where(last_messages_query.c.rn == 1)
+            )
+            
+            messages_result = await session.execute(final_messages_query)
+            messages_dict = {row.conversation_id: row.content for row in messages_result.fetchall()}
+        else:
+            messages_dict = {}
+
         # Formatear resposta
         conversations = []
         for i, row in enumerate(rows):
@@ -142,14 +175,15 @@ async def get_conversations(
                     "id": conversation.id,
                     "user_id": conversation.user_id,
                     "status": conversation.status,
-                    "last_message_at": conversation.last_message_at,
+                    "last_message_time": row.last_message_time or conversation.last_message_at,
                     "created_at": conversation.created_at,
                     "updated_at": conversation.updated_at,
-                    "user_name": row.user_name,
-                    "user_phone": row.user_phone,
-                    "total_messages": row.total_messages or 0,
+                    # ✅ CORRIGIDO: Usar campos corretos da database
+                    "nome": row.user_name,  # u.nome
+                    "phone": row.user_phone,  # u.telefone ou c.phone_number
+                    "message_count": row.total_messages or 0,
                     "unread_messages": 0,  # Placeholder - sem campo is_read
-                    "last_message": "N/A",  # Simplificado por ora
+                    "last_message": messages_dict.get(conversation.id, "Sem mensagens"),
                 }
                 conversations.append(conversation_data)
                 logger.debug(
