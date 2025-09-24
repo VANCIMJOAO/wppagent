@@ -102,12 +102,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 async def get_admin_user(username: str, session: AsyncSession) -> Optional[AdminUser]:
-    """Busca usuário admin pelo username"""
+    """Busca usuário admin pelo username com cache otimizado"""
     try:
-        result = await session.execute(
-            select(AdminUser).where(AdminUser.username == username)
-        )
-        return result.scalar_one_or_none()
+        from app.services.auth_cache_service import auth_cache_service
+        
+        # Usar cache otimizado
+        return await auth_cache_service.get_user_with_cache(username, session)
+        
     except Exception as e:
         logger.error(f"❌ Erro ao buscar admin user: {e}")
         return None
@@ -116,24 +117,42 @@ async def get_admin_user(username: str, session: AsyncSession) -> Optional[Admin
 async def authenticate_admin(
     username: str, password: str, session: AsyncSession
 ) -> Optional[AdminUser]:
-    """Autentica admin user"""
+    """Autentica admin user com cache e rate limiting"""
     try:
+        from app.services.auth_cache_service import auth_cache_service
+        
+        # Verificar tentativas de senha
+        attempts = await auth_cache_service.get_password_attempts(username)
+        if attempts >= 5:  # Máximo 5 tentativas em 15 minutos
+            logger.warning(f"⚠️ Muitas tentativas de login para: {username} ({attempts} tentativas)")
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Muitas tentativas de login. Tente novamente em 15 minutos."
+            )
+        
         admin_user = await get_admin_user(username, session)
         if not admin_user:
+            await auth_cache_service.track_password_attempt(username, False)
             logger.warning(f"⚠️ Admin user não encontrado: {username}")
             return None
 
         if not admin_user.is_active:
+            await auth_cache_service.track_password_attempt(username, False)
             logger.warning(f"⚠️ Admin user inativo: {username}")
             return None
 
         if not verify_password(password, admin_user.password_hash):
+            await auth_cache_service.track_password_attempt(username, False)
             logger.warning(f"⚠️ Senha incorreta para admin: {username}")
             return None
 
+        # Login bem-sucedido - limpar tentativas
+        await auth_cache_service.track_password_attempt(username, True)
         logger.info(f"✅ Admin autenticado: {username}")
         return admin_user
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"❌ Erro na autenticação: {e}")
         return None
@@ -688,6 +707,28 @@ async def sync_admin_rbac_public(session: AsyncSession = Depends(get_db)):
         logger.error(f"❌ Erro ao sincronizar admin com RBAC: {e}")
         await session.rollback()
         raise HTTPException(500, f"Erro interno: {str(e)}")
+
+
+# Endpoint para invalidar cache de usuário
+@auth_router.post("/invalidate-cache", include_in_schema=False, dependencies=[])
+async def invalidate_user_cache(username: str, session: AsyncSession = Depends(get_db)):
+    """
+    🗑️ Invalida cache de usuário (para administração)
+    """
+    try:
+        from app.services.auth_cache_service import auth_cache_service
+        
+        success = await auth_cache_service.invalidate_user_cache(username)
+        
+        if success:
+            logger.info(f"Cache invalidado para usuário: {username}")
+            return {"status": "success", "message": f"Cache invalidado para {username}"}
+        else:
+            return {"status": "error", "message": "Erro ao invalidar cache"}
+            
+    except Exception as e:
+        logger.error(f"❌ Erro ao invalidar cache: {e}")
+        return {"status": "error", "message": str(e)}
 
 
 # Endpoint temporário para debug de login

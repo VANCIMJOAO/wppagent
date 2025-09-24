@@ -20,6 +20,9 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from app.config import get_settings
+from app.utils.logger import get_logger
+
+from app.config import get_settings
 
 
 class SecretType(Enum):
@@ -54,7 +57,19 @@ class SecretsManager:
 
     def __init__(self):
         self.settings = get_settings()
-        self.redis_client = redis.from_url(self.settings.redis_url)
+        self.logger = get_logger(__name__)
+        self.redis_client = None
+        
+        # Tentar conectar ao Redis apenas se a URL estiver disponível
+        if hasattr(self.settings, 'redis_url') and self.settings.redis_url:
+            try:
+                self.redis_client = redis.from_url(self.settings.redis_url)
+                self.logger.info("✅ Redis conectado com sucesso")
+            except Exception as e:
+                self.logger.warning(f"Redis não disponível, usando fallback: {e}")
+                self.redis_client = None
+        else:
+            self.logger.warning("REDIS_URL não configurada, usando fallback")
 
         # Configurar criptografia
         self.master_key = self._derive_master_key()
