@@ -114,6 +114,49 @@ async def get_admin_user(username: str, session: AsyncSession) -> Optional[Admin
         return None
 
 
+async def get_admin_user_optimized(username: str, session: AsyncSession) -> Optional[AdminUser]:
+    """Busca usuário admin com query otimizada e prepared statement"""
+    try:
+        from app.services.auth_cache_service import auth_cache_service
+        
+        # Primeiro tentar cache
+        cached_user = await auth_cache_service.get_user_with_cache(username, session)
+        if cached_user:
+            return cached_user
+        
+        # Se não estiver no cache, usar query otimizada
+        # Query otimizada com apenas campos necessários
+        result = await session.execute(
+            select(AdminUser.id, AdminUser.username, AdminUser.email, 
+                   AdminUser.password_hash, AdminUser.is_active, AdminUser.is_super_admin)
+            .where(AdminUser.username == username)
+            .limit(1)
+        )
+        
+        user_data = result.first()
+        if not user_data:
+            return None
+        
+        # Reconstruir objeto AdminUser com dados mínimos
+        admin_user = AdminUser(
+            id=user_data.id,
+            username=user_data.username,
+            email=user_data.email,
+            password_hash=user_data.password_hash,
+            is_active=user_data.is_active,
+            is_super_admin=user_data.is_super_admin
+        )
+        
+        # Armazenar no cache para próximas consultas
+        await auth_cache_service._cache_user_data(username, admin_user)
+        
+        return admin_user
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao buscar admin user otimizado: {e}")
+        return None
+
+
 async def authenticate_admin(
     username: str, password: str, session: AsyncSession
 ) -> Optional[AdminUser]:
@@ -130,7 +173,7 @@ async def authenticate_admin(
                 detail="Muitas tentativas de login. Tente novamente em 15 minutos."
             )
         
-        admin_user = await get_admin_user(username, session)
+        admin_user = await get_admin_user_optimized(username, session)
         if not admin_user:
             await auth_cache_service.track_password_attempt(username, False)
             logger.warning(f"⚠️ Admin user não encontrado: {username}")

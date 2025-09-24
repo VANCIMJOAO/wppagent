@@ -41,17 +41,25 @@ logger.info(f"PGPORT: {os.getenv('PGPORT', 'NOT_SET')}")
 logger.info(f"PGDATABASE: {os.getenv('PGDATABASE', 'NOT_SET')}")
 logger.info(f"DATABASE_URL presente: {'Sim' if os.getenv('DATABASE_URL') else 'Não'}")
 
-# Engine assíncrono
+# Engine assíncrono otimizado para performance
 engine = create_async_engine(
     database_url,
     echo=False,  # Reduzir logs em produção
     pool_pre_ping=True,
-    pool_recycle=3600,
-    pool_size=5,
-    max_overflow=10,
+    pool_recycle=1800,  # Reduzir para 30 minutos
+    pool_size=10,  # Aumentar pool size
+    max_overflow=20,  # Aumentar overflow
+    pool_timeout=30,  # Timeout de conexão
+    connect_args={
+        "command_timeout": 30,  # Timeout de comando
+        "server_settings": {
+            "application_name": "whats_agent",
+            "jit": "off",  # Desabilitar JIT para queries simples
+        }
+    }
 )
 
-# Engine síncrono (para dashboard e outras operações síncronas)
+# Engine síncrono otimizado (para dashboard e outras operações síncronas)
 sync_database_url = database_url.replace(
     "postgresql+asyncpg://", "postgresql://"
 ).replace("+asyncpg", "")
@@ -59,9 +67,14 @@ sync_engine = create_engine(
     sync_database_url,
     echo=False,  # Reduzir logs em produção
     pool_pre_ping=True,
-    pool_recycle=3600,
-    pool_size=5,
-    max_overflow=10,
+    pool_recycle=1800,  # Reduzir para 30 minutos
+    pool_size=10,  # Aumentar pool size
+    max_overflow=20,  # Aumentar overflow
+    pool_timeout=30,  # Timeout de conexão
+    connect_args={
+        "command_timeout": 30,  # Timeout de comando
+        "application_name": "whats_agent_sync",
+    }
 )
 
 # Session maker assíncrono
