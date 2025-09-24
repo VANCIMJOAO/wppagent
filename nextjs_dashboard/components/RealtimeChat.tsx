@@ -49,27 +49,33 @@ interface ChatProps {
 
 // ============= API FUNCTIONS =============
 const fetchMessages = async (conversationId?: number): Promise<Message[]> => {
-    const url = conversationId
-        ? `/api/messages?conversation_id=${conversationId}`
-        : '/api/messages'
+    try {
+        const url = conversationId
+            ? `/api/messages?conversation_id=${conversationId}`
+            : '/api/messages'
 
-    const response = await fetch(url, {
-        headers: {
-            'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${null}`
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error('Falha ao carregar mensagens')
         }
-    })
 
-    if (!response.ok) {
-        throw new Error('Falha ao carregar mensagens')
+        const data = await response.json()
+        return data as Message[]
+    } catch (error) {
+        console.error('Erro ao buscar mensagens:', error)
+        return []
     }
-
-    return response.json()
 }
 
 const fetchConversations = async (): Promise<Conversation[]> => {
     const response = await fetch('/api/conversations', {
         headers: {
-            'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
+            'Authorization': `Bearer ${null}`
         }
     })
 
@@ -89,7 +95,7 @@ const sendMessageApi = async (data: {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
+            'Authorization': `Bearer ${null}`
         },
         body: JSON.stringify(data)
     })

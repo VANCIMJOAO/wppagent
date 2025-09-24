@@ -509,7 +509,7 @@ class RBACRole(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True, nullable=False)
     description = Column(Text, nullable=True)
-    role_type = Column(SQLEnum(RoleType), nullable=True)  # Para roles predefinidos
+    role_type = Column(SQLEnum(RoleType, values_callable=lambda obj: [e.value for e in obj]), nullable=True)  # Para roles predefinidos
     is_active = Column(Boolean, default=True)
     is_system_role = Column(
         Boolean, default=False
@@ -545,7 +545,7 @@ class RBACPermission(Base):
     __tablename__ = "rbac_permissions"
 
     id = Column(Integer, primary_key=True, index=True)
-    permission_type = Column(String(100), unique=True, nullable=False)
+    permission_type = Column(SQLEnum(PermissionType, values_callable=lambda obj: [e.value for e in obj], name="permissiontype"), nullable=False, unique=True)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     category = Column(SQLEnum(PermissionCategory, values_callable=lambda obj: [e.value for e in obj]), nullable=False)

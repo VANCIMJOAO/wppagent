@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { MessageCircle, Lock, User, Eye, EyeOff } from "lucide-react"
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/auth-context'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
+  const { login } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,48 +23,8 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Login real com backend
-      const response = await fetch('/api/proxy/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      })
-
-      if (!response.ok) {
-        throw new Error('Credenciais inválidas')
-      }
-
-      const data = await response.json()
-
-      // Verificar se a resposta tem a estrutura esperada
-      if (!data.success || !data.data || !data.data.access_token) {
-        throw new Error('Resposta inválida do servidor')
-      }
-
-      // Salvar token no localStorage
-      // ✅ SEGURO: Tokens agora em cookies HttpOnly
-
-      // Salvar token no cookie via API
-      await fetch('/api/auth/set-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ token: data.data.access_token })
-      })
-
-      // Decodificar JWT para user info
-      const payload = JSON.parse(atob(data.data.access_token.split('.')[1]))
-      const userData = {
-        username: payload.sub,
-        role: payload.role,
-        permissions: payload.permissions || []
-      }
-      localStorage.setItem('user', JSON.stringify(userData))
-
-      router.push('/dashboard')
+      // ✅ Usar o AuthContext para login
+      await login(username, password)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Erro ao fazer login')
     } finally {

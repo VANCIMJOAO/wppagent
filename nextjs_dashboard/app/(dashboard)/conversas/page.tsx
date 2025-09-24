@@ -42,6 +42,8 @@ export default function ConversasPage() {
     loading: messagesLoading,
     error: messagesError,
     sendMessage,
+    messagesEndRef,
+    scrollToBottom,
   } = useMessages(selectedConversationId);
 
   // Filtrar conversas por termo de busca - ✅ CORRIGIDO: Usar campos reais da database
@@ -60,7 +62,9 @@ export default function ConversasPage() {
   );
 
   const handleSelectConversation = (conversation: Conversation) => {
+    console.log(`🎯 Selecionando conversa:`, conversation);
     setSelectedConversationId(String(conversation.id));
+    console.log(`🎯 selectedConversationId definido como: ${String(conversation.id)}`);
   };
 
   const handleSendMessage = async () => {
@@ -333,6 +337,8 @@ export default function ConversasPage() {
                   </div>
                 ))
               )}
+              {/* Elemento para scroll automático */}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Input de mensagem */}

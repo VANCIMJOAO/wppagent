@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 /**
  * 🎯 Hook para Estados Loading/Erro
@@ -249,7 +249,7 @@ export function useNetworkStatus() {
   }, [])
 
   // Setup event listeners on mount
-  useState(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       window.addEventListener('online', updateNetworkStatus)
       window.addEventListener('offline', updateNetworkStatus)
@@ -259,7 +259,7 @@ export function useNetworkStatus() {
         window.removeEventListener('offline', updateNetworkStatus)
       }
     }
-  })
+  }, [updateNetworkStatus])
 
   return isOnline
 }

@@ -31,17 +31,23 @@ interface DashboardProps {
 
 // ============= API FUNCTIONS =============
 const fetchDashboardStats = async (): Promise<DashboardStats> => {
-    const response = await fetch('/api/dashboard/stats', {
-        headers: {
-            'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
+    try {
+        const response = await fetch('/api/dashboard/stats', {
+            headers: {
+                'Authorization': `Bearer ${null}`
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error('Falha ao carregar estatísticas')
         }
-    })
 
-    if (!response.ok) {
-        throw new Error('Falha ao carregar estatísticas')
+        const data = await response.json()
+        return data as DashboardStats
+    } catch (error) {
+        console.error('Erro ao buscar estatísticas:', error)
+        throw error
     }
-
-    return response.json()
 }
 
 // ============= STAT CARD COMPONENT =============

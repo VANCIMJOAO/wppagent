@@ -10,30 +10,34 @@ const BACKEND_URL = process.env.BACKEND_URL || 'https://wppagent-production.up.r
 
 export async function GET(
   request: Request,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleProxyRequest(request, 'GET', params.path);
+  const { path } = await params;
+  return handleProxyRequest(request, 'GET', path);
 }
 
 export async function POST(
   request: Request,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleProxyRequest(request, 'POST', params.path);
+  const { path } = await params;
+  return handleProxyRequest(request, 'POST', path);
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleProxyRequest(request, 'PUT', params.path);
+  const { path } = await params;
+  return handleProxyRequest(request, 'PUT', path);
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleProxyRequest(request, 'DELETE', params.path);
+  const { path } = await params;
+  return handleProxyRequest(request, 'DELETE', path);
 }
 
 async function handleProxyRequest(request: Request, method: string, pathSegments: string[]) {
@@ -186,6 +190,17 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
       if (isDev) console.log('[Proxy] Repassing Set-Cookie to frontend');
     }
 
+    // ✅ DETECÇÃO ESPECIAL PARA LOGIN: Extrair token e definir cookie local
+    if (method === 'POST' && endpoint.includes('/admin/login') && response.status === 200 && data?.success && data?.data?.access_token) {
+      if (isDev) console.log('[Proxy] Login detectado - extraindo token e definindo cookie');
+      
+      const token = data.data.access_token;
+      // ✅ CORRIGIDO: Usar o mesmo nome de cookie que o backend espera
+      responseHeaders['Set-Cookie'] = `access_token=${token}; HttpOnly; Secure=${process.env.NODE_ENV === 'production'}; SameSite=Strict; Path=/; Max-Age=3600`;
+      
+      if (isDev) console.log('[Proxy] Cookie access_token definido com sucesso');
+    }
+
     return NextResponse.json(data, {
       status: response.status,
       headers: responseHeaders
@@ -211,7 +226,7 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
 // Handle OPTIONS requests for CORS
 export async function OPTIONS(
   request: Request,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   return new Response(null, {
     status: 200,

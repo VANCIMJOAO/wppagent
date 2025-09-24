@@ -1,9 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-export function middleware(request: NextRequest) {
+// Função para verificar se o JWT é válido
+async function verifyJWT(token: string): Promise<boolean> {
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'whatsapp_agent_super_secret_2024_railway_production');
+    await jwtVerify(token, secret);
+    return true;
+  } catch (error) {
+    if (isDev) console.log('Middleware: JWT inválido:', error);
+    return false;
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (isDev) console.log('Middleware: Verificando rota:', pathname)
@@ -44,16 +57,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Verificar se existe um token de autenticação - ✅ CORRIGIDO: Usar access_token
+  // Verificar se existe um token de autenticação e se é válido
   const authToken = request.cookies.get('access_token')?.value;
-  const isAuthenticated = !!authToken; // Apenas verificar se o token existe
-  if (isDev) console.log('Middleware: Token existe:', isAuthenticated, 'Token:', authToken ? 'Presente' : 'Ausente')
-  if (isDev) console.log('Middleware: Valor do token (primeiros 20 chars):', authToken ? authToken.substring(0, 20) + '...' : 'null')
+  let isAuthenticated = false;
   
-  // ✅ Verificação adicional: se não há token, não é autenticado
-  if (!authToken) {
+  if (authToken) {
+    // Verificar se o JWT é válido
+    isAuthenticated = await verifyJWT(authToken);
+    if (isDev) console.log('Middleware: Token válido:', isAuthenticated)
+  } else {
     if (isDev) console.log('Middleware: Sem token, usuário não autenticado')
   }
+  
+  if (isDev) console.log('Middleware: Status de autenticação:', isAuthenticated)
 
   // ✅ Exceções para páginas de debug e fix - permitir acesso sem autenticação
   if (pathname === '/dashboard-debug' || pathname === '/simple-debug' || pathname === '/debug-token' || pathname === '/fix-loop.html' || pathname === '/ultimate-fix.html' || pathname === '/emergency-stop.html' || pathname === '/stop-loop-now.html' || pathname === '/stop-loop-simple.html') {

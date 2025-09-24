@@ -16,12 +16,12 @@ const pool = new Pool({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   let client;
 
   try {
-    const conversationId = params.conversationId;
+    const { conversationId } = await params;
 
     console.log(`🔍 POSTGRESQL: Buscando TODAS as mensagens da conversa ${conversationId}`);
 

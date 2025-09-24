@@ -58,20 +58,29 @@ export interface Appointment {
 
   // ✅ Backward compatibility - campos em português/snake_case
   data_agendamento?: string; // Alias para dateTime
-  horario?: string; // Alias para timeSlot
+  hora_agendamento?: string; // Alias para timeSlot
+  horario?: string; // Alias para timeSlot (legacy)
   duracao_minutos?: number; // Alias para durationMinutes
   valor?: number; // Alias para price
   observacoes?: string; // Alias para notes
+  notes?: string; // Alias para observacoes
   date_time?: string; // Alias antigo para dateTime
   duration_minutes?: number; // Alias antigo para durationMinutes
 
   // ✅ Dados relacionados padronizados
-  cliente_nome: string;
-  cliente_telefone: string;
-  cliente_email?: string;
-  servico_nome: string;
-  servico_descricao?: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email?: string;
+  service_name: string;
+  service_description?: string;
   business_name: string;
+  
+  // ✅ Backward compatibility - campos em português
+  cliente_nome?: string; // Alias para customer_name
+  cliente_telefone?: string; // Alias para customer_phone
+  cliente_email?: string; // Alias para customer_email
+  servico_nome?: string; // Alias para service_name
+  servico_descricao?: string; // Alias para service_description
 
   // ✅ Timestamps padronizados
   created_at: string; // ISO 8601

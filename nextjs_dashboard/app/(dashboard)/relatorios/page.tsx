@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -22,7 +22,7 @@ import {
   Area,
   AreaChart
 } from 'recharts'
-import {
+import { 
   Calendar,
   Download,
   RefreshCw,
@@ -43,20 +43,20 @@ import {
 } from 'lucide-react'
 
 // Import API service methods
-import {
-  getBusinessOverview,
-  getConversationFunnel,
-  getPerformanceMetrics,
-  getTimeSeriesData,
-  exportAnalytics
-} from '@/lib/api-service'
+import { 
+  getBusinessOverview, 
+  getConversationFunnel, 
+  getPerformanceMetrics, 
+  getTimeSeriesData, 
+  exportAnalytics 
+} from '@/lib/api-service-robust'
 
 // Import types
-import type {
-  BusinessOverview,
-  ConversationFunnel,
-  PerformanceMetrics,
-  TimeSeriesData
+import type { 
+  BusinessOverview, 
+  ConversationFunnel, 
+  PerformanceMetrics, 
+  TimeSeriesData 
 } from '@/types/analytics'
 
 // Color palette for charts
@@ -142,7 +142,7 @@ export default function RelatoriosPage() {
 
       const exportResponse = await exportAnalytics('full', format, startDate, endDate)
       const blob = exportResponse.data
-
+      
       // Create download link
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -161,28 +161,43 @@ export default function RelatoriosPage() {
     return date.toISOString().split('T')[0]
   }
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number | undefined | null) => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return 'R$ 0,00'
+    }
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     }).format(value)
   }
 
-  const formatPercentage = (value: number) => {
+  const formatPercentage = (value: number | undefined | null) => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return '0.0%'
+    }
     return `${value.toFixed(1)}%`
   }
 
-  const formatNumber = (value: number) => {
+  const formatNumber = (value: number | undefined | null) => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return '0'
+    }
     return new Intl.NumberFormat('pt-BR').format(value)
   }
 
-  const getTrendIcon = (trend: number) => {
+  const getTrendIcon = (trend: number | undefined | null) => {
+    if (trend === undefined || trend === null || isNaN(trend)) {
+      return <Activity className="h-4 w-4 text-gray-500" />
+    }
     if (trend > 0) return <TrendingUp className="h-4 w-4 text-green-500" />
     if (trend < 0) return <TrendingDown className="h-4 w-4 text-red-500" />
     return <Activity className="h-4 w-4 text-gray-500" />
   }
 
-  const getTrendColor = (trend: number) => {
+  const getTrendColor = (trend: number | undefined | null) => {
+    if (trend === undefined || trend === null || isNaN(trend)) {
+      return 'text-gray-500'
+    }
     if (trend > 0) return 'text-green-500'
     if (trend < 0) return 'text-red-500'
     return 'text-gray-500'
@@ -198,7 +213,7 @@ export default function RelatoriosPage() {
             Relatórios abrangentes e insights de negócio
           </p>
         </div>
-
+        
         <div className="flex flex-col sm:flex-row gap-2">
           <Button
             onClick={loadAllData}
@@ -337,15 +352,15 @@ export default function RelatoriosPage() {
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
                         <Pie
-                          data={businessOverview.revenue_by_source}
+                          data={businessOverview.revenue_by_source || []}
                           dataKey="value"
                           nameKey="source"
                           cx="50%"
                           cy="50%"
                           outerRadius={100}
-                          label={({ source, percent }) => `${source}: ${(percent * 100).toFixed(1)}%`}
+                          label={({ source, percent }) => `${source}: ${((percent || 0) * 100).toFixed(1)}%`}
                         >
-                          {businessOverview.revenue_by_source.map((entry, index) => (
+                          {(businessOverview.revenue_by_source || []).map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={FUNNEL_COLORS[index % FUNNEL_COLORS.length]} />
                           ))}
                         </Pie>
@@ -363,7 +378,7 @@ export default function RelatoriosPage() {
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={businessOverview.conversations_by_status}>
+                      <BarChart data={businessOverview.conversations_by_status || []}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="status" />
                         <YAxis />
@@ -391,20 +406,20 @@ export default function RelatoriosPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={400}>
-                    <AreaChart data={conversationFunnel.stages}>
+                    <AreaChart data={conversationFunnel.stages || []}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="stage" />
                       <YAxis />
-                      <Tooltip
+                      <Tooltip 
                         formatter={(value, name) => [
                           formatNumber(value as number),
                           name === 'count' ? 'Quantidade' : name
                         ]}
                       />
-                      <Area
-                        type="monotone"
-                        dataKey="count"
-                        stroke={CHART_COLORS.primary}
+                      <Area 
+                        type="monotone" 
+                        dataKey="count" 
+                        stroke={CHART_COLORS.primary} 
                         fill={CHART_COLORS.primary}
                         fillOpacity={0.3}
                       />
@@ -458,7 +473,7 @@ export default function RelatoriosPage() {
                     <Clock className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{performanceMetrics.avg_response_time.toFixed(1)}s</div>
+                    <div className="text-2xl font-bold">{(performanceMetrics.avg_response_time || 0).toFixed(1)}s</div>
                     <Badge variant={performanceMetrics.avg_response_time < 30 ? "default" : "destructive"}>
                       {performanceMetrics.avg_response_time < 30 ? "Excelente" : "Melhorar"}
                     </Badge>
@@ -484,7 +499,7 @@ export default function RelatoriosPage() {
                     <Users className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{performanceMetrics.satisfaction_score.toFixed(1)}/5</div>
+                    <div className="text-2xl font-bold">{(performanceMetrics.satisfaction_score || 0).toFixed(1)}/5</div>
                     <Badge variant={performanceMetrics.satisfaction_score > 4 ? "default" : "secondary"}>
                       {performanceMetrics.satisfaction_score > 4 ? "Muito Bom" : "Bom"}
                     </Badge>
@@ -497,7 +512,7 @@ export default function RelatoriosPage() {
                     <MessageSquare className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{performanceMetrics.messages_per_conversation.toFixed(1)}</div>
+                    <div className="text-2xl font-bold">{(performanceMetrics.messages_per_conversation || 0).toFixed(1)}</div>
                     <p className="text-xs text-muted-foreground">Média por conversa</p>
                   </CardContent>
                 </Card>
@@ -511,7 +526,7 @@ export default function RelatoriosPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={performanceMetrics.response_time_distribution}>
+                    <BarChart data={performanceMetrics.response_time_distribution || []}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="range" />
                       <YAxis />
@@ -549,7 +564,7 @@ export default function RelatoriosPage() {
                     </SelectContent>
                   </Select>
                 </div>
-
+                
                 <div className="flex-1">
                   <label className="text-sm font-medium mb-2 block">Granularidade</label>
                   <Select value={granularity} onValueChange={(value: any) => setGranularity(value)}>
@@ -573,7 +588,7 @@ export default function RelatoriosPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  Tendência - {timeSeriesData.metric_type.charAt(0).toUpperCase() + timeSeriesData.metric_type.slice(1)}
+                  Tendência - {timeSeriesData?.metric_type ? timeSeriesData.metric_type.charAt(0).toUpperCase() + timeSeriesData.metric_type.slice(1) : 'Métrica'}
                 </CardTitle>
                 <CardDescription>
                   Evolução temporal da métrica selecionada
@@ -581,24 +596,24 @@ export default function RelatoriosPage() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={timeSeriesData.data}>
+                  <LineChart data={timeSeriesData?.data || []}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="timestamp" />
-                    <YAxis
-                      tickFormatter={(value) =>
+                    <YAxis 
+                      tickFormatter={(value) => 
                         timeSeriesMetric === 'revenue' ? formatCurrency(value) : formatNumber(value)
                       }
                     />
-                    <Tooltip
+                    <Tooltip 
                       formatter={(value) => [
                         timeSeriesMetric === 'revenue' ? formatCurrency(value as number) : formatNumber(value as number),
-                        timeSeriesData.metric_type
+                        timeSeriesData?.metric_type || 'Métrica'
                       ]}
                     />
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke={CHART_COLORS.primary}
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke={CHART_COLORS.primary} 
                       strokeWidth={2}
                       dot={{ fill: CHART_COLORS.primary, strokeWidth: 2, r: 4 }}
                       activeDot={{ r: 6, stroke: CHART_COLORS.primary, strokeWidth: 2 }}

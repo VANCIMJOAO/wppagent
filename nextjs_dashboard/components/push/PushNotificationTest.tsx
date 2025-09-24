@@ -61,9 +61,13 @@ const PushNotificationTest: React.FC = () => {
         }
       }
 
-      // Register service worker
-      const registration = await navigator.serviceWorker.register('/sw-push.js')
-      await navigator.serviceWorker.ready
+      // Check for existing service worker registration
+      let registration = await navigator.serviceWorker.getRegistration()
+      
+      if (!registration) {
+        setStatus('Service Worker não disponível para push notifications')
+        return
+      }
 
       // Get VAPID public key from backend
       const vapidResponse = await fetch('/api/push/vapid-public-key')

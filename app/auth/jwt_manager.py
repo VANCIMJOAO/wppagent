@@ -38,8 +38,8 @@ class SimpleJWTManager:
 
         # Configurações de tempo para refresh tokens
         self.access_token_expire = timedelta(
-            minutes=15
-        )  # 15 min (conforme especificação)
+            hours=2
+        )  # 2 horas (mais tempo para evitar logout frequente)
         self.refresh_token_expire = timedelta(days=30)  # 30 dias
 
     def create_access_token(

@@ -1,96 +1,73 @@
-/**
- * API Route: Status de Autenticação
- * Verifica se o usuário está autenticado via cookies seguros
- */
-
 import { NextRequest, NextResponse } from 'next/server';
-import { config } from '@/lib/environment-config';
-
-// Force dynamic rendering for this route since we use cookies
-export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    // 🔍 Verificar cookies de autenticação
-    const authToken = request.cookies.get('auth-token')?.value;
+    console.log('🔍 Verificando status de autenticação...');
+
+    // Verificar se há token nos cookies
+    const accessToken = request.cookies.get('access_token')?.value;
     const sessionInfo = request.cookies.get('session-info')?.value;
 
-    if (!authToken) {
+    if (!accessToken) {
+      console.log('❌ Nenhum token de acesso encontrado');
       return NextResponse.json({
+        success: false,
         isAuthenticated: false,
-        error: 'Nenhum token encontrado'
+        status: 'offline',
+        message: 'Token de acesso não encontrado',
+        timestamp: new Date().toISOString()
       });
     }
 
-    // 📊 Tentar obter informações do usuário do cookie de sessão
-    let userData = null;
-    if (sessionInfo) {
-      try {
-        userData = JSON.parse(sessionInfo);
-
-        // Verificar se o token não expirou
-        if (userData.tokenExpiry && Date.now() > userData.tokenExpiry) {
-          return NextResponse.json({
-            isAuthenticated: false,
-            error: 'Token expirado'
-          });
-        }
-      } catch (e) {
-        console.error('Erro ao parsear session-info:', e);
-      }
-    }
-
-    // 🔐 Validar token JWT localmente (mais rápido e confiável)
+    // Verificar se o token ainda é válido fazendo uma requisição para o backend
     try {
-      // Decodificar JWT para verificar se é válido
-      const tokenParts = authToken.split('.');
-      if (tokenParts.length === 3) {
-        const payload = JSON.parse(atob(tokenParts[1]));
-        const now = Math.floor(Date.now() / 1000);
-        
-        // Verificar se o token não expirou
-        if (payload.exp && payload.exp < now) {
-          return NextResponse.json({
-            isAuthenticated: false,
-            error: 'Token expirado'
-          });
+      const backendResponse = await fetch('https://wppagent-production.up.railway.app/admin/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
         }
+      });
 
-        // Token válido
+      if (backendResponse.ok) {
+        console.log('✅ Token válido - usuário autenticado');
         return NextResponse.json({
+          success: true,
           isAuthenticated: true,
-          user: {
-            id: payload.sub,
-            role: payload.role,
-            permissions: payload.permissions || []
-          },
-          tokenExpiry: payload.exp ? payload.exp * 1000 : null
+          status: 'online',
+          message: 'Usuário autenticado',
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        console.log('❌ Token inválido ou expirado:', backendResponse.status);
+        return NextResponse.json({
+          success: false,
+          isAuthenticated: false,
+          status: 'offline',
+          message: 'Token inválido ou expirado',
+          timestamp: new Date().toISOString()
         });
       }
-    } catch (error) {
-      console.error('Erro ao decodificar token:', error);
-    }
-
-    // 📋 Fallback: usar dados do cookie se backend não disponível
-    if (userData && userData.isAuthenticated) {
+    } catch (backendError) {
+      console.error('❌ Erro ao verificar token no backend:', backendError);
       return NextResponse.json({
-        isAuthenticated: true,
-        user: userData.user,
-        tokenExpiry: userData.tokenExpiry
+        success: false,
+        isAuthenticated: false,
+        status: 'offline',
+        message: 'Erro ao verificar token',
+        timestamp: new Date().toISOString()
       });
     }
 
-    return NextResponse.json({
-      isAuthenticated: false,
-      error: 'Token inválido'
-    });
-
   } catch (error) {
-    console.error('🚨 Erro ao verificar status:', error);
+    console.error('❌ Erro no sistema de autenticação:', error);
     return NextResponse.json(
       {
+        success: false,
         isAuthenticated: false,
-        error: 'Erro interno do servidor'
+        status: 'offline',
+        error: 'Sistema de autenticação indisponível',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     );

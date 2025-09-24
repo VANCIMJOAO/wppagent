@@ -50,11 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // ✅ Redirecionar para login se não autenticado e não estiver na página de login
           if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
             debugLog.info('🔄 Redirecionando para login - usuário não autenticado');
-            debugLog.info('🔄 Caminho atual:', window.location.pathname);
-            debugLog.info('🔄 Tentando router.push para /login...');
-            // ✅ CORREÇÃO: Usar router do Next.js ao invés de window.location para evitar loop
-            router.push('/login');
-            debugLog.info('🔄 router.push executado');
+            // Usar URL relativa para funcionar em qualquer porta
+            window.location.href = '/login';
           }
         }
       } catch (error) {
@@ -102,20 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(true);
       
       debugLog.info('Redirecionando para /dashboard...');
-      debugLog.info('Router disponível:', !!router);
-      
-      // ✅ CORREÇÃO: Redirecionamento simples e direto
-      debugLog.info('🔄 Executando redirecionamento...');
-      
-      // Usar window.location.href para navegação mais robusta em desenvolvimento
-      if (typeof window !== 'undefined') {
-        debugLog.info('🔄 Usando window.location.href para redirecionamento robusto');
-        window.location.href = '/dashboard';
-      } else {
-        // Fallback para router.push se window não disponível
-        router.push('/dashboard');
-        debugLog.info('✅ router.push executado como fallback');
-      }
+      router.push('/dashboard');
     } catch (error) {
       debugLog.error('Erro no login', error);
       throw error;

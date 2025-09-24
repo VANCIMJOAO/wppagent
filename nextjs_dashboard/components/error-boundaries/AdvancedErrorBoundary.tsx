@@ -156,7 +156,7 @@ class AdvancedErrorBoundaryClass extends Component<Props, State> {
     }
 
     // Log error for development
-    if (process.env.NODE_ENV === 'development') {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
       console.group('🚨 Error Boundary Caught Error');
       console.error('Error:', error);
       console.error('Error Info:', errorInfo);

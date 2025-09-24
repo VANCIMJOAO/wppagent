@@ -127,43 +127,69 @@ export default function ConfiguracoesPage() {
       try {
         setLoading(true);
 
-        // In a real implementation, you would fetch from different API endpoints
-        // For now, we'll use default values that simulate real data
-        setCompanyConfig({
-          name: 'WhatsApp Agent',
-          description: 'Sistema de automação e agendamento para WhatsApp',
-          phone: '+55 11 99999-9999',
-          email: 'contato@whatsappagent.com',
-          website: 'https://whatsappagent.com',
-          address: 'São Paulo, SP, Brasil'
-        });
+        // Carregar configurações da empresa
+        const companyResponse = await fetch('/api/config/company');
+        if (companyResponse.ok) {
+          const companyData = await companyResponse.json();
+          if (companyData.success) {
+            setCompanyConfig({
+              name: companyData.data.name || '',
+              description: companyData.data.description || '',
+              phone: companyData.data.phone || '',
+              email: companyData.data.email || '',
+              website: companyData.data.website || '',
+              address: companyData.data.address || ''
+            });
+          }
+        }
 
-        setBotConfig({
-          name: 'Assistente Virtual',
-          welcomeMessage: 'Olá! Como posso ajudar você hoje?',
-          defaultResponse: 'Desculpe, não entendi sua mensagem. Pode reformular?',
-          aiEnabled: true,
-          responseDelay: 2,
-          maxTokens: 150,
-          temperature: 0.7
-        });
+        // Carregar configurações do bot
+        const botResponse = await fetch('/api/config/bot');
+        if (botResponse.ok) {
+          const botData = await botResponse.json();
+          if (botData.success) {
+            setBotConfig({
+              name: botData.data.name || 'Assistente Virtual',
+              welcomeMessage: botData.data.welcomeMessage || 'Olá! Como posso ajudar você hoje?',
+              defaultResponse: botData.data.defaultResponse || 'Desculpe, não entendi sua mensagem. Pode reformular?',
+              aiEnabled: botData.data.aiEnabled || false,
+              responseDelay: botData.data.responseDelay || 2,
+              maxTokens: botData.data.maxTokens || 150,
+              temperature: botData.data.temperature || 0.7
+            });
+          }
+        }
 
-        setScheduleConfig({
-          workDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-          startTime: '09:00',
-          endTime: '18:00',
-          lunchStart: '12:00',
-          lunchEnd: '13:00',
-          timezone: 'America/Sao_Paulo'
-        });
+        // Carregar configurações de horários
+        const scheduleResponse = await fetch('/api/config/schedule');
+        if (scheduleResponse.ok) {
+          const scheduleData = await scheduleResponse.json();
+          if (scheduleData.success) {
+            setScheduleConfig({
+              workDays: scheduleData.data.workDays || ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+              startTime: scheduleData.data.startTime || '09:00',
+              endTime: scheduleData.data.endTime || '18:00',
+              lunchStart: scheduleData.data.lunchStart || '12:00',
+              lunchEnd: scheduleData.data.lunchEnd || '13:00',
+              timezone: scheduleData.data.timezone || 'America/Sao_Paulo'
+            });
+          }
+        }
 
-        setNotificationConfig({
-          emailNotifications: true,
-          smsNotifications: false,
-          pushNotifications: true,
-          appointmentReminders: true,
-          newMessageAlerts: true
-        });
+        // Carregar configurações de notificações
+        const notificationResponse = await fetch('/api/config/notifications');
+        if (notificationResponse.ok) {
+          const notificationData = await notificationResponse.json();
+          if (notificationData.success) {
+            setNotificationConfig({
+              emailNotifications: notificationData.data.emailNotifications || false,
+              smsNotifications: notificationData.data.smsNotifications || false,
+              pushNotifications: notificationData.data.pushNotifications || false,
+              appointmentReminders: notificationData.data.appointmentReminders || false,
+              newMessageAlerts: notificationData.data.newMessageAlerts || false
+            });
+          }
+        }
 
       } catch (error) {
         console.error('Erro ao carregar configurações:', error);
@@ -180,32 +206,66 @@ export default function ConfiguracoesPage() {
     try {
       setSaving(true);
 
-      // In a real implementation, you would save to different API endpoints
-      // For now, we'll simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      let response;
+      let endpoint = '';
+      let data = {};
 
-      // Here you would make actual API calls based on configType:
-      // switch (configType) {
-      //   case 'empresa':
-      //     await api.updateCompanyConfig(companyConfig);
-      //     break;
-      //   case 'bot':
-      //     await api.updateBotConfig(botConfig);
-      //     break;
-      //   case 'horarios':
-      //     await api.updateScheduleConfig(scheduleConfig);
-      //     break;
-      //   case 'notificacoes':
-      //     await api.updateNotificationConfig(notificationConfig);
-      //     break;
-      // }
+      // Determinar endpoint e dados baseado no tipo de configuração
+      switch (configType) {
+        case 'empresa':
+          endpoint = '/api/config/company';
+          data = companyConfig;
+          break;
+        case 'bot':
+          endpoint = '/api/config/bot';
+          data = botConfig;
+          break;
+        case 'horarios':
+          endpoint = '/api/config/schedule';
+          data = scheduleConfig;
+          break;
+        case 'notificacoes':
+          endpoint = '/api/config/notifications';
+          data = notificationConfig;
+          break;
+        case 'seguranca':
+          endpoint = '/api/config/security';
+          data = {
+            sessionTimeout: 30,
+            maxLoginAttempts: 5,
+            twoFactorEnabled: false
+          };
+          break;
+        default:
+          throw new Error('Tipo de configuração inválido');
+      }
 
-      toast.success('Configurações salvas com sucesso!');
+      // Fazer requisição para a API
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Erro ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao salvar configurações');
+      }
+
+      toast.success(result.message || 'Configurações salvas com sucesso!');
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
       console.error('Erro ao salvar configurações:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(error instanceof Error ? error.message : 'Erro ao salvar configurações');
     } finally {
       setSaving(false);
     }

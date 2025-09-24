@@ -1,88 +1,52 @@
 /**
- * API Route: Logout Seguro
- * Limpeza completa de cookies e invalidação de sessão
+ * API Route: Logout
+ * Limpa os cookies de autenticação
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { config } from '@/lib/environment-config';
-
-// Force dynamic rendering for this route since it uses cookies
-export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    // 🔍 Obter token do cookie para invalidar no backend
-    const authToken = request.cookies.get('auth-token')?.value;
+    console.log('🔓 Logout realizado');
 
-    // 🚪 Invalidar sessão no backend (se token disponível)
-    if (authToken) {
-      try {
-        await fetch(`${config.apiBaseUrl}/api/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-          }
-        });
-      } catch (error) {
-        console.error('Erro ao fazer logout no backend:', error);
-        // Continuar com limpeza local mesmo se backend falhar
-      }
-    }
-
-    // 🧹 Resposta com limpeza completa de cookies
+    // Criar resposta de sucesso
     const response = NextResponse.json({
       success: true,
       message: 'Logout realizado com sucesso'
     });
 
-    // 🗑️ Limpar todos os cookies de autenticação
-    const cookieOptions = {
+    // Limpar cookies de autenticação
+    response.cookies.set('access_token', '', {
       httpOnly: true,
-      secure: config.environment === 'production',
-      sameSite: 'strict' as const,
-      maxAge: 0, // Expirar imediatamente
-      path: '/',
-    };
-
-    response.cookies.set('auth-token', '', cookieOptions);
-    response.cookies.set('refresh-token', '', {
-      ...cookieOptions,
-      path: '/api/auth/refresh',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 0, // Expira imediatamente
+      path: '/'
     });
+
     response.cookies.set('session-info', '', {
-      ...cookieOptions,
-      httpOnly: false, // Para ser acessível pelo JS
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 0, // Expira imediatamente
+      path: '/'
     });
 
     return response;
 
-  } catch (error) {
-    console.error('🚨 Erro no logout:', error);
-
-    // Mesmo com erro, limpar cookies locais
-    const response = NextResponse.json(
-      { success: true, message: 'Logout local realizado' }
+  } catch (error: any) {
+    console.error('❌ Erro no logout:', error.message);
+    return NextResponse.json(
+      { error: 'Erro interno do servidor' },
+      { status: 500 }
     );
-
-    const cookieOptions = {
-      httpOnly: true,
-      secure: config.environment === 'production',
-      sameSite: 'strict' as const,
-      maxAge: 0,
-      path: '/',
-    };
-
-    response.cookies.set('auth-token', '', cookieOptions);
-    response.cookies.set('refresh-token', '', {
-      ...cookieOptions,
-      path: '/api/auth/refresh',
-    });
-    response.cookies.set('session-info', '', {
-      ...cookieOptions,
-      httpOnly: false,
-    });
-
-    return response;
   }
+}
+
+// Método GET não permitido
+export async function GET() {
+  return NextResponse.json(
+    { error: 'Método não permitido' },
+    { status: 405 }
+  );
 }

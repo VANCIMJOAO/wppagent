@@ -9,7 +9,7 @@ import { LoadingSpinner } from '@/components/ui/loading-states'
 import { useAppointments, useCreateAppointment, useUpdateAppointment, useDeleteAppointment } from '@/hooks/useAppointments'
 import { useConversations } from '@/hooks/useConversations'
 import { useDashboard } from '@/hooks/useDashboard'
-import type { Appointment, AppointmentStatus } from '@/types/api'
+import type { Appointment, AppointmentStatus } from '@/types/api-cf001'
 
 // Componente de exemplo para mostrar como usar os hooks do React Query
 export function ReactQueryExample() {
@@ -56,8 +56,10 @@ export function ReactQueryExample() {
       user_id: 1,
       business_id: 1,
       service_id: 1,
-      data_agendamento: new Date().toISOString(), // ✅ Nomenclatura brasileira padronizada
-      observacoes: 'Agendamento criado via React Query' // ✅ notes → observacoes
+      date_time: new Date().toISOString(),
+      duration_minutes: 60,
+      price: 100,
+      notes: 'Agendamento criado via React Query'
     })
   }
 
@@ -66,7 +68,7 @@ export function ReactQueryExample() {
       id: appointment.id,
       data: {
         status: 'realizado' as AppointmentStatus,
-        observacoes: 'Atualizado via React Query' // ✅ notes → observacoes
+        notes: 'Atualizado via React Query'
       }
     })
   }
@@ -204,12 +206,12 @@ export function ReactQueryExample() {
                   className="border rounded-lg p-4 flex items-center justify-between"
                 >
                   <div>
-                    <div className="font-semibold">{appointment.cliente_nome}</div>
+                    <div className="font-semibold">{appointment.clientName}</div>
                     <div className="text-sm text-gray-600">
-                      {appointment.servico_nome} - {appointment.data_agendamento} às {appointment.horario}
+                      {appointment.serviceName} - {appointment.dateTime}
                     </div>
-                    {appointment.observacoes && (
-                      <div className="text-sm text-gray-500 mt-1">{appointment.observacoes}</div>
+                    {appointment.notes && (
+                      <div className="text-sm text-gray-500 mt-1">{appointment.notes}</div>
                     )}
                   </div>
                   <div className="flex items-center gap-2">

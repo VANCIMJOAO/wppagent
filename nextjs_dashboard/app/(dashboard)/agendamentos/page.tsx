@@ -133,10 +133,12 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
       ]);
 
       // Acessa os dados da resposta da API
-      const appointmentsData = appointmentsResponse.data || [];
+      const appointmentsData = appointmentsResponse.data || appointmentsResponse.appointments || [];
       const dashboardData = dashboardResponse.data || {};
 
-      setAppointments(appointmentsData);
+      // Garantir que appointmentsData é um array
+      const safeAppointmentsData = Array.isArray(appointmentsData) ? appointmentsData : [];
+      setAppointments(safeAppointmentsData);
 
       // Calculate stats from actual appointments data
       const today = new Date().toDateString();
@@ -145,18 +147,18 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
       const thisMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // Start of month
 
       const calculatedStats: AppointmentStats = {
-        total: appointmentsData.length || 0,
-        confirmed: appointmentsData.filter((a: any) => a.status === 'confirmado').length || 0,
-        pending: appointmentsData.filter((a: any) => a.status === 'agendado').length || 0,
-        cancelled: appointmentsData.filter((a: any) => a.status === 'cancelado').length || 0,
-        completed: appointmentsData.filter((a: any) => a.status === 'realizado').length || 0,
-        today: appointmentsData.filter((a: any) =>
+        total: safeAppointmentsData.length || 0,
+        confirmed: safeAppointmentsData.filter((a: any) => a.status === 'confirmado').length || 0,
+        pending: safeAppointmentsData.filter((a: any) => a.status === 'agendado').length || 0,
+        cancelled: safeAppointmentsData.filter((a: any) => a.status === 'cancelado').length || 0,
+        completed: safeAppointmentsData.filter((a: any) => a.status === 'realizado').length || 0,
+        today: safeAppointmentsData.filter((a: any) =>
             new Date(a.data_agendamento).toDateString() === today
           ).length || 0,
-          thisWeek: appointmentsData.filter((a: any) =>
+          thisWeek: safeAppointmentsData.filter((a: any) =>
             new Date(a.data_agendamento) >= thisWeek
           ).length || 0,
-          thisMonth: appointmentsData.filter((a: any) =>
+          thisMonth: safeAppointmentsData.filter((a: any) =>
             new Date(a.data_agendamento) >= thisMonth
           ).length || 0
         };
@@ -177,19 +179,19 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
     }, []);
 
   const filteredAppointments = appointments.filter(appointment => {
-    const matchesSearch = appointment.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         appointment.servico_nome.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = appointment.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         appointment.service_name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
 
     let matchesDate = true;
-    if (dateFilter === 'today') {
+    if (dateFilter === 'today' && appointment.data_agendamento) {
       const today = new Date().toDateString();
       matchesDate = new Date(appointment.data_agendamento).toDateString() === today;
-    } else if (dateFilter === 'tomorrow') {
+    } else if (dateFilter === 'tomorrow' && appointment.data_agendamento) {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       matchesDate = new Date(appointment.data_agendamento).toDateString() === tomorrow.toDateString();
-    } else if (dateFilter === 'week') {
+    } else if (dateFilter === 'week' && appointment.data_agendamento) {
       const weekFromNow = new Date();
       weekFromNow.setDate(weekFromNow.getDate() + 7);
       matchesDate = new Date(appointment.data_agendamento) <= weekFromNow;
@@ -226,11 +228,13 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
   const groupAppointmentsByDate = (appointments: ApiAppointment[]) => {
     const grouped: { [key: string]: ApiAppointment[] } = {};
     appointments.forEach(appointment => {
-      const date = formatDate(appointment.data_agendamento);
-      if (!grouped[date]) {
-        grouped[date] = [];
+      if (appointment.data_agendamento) {
+        const date = formatDate(appointment.data_agendamento);
+        if (!grouped[date]) {
+          grouped[date] = [];
+        }
+        grouped[date].push(appointment);
       }
-      grouped[date].push(appointment);
     });
     return grouped;
   };
@@ -458,7 +462,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                         </div>
                         <div>
                           <div className="flex items-center space-x-2">
-                            <h3 className="font-medium text-gray-900">{appointment.cliente_nome}</h3>
+                            <h3 className="font-medium text-gray-900">{appointment.customer_name}</h3>
                             <Badge className={statusColors[appointment.status]}>
                               {statusLabels[appointment.status]}
                             </Badge>
@@ -466,11 +470,11 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                           <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
                             <span className="flex items-center">
                               <Calendar className="h-3 w-3 mr-1" />
-                              {formatDate(appointment.data_agendamento)} às {appointment.horario}
+                              {appointment.data_agendamento ? formatDate(appointment.data_agendamento) : 'Data não informada'} às {appointment.hora_agendamento}
                             </span>
                             <span className="flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              {appointment.servico_nome}
+                              {appointment.service_name}
                             </span>
                           </div>
                           {appointment.observacoes && (
@@ -508,10 +512,14 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
               <div className="space-y-4">
                 {appointments
                   .filter(appointment => {
+                    if (!appointment.data_agendamento) return false;
                     const today = new Date().toDateString();
                     return new Date(appointment.data_agendamento).toDateString() === today;
                   })
-                  .sort((a, b) => new Date(a.data_agendamento).getTime() - new Date(b.data_agendamento).getTime())
+                  .sort((a, b) => {
+                    if (!a.data_agendamento || !b.data_agendamento) return 0;
+                    return new Date(a.data_agendamento).getTime() - new Date(b.data_agendamento).getTime();
+                  })
                   .map((appointment) => {
                     const StatusIcon = statusIcons[appointment.status];
                     return (
@@ -529,12 +537,12 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <h3 className="font-medium text-gray-900">{appointment.cliente_nome}</h3>
+                            <h3 className="font-medium text-gray-900">{appointment.customer_name}</h3>
                             <span className="text-lg font-semibold text-blue-600">
-                              {appointment.horario}
+                              {appointment.hora_agendamento}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600">{appointment.servico_nome}</p>
+                          <p className="text-sm text-gray-600">{appointment.service_name}</p>
                         </div>
                         <Badge className={statusColors[appointment.status]}>
                           {statusLabels[appointment.status]}
@@ -559,7 +567,10 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">{date}</h3>
                     <div className="space-y-2">
                       {dateAppointments
-                        .sort((a, b) => new Date(a.data_agendamento).getTime() - new Date(b.data_agendamento).getTime())
+                        .sort((a, b) => {
+                          if (!a.data_agendamento || !b.data_agendamento) return 0;
+                          return new Date(a.data_agendamento).getTime() - new Date(b.data_agendamento).getTime();
+                        })
                         .map((appointment) => (
                           <div
                             key={appointment.id}
@@ -567,14 +578,14 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                           >
                             <div>
                               <div className="flex items-center space-x-2">
-                                <span className="font-medium">{appointment.horario}</span>
+                                <span className="font-medium">{appointment.hora_agendamento}</span>
                                 <span>-</span>
-                                <span className="font-medium">{appointment.cliente_nome}</span>
+                                <span className="font-medium">{appointment.customer_name}</span>
                                 <Badge className={statusColors[appointment.status]}>
                                   {statusLabels[appointment.status]}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-gray-600">{appointment.servico_nome}</p>
+                              <p className="text-sm text-gray-600">{appointment.service_name}</p>
                             </div>
                           </div>
                         ))}

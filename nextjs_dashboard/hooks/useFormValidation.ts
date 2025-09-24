@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { ZodSchema, ZodError } from 'zod'
 
 /**
@@ -156,11 +156,11 @@ export function useRealTimeValidation<T>(
   )
 
   // Dispara validação quando dados mudam
-  useState(() => {
+  useEffect(() => {
     if (Object.keys(data).length > 0) {
       debouncedValidate(data)
     }
-  })
+  }, [data, debouncedValidate])
 
   return {
     ...validation,

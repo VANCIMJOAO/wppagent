@@ -16,11 +16,4 @@ export * from './conversation';
 // Para usar tipos manuais, importe diretamente: import { Type } from 'types/api-manual';
 
 // Re-exports para compatibilidade
-export type {
-  ApiResponse,
-  PaginatedData,
-  CreateData,
-  UpdateData,
-  WithId,
-  WithTimestamps
-} from './api-generated';
+// Nota: Tipos específicos devem ser importados diretamente dos arquivos corretos

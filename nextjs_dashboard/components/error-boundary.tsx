@@ -300,7 +300,7 @@ function GlobalErrorFallback({
   retryCount: number;
   maxRetries: number;
 }) {
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">

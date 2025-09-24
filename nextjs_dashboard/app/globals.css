@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import PWA specific styles */
-@import './pwa.css';
 
 @layer base {
   :root {

@@ -28,111 +28,44 @@ import {
   MoreVertical,
   Eye,
   UserCheck,
-  UserX
+  UserX,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
-
-interface Client {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  birthDate: string;
-  registrationDate: string;
-  lastVisit: string;
-  totalAppointments: number;
-  status: 'active' | 'inactive' | 'vip';
-  notes?: string;
-  avatar?: string;
-}
+import { useClients, Client } from '@/hooks/useClients';
+import { NewClientForm } from '@/components/NewClientForm';
 
 export default function ClientesPage() {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('name');
+  const [showNewClientForm, setShowNewClientForm] = useState(false);
 
-  // Mock data para demonstração
+  // Usar o hook personalizado para gerenciar dados dos clientes
+  const {
+    clients,
+    loading,
+    error,
+    pagination,
+    refetch,
+    createClient,
+    updateFilters
+  } = useClients({
+    search: searchTerm,
+    status: statusFilter,
+    sortBy: sortBy,
+    limit: 50,
+    offset: 0
+  });
+
+  // Atualizar filtros quando os valores mudarem
   useEffect(() => {
-    const mockClients: Client[] = [
-      {
-        id: '1',
-        name: 'Maria Silva',
-        email: 'maria.silva@email.com',
-        phone: '+55 11 99999-9999',
-        birthDate: '1985-03-15',
-        registrationDate: '2024-01-15',
-        lastVisit: '2024-01-20',
-        totalAppointments: 12,
-        status: 'vip',
-        notes: 'Cliente fiel, sempre pontual'
-      },
-      {
-        id: '2',
-        name: 'João Santos',
-        email: 'joao.santos@email.com',
-        phone: '+55 11 88888-8888',
-        birthDate: '1990-07-22',
-        registrationDate: '2024-01-10',
-        lastVisit: '2024-01-18',
-        totalAppointments: 8,
-        status: 'active',
-        notes: 'Interessado em tratamentos faciais'
-      },
-      {
-        id: '3',
-        name: 'Ana Costa',
-        email: 'ana.costa@email.com',
-        phone: '+55 11 77777-7777',
-        birthDate: '1992-11-08',
-        registrationDate: '2024-01-05',
-        lastVisit: '2024-01-12',
-        totalAppointments: 3,
-        status: 'active'
-      },
-      {
-        id: '4',
-        name: 'Carlos Oliveira',
-        email: 'carlos.oliveira@email.com',
-        phone: '+55 11 66666-6666',
-        birthDate: '1988-05-30',
-        registrationDate: '2023-12-20',
-        lastVisit: '2023-12-28',
-        totalAppointments: 15,
-        status: 'inactive',
-        notes: 'Não retornou após última consulta'
-      }
-    ];
-
-    setClients(mockClients);
-    setLoading(false);
-  }, []);
-
-  const filteredClients = clients.filter(client => {
-    const matchesSearch = 
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.phone.includes(searchTerm);
-    
-    const matchesStatus = statusFilter === 'all' || client.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
-
-  const sortedClients = [...filteredClients].sort((a, b) => {
-    switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name);
-      case 'registrationDate':
-        return new Date(b.registrationDate).getTime() - new Date(a.registrationDate).getTime();
-      case 'lastVisit':
-        return new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime();
-      case 'appointments':
-        return b.totalAppointments - a.totalAppointments;
-      default:
-        return 0;
-    }
-  });
+    updateFilters({
+      search: searchTerm,
+      status: statusFilter,
+      sortBy: sortBy
+    });
+  }, [searchTerm, statusFilter, sortBy, updateFilters]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -160,21 +93,20 @@ export default function ClientesPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
-  const calculateAge = (birthDate: string) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
+  const handleRefresh = () => {
+    refetch();
+  };
+
+  const handleNewClient = async (clientData: { name: string; email?: string; phone: string }) => {
+    const newClient = await createClient(clientData);
+    if (newClient) {
+      setShowNewClientForm(false);
     }
-    
-    return age;
   };
 
   return (
@@ -183,13 +115,39 @@ export default function ClientesPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Clientes</h1>
-          <p className="text-gray-600 mt-1">Gestão da base de clientes</p>
+          <p className="text-gray-600 mt-1">
+            Gestão da base de clientes
+            {pagination && (
+              <span className="ml-2 text-sm">
+                ({pagination.total} {pagination.total === 1 ? 'cliente' : 'clientes'})
+              </span>
+            )}
+          </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Cliente
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+          <Button onClick={() => setShowNewClientForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Cliente
+          </Button>
+        </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 text-red-800">
+              <AlertCircle className="h-5 w-5" />
+              <span className="font-medium">Erro ao carregar clientes:</span>
+              <span>{error}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -201,7 +159,9 @@ export default function ClientesPage() {
                 {loading ? (
                   <Skeleton className="h-6 w-12" />
                 ) : (
-                  <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {pagination?.total || clients.length}
+                  </p>
                 )}
               </div>
               <Users className="h-6 w-6 text-blue-600" />
@@ -325,9 +285,26 @@ export default function ClientesPage() {
                   </div>
                 ))}
               </div>
+            ) : clients.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum cliente encontrado</h3>
+                <p className="text-gray-600 mb-4">
+                  {searchTerm || statusFilter !== 'all' 
+                    ? 'Tente ajustar os filtros de busca'
+                    : 'Comece adicionando seu primeiro cliente'
+                  }
+                </p>
+                {!searchTerm && statusFilter === 'all' && (
+                  <Button onClick={() => setShowNewClientForm(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Cliente
+                  </Button>
+                )}
+              </div>
             ) : (
               <div className="space-y-4">
-                {sortedClients.map((client) => (
+                {clients.map((client) => (
                   <div
                     key={client.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
@@ -342,23 +319,26 @@ export default function ClientesPage() {
                           {getStatusBadge(client.status)}
                         </div>
                         <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                          <span className="flex items-center">
-                            <Mail className="h-3 w-3 mr-1" />
-                            {client.email}
-                          </span>
+                          {client.email && (
+                            <span className="flex items-center">
+                              <Mail className="h-3 w-3 mr-1" />
+                              {client.email}
+                            </span>
+                          )}
                           <span className="flex items-center">
                             <Phone className="h-3 w-3 mr-1" />
                             {client.phone}
                           </span>
                           <span className="flex items-center">
                             <Calendar className="h-3 w-3 mr-1" />
-                            {calculateAge(client.birthDate)} anos
+                            {client.wa_id}
                           </span>
                         </div>
                         <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
                           <span>Cadastrado: {formatDate(client.registrationDate)}</span>
                           <span>Última visita: {formatDate(client.lastVisit)}</span>
                           <span>Consultas: {client.totalAppointments}</span>
+                          <span>Conversas: {client.totalConversations}</span>
                         </div>
                         {client.notes && (
                           <p className="text-xs text-gray-500 mt-1 italic">
@@ -368,16 +348,13 @@ export default function ClientesPage() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" title="Ver detalhes">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" title="Editar cliente">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" title="Mais opções">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </div>
@@ -388,6 +365,17 @@ export default function ClientesPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Formulário de Novo Cliente */}
+      {showNewClientForm && (
+        <NewClientForm
+          onClose={() => setShowNewClientForm(false)}
+          onSuccess={(client) => {
+            console.log('Cliente criado:', client);
+            setShowNewClientForm(false);
+          }}
+        />
+      )}
     </div>
   );
 }

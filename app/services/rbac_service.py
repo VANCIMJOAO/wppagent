@@ -8,7 +8,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set, Tuple
 
-from sqlalchemy import and_, delete, func, or_, select
+from sqlalchemy import and_, delete, func, or_, select, text as sa_text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -67,21 +67,27 @@ class RBACService:
         for perm_type, definition in PERMISSION_DEFINITIONS.items():
             # Verificar se já existe
             existing = await session.execute(
-                select(RBACPermission).where(
-                    RBACPermission.permission_type == perm_type
-                )
+                sa_text("SELECT id FROM rbac_permissions WHERE permission_type = :perm_type"),
+                {"perm_type": perm_type.value}
             )
 
             if not existing.scalar():
-                permission = RBACPermission(
-                    permission_type=perm_type,
-                    name=definition.description,
-                    description=definition.description,
-                    category=definition.category,
-                    risk_level=definition.risk_level,
-                    requires_2fa=definition.requires_2fa,
+                await session.execute(
+                    sa_text("""
+                        INSERT INTO rbac_permissions 
+                        (permission_type, name, description, category, risk_level, requires_2fa, is_active, created_at, updated_at)
+                        VALUES (:perm_type, :name, :description, :category, :risk_level, :requires_2fa, :is_active, NOW(), NOW())
+                    """),
+                    {
+                        "perm_type": perm_type.value,
+                        "name": definition.description,
+                        "description": definition.description,
+                        "category": definition.category.value,
+                        "risk_level": definition.risk_level.value,
+                        "requires_2fa": definition.requires_2fa,
+                        "is_active": True
+                    }
                 )
-                session.add(permission)
 
         self.logger.info(
             f"✅ {len(PERMISSION_DEFINITIONS)} permissões criadas/verificadas"
@@ -90,46 +96,59 @@ class RBACService:
     async def _create_default_roles(self, session: AsyncSession):
         """Criar roles padrão"""
         for role_type, config in ROLE_CONFIGURATIONS.items():
+            role_type_value = role_type.value if hasattr(role_type, 'value') else role_type
             # Verificar se já existe
             existing = await session.execute(
-                select(RBACRole).where(RBACRole.role_type == role_type)
+                sa_text("SELECT id FROM rbac_roles WHERE role_type = :role_type"),
+                {"role_type": role_type_value}
             )
 
             if not existing.scalar():
-                role = RBACRole(
-                    name=config["name"],
-                    description=config["description"],
-                    role_type=role_type,
-                    is_system_role=config["is_system_role"],
-                    can_be_deleted=config["can_be_deleted"],
+                await session.execute(
+                    sa_text("""
+                        INSERT INTO rbac_roles 
+                        (name, description, role_type, is_system_role, can_be_deleted, created_at, updated_at)
+                        VALUES (:name, :description, :role_type, :is_system_role, :can_be_deleted, NOW(), NOW())
+                    """),
+                    {
+                        "name": config["name"],
+                        "description": config["description"],
+                        "role_type": role_type_value,
+                        "is_system_role": config["is_system_role"],
+                        "can_be_deleted": config["can_be_deleted"]
+                    }
                 )
-                session.add(role)
 
         self.logger.info(f"✅ {len(ROLE_CONFIGURATIONS)} roles criados/verificados")
 
     async def _assign_role_permissions(self, session: AsyncSession):
         """Associar permissões aos roles"""
         for role_type, config in ROLE_CONFIGURATIONS.items():
+            role_type_value = role_type.value if hasattr(role_type, 'value') else role_type
             # Buscar o role
             role_result = await session.execute(
-                select(RBACRole)
-                .options(selectinload(RBACRole.permissions))
-                .where(RBACRole.role_type == role_type)
+                sa_text("SELECT id FROM rbac_roles WHERE role_type = :role_type"),
+                {"role_type": role_type_value}
             )
             role = role_result.scalar()
 
             if role:
-                # Buscar permissões necessárias
-                permissions_result = await session.execute(
-                    select(RBACPermission).where(
-                        RBACPermission.permission_type.in_(config["permissions"])
-                    )
+                # Limpar permissões existentes
+                await session.execute(
+                    sa_text("DELETE FROM role_permissions WHERE role_id = :role_id"),
+                    {"role_id": role}
                 )
-                permissions = permissions_result.scalars().all()
-
-                # Limpar permissões existentes e adicionar novas
-                role.permissions.clear()
-                role.permissions.extend(permissions)
+                
+                # Adicionar novas permissões
+                for perm in config["permissions"]:
+                    perm_value = perm.value if hasattr(perm, 'value') else perm
+                    await session.execute(
+                        sa_text("""
+                            INSERT INTO role_permissions (role_id, permission_id)
+                            SELECT :role_id, id FROM rbac_permissions WHERE permission_type = :perm_type
+                        """),
+                        {"role_id": role, "perm_type": perm_value}
+                    )
 
         self.logger.info("✅ Permissões associadas aos roles")
 

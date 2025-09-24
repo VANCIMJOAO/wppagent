@@ -24,13 +24,13 @@ export function useBackendStatus() {
   useEffect(() => {
     const checkBackendStatus = async () => {
       const endpointsToCheck = [
-        '/api/proxy/dashboard/stats',
-        '/api/proxy/clients',
-        '/api/proxy/clients/stats',
-        '/api/proxy/conversations',
-        '/api/proxy/appointments',
-        '/api/proxy/health',
-        '/api/proxy/status'
+        '/api/dashboard/stats',
+        '/api/clients',
+        '/api/clients/stats',
+        '/api/conversations',
+        '/api/appointments',
+        '/api/health',
+        '/api/status'
       ]
 
       const results: { [key: string]: boolean } = {}

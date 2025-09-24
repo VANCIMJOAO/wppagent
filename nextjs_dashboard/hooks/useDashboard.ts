@@ -1,3 +1,4 @@
+import React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/react-query'
 import { toast } from 'sonner'
@@ -29,7 +30,7 @@ const dashboardApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
+        'Authorization': `Bearer ${null}`
       }
     })
 
@@ -55,7 +56,7 @@ const dashboardApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
+        'Authorization': `Bearer ${null}`
       }
     })
 
@@ -77,7 +78,7 @@ const dashboardApi = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${null // ✅ REMOVIDO: Token inseguro}`
+        'Authorization': `Bearer ${null}`
       }
     })
 
@@ -248,5 +249,4 @@ export function useDashboard(options: {
   }
 }
 
-// Importar React para useEffect
-import React from 'react'
+// React já importado no topo

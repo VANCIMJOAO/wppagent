@@ -624,7 +624,7 @@ function ToastComponent({ toast }: { toast: Toast }) {
             )}
 
             {/* Timestamp for development */}
-            {process.env.NODE_ENV === 'development' && (
+            {typeof window !== 'undefined' && window.location.hostname === 'localhost' && (
               <div className="text-xs text-muted-foreground">
                 {new Date(toast.timestamp).toLocaleTimeString()}
               </div>

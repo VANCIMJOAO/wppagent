@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRealAnalytics } from '@/hooks/use-real-analytics';
 import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary';
+import { useAuth } from '@/contexts/auth-context';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import {
   Users,
   MessageSquare,
@@ -22,9 +25,21 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import Link from 'next/link';
+import { SafeLink } from '@/components/ui/safe-link';
 
 export default function DashboardPage() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+
+  // Redirecionar para login se não autenticado
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  // Só carregar analytics se autenticado
   const {
     dashboardSummary,
     loadingDashboard,
@@ -32,7 +47,26 @@ export default function DashboardPage() {
     refreshDashboard
   } = useRealAnalytics();
 
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  // Mostrar loading enquanto verifica autenticação
+  if (authLoading) {
+    return (
+      <div className="space-y-6 p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não autenticado, não renderizar nada (será redirecionado)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   if (loadingDashboard && !dashboardSummary) {
     return (
@@ -85,13 +119,13 @@ export default function DashboardPage() {
               Atualizar
             </Button>
 
-            <Link href="/analytics">
+            <SafeLink href="/analytics">
               <Button size="sm">
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Analytics Avançadas
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
-            </Link>
+            </SafeLink>
           </div>
         </div>
 
@@ -171,7 +205,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold mb-2">
-                {dashboardSummary?.key_metrics.avg_response_time_minutes?.toFixed(1) || '0.0'}
+                {dashboardSummary?.key_metrics.avg_response_time_minutes?.toFixed(1) || 'N/A'}
                 <span className="text-lg text-gray-500 ml-1">min</span>
               </div>
               <p className="text-sm text-gray-600">
@@ -281,13 +315,13 @@ export default function DashboardPage() {
                 <p className="text-blue-700 mb-4">
                   Acesse relatórios detalhados, funis de conversão, performance de templates e muito mais.
                 </p>
-                <Link href="/analytics">
+                <SafeLink href="/analytics">
                   <Button className="bg-blue-600 hover:bg-blue-700">
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Ver Analytics Completas
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
-                </Link>
+                </SafeLink>
               </div>
             </div>
           </CardContent>

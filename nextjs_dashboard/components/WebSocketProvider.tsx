@@ -259,7 +259,7 @@ export function WebSocketDebugPanel({ className = '' }: { className?: string }) 
   const { isConnected, connectionStatus, reconnectCount } = useWebSocket()
   const { messageCount, lastActivity } = useWebSocketActivity()
 
-  if (process.env.NODE_ENV !== 'development') {
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
     return null
   }
 

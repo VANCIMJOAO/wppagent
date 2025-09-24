@@ -5,6 +5,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import authCache from '@/lib/auth-cache';
+import { executeQueryWithRetry } from '@/lib/database-optimized';
 
 // Configuração do banco PostgreSQL
 const pool = new Pool({
@@ -56,22 +58,35 @@ export async function POST(request: NextRequest) {
     }
     
     try {
-      // Buscar usuário admin na tabela admin_users
-      const adminResult = await client.query(
-        'SELECT id, username, password_hash, full_name, is_active FROM admin_users WHERE username = $1 AND is_active = true',
-        [username]
-      );
-
-      if (adminResult.rows.length === 0) {
-        console.log('❌ Usuário admin não encontrado:', username);
-        return NextResponse.json(
-          { error: 'Credenciais inválidas' },
-          { status: 401 }
+      const startTime = Date.now();
+      
+      // 🚀 OTIMIZAÇÃO: Verificar cache primeiro
+      let admin = authCache.getCachedAdmin(username);
+      
+      if (!admin) {
+        console.log('🔍 Buscando admin no banco de dados...');
+        // Buscar usuário admin na tabela admin_users
+        const adminResult = await executeQueryWithRetry(
+          'SELECT id, username, password_hash, full_name, is_active FROM admin_users WHERE username = $1 AND is_active = true',
+          [username]
         );
-      }
 
-      const admin = adminResult.rows[0];
-      console.log('✅ Usuário admin encontrado:', admin.username);
+        if (adminResult.length === 0) {
+          console.log('❌ Usuário admin não encontrado:', username);
+          return NextResponse.json(
+            { error: 'Credenciais inválidas' },
+            { status: 401 }
+          );
+        }
+
+        admin = adminResult[0];
+        console.log('✅ Usuário admin encontrado:', admin.username);
+        
+        // Cachear admin para próximas consultas
+        authCache.setCachedAdmin(username, admin);
+      } else {
+        console.log('⚡ Admin encontrado no cache:', admin.username);
+      }
 
       // Verificar senha (usando bcrypt)
       const bcrypt = require('bcryptjs');
@@ -79,6 +94,8 @@ export async function POST(request: NextRequest) {
 
       if (!isValidPassword) {
         console.log('❌ Senha inválida para usuário:', username);
+        // Invalidar cache em caso de senha incorreta
+        authCache.invalidateAdmin(username);
         return NextResponse.json(
           { error: 'Credenciais inválidas' },
           { status: 401 }
@@ -87,44 +104,36 @@ export async function POST(request: NextRequest) {
 
       console.log('✅ Login realizado com sucesso para:', admin.username);
 
-      // ✅ CORREÇÃO: Fazer login no Railway para obter token real
-      console.log('🚀 Fazendo login no Railway...');
-      const railwayLoginResponse = await fetch('https://wppagent-production.up.railway.app/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: admin.username,
-          password: password // Usar a senha original
-        })
-      });
-
-      if (!railwayLoginResponse.ok) {
-        console.error('❌ Erro ao fazer login no Railway:', railwayLoginResponse.status);
-        const railwayError = await railwayLoginResponse.text();
-        console.error('❌ Erro Railway:', railwayError);
-        
-        return NextResponse.json(
-          { error: 'Erro ao autenticar com o servidor Railway' },
-          { status: 500 }
-        );
-      }
-
-      const railwayData = await railwayLoginResponse.json();
-      console.log('✅ Login Railway realizado com sucesso');
+      // 🚀 OTIMIZAÇÃO: Verificar cache de token primeiro
+      let token = authCache.getCachedToken(admin.id);
       
-      if (!railwayData.success || !railwayData.data?.access_token) {
-        console.error('❌ Railway não retornou token válido:', railwayData);
-        return NextResponse.json(
-          { error: 'Token inválido do Railway' },
-          { status: 500 }
+      if (!token) {
+        // 🚀 OTIMIZAÇÃO: Gerar JWT local (sem requisição externa)
+        const { SignJWT } = await import('jose');
+        const JWT_SECRET = new TextEncoder().encode(
+          process.env.JWT_SECRET || 'whatsapp_agent_super_secret_2024_railway_production'
         );
-      }
 
-      const token = railwayData.data.access_token;
+        token = await new SignJWT({
+          user_id: admin.id,
+          username: admin.username,
+          role: 'admin',
+          full_name: admin.full_name
+        })
+          .setProtectedHeader({ alg: 'HS256' })
+          .setIssuedAt()
+          .setExpirationTime('2h')
+          .sign(JWT_SECRET);
+        
+        // Cachear token para próximas requisições
+        authCache.setCachedToken(admin.id, token, 2 * 60 * 60); // 2 horas
+      } else {
+        console.log('⚡ Token encontrado no cache para admin:', admin.username);
+      }
+      const totalTime = Date.now() - startTime;
       console.log('🔑 Token Railway obtido, length:', token.length);
       console.log('🔑 Token primeiros 50 chars:', token.substring(0, 50));
+      console.log(`⚡ Login otimizado concluído em ${totalTime}ms`);
 
       // ✅ SEGURO: Definir cookies HttpOnly seguros
       const loginResponse = NextResponse.json({
@@ -132,12 +141,12 @@ export async function POST(request: NextRequest) {
         message: 'Login realizado com sucesso'
       });
 
-      // Definir cookie de autenticação
+      // Definir cookie de autenticação (2 horas para coincidir com o token)
           loginResponse.cookies.set('access_token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000, // 24 horas
+            maxAge: 2 * 60 * 60 * 1000, // 2 horas (coincide com token)
             path: '/'
           });
 
@@ -150,14 +159,14 @@ export async function POST(request: NextRequest) {
           username: admin.username,
           role: 'admin'
         },
-        tokenExpiry: Date.now() + (24 * 60 * 60 * 1000) // 24 horas
+        tokenExpiry: Date.now() + (2 * 60 * 60 * 1000) // 2 horas
       };
 
           loginResponse.cookies.set('session-info', JSON.stringify(sessionInfo), {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000, // 24 horas
+            maxAge: 2 * 60 * 60 * 1000, // 2 horas (coincide com token)
             path: '/'
           });
 

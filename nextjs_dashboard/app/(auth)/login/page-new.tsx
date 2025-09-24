@@ -24,7 +24,7 @@ export default function LoginPage() {
 
     try {
       // Login real com backend
-      const response = await fetch('/api/proxy/admin/login', {
+      const response = await fetch('/api/auth/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

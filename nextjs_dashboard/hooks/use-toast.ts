@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export interface Toast {
   id: string;
@@ -66,7 +66,7 @@ const dismissAllToasts = () => {
 export function useToast() {
   const [localToasts, setLocalToasts] = useState<Toast[]>([...toasts]);
 
-  useState(() => {
+  useEffect(() => {
     listeners.push(setLocalToasts);
     return () => {
       const index = listeners.indexOf(setLocalToasts);
@@ -74,7 +74,7 @@ export function useToast() {
         listeners.splice(index, 1);
       }
     };
-  });
+  }, []);
 
   const toast = useCallback((toast: Omit<Toast, 'id'>) => {
     return addToast(toast);

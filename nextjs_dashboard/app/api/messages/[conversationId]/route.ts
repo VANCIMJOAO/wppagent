@@ -1,8 +1,42 @@
 // API Route para buscar mensagens do PostgreSQL
 import { NextRequest, NextResponse } from 'next/server';
 
-// Função para buscar mensagens reais do banco PostgreSQL
-async function fetchRealMessages(conversationId: string) {
+// Função para buscar mensagens reais do Railway
+async function fetchRealMessages(conversationId: string, authToken: string) {
+  try {
+    console.log(`🔍 API: Buscando mensagens REAIS para conversa ${conversationId}`);
+    
+    // Buscar mensagens reais do Railway (limite máximo 200 conforme Railway)
+    const railwayResponse = await fetch(`https://wppagent-production.up.railway.app/conversations/${conversationId}/messages?limit=200`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!railwayResponse.ok) {
+      const errorText = await railwayResponse.text();
+      console.log(`⚠️ Railway erro ${railwayResponse.status} para conversa ${conversationId}:`, errorText);
+      return null;
+    }
+
+    const railwayData = await railwayResponse.json();
+    console.log(`✅ Mensagens reais obtidas para conversa ${conversationId}:`, railwayData);
+    
+    if (railwayData.success && railwayData.data && railwayData.data.messages) {
+      return railwayData.data.messages; // ✅ Retornar apenas o array de mensagens
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`❌ Erro ao buscar mensagens reais para conversa ${conversationId}:`, error);
+    return null;
+  }
+}
+
+// Função de fallback com dados mock (mantida para compatibilidade)
+async function getFallbackMessages(conversationId: string) {
   try {
     // Simular consulta ao banco PostgreSQL baseada nos dados reais
     const messagesByConversation: { [key: string]: any[] } = {
@@ -67,54 +101,52 @@ async function fetchRealMessages(conversationId: string) {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
-    const conversationId = params.conversationId;
+    const { conversationId } = await params;
 
     console.log(`🔍 API: Buscando mensagens REAIS para conversa ${conversationId}`);
 
-    // Buscar mensagens reais do banco PostgreSQL
-    const realMessages = await fetchRealMessages(conversationId);
+    // Extrair token de autenticação
+    const authToken = request.cookies.get('access_token')?.value;
+    
+    if (!authToken) {
+      console.log('❌ Token não encontrado para buscar mensagens');
+      return NextResponse.json(
+        { error: 'Token de autenticação não encontrado' },
+        { status: 401 }
+      );
+    }
 
-    if (realMessages.length === 0) {
-      // Se não há mensagens específicas, criar mensagens de exemplo baseadas no padrão
-      const fallbackMessages = [
-        {
-          id: Date.now(),
-          content: `Esta é a conversa ${conversationId}. As mensagens reais em breve serão carregadas do banco PostgreSQL.`,
-          sender_type: 'agent' as const,
-          created_at: new Date().toISOString(),
-          direction: 'out',
-          message_type: 'text'
-        },
-        {
-          id: Date.now() + 1,
-          content: 'Como posso ajudar você hoje?',
-          sender_type: 'agent' as const,
-          created_at: new Date().toISOString(),
-          direction: 'out',
-          message_type: 'text'
-        }
-      ];
+    console.log(`🔑 Token encontrado para conversa ${conversationId}, length: ${authToken.length}`);
 
-      console.log(`⚠️ API: Usando mensagens de fallback para conversa ${conversationId}`);
+    // Buscar mensagens reais do Railway
+    const realMessages = await fetchRealMessages(conversationId, authToken);
+
+    if (!realMessages || realMessages.length === 0) {
+      // Se não há mensagens reais, retornar array vazio (conversa sem mensagens)
+      console.log(`📭 Conversa ${conversationId} não possui mensagens ainda`);
 
       return NextResponse.json({
         success: true,
-        messages: fallbackMessages,
-        total: fallbackMessages.length,
+        messages: [],
+        total: 0,
         conversation_id: conversationId,
-        source: 'fallback'
+        source: 'empty'
       });
     }
 
-    // Adicionar campos extras necessários
-    const formattedMessages = realMessages.map(msg => ({
-      ...msg,
-      direction: msg.sender_type === 'user' ? 'in' : 'out',
-      message_type: 'text'
-    }));
+    // ✅ Mensagens reais obtidas do Railway - formatar para o frontend
+    const formattedMessages = realMessages
+      .map(msg => ({
+        ...msg,
+        // ✅ CORRIGIDO: Mapear direction do Railway para frontend
+        direction: msg.direction === 'incoming' ? 'in' : msg.direction === 'outgoing' ? 'out' : (msg.sender_type === 'user' ? 'in' : 'out'),
+        message_type: msg.message_type || 'text',
+        created_at: msg.created_at
+      }))
+      .reverse(); // ✅ CORRIGIDO: Inverter ordem para cronológica (mais antigas primeiro)
 
     console.log(`✅ API: Retornando ${formattedMessages.length} mensagens REAIS para conversa ${conversationId}`);
 
@@ -123,7 +155,7 @@ export async function GET(
       messages: formattedMessages,
       total: formattedMessages.length,
       conversation_id: conversationId,
-      source: 'database'
+      source: 'railway'
     });
 
   } catch (error) {

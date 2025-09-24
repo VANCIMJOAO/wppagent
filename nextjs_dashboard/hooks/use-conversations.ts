@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export interface Conversation {
   id: number;
@@ -47,7 +47,7 @@ export function useConversations() {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
 
-  const fetchConversations = async (pageNum: number = 1, limit: number = 20) => {
+  const fetchConversations = async (pageNum: number = 1, limit: number = 500) => {
     try {
       setLoading(true);
       setError(null);
@@ -112,11 +112,13 @@ export function useMessages(conversationId: string | null) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const fetchMessages = async (convId: string) => {
     if (!convId) return;
 
     try {
+      console.log(`🔍 useMessages: Iniciando busca de mensagens para conversa ${convId}`);
       setLoading(true);
       setError(null);
 
@@ -127,8 +129,10 @@ export function useMessages(conversationId: string | null) {
       }
 
       const data: MessagesResponse = await response.json();
+      console.log(`📨 useMessages: Dados recebidos para conversa ${convId}:`, data);
       
       if (data.success) {
+        console.log(`✅ useMessages: ${data.messages.length} mensagens carregadas para conversa ${convId}`);
         setMessages(data.messages);
       } else {
         throw new Error(data.error || 'Erro ao carregar mensagens');
@@ -175,13 +179,29 @@ export function useMessages(conversationId: string | null) {
     }
   };
 
+  // Função para scroll automático para a última mensagem
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   useEffect(() => {
+    console.log(`🔄 useMessages: useEffect executado com conversationId: ${conversationId}`);
     if (conversationId) {
+      console.log(`📞 useMessages: Chamando fetchMessages para conversa ${conversationId}`);
       fetchMessages(conversationId);
     } else {
+      console.log(`🧹 useMessages: Limpando mensagens (conversationId vazio)`);
       setMessages([]);
     }
   }, [conversationId]);
+
+  // Auto-scroll quando mensagens carregarem ou mudarem
+  useEffect(() => {
+    if (messages.length > 0 && !loading) {
+      // Pequeno delay para garantir que o DOM foi atualizado
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [messages, loading]);
 
   return {
     messages,
@@ -189,5 +209,7 @@ export function useMessages(conversationId: string | null) {
     error,
     fetchMessages,
     sendMessage,
+    messagesEndRef, // Exportar ref para uso no componente
+    scrollToBottom, // Exportar função de scroll
   };
 }

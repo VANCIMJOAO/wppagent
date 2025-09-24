@@ -59,7 +59,13 @@ export default function Sidebar({ children }: SidebarProps) {
       try {
         // Sistema agora usa cookies seguros gerenciados pelo auth-context
         // Definir usuário padrão se chegou até aqui (significa que passou pelo middleware)
-        setUser({ username: 'admin', role: 'admin' });
+        setUser({ 
+          id: 1,
+          email: 'admin@whatsappagent.com',
+          name: 'Administrador',
+          role: 'admin',
+          avatar_url: undefined
+        });
         setIsAuthenticated(true);
       } catch (error) {
         console.error('Erro ao verificar autenticação:', error)
@@ -201,7 +207,7 @@ export default function Sidebar({ children }: SidebarProps) {
       id: 'reports',
       label: 'Exportar Relatórios',
       icon: FileText,
-      href: '/reports',
+      href: '/exportar-relatorios',
       description: 'CSV/Excel/PDF',
       badge: 'NEW'
     },
@@ -211,13 +217,6 @@ export default function Sidebar({ children }: SidebarProps) {
       icon: UserX,
       href: '/bloqueados',
       description: 'Horários'
-    },
-    {
-      id: 'diagnostic',
-      label: '🔍 Diagnóstico',
-      icon: HelpCircle,
-      href: '/diagnostic',
-      description: 'Backend Status'
     },
     {
       id: 'monitoring',
@@ -321,13 +320,18 @@ export default function Sidebar({ children }: SidebarProps) {
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 md:p-4">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <Avatar className="h-10 w-10 md:h-12 md:w-12">
-                  <AvatarImage alt="" />
-                  <AvatarFallback className="bg-blue-500 text-white">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
+                <Avatar className="h-10 w-10 md:h-12 md:w-12 ring-2 ring-blue-100">
+                  <AvatarImage 
+                    src={user?.avatar_url} 
+                    alt={user?.name || 'Usuário'} 
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-sm">
+                    {user?.name?.charAt(0).toUpperCase() || 'A'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded-full border-2 border-white shadow-sm">
+                  <div className="w-full h-full bg-green-400 rounded-full animate-pulse"></div>
+                </div>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-900 text-sm md:text-base truncate">{user?.name || 'Usuário'}</p>
@@ -454,29 +458,53 @@ export default function Sidebar({ children }: SidebarProps) {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage alt="" />
-                      <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                  <Button variant="ghost" className="flex items-center space-x-2 hover:bg-gray-50">
+                    <Avatar className="h-8 w-8 ring-2 ring-gray-100">
+                      <AvatarImage 
+                        src={user?.avatar_url} 
+                        alt={user?.name || 'Usuário'} 
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-xs">
+                        {user?.name?.charAt(0).toUpperCase() || 'A'}
+                      </AvatarFallback>
                     </Avatar>
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>{user?.name || 'Usuário'}</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuLabel className="flex items-center space-x-3 p-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage 
+                        src={user?.avatar_url} 
+                        alt={user?.name || 'Usuário'} 
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                        {user?.name?.charAt(0).toUpperCase() || 'A'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 truncate">{user?.name || 'Usuário'}</p>
+                      <p className="text-sm text-gray-500 truncate">{user?.email || 'admin@whatsappagent.com'}</p>
+                      {user?.role && getRoleBadge(user.role)}
+                    </div>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" />
-                    Perfil
+                    <span>Meu Perfil</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
-                    Configurações
+                    <span>Configurações</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Bell className="mr-2 h-4 w-4" />
+                    <span>Notificações</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sair
+                    <span>Sair</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

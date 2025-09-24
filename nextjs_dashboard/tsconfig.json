@@ -3,17 +3,23 @@
     "allowJs": true,
     "baseUrl": ".",
     "esModuleInterop": true,
+    "types": [
+      "node",
+      "jest"
+    ],
     "incremental": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "lib": [
       "dom",
       "dom.iterable",
-      "es6"
+      "es6",
+      "es2017"
     ],
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "noEmit": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@/*": [
         "./*"
@@ -26,7 +32,8 @@
     ],
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "target": "ES2017"
   },
   "exclude": [
     "node_modules"
