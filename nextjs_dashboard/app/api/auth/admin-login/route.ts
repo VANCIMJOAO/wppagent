@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
         // 🚀 OTIMIZAÇÃO: Gerar JWT local (sem requisição externa)
         const { SignJWT } = await import('jose');
         const JWT_SECRET = new TextEncoder().encode(
-          process.env.JWT_SECRET || 'whatsapp_agent_super_secret_2024_railway_production'
+          process.env.JWT_SECRET || 'fallback-secret-key'
         );
 
         token = await new SignJWT({
