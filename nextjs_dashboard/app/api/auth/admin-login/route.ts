@@ -138,7 +138,13 @@ export async function POST(request: NextRequest) {
       // ✅ SEGURO: Definir cookies HttpOnly seguros
       const loginResponse = NextResponse.json({
         success: true,
-        message: 'Login realizado com sucesso'
+        message: 'Login realizado com sucesso',
+        user: {
+          id: admin.id,
+          username: admin.username,
+          role: 'admin',
+          full_name: admin.full_name
+        }
       });
 
       // Definir cookie de autenticação (2 horas para coincidir com o token)

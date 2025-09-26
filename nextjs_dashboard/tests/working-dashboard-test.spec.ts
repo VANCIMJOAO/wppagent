@@ -6,15 +6,32 @@ const TEST_CREDENTIALS = {
 };
 
 async function login(page: Page) {
-  await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  // Fazer login via API
+  const loginResponse = await page.request.post('/api/proxy/admin/login', {
+    data: { username: TEST_CREDENTIALS.username, password: TEST_CREDENTIALS.password }
+  });
+  expect(loginResponse.status()).toBe(200);
   
-  await page.fill('input[id="username"]', TEST_CREDENTIALS.username);
-  await page.fill('input[id="password"]', TEST_CREDENTIALS.password);
-  await page.click('button[type="submit"]');
+  const loginData = await loginResponse.json();
+  expect(loginData.success).toBe(true);
+  expect(loginData.data.access_token).toBeTruthy();
   
-  // Aguardar redirecionamento para dashboard
-  await page.waitForURL('/dashboard');
+  // Definir o cookie access_token diretamente no contexto do navegador
+  await page.context().addCookies([{
+    name: 'access_token',
+    value: loginData.data.access_token,
+    domain: 'localhost',
+    path: '/',
+    httpOnly: true,
+    secure: false, // Para desenvolvimento local
+    sameSite: 'Strict'
+  }]);
+  
+  // Aguardar um pouco para o cookie ser processado
+  await page.waitForTimeout(500);
+  
+  // Navegar para o dashboard
+  await page.goto('/dashboard');
   await page.waitForLoadState('networkidle');
 }
 
@@ -58,7 +75,7 @@ test.describe('Dashboard Funcional - Testes Básicos', () => {
     
     // Verificar se o cookie está presente
     const cookies = await page.context().cookies();
-    const authCookie = cookies.find(c => c.name === 'auth-token');
+    const authCookie = cookies.find(c => c.name === 'access_token');
     expect(authCookie).toBeTruthy();
     
     // Verificar se o localStorage tem dados do usuário

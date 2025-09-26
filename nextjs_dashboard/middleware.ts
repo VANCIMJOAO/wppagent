@@ -7,8 +7,12 @@ const isDev = process.env.NODE_ENV === 'development';
 // Função para verificar se o JWT é válido
 async function verifyJWT(token: string): Promise<boolean> {
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'whatsapp_agent_super_secret_2024_railway_production');
-    await jwtVerify(token, secret);
+    const secret = process.env.JWT_SECRET || 'fallback-secret-key';
+    if (isDev) console.log('Middleware: Verificando JWT com secret:', secret);
+    if (isDev) console.log('Middleware: Token preview:', token.substring(0, 20) + '...');
+    
+    const result = await jwtVerify(token, new TextEncoder().encode(secret));
+    if (isDev) console.log('Middleware: JWT válido, payload:', result.payload);
     return true;
   } catch (error) {
     if (isDev) console.log('Middleware: JWT inválido:', error);
@@ -27,6 +31,7 @@ export async function middleware(request: NextRequest) {
 
     // Obter o token de autenticação - ✅ CORRIGIDO: Usar access_token
     const authToken = request.cookies.get('access_token')?.value;
+    if (isDev) console.log('Middleware: Token encontrado:', !!authToken);
 
     if (authToken) {
       if (isDev) console.log('Middleware: Adicionando token ao header de autorização')
@@ -61,6 +66,9 @@ export async function middleware(request: NextRequest) {
   const authToken = request.cookies.get('access_token')?.value;
   let isAuthenticated = false;
   
+  if (isDev) console.log('Middleware: Cookie access_token encontrado:', !!authToken);
+  if (isDev && authToken) console.log('Middleware: Token preview:', authToken.substring(0, 20) + '...');
+  
   if (authToken) {
     // Verificar se o JWT é válido
     isAuthenticated = await verifyJWT(authToken);
@@ -78,7 +86,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Rotas que requerem autenticação
-  const protectedRoutes = ['/dashboard', '/conversas', '/agendamentos', '/monitoring'];
+  const protectedRoutes = ['/dashboard', '/conversas', '/agendamentos', '/monitoring', '/clientes', '/analytics', '/relatorios', '/configuracoes', '/perfil', '/suporte', '/horarios-bloqueados', '/exportar-relatorios'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
   if (isDev) console.log('Middleware: É rota protegida?', isProtectedRoute)
@@ -86,6 +94,7 @@ export async function middleware(request: NextRequest) {
   // Se não está autenticado e tenta acessar rota protegida
   if (!isAuthenticated && isProtectedRoute) {
     if (isDev) console.log('Middleware: Redirecionando para login (não autenticado)')
+    if (isDev) console.log('Middleware: Cookies disponíveis:', request.cookies.getAll().map(c => c.name));
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

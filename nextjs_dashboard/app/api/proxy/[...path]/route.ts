@@ -5,8 +5,8 @@ export const dynamic = 'force-dynamic';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-// Backend URL para Railway
-const BACKEND_URL = process.env.BACKEND_URL || 'https://wppagent-production.up.railway.app';
+// Backend URL - usar local durante desenvolvimento/testes
+const BACKEND_URL = process.env.BACKEND_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://wppagent-production.up.railway.app');
 
 export async function GET(
   request: Request,
@@ -196,7 +196,14 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
       
       const token = data.data.access_token;
       // ✅ CORRIGIDO: Usar o mesmo nome de cookie que o backend espera
-      responseHeaders['Set-Cookie'] = `access_token=${token}; HttpOnly; Secure=${process.env.NODE_ENV === 'production'}; SameSite=Strict; Path=/; Max-Age=3600`;
+      const cookieValue = `access_token=${token}; HttpOnly; Secure=${process.env.NODE_ENV === 'production'}; SameSite=Strict; Path=/; Max-Age=3600`;
+      
+      // Adicionar ao Set-Cookie existente ou criar novo
+      if (responseHeaders['Set-Cookie']) {
+        responseHeaders['Set-Cookie'] = [responseHeaders['Set-Cookie'], cookieValue];
+      } else {
+        responseHeaders['Set-Cookie'] = cookieValue;
+      }
       
       if (isDev) console.log('[Proxy] Cookie access_token definido com sucesso');
     }

@@ -113,7 +113,7 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="senha_admin_segura"
+                    placeholder="Digite sua senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10 bg-white/10 border-white/20 text-white placeholder:text-gray-300 focus:border-white/40"
@@ -131,12 +131,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Credenciais */}
-              <div className="bg-white/5 rounded-lg p-3 text-sm">
-                <p className="text-blue-100 font-medium mb-1">Credenciais reais:</p>
-                <p className="text-blue-200">Username: admin</p>
-                <p className="text-blue-200">Senha: senha_admin_segura</p>
-              </div>
             </CardContent>
 
             <CardFooter>

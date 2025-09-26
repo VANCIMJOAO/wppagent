@@ -21,7 +21,8 @@ export async function GET(request: NextRequest) {
 
     // Verificar se o token ainda é válido fazendo uma requisição para o backend
     try {
-      const backendResponse = await fetch('https://wppagent-production.up.railway.app/admin/me', {
+      const backendUrl = process.env.BACKEND_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://wppagent-production.up.railway.app');
+      const backendResponse = await fetch(`${backendUrl}/admin/me`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

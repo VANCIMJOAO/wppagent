@@ -7,7 +7,8 @@ async function fetchRealMessages(conversationId: string, authToken: string) {
     console.log(`🔍 API: Buscando mensagens REAIS para conversa ${conversationId}`);
     
     // Buscar mensagens reais do Railway (limite máximo 200 conforme Railway)
-    const railwayResponse = await fetch(`https://wppagent-production.up.railway.app/conversations/${conversationId}/messages?limit=200`, {
+    const backendUrl = process.env.BACKEND_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://wppagent-production.up.railway.app');
+    const railwayResponse = await fetch(`${backendUrl}/conversations/${conversationId}/messages?limit=200`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${authToken}`,

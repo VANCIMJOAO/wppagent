@@ -40,7 +40,7 @@ export function useApiEnhanced<T>(options: UseApiOptions = {}): UseApiResult<T> 
     timeout = 30000,
     retries = 3,
     retryDelay = 1000,
-    baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://wppagent-production.up.railway.app',
+    baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://wppagent-production.up.railway.app'),
     showToast = true,
     showLoading: showLoadingToast = false,
     onError,

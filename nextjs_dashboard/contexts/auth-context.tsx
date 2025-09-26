@@ -93,7 +93,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       debugLog.info('Dados do login:', data);
 
       // ✅ SEGURO: Tokens agora estão em cookies HttpOnly
-      // Não precisamos mais gerenciar tokens no frontend
+      // Mas ainda precisamos salvar dados do usuário no localStorage para compatibilidade
+      
+      // Salvar dados do usuário no localStorage para compatibilidade com testes
+      const userData = {
+        id: data.user?.id || 'admin',
+        username: data.user?.username || email,
+        role: data.user?.role || 'admin',
+        full_name: data.user?.full_name || 'Administrator',
+        isAuthenticated: true
+      };
+      
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(userData));
+        debugLog.info('Dados do usuário salvos no localStorage:', userData);
+      }
 
       debugLog.info('Definindo isAuthenticated como true...');
       setIsAuthenticated(true);

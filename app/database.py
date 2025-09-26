@@ -46,12 +46,12 @@ engine = create_async_engine(
     database_url,
     echo=False,  # Reduzir logs em produção
     pool_pre_ping=True,
-    pool_recycle=1800,  # Reduzir para 30 minutos
-    pool_size=10,  # Aumentar pool size
-    max_overflow=20,  # Aumentar overflow
-    pool_timeout=30,  # Timeout de conexão
+    pool_recycle=3600,  # 1 hora - Railway tem conexões estáveis
+    pool_size=5,  # Reduzir para Railway (limite de conexões)
+    max_overflow=10,  # Reduzir overflow
+    pool_timeout=60,  # Aumentar timeout para Railway
     connect_args={
-        "command_timeout": 30,  # Timeout de comando
+        "command_timeout": 60,  # Aumentar timeout para Railway
         "server_settings": {
             "application_name": "whats_agent",
             "jit": "off",  # Desabilitar JIT para queries simples
@@ -67,12 +67,11 @@ sync_engine = create_engine(
     sync_database_url,
     echo=False,  # Reduzir logs em produção
     pool_pre_ping=True,
-    pool_recycle=1800,  # Reduzir para 30 minutos
-    pool_size=10,  # Aumentar pool size
-    max_overflow=20,  # Aumentar overflow
-    pool_timeout=30,  # Timeout de conexão
+    pool_recycle=3600,  # 1 hora - Railway tem conexões estáveis
+    pool_size=5,  # Reduzir para Railway (limite de conexões)
+    max_overflow=10,  # Reduzir overflow
+    pool_timeout=60,  # Aumentar timeout para Railway
     connect_args={
-        "command_timeout": 30,  # Timeout de comando
         "application_name": "whats_agent_sync",
     }
 )

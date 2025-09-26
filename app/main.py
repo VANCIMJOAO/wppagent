@@ -18,6 +18,8 @@ from app.config.config_factory import is_development
 from app.database import init_db
 from app.middleware.request_logging import add_request_logging_middleware
 from app.routes.webhook import router as webhook_router
+from app.routes.fast_auth import router as fast_auth_router
+from app.services.connection_pool_manager import initialize_pool
 from app.schemas.health import (
     AppInfo,
     DetailedHealthResponse,
@@ -152,6 +154,19 @@ async def lifespan(app: FastAPI):
         try:
             await init_db()
             logger.info("✅ Banco de dados inicializado")
+            
+            # Inicializar pool de conexões persistente
+            database_url = os.getenv("DATABASE_URL")
+            if database_url:
+                # Converter para URL síncrona
+                sync_url = database_url.replace("postgresql+asyncpg://", "postgresql://").replace("+asyncpg", "")
+                if await initialize_pool(sync_url):
+                    logger.info("✅ Pool de conexões persistente inicializado")
+                else:
+                    logger.warning("⚠️ Falha ao inicializar pool persistente")
+            else:
+                logger.warning("⚠️ DATABASE_URL não encontrada para pool persistente")
+                
         except Exception as e:
             logger.warning(f"⚠️ Erro na inicialização do banco: {e}")
             if not RAILWAY_FAST_START:
@@ -687,6 +702,7 @@ app.include_router(system_info_router, tags=["System Info"])
 from app.routes.auth import router as auth_router
 
 app.include_router(auth_router, tags=["Authentication"])
+app.include_router(fast_auth_router, tags=["Fast Authentication"])
 
 from app.routes.secrets import router as secrets_router
 

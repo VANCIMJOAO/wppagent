@@ -24,9 +24,7 @@ class SimpleJWTManager:
 
     def __init__(self):
         # Secret fixo das variáveis de ambiente (sem rotação)
-        self.secret_key = os.getenv(
-            "JWT_SECRET", os.getenv("SECRET_KEY", "fallback-secret-key")
-        )
+        self.secret_key = os.getenv("JWT_SECRET") or os.getenv("SECRET_KEY") or "fallback-secret-key"
         self.algorithm = "HS256"
 
         logger.info(
