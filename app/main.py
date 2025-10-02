@@ -1953,33 +1953,12 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     print(f"🔍 Starting server on port: {port}", flush=True)
     
-    # Railway-specific logging configuration
+    # Railway-specific logging configuration (SIMPLIFIED)
     uvicorn.run(
         "main:app", 
         host="0.0.0.0", 
         port=port, 
         reload=False,  # Disable reload for production
         log_level="info",
-        access_log=True,
-        use_colors=False,  # Disable colors for Railway logs
-        log_config={
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "default": {
-                    "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
-                },
-            },
-            "handlers": {
-                "default": {
-                    "formatter": "default",
-                    "class": "logging.StreamHandler",
-                    "stream": "ext://sys.stdout",
-                },
-            },
-            "root": {
-                "level": "INFO",
-                "handlers": ["default"],
-            },
-        }
+        use_colors=False  # Disable colors for Railway logs
     )

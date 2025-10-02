@@ -93,36 +93,15 @@ def main():
         port = int(os.getenv("PORT", 8000))
         print(f"🌐 Starting server on port: {port}", flush=True)
         
-        # Start uvicorn with Railway-optimized settings
+        # Start uvicorn with Railway-optimized settings (SIMPLIFIED)
         uvicorn.run(
             app,
             host="0.0.0.0",
             port=port,
             log_level="info",
-            access_log=True,
             use_colors=False,
             loop="asyncio",
-            reload=False,
-            log_config={
-                "version": 1,
-                "disable_existing_loggers": False,
-                "formatters": {
-                    "default": {
-                        "format": "[%(asctime)s] %(levelname)s: %(message)s",
-                    },
-                },
-                "handlers": {
-                    "default": {
-                        "formatter": "default",
-                        "class": "logging.StreamHandler",
-                        "stream": "ext://sys.stdout",
-                    },
-                },
-                "root": {
-                    "level": "INFO",
-                    "handlers": ["default"],
-                },
-            }
+            reload=False
         )
         
     except Exception as e:
