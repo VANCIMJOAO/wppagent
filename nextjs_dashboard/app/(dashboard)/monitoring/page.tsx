@@ -773,10 +773,10 @@ export default function MonitoringPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gt">Maior que (>)</SelectItem>
-                    <SelectItem value="gte">Maior ou igual (>=)</SelectItem>
-                    <SelectItem value="lt">Menor que (<)</SelectItem>
-                    <SelectItem value="lte">Menor ou igual (<=)</SelectItem>
+                    <SelectItem value="gt">Maior que (&gt;)</SelectItem>
+                    <SelectItem value="gte">Maior ou igual (&gt;=)</SelectItem>
+                    <SelectItem value="lt">Menor que (&lt;)</SelectItem>
+                    <SelectItem value="lte">Menor ou igual (&lt;=)</SelectItem>
                     <SelectItem value="eq">Igual (=)</SelectItem>
                     <SelectItem value="ne">Diferente (!=)</SelectItem>
                   </SelectContent>

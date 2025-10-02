@@ -50,7 +50,7 @@ import {
   Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
-import api from '@/lib/api-service';
+// import api from '@/lib/api-service'; // Removido - usar fetch diretamente
 
 interface BackupInfo {
   filename: string;
@@ -127,8 +127,11 @@ export default function BackupManagementPage() {
 
   const loadBackupStatus = async () => {
     try {
-      const response = await api.get('/admin/backup/status');
-      setBackupStatus(response.data);
+      const response = await fetch('/api/admin/backup/status', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setBackupStatus(data);
     } catch (error) {
       console.error('Erro ao carregar status de backup:', error);
     }
@@ -136,8 +139,11 @@ export default function BackupManagementPage() {
 
   const loadBackupConfig = async () => {
     try {
-      const response = await api.get('/admin/backup/config');
-      setBackupConfig(response.data);
+      const response = await fetch('/api/admin/backup/config', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setBackupConfig(data);
     } catch (error) {
       console.error('Erro ao carregar configuração de backup:', error);
     }
@@ -145,8 +151,11 @@ export default function BackupManagementPage() {
 
   const loadBackupLogs = async () => {
     try {
-      const response = await api.get('/admin/backup/logs');
-      setBackupLogs(response.data.logs || []);
+      const response = await fetch('/api/admin/backup/logs', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setBackupLogs(data.logs || []);
     } catch (error) {
       console.error('Erro ao carregar logs de backup:', error);
     }
@@ -155,9 +164,16 @@ export default function BackupManagementPage() {
   const triggerBackup = async () => {
     try {
       setTriggering(true);
-      const response = await api.post('/admin/backup/trigger', {
-        backup_type: selectedBackupType,
-        cloud_upload: cloudUpload
+      const response = await fetch('/api/admin/backup/trigger', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          backup_type: selectedBackupType,
+          cloud_upload: cloudUpload
+        })
       });
       
       toast.success('Backup iniciado com sucesso!');
@@ -173,11 +189,12 @@ export default function BackupManagementPage() {
 
   const downloadBackup = async (filename: string) => {
     try {
-      const response = await api.get(`/admin/backup/download/${filename}`, {
-        responseType: 'blob'
+      const response = await fetch(`/api/admin/backup/download/${filename}`, {
+        credentials: 'include'
       });
       
-      const blob = new Blob([response.data]);
+      const data = await response.blob();
+      const blob = new Blob([data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -197,7 +214,7 @@ export default function BackupManagementPage() {
   const cleanupBackups = async () => {
     try {
       setCleaning(true);
-      const response = await api.delete('/admin/backup/cleanup');
+      const response = await fetch('/api/admin/backup/cleanup');
       
       toast.success('Limpeza de backups executada!');
       setCleanupDialog(false);
@@ -212,7 +229,7 @@ export default function BackupManagementPage() {
 
   const verifyBackup = async (filename: string) => {
     try {
-      const response = await api.post(`/admin/backup/verify/${filename}`);
+      const response = await fetch(`/admin/backup/verify/${filename}`);
       toast.success('Verificação de integridade concluída!');
       loadBackupData(); // Refresh data
     } catch (error) {
