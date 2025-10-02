@@ -38,17 +38,9 @@ export default function LoginPage() {
 
       const data = await response.json()
 
-      // Salvar token
       // ✅ SEGURO: Tokens agora em cookies HttpOnly
-
-      // Decodificar JWT para user info
-      const payload = JSON.parse(atob(data.access_token.split('.')[1]))
-      const userData = {
-        username: payload.sub,
-        role: payload.role,
-        permissions: payload.permissions || []
-      }
-      localStorage.setItem('user', JSON.stringify(userData))
+      // ✅ SEGURO: NÃO salvar dados sensíveis (como role) em localStorage
+      // Role será buscado do backend quando necessário via JWT
 
       router.push('/dashboard')
     } catch (error) {

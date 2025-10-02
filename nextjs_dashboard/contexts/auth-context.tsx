@@ -93,21 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       debugLog.info('Dados do login:', data);
 
       // ✅ SEGURO: Tokens agora estão em cookies HttpOnly
-      // Mas ainda precisamos salvar dados do usuário no localStorage para compatibilidade
-      
-      // Salvar dados do usuário no localStorage para compatibilidade com testes
-      const userData = {
-        id: data.user?.id || 'admin',
-        username: data.user?.username || email,
-        role: data.user?.role || 'admin',
-        full_name: data.user?.full_name || 'Administrator',
-        isAuthenticated: true
-      };
-      
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(userData));
-        debugLog.info('Dados do usuário salvos no localStorage:', userData);
-      }
+      // ✅ SEGURO: NÃO salvar dados sensíveis (como role) em localStorage
+      // Role será buscado do backend quando necessário via JWT
 
       debugLog.info('Definindo isAuthenticated como true...');
       setIsAuthenticated(true);
@@ -142,8 +129,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // ✅ SEGURO: Cookies HttpOnly são removidos pelo backend
-    // Apenas limpar estado local
+    // Limpar estado local e localStorage
     setIsAuthenticated(false);
+    
+    // Limpar localStorage se existir
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user');
+    }
+    
     router.push('/login');
   };
 
