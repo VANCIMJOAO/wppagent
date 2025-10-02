@@ -7,7 +7,11 @@ const isDev = process.env.NODE_ENV === 'development';
 // Função para verificar se o JWT é válido
 async function verifyJWT(token: string): Promise<boolean> {
   try {
-    const secret = process.env.JWT_SECRET || 'fallback-secret-key';
+    const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.error('🚨 JWT_SECRET não configurado!');
+    throw new Error('JWT_SECRET must be configured');
+  }
     if (isDev) console.log('Middleware: Verificando JWT com secret:', secret);
     if (isDev) console.log('Middleware: Token preview:', token.substring(0, 20) + '...');
     
@@ -79,11 +83,7 @@ export async function middleware(request: NextRequest) {
   
   if (isDev) console.log('Middleware: Status de autenticação:', isAuthenticated)
 
-  // ✅ Exceções para páginas de debug e fix - permitir acesso sem autenticação
-  if (pathname === '/dashboard-debug' || pathname === '/simple-debug' || pathname === '/debug-token' || pathname === '/fix-loop.html' || pathname === '/ultimate-fix.html' || pathname === '/emergency-stop.html' || pathname === '/stop-loop-now.html' || pathname === '/stop-loop-simple.html') {
-    if (isDev) console.log('Middleware: Permitindo acesso à página de debug/fix/emergency/stop-loop')
-    return NextResponse.next();
-  }
+  // ✅ SECURITY FIX: Removidas exceções para páginas de debug - todas páginas precisam de autenticação
 
   // Rotas que requerem autenticação
   const protectedRoutes = ['/dashboard', '/conversas', '/agendamentos', '/monitoring', '/clientes', '/analytics', '/relatorios', '/configuracoes', '/perfil', '/suporte', '/horarios-bloqueados', '/exportar-relatorios'];
