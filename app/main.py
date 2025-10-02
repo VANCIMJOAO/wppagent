@@ -296,6 +296,12 @@ async def health():
         import os
         import sys
         
+        # Force immediate output for Railway
+        print("🔍 Health check iniciado", flush=True)
+        print(f"🔍 PORT: {os.getenv('PORT', '8000')}", flush=True)
+        print(f"🔍 RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'unknown')}", flush=True)
+        print(f"🔍 PYTHON_VERSION: {sys.version}", flush=True)
+        
         # Log detalhado para debugging
         logger.info("🔍 Health check iniciado")
         logger.info(f"🔍 PORT: {os.getenv('PORT', '8000')}")
@@ -317,6 +323,7 @@ async def health():
             }
         }
         
+        print("✅ Health check concluído com sucesso", flush=True)
         logger.info("✅ Health check concluído com sucesso")
         return health_data
         
@@ -352,17 +359,58 @@ async def railway_health():
     """Endpoint ULTRA SIMPLES para Railway - SEM MIDDLEWARE"""
     import os
     import sys
+    
+    # Force immediate output for Railway
+    print("🔍 Railway health check called", flush=True)
+    print(f"🔍 Current time: {datetime.now().isoformat()}", flush=True)
+    
     return {
         "status": "ok", 
         "railway": True,
+        "timestamp": datetime.now().isoformat(),
         "debug": {
             "port": os.getenv('PORT', '8000'),
             "railway_env": os.getenv('RAILWAY_ENVIRONMENT', 'unknown'),
             "python_version": sys.version.split()[0],
             "platform": sys.platform,
             "working_dir": os.getcwd(),
-            "fast_start": os.getenv('RAILWAY_FAST_START', 'false')
+            "fast_start": os.getenv('RAILWAY_FAST_START', 'false'),
+            "python_unbuffered": os.getenv('PYTHONUNBUFFERED', 'not set')
         }
+    }
+
+@app.get("/debug")
+async def debug_info():
+    """Debug endpoint with comprehensive system information"""
+    import os
+    import sys
+    import platform
+    
+    print("🔍 Debug endpoint called", flush=True)
+    
+    return {
+        "status": "debug",
+        "timestamp": datetime.now().isoformat(),
+        "system": {
+            "python_version": sys.version,
+            "platform": sys.platform,
+            "platform_version": platform.version(),
+            "architecture": platform.architecture(),
+            "machine": platform.machine(),
+            "processor": platform.processor(),
+            "working_directory": os.getcwd(),
+            "python_executable": sys.executable
+        },
+        "environment": {
+            "port": os.getenv('PORT', '8000'),
+            "railway_environment": os.getenv('RAILWAY_ENVIRONMENT', 'unknown'),
+            "railway_fast_start": os.getenv('RAILWAY_FAST_START', 'false'),
+            "pythonunbuffered": os.getenv('PYTHONUNBUFFERED', 'not set'),
+            "python_dont_write_bytecode": os.getenv('PYTHONDONTWRITEBYTECODE', 'not set'),
+            "railway_project_id": os.getenv('RAILWAY_PROJECT_ID', 'not set'),
+            "railway_service_id": os.getenv('RAILWAY_SERVICE_ID', 'not set')
+        },
+        "all_env_vars": dict(os.environ)
     }
 
 @app.get("/status")
@@ -1889,16 +1937,49 @@ if __name__ == "__main__":
     import os
     import sys
     
-    # Logs detalhados de startup
-    print("🚀 Iniciando WhatsApp Agent API...")
-    print(f"🔍 Python version: {sys.version}")
-    print(f"🔍 Platform: {sys.platform}")
-    print(f"🔍 Working directory: {os.getcwd()}")
-    print(f"🔍 Environment variables:")
+    # Force immediate output for Railway
+    sys.stdout.flush()
+    sys.stderr.flush()
+    
+    # Logs detalhados de startup - Railway optimized
+    print("🚀 Iniciando WhatsApp Agent API...", flush=True)
+    print(f"🔍 Python version: {sys.version}", flush=True)
+    print(f"🔍 Platform: {sys.platform}", flush=True)
+    print(f"🔍 Working directory: {os.getcwd()}", flush=True)
+    print(f"🔍 Environment variables:", flush=True)
     for key in ['PORT', 'RAILWAY_ENVIRONMENT', 'RAILWAY_FAST_START', 'PYTHONUNBUFFERED']:
-        print(f"   {key}: {os.getenv(key, 'NOT SET')}")
+        print(f"   {key}: {os.getenv(key, 'NOT SET')}", flush=True)
     
     port = int(os.getenv("PORT", 8000))
-    print(f"🔍 Starting server on port: {port}")
+    print(f"🔍 Starting server on port: {port}", flush=True)
     
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True, log_level="info")
+    # Railway-specific logging configuration
+    uvicorn.run(
+        "main:app", 
+        host="0.0.0.0", 
+        port=port, 
+        reload=False,  # Disable reload for production
+        log_level="info",
+        access_log=True,
+        use_colors=False,  # Disable colors for Railway logs
+        log_config={
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "default": {
+                    "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
+                },
+            },
+            "handlers": {
+                "default": {
+                    "formatter": "default",
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",
+                },
+            },
+            "root": {
+                "level": "INFO",
+                "handlers": ["default"],
+            },
+        }
+    )
