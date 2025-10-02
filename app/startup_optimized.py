@@ -37,7 +37,13 @@ async def lifespan(app: FastAPI):
     """Gerenciamento do ciclo de vida da aplicação otimizado"""
     RAILWAY_FAST_START = os.getenv('RAILWAY_FAST_START', 'false').lower() == 'true'
     
-    # Log de início do startup
+    # Log detalhado de início do startup
+    print("🚀 LIFESPAN: Iniciando WhatsApp Agent API...")
+    print(f"🔍 LIFESPAN: RAILWAY_FAST_START = {RAILWAY_FAST_START}")
+    print(f"🔍 LIFESPAN: PORT = {os.getenv('PORT', '8000')}")
+    print(f"🔍 LIFESPAN: RAILWAY_ENVIRONMENT = {os.getenv('RAILWAY_ENVIRONMENT', 'unknown')}")
+    print(f"🔍 LIFESPAN: PYTHONUNBUFFERED = {os.getenv('PYTHONUNBUFFERED', 'not set')}")
+    
     log_system_event("startup", "WhatsApp Agent API starting", 
                     railway_fast_start=RAILWAY_FAST_START,
                     port=os.getenv('PORT', '8000'),

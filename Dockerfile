@@ -26,9 +26,9 @@ USER app
 # Expose port
 EXPOSE 8000
 
-# Railway-optimized Health check - use /ping to match railway.toml
+# Railway-optimized Health check - use /health endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:' + str(${PORT:-8000}) + '/ping', timeout=5)" || exit 1
+  CMD python -c "import urllib.request, os; port = os.getenv('PORT', '8000'); urllib.request.urlopen(f'http://localhost:{port}/health', timeout=5)" || exit 1
 
-# Start application directly with uvicorn
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info"]
+# Start application with Railway-optimized settings and detailed logging
+CMD ["sh", "-c", "echo 'Starting WhatsApp Agent API...' && echo 'PORT='$PORT && echo 'RAILWAY_ENVIRONMENT='$RAILWAY_ENVIRONMENT && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log --timeout-keep-alive 30"]

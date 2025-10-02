@@ -291,8 +291,39 @@ async def railway():
 
 @app.get("/health")
 async def health():
-    """Endpoint Health - BYPASS TOTAL"""
-    return {"status": "healthy", "service": "whatsapp-agent"}
+    """Endpoint Health - Railway Optimized with detailed debugging"""
+    try:
+        import os
+        import sys
+        
+        # Log detalhado para debugging
+        logger.info("🔍 Health check iniciado")
+        logger.info(f"🔍 PORT: {os.getenv('PORT', '8000')}")
+        logger.info(f"🔍 RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'unknown')}")
+        logger.info(f"🔍 PYTHON_VERSION: {sys.version}")
+        
+        # Verificação básica de saúde
+        health_data = {
+            "status": "healthy",
+            "service": "whatsapp-agent",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0",
+            "railway": True,
+            "debug": {
+                "port": os.getenv('PORT', '8000'),
+                "railway_env": os.getenv('RAILWAY_ENVIRONMENT', 'unknown'),
+                "python_version": sys.version.split()[0],
+                "platform": sys.platform
+            }
+        }
+        
+        logger.info("✅ Health check concluído com sucesso")
+        return health_data
+        
+    except Exception as e:
+        logger.error(f"❌ Health check falhou: {str(e)}")
+        # Em caso de erro, retornar erro 500
+        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
 @app.get("/ping")
 async def ping():
@@ -319,7 +350,20 @@ async def healthcheck():
 @app.get("/railway-health")
 async def railway_health():
     """Endpoint ULTRA SIMPLES para Railway - SEM MIDDLEWARE"""
-    return {"status": "ok", "railway": True}
+    import os
+    import sys
+    return {
+        "status": "ok", 
+        "railway": True,
+        "debug": {
+            "port": os.getenv('PORT', '8000'),
+            "railway_env": os.getenv('RAILWAY_ENVIRONMENT', 'unknown'),
+            "python_version": sys.version.split()[0],
+            "platform": sys.platform,
+            "working_dir": os.getcwd(),
+            "fast_start": os.getenv('RAILWAY_FAST_START', 'false')
+        }
+    }
 
 @app.get("/status")
 async def status():
@@ -1843,5 +1887,18 @@ async def periodic_cleanup():
 
 if __name__ == "__main__":
     import os
+    import sys
+    
+    # Logs detalhados de startup
+    print("🚀 Iniciando WhatsApp Agent API...")
+    print(f"🔍 Python version: {sys.version}")
+    print(f"🔍 Platform: {sys.platform}")
+    print(f"🔍 Working directory: {os.getcwd()}")
+    print(f"🔍 Environment variables:")
+    for key in ['PORT', 'RAILWAY_ENVIRONMENT', 'RAILWAY_FAST_START', 'PYTHONUNBUFFERED']:
+        print(f"   {key}: {os.getenv(key, 'NOT SET')}")
+    
     port = int(os.getenv("PORT", 8000))
+    print(f"🔍 Starting server on port: {port}")
+    
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True, log_level="info")

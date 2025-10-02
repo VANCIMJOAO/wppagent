@@ -11,6 +11,7 @@ healthcheckTimeout = 300
 # ✅ RAILWAY FIX: /health é melhor que /ping para healthcheck
 restartPolicyType = "ON_FAILURE" 
 restartPolicyMaxRetries = 5
+# Debug endpoints available: /health, /ping, /railway-health, /healthcheck
 
 [env]
 # Railway auto-provides PORT, but we can set defaults
