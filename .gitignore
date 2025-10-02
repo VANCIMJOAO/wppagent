@@ -23,6 +23,7 @@ MANIFEST
 
 # Virtual Environment
 venv/
+.venv/
 env/
 ENV/
 env.bak/
@@ -43,7 +44,8 @@ venv.bak/
 *~
 
 # Logs
-logs/
+logs/*
+!logs/.gitkeep
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -164,7 +166,8 @@ temp/
 .railway/
 
 # Secrets
-secrets/
+secrets/*
+!secrets/.gitkeep
 *.key
 *.pem
 *.crt
@@ -173,26 +176,40 @@ secrets/
 config/local.*
 *.local
 
-# Archive files (keep structure but ignore content)
-archive/*
-!archive/.gitkeep
+# Backup and archive directories (ignore content)
+backup/*
+!backup/.gitkeep
+archive/
+backups/
 
-# Keep essential archive structure
-!archive/
-!archive/corrections/
-!archive/tests/
-!archive/debug/
-!archive/reports/
-!archive/websocket/
+# Environment files (except templates)
+.env*
+!.env.example
+!.env.template
 
-# But ignore content of archive subdirectories
-archive/corrections/*
-archive/tests/*
-archive/debug/*
-archive/reports/*
-archive/websocket/*
-!archive/corrections/.gitkeep
-!archive/tests/.gitkeep
-!archive/debug/.gitkeep
-!archive/reports/.gitkeep
-!archive/websocket/.gitkeep
+# Test and debug files
+test_*.py
+debug_*.py
+*_test.py
+*_debug.*
+edge_cases_*
+simple_*.py
+websocket_*.py
+*_validation_*
+manual_*.py
+quick_*.py
+send_*.py
+check_*.html
+*.html
+cookies*.txt
+
+# Playwright and test results
+nextjs_dashboard/playwright-report/
+nextjs_dashboard/test-results/
+nextjs_dashboard/.env.*
+
+# Large files that shouldn't be in git
+*.webm
+*.mp4
+*.avi
+*.mov
