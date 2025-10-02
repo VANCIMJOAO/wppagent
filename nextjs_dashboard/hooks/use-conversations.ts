@@ -64,6 +64,11 @@ export function useConversations() {
       
       console.log('🔍 Resposta completa da API:', apiResponse);
       
+      // ✅ Verificar se há erro de autenticação
+      if (apiResponse.error && apiResponse.status === 401) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+      }
+      
       // ✅ Extrair dados da estrutura aninhada { success: true, data: { conversations: [...] } }
       const data = apiResponse.data || apiResponse;
       

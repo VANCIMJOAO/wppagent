@@ -9,7 +9,7 @@ como otimização de banco de dados, monitoramento avançado, etc.
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -30,7 +30,7 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 # Configuração de segurança
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__max_rounds=12)
 security = HTTPBearer()
 
 # Configurações JWT - usando JWT Manager
@@ -81,6 +81,9 @@ class RefreshResponse(BaseModel):
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifica se a senha está correta"""
+    # Truncar senha se for muito longa (limite do bcrypt é 72 bytes)
+    if len(plain_password.encode('utf-8')) > 72:
+        plain_password = plain_password[:72]
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -216,6 +219,69 @@ async def get_current_admin_user(
     try:
         token = credentials.credentials
         # Usar nosso JWT Manager em vez de jose.jwt
+        payload = jwt_manager.verify_token(token)
+
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+
+        # Verificar se é token de acesso
+        if payload.get("type") != "access":
+            raise credentials_exception
+
+    except Exception as e:
+        logger.error(f"❌ Erro ao verificar token: {e}")
+        raise credentials_exception
+
+    # Buscar admin por ID em vez de username
+    try:
+        result = await session.execute(
+            select(AdminUser).where(AdminUser.id == int(user_id))
+        )
+        admin_user = result.scalar_one_or_none()
+    except Exception as e:
+        logger.error(f"❌ Erro ao buscar admin por ID {user_id}: {e}")
+        admin_user = None
+
+    if admin_user is None:
+        raise credentials_exception
+
+    if not admin_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário inativo"
+        )
+
+    return admin_user
+
+
+async def get_current_admin_user_with_cookies(
+    request: Request,
+    session: AsyncSession = Depends(get_db),
+) -> AdminUser:
+    """Obtém o usuário admin atual via token JWT (suporte a cookies)"""
+
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Credenciais inválidas",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        # Tentar obter token do header Authorization primeiro
+        auth_header = request.headers.get("Authorization")
+        token = None
+        
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+        
+        # Se não encontrou no header, tentar nos cookies
+        if not token:
+            token = request.cookies.get("access_token")
+        
+        if not token:
+            raise credentials_exception
+
+        # Usar nosso JWT Manager
         payload = jwt_manager.verify_token(token)
 
         user_id: str = payload.get("sub")

@@ -63,94 +63,124 @@ class RBACService:
             return False
 
     async def _create_default_permissions(self, session: AsyncSession):
-        """Criar permissões padrão"""
+        """Criar permissões padrão - OTIMIZADO com batch operations"""
+        # Preparar dados para batch insert
+        permissions_data = []
         for perm_type, definition in PERMISSION_DEFINITIONS.items():
-            # Verificar se já existe
-            existing = await session.execute(
-                sa_text("SELECT id FROM rbac_permissions WHERE permission_type = :perm_type"),
-                {"perm_type": perm_type.value}
+            permissions_data.append({
+                "perm_type": perm_type.value,
+                "name": definition.description,
+                "description": definition.description,
+                "category": definition.category.value,
+                "risk_level": definition.risk_level.value,
+                "requires_2fa": definition.requires_2fa,
+                "is_active": True
+            })
+
+        # Batch UPSERT - muito mais eficiente
+        if permissions_data:
+            await session.execute(
+                sa_text("""
+                    INSERT INTO rbac_permissions 
+                    (permission_type, name, description, category, risk_level, requires_2fa, is_active, created_at, updated_at)
+                    VALUES (:perm_type, :name, :description, :category, :risk_level, :requires_2fa, :is_active, NOW(), NOW())
+                    ON CONFLICT (permission_type) DO UPDATE SET
+                        name = EXCLUDED.name,
+                        description = EXCLUDED.description,
+                        category = EXCLUDED.category,
+                        risk_level = EXCLUDED.risk_level,
+                        requires_2fa = EXCLUDED.requires_2fa,
+                        is_active = EXCLUDED.is_active,
+                        updated_at = NOW()
+                """),
+                permissions_data
             )
 
-            if not existing.scalar():
-                await session.execute(
-                    sa_text("""
-                        INSERT INTO rbac_permissions 
-                        (permission_type, name, description, category, risk_level, requires_2fa, is_active, created_at, updated_at)
-                        VALUES (:perm_type, :name, :description, :category, :risk_level, :requires_2fa, :is_active, NOW(), NOW())
-                    """),
-                    {
-                        "perm_type": perm_type.value,
-                        "name": definition.description,
-                        "description": definition.description,
-                        "category": definition.category.value,
-                        "risk_level": definition.risk_level.value,
-                        "requires_2fa": definition.requires_2fa,
-                        "is_active": True
-                    }
-                )
-
         self.logger.info(
-            f"✅ {len(PERMISSION_DEFINITIONS)} permissões criadas/verificadas"
+            f"✅ {len(PERMISSION_DEFINITIONS)} permissões processadas em batch"
         )
 
     async def _create_default_roles(self, session: AsyncSession):
-        """Criar roles padrão"""
+        """Criar roles padrão - OTIMIZADO com batch operations"""
+        # Preparar dados para batch insert
+        roles_data = []
         for role_type, config in ROLE_CONFIGURATIONS.items():
             role_type_value = role_type.value if hasattr(role_type, 'value') else role_type
-            # Verificar se já existe
-            existing = await session.execute(
-                sa_text("SELECT id FROM rbac_roles WHERE role_type = :role_type"),
-                {"role_type": role_type_value}
+            roles_data.append({
+                "name": config["name"],
+                "description": config["description"],
+                "role_type": role_type_value,
+                "is_system_role": config["is_system_role"],
+                "can_be_deleted": config["can_be_deleted"]
+            })
+
+        # Batch UPSERT - muito mais eficiente
+        if roles_data:
+            await session.execute(
+                sa_text("""
+                    INSERT INTO rbac_roles 
+                    (name, description, role_type, is_system_role, can_be_deleted, created_at, updated_at)
+                    VALUES (:name, :description, :role_type, :is_system_role, :can_be_deleted, NOW(), NOW())
+                    ON CONFLICT (role_type) DO UPDATE SET
+                        name = EXCLUDED.name,
+                        description = EXCLUDED.description,
+                        is_system_role = EXCLUDED.is_system_role,
+                        can_be_deleted = EXCLUDED.can_be_deleted,
+                        updated_at = NOW()
+                """),
+                roles_data
             )
 
-            if not existing.scalar():
-                await session.execute(
-                    sa_text("""
-                        INSERT INTO rbac_roles 
-                        (name, description, role_type, is_system_role, can_be_deleted, created_at, updated_at)
-                        VALUES (:name, :description, :role_type, :is_system_role, :can_be_deleted, NOW(), NOW())
-                    """),
-                    {
-                        "name": config["name"],
-                        "description": config["description"],
-                        "role_type": role_type_value,
-                        "is_system_role": config["is_system_role"],
-                        "can_be_deleted": config["can_be_deleted"]
-                    }
-                )
-
-        self.logger.info(f"✅ {len(ROLE_CONFIGURATIONS)} roles criados/verificados")
+        self.logger.info(f"✅ {len(ROLE_CONFIGURATIONS)} roles processados em batch")
 
     async def _assign_role_permissions(self, session: AsyncSession):
-        """Associar permissões aos roles"""
+        """Associar permissões aos roles - OTIMIZADO com batch operations"""
+        # Buscar todos os roles e permissões de uma vez
+        roles_result = await session.execute(
+            sa_text("SELECT id, role_type FROM rbac_roles")
+        )
+        roles_map = {row.role_type: row.id for row in roles_result}
+        
+        permissions_result = await session.execute(
+            sa_text("SELECT id, permission_type FROM rbac_permissions")
+        )
+        permissions_map = {row.permission_type: row.id for row in permissions_result}
+        
+        # Preparar dados para batch insert
+        role_permissions_data = []
         for role_type, config in ROLE_CONFIGURATIONS.items():
             role_type_value = role_type.value if hasattr(role_type, 'value') else role_type
-            # Buscar o role
-            role_result = await session.execute(
-                sa_text("SELECT id FROM rbac_roles WHERE role_type = :role_type"),
-                {"role_type": role_type_value}
-            )
-            role = role_result.scalar()
-
-            if role:
+            role_id = roles_map.get(role_type_value)
+            
+            if role_id:
                 # Limpar permissões existentes
                 await session.execute(
                     sa_text("DELETE FROM role_permissions WHERE role_id = :role_id"),
-                    {"role_id": role}
+                    {"role_id": role_id}
                 )
                 
-                # Adicionar novas permissões
+                # Preparar permissões para este role
                 for perm in config["permissions"]:
                     perm_value = perm.value if hasattr(perm, 'value') else perm
-                    await session.execute(
-                        sa_text("""
-                            INSERT INTO role_permissions (role_id, permission_id)
-                            SELECT :role_id, id FROM rbac_permissions WHERE permission_type = :perm_type
-                        """),
-                        {"role_id": role, "perm_type": perm_value}
-                    )
+                    permission_id = permissions_map.get(perm_value)
+                    if permission_id:
+                        role_permissions_data.append({
+                            "role_id": role_id,
+                            "permission_id": permission_id
+                        })
+        
+        # Batch insert de todas as associações
+        if role_permissions_data:
+            await session.execute(
+                sa_text("""
+                    INSERT INTO role_permissions (role_id, permission_id)
+                    VALUES (:role_id, :permission_id)
+                    ON CONFLICT (role_id, permission_id) DO NOTHING
+                """),
+                role_permissions_data
+            )
 
-        self.logger.info("✅ Permissões associadas aos roles")
+        self.logger.info(f"✅ {len(role_permissions_data)} associações role-permissão processadas em batch")
 
     # ========================================
     # GERENCIAMENTO DE USUÁRIOS

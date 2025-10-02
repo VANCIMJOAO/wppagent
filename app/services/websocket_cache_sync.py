@@ -82,8 +82,7 @@ class WebSocketCacheSync:
                 await websocket.close(code=1013, reason="Too many connections")
                 return False
 
-            # Aceitar conexão
-            await websocket.accept()
+            # Conexão já foi aceita no endpoint
 
             # Armazenar conexão
             self.connections[connection_id] = websocket

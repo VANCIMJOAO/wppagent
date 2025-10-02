@@ -25,6 +25,16 @@ mkdir -p logs
 
 echo "📝 Logs serão salvos em: $LOG_FILE"
 
+# Configurar variáveis de ambiente
+export REDIS_URL="redis://default:SvSHiMNuuQEtmIUgGIEGqPpXsdZeInDG@yamanote.proxy.rlwy.net:14106"
+export DATABASE_URL="postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway"
+export ENVIRONMENT="development"
+export SECRET_KEY="dev-secret-key"
+export JWT_SECRET="dev-jwt-secret"
+export DEBUG="True"
+export ADMIN_USERNAME="admin"
+export ADMIN_PASSWORD="admin123"
+
 # Iniciar servidor em background com nohup
 nohup python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > "$LOG_FILE" 2>&1 &
 

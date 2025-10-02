@@ -47,6 +47,13 @@ export default function DashboardPage() {
     refreshDashboard
   } = useRealAnalytics();
 
+  // DEBUG: Log dashboard data
+  useEffect(() => {
+    console.log('🔍 [Dashboard] dashboardSummary:', dashboardSummary);
+    console.log('🔍 [Dashboard] key_metrics:', dashboardSummary?.key_metrics);
+    console.log('🔍 [Dashboard] loadingDashboard:', loadingDashboard);
+  }, [dashboardSummary, loadingDashboard]);
+
   // Mostrar loading enquanto verifica autenticação
   if (authLoading) {
     return (
@@ -139,7 +146,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {dashboardSummary.key_metrics.total_customers?.toLocaleString() || '0'}
+                  {dashboardSummary.key_metrics?.total_customers?.toLocaleString() || '0'}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Clientes ativos na base
@@ -154,7 +161,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {dashboardSummary.key_metrics.total_conversations?.toLocaleString() || '0'}
+                  {dashboardSummary.key_metrics?.total_conversations?.toLocaleString() || '0'}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Conversas iniciadas
@@ -169,7 +176,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {dashboardSummary.key_metrics.total_appointments?.toLocaleString() || '0'}
+                  {dashboardSummary.key_metrics?.total_appointments?.toLocaleString() || '0'}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Compromissos marcados
@@ -184,7 +191,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {dashboardSummary.key_metrics.overall_conversion_rate?.toFixed(1) || '0.0'}%
+                  {dashboardSummary.key_metrics?.overall_conversion_rate?.toFixed(1) || '0.0'}%
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Conversões realizadas
@@ -205,7 +212,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold mb-2">
-                {dashboardSummary?.key_metrics.avg_response_time_minutes?.toFixed(1) || 'N/A'}
+                {dashboardSummary?.key_metrics?.avg_response_time_minutes?.toFixed(1) || 'N/A'}
                 <span className="text-lg text-gray-500 ml-1">min</span>
               </div>
               <p className="text-sm text-gray-600">
@@ -215,16 +222,16 @@ export default function DashboardPage() {
               {dashboardSummary?.trends && (
                 <div className="mt-4 flex items-center gap-2">
                   <TrendingUp className={`h-4 w-4 ${
-                    (dashboardSummary.trends.responseTime || 0) >= 0
+                    (dashboardSummary.trends?.responseTime || 0) >= 0
                       ? 'text-red-500'
                       : 'text-green-500'
                   }`} />
                   <span className={`text-sm ${
-                    (dashboardSummary.trends.responseTime || 0) >= 0
+                    (dashboardSummary.trends?.responseTime || 0) >= 0
                       ? 'text-red-600'
                       : 'text-green-600'
                   }`}>
-                    {Math.abs(dashboardSummary.trends.responseTime || 0).toFixed(1)}% vs período anterior
+                    {Math.abs(dashboardSummary.trends?.responseTime || 0).toFixed(1)}% vs período anterior
                   </span>
                 </div>
               )}
@@ -240,7 +247,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold mb-2">
-                {dashboardSummary?.key_metrics.satisfaction_score?.toFixed(1) || '0.0'}
+                {dashboardSummary?.key_metrics?.satisfaction_score?.toFixed(1) || '0.0'}
                 <span className="text-lg text-gray-500 ml-1">/5.0</span>
               </div>
               <p className="text-sm text-gray-600">
@@ -250,16 +257,16 @@ export default function DashboardPage() {
               {dashboardSummary?.trends && (
                 <div className="mt-4 flex items-center gap-2">
                   <TrendingUp className={`h-4 w-4 ${
-                    (dashboardSummary.trends.satisfaction || 0) >= 0
+                    (dashboardSummary.trends?.satisfaction || 0) >= 0
                       ? 'text-green-500'
                       : 'text-red-500'
                   }`} />
                   <span className={`text-sm ${
-                    (dashboardSummary.trends.satisfaction || 0) >= 0
+                    (dashboardSummary.trends?.satisfaction || 0) >= 0
                       ? 'text-green-600'
                       : 'text-red-600'
                   }`}>
-                    {Math.abs(dashboardSummary.trends.satisfaction || 0).toFixed(1)}% vs período anterior
+                    {Math.abs(dashboardSummary.trends?.satisfaction || 0).toFixed(1)}% vs período anterior
                   </span>
                 </div>
               )}
@@ -295,7 +302,7 @@ export default function DashboardPage() {
 
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               <div>
-                <strong>Mensagens processadas:</strong> {dashboardSummary?.key_metrics.total_messages?.toLocaleString() || '0'}
+                <strong>Mensagens processadas:</strong> {dashboardSummary?.key_metrics?.total_messages?.toLocaleString() || '0'}
               </div>
               <div>
                 <strong>Última atualização:</strong> {format(lastUpdated, "HH:mm", { locale: ptBR })}

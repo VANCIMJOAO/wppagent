@@ -298,7 +298,7 @@ export default function ConfiguracoesPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="empresa" className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <span>Empresa</span>
@@ -318,6 +318,10 @@ export default function ConfiguracoesPage() {
           <TabsTrigger value="seguranca" className="flex items-center space-x-2">
             <Shield className="h-4 w-4" />
             <span>Segurança</span>
+          </TabsTrigger>
+          <TabsTrigger value="lgpd" className="flex items-center space-x-2">
+            <Shield className="h-4 w-4" />
+            <span>LGPD</span>
           </TabsTrigger>
         </TabsList>
 
@@ -776,6 +780,89 @@ export default function ConfiguracoesPage() {
                 <Save className="h-4 w-4 mr-2" />
                 {saving ? 'Salvando...' : 'Salvar Configurações de Segurança'}
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* LGPD Tab */}
+        <TabsContent value="lgpd" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                LGPD - Proteção de Dados
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-blue-900 mb-2">Sistema em Conformidade com a LGPD</h3>
+                <p className="text-blue-800 text-sm">
+                  Nosso sistema está em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018). 
+                  Você pode exercer seus direitos através da interface dedicada.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Shield className="w-6 h-6 text-blue-600" />
+                      <h4 className="font-semibold">Seus Direitos</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Acesse, exporte, corrija ou exclua seus dados pessoais conforme a LGPD.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => window.location.href = '/configuracoes/lgpd'}
+                    >
+                      Acessar Interface LGPD
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-green-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <FileText className="w-6 h-6 text-green-600" />
+                      <h4 className="font-semibold">Política de Privacidade</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Consulte nossa política de privacidade e termos de uso.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => window.location.href = '/configuracoes/lgpd?tab=privacidade'}
+                    >
+                      Ver Política
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-semibold mb-2">Funcionalidades Disponíveis</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Visualização de dados pessoais</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Portabilidade de dados (export)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Exclusão de conta</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Informações sobre direitos</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

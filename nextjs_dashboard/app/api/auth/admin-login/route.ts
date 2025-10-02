@@ -80,15 +80,24 @@ export async function POST(request: NextRequest) {
         }
 
         admin = adminResult[0];
-        console.log('✅ Usuário admin encontrado:', admin.username);
+        console.log('✅ Usuário admin encontrado:', admin?.username);
         
         // Cachear admin para próximas consultas
-        authCache.setCachedAdmin(username, admin);
+        if (admin) {
+          authCache.setCachedAdmin(username, admin);
+        }
       } else {
-        console.log('⚡ Admin encontrado no cache:', admin.username);
+        console.log('⚡ Admin encontrado no cache:', admin?.username);
       }
 
       // Verificar senha (usando bcrypt)
+      if (!admin) {
+        return NextResponse.json(
+          { error: 'Admin não encontrado' },
+          { status: 401 }
+        );
+      }
+      
       const bcrypt = require('bcryptjs');
       const isValidPassword = await bcrypt.compare(password, admin.password_hash);
 

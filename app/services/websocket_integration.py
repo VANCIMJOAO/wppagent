@@ -29,9 +29,9 @@ class WebSocketIntegrationService:
     async def initialize(self):
         """Inicializa o serviço com o WebSocket Manager"""
         try:
-            from app.routes.websocket import websocket_manager
+            from app.services.realtime_websocket_manager import get_realtime_manager
 
-            self.websocket_manager = websocket_manager
+            self.websocket_manager = get_realtime_manager()
             self._initialized = True
             logger.info("✅ WebSocketIntegrationService inicializado com sucesso")
             return True
@@ -85,8 +85,9 @@ class WebSocketIntegrationService:
             }
 
             # Envia via WebSocket para subscribers do evento 'new_message'
-            sent_count = await self.websocket_manager.broadcast_to_event(
-                "new_message", data
+            from app.services.realtime_websocket_manager import RealtimeEventType
+            sent_count = await self.websocket_manager.broadcast_event(
+                RealtimeEventType.NEW_MESSAGE, data
             )
 
             if sent_count > 0:
@@ -129,8 +130,9 @@ class WebSocketIntegrationService:
                 **kwargs,
             }
 
-            sent_count = await self.websocket_manager.broadcast_to_event(
-                "conversation_update", data
+            from app.services.realtime_websocket_manager import RealtimeEventType
+            sent_count = await self.websocket_manager.broadcast_event(
+                RealtimeEventType.CONVERSATION_UPDATED, data
             )
 
             if sent_count > 0:
@@ -181,8 +183,9 @@ class WebSocketIntegrationService:
                 **kwargs,
             }
 
-            sent_count = await self.websocket_manager.broadcast_to_event(
-                "appointment_update", data
+            from app.services.realtime_websocket_manager import RealtimeEventType
+            sent_count = await self.websocket_manager.broadcast_event(
+                RealtimeEventType.APPOINTMENT_UPDATED, data
             )
 
             if sent_count > 0:
@@ -231,8 +234,9 @@ class WebSocketIntegrationService:
                 **kwargs,
             }
 
-            sent_count = await self.websocket_manager.broadcast_to_event(
-                "status_change", data
+            from app.services.realtime_websocket_manager import RealtimeEventType
+            sent_count = await self.websocket_manager.broadcast_event(
+                RealtimeEventType.WHATSAPP_STATUS_CHANGE, data
             )
 
             if sent_count > 0:
@@ -338,6 +342,74 @@ async def notify_message_sent(
         direction="out",
         source="dashboard",
     )
+
+
+async def notify_message_delivered(
+    message_id: str,
+    conversation_id: str = None,
+    user_id: str = None,
+    delivered_at: datetime = None
+):
+    """
+    CORREÇÃO: Função de conveniência para notificar mensagem entregue
+    
+    Args:
+        message_id: ID da mensagem
+        conversation_id: ID da conversa (opcional)
+        user_id: ID do usuário (opcional)
+        delivered_at: Timestamp de entrega (padrão: agora)
+    """
+    if not websocket_integration_service.is_initialized():
+        logger.warning("⚠️ WebSocket não inicializado - notificação de entrega ignorada")
+        return False
+    
+    try:
+        from app.services.realtime_websocket_manager import get_realtime_manager
+        realtime_manager = get_realtime_manager()
+        
+        return await realtime_manager.mark_message_as_delivered(
+            message_id=message_id,
+            conversation_id=conversation_id,
+            user_id=user_id,
+            delivered_at=delivered_at
+        )
+    except Exception as e:
+        logger.error(f"❌ Erro ao notificar entrega da mensagem {message_id}: {e}")
+        return False
+
+
+async def notify_message_read(
+    message_id: str,
+    conversation_id: str = None,
+    user_id: str = None,
+    read_at: datetime = None
+):
+    """
+    CORREÇÃO: Função de conveniência para notificar mensagem lida
+    
+    Args:
+        message_id: ID da mensagem
+        conversation_id: ID da conversa (opcional)
+        user_id: ID do usuário (opcional)
+        read_at: Timestamp de leitura (padrão: agora)
+    """
+    if not websocket_integration_service.is_initialized():
+        logger.warning("⚠️ WebSocket não inicializado - notificação de leitura ignorada")
+        return False
+    
+    try:
+        from app.services.realtime_websocket_manager import get_realtime_manager
+        realtime_manager = get_realtime_manager()
+        
+        return await realtime_manager.mark_message_as_read(
+            message_id=message_id,
+            conversation_id=conversation_id,
+            user_id=user_id,
+            read_at=read_at
+        )
+    except Exception as e:
+        logger.error(f"❌ Erro ao notificar leitura da mensagem {message_id}: {e}")
+        return False
 
 
 async def notify_conversation_status_change(

@@ -44,8 +44,8 @@ const api = {
 
     const data = await response.json()
     // ✅ Normalizar dados para garantir compatibilidade
-    if (data.items) {
-      data.items = normalizeAppointments(data.items)
+    if (data.data) {
+      data.data = normalizeAppointments(data.data)
     }
 
     return data

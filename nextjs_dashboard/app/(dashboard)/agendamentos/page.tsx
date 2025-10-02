@@ -38,7 +38,9 @@ import api from '@/lib/api-service';
 import type { Appointment as ApiAppointment, AppointmentStatus } from '@/types/api';
 import { toast } from 'sonner';
 import { ExportButtons } from '@/components/export-buttons';
-import { useAppointmentsWebSocket } from '@/hooks/useWebSocket';
+import { useWebSocketRobust } from '@/hooks/useWebSocketRobust';
+import AppointmentModal from '@/components/appointments/AppointmentModal';
+import DeleteConfirmationModal from '@/components/appointments/DeleteConfirmationModal';
 
 interface AppointmentStats {
   total: number;
@@ -74,7 +76,9 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
   'cancelado': XCircle,
   'realizado': CheckCircle,
   'pendente': Clock
-};export default function AgendamentosPage() {
+};
+
+export default function AgendamentosPage() {
   const [appointments, setAppointments] = useState<ApiAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -92,35 +96,75 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
     thisMonth: 0
   });
 
+  // Estados para modais
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<ApiAppointment | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Dados para os modais
+  const [clients, setClients] = useState<Array<{ id: number; nome: string; telefone: string }>>([]);
+  const [services, setServices] = useState<Array<{ id: number; name: string; duration_minutes: number; price: number }>>([]);
+
   // WebSocket para atualizações em tempo real
-  const {
-    recentActivity,
-    appointmentCounts,
-    isConnected,
-    connectionStats
-  } = useAppointmentsWebSocket();
+  const { isConnected, error, reconnect } = useWebSocketRobust('ws://localhost:8000/ws');
 
-  // Handle real-time appointment events
-  useEffect(() => {
-    if (recentActivity.length > 0) {
-      const latestActivity = recentActivity[recentActivity.length - 1];
+  // WebSocket irá invalidar o cache automaticamente quando receber eventos
 
-      // Atualizar appointments baseado no evento
-      if (latestActivity.event_type === 'appointment_created') {
-        // Recarregar dados quando um novo agendamento for criado
-        loadData();
-        toast.success('Novo agendamento criado!', {
-          description: `Agendamento para ${latestActivity.data?.client_name || 'cliente'}`
-        });
-      } else if (latestActivity.event_type === 'appointment_updated') {
-        // Recarregar dados quando um agendamento for atualizado
-        loadData();
-        toast.info('Agendamento atualizado!', {
-          description: `Status: ${latestActivity.data?.status || 'atualizado'}`
-        });
+  // Funções para modais
+  const handleOpenAppointmentModal = (appointment?: ApiAppointment) => {
+    setSelectedAppointment(appointment || null);
+    setIsAppointmentModalOpen(true);
+  };
+
+  const handleCloseAppointmentModal = () => {
+    setIsAppointmentModalOpen(false);
+    setSelectedAppointment(null);
+  };
+
+  const handleOpenDeleteModal = (appointment: ApiAppointment) => {
+    setSelectedAppointment(appointment);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedAppointment(null);
+  };
+
+  const handleDeleteAppointment = async () => {
+    if (!selectedAppointment) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/appointments/${selectedAppointment.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao excluir agendamento');
       }
+
+      toast.success('Agendamento excluído com sucesso!');
+      await loadData(); // Recarregar dados
+      handleCloseDeleteModal();
+    } catch (error) {
+      console.error('Erro ao excluir agendamento:', error);
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : 'Erro ao excluir agendamento'
+      );
+    } finally {
+      setIsDeleting(false);
     }
-  }, [recentActivity]);
+  };
+
+  const handleAppointmentSuccess = async () => {
+    await loadData(); // Recarregar dados após criar/editar
+  };
 
   // Load data from API
   async function loadData() {
@@ -133,7 +177,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
       ]);
 
       // Acessa os dados da resposta da API
-      const appointmentsData = appointmentsResponse.data || appointmentsResponse.appointments || [];
+      const appointmentsData = appointmentsResponse.data || [];
       const dashboardData = dashboardResponse.data || {};
 
       // Garantir que appointmentsData é um array
@@ -174,9 +218,85 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
     }
 
     // Load data initially
-    useEffect(() => {
-      loadData();
-    }, []);
+  useEffect(() => {
+    loadData();
+    loadClientsAndServices();
+  }, []);
+
+  // Carregar dados de clientes e serviços para os modais
+  const loadClientsAndServices = async () => {
+    try {
+      console.log('🔍 Carregando dados reais de clientes e serviços...');
+      
+      // Buscar clientes reais do banco
+      const clientsResponse = await fetch('/api/clients?limit=100', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!clientsResponse.ok) {
+        throw new Error(`Erro ao buscar clientes: ${clientsResponse.status}`);
+      }
+
+      const clientsData = await clientsResponse.json();
+      console.log('✅ Clientes carregados:', clientsData.clients?.length || 0);
+      
+      // Buscar serviços reais do banco
+      const servicesResponse = await fetch('/api/services?limit=100', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!servicesResponse.ok) {
+        throw new Error(`Erro ao buscar serviços: ${servicesResponse.status}`);
+      }
+
+      const servicesData = await servicesResponse.json();
+      console.log('✅ Serviços carregados:', servicesData.services?.length || 0);
+
+      // Mapear dados para o formato esperado pelo modal
+      setClients(
+        (clientsData.clients || []).map((client: any) => ({
+          id: client.id,
+          nome: client.nome,
+          telefone: client.telefone,
+        }))
+      );
+
+      setServices(
+        (servicesData.services || []).map((service: any) => ({
+          id: service.id,
+          name: service.name,
+          duration_minutes: service.duration_minutes,
+          price: service.price,
+        }))
+      );
+
+      console.log('✅ Dados reais carregados com sucesso!');
+    } catch (error) {
+      console.error('❌ Erro ao carregar dados para modais:', error);
+      
+      // Fallback para dados mock em caso de erro
+      console.log('🔄 Usando dados de fallback...');
+      setClients([
+        { id: 1, nome: 'João Silva', telefone: '(11) 99999-9999' },
+        { id: 2, nome: 'Maria Santos', telefone: '(11) 88888-8888' },
+        { id: 3, nome: 'Pedro Oliveira', telefone: '(11) 77777-7777' },
+      ]);
+
+      setServices([
+        { id: 1, name: 'Consulta Médica', duration_minutes: 60, price: 150.00 },
+        { id: 2, name: 'Exame de Sangue', duration_minutes: 30, price: 80.00 },
+        { id: 3, name: 'Ultrassom', duration_minutes: 45, price: 200.00 },
+      ]);
+    }
+  };
 
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = appointment.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -240,7 +360,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="appointments-page">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
@@ -252,27 +372,28 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
           <Badge
             variant={isConnected ? "default" : "destructive"}
             className={`flex items-center space-x-2 ${
-              isConnected ? "bg-green-600 hover:bg-green-700" : ""
+              isConnected ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
             }`}
           >
-            {isConnected ? (
-              <>
-                <Wifi className="w-3 h-3" />
-                <span>Tempo Real</span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-3 h-3" />
-                <span>Offline</span>
-              </>
-            )}
+            <Wifi className="w-3 h-3" />
+            <span>{isConnected ? "Conectado" : "Desconectado"}</span>
           </Badge>
           {/* Real-time Activity Counter */}
-          {recentActivity.length > 0 && (
+          <div className="flex items-center space-x-2">
             <Badge variant="outline" className="text-xs">
-              {recentActivity.length} evento{recentActivity.length !== 1 ? 's' : ''} recente{recentActivity.length !== 1 ? 's' : ''}
+              {error ? `Erro: ${error}` : "WebSocket ativo"}
             </Badge>
-          )}
+            {error && (
+              <Button 
+                onClick={reconnect} 
+                size="sm" 
+                variant="outline"
+                className="text-xs"
+              >
+                🔄 Reconectar
+              </Button>
+            )}
+          </div>
         </div>
         <div className="flex items-center space-x-3">
           <ExportButtons
@@ -280,7 +401,7 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
             endDate={new Date().toISOString().split('T')[0]}
             className="bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600"
           />
-          <Button>
+          <Button onClick={() => handleOpenAppointmentModal()}>
             <CalendarPlus className="h-4 w-4 mr-2" />
             Novo Agendamento
           </Button>
@@ -484,13 +605,21 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="flex space-x-1">
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleOpenAppointmentModal(appointment)}
+                            title="Editar agendamento"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleOpenDeleteModal(appointment)}
+                            title="Excluir agendamento"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -597,6 +726,24 @@ const statusIcons: Record<AppointmentStatus, LucideIcon> = {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modais */}
+      <AppointmentModal
+        isOpen={isAppointmentModalOpen}
+        onClose={handleCloseAppointmentModal}
+        onSuccess={handleAppointmentSuccess}
+        appointment={selectedAppointment || undefined}
+        clients={clients}
+        services={services}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleDeleteAppointment}
+        appointment={selectedAppointment || undefined}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

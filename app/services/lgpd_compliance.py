@@ -23,9 +23,9 @@ from sqlalchemy.orm import Session, selectinload
 from ..config import settings
 from ..database import AsyncSessionLocal
 from ..models.database import Appointment, Base, Conversation, Message, User
-from ..services.structured_apm import get_structured_logger
+from ..config.logging_config import get_optimized_logger
 
-logger = get_structured_logger(__name__)
+logger = get_optimized_logger(__name__)
 
 
 class LGPDDataCategory(Enum):

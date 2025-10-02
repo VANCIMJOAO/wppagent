@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Pool } from 'pg';
 
 // Force dynamic rendering for this route since it uses cookies
 export const dynamic = 'force-dynamic';
 
-const RAILWAY_API_URL = process.env.RAILWAY_API_URL || 'https://wppagent-production.up.railway.app';
+// Configuração do banco PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway',
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 export async function GET(request: NextRequest) {
+  let client;
+  
   try {
-    console.log('🔍 API Conversations: Iniciando proxy para Railway');
+    console.log('🔍 API Conversations: Buscando dados reais do PostgreSQL');
 
-    // ✅ Extrair token do cookie HTTP-only
+    // ✅ Extrair token do cookie HTTP-only para validação
     const authToken = request.cookies.get('access_token')?.value;
     console.log('🔍 Token encontrado no cookie:', authToken ? 'Sim' : 'Não');
 
@@ -21,82 +30,138 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // ✅ Extrair query params (limit, offset, etc.)
-    // Usar nextUrl.searchParams ao invés de new URL(request.url) para compatibilidade estática
+    // ✅ Extrair query params
     const searchParams = request.nextUrl.searchParams;
-    const queryString = searchParams.toString();
-    const railwayUrl = `${RAILWAY_API_URL}/conversations/${queryString ? '?' + queryString : ''}`;
+    const limit = parseInt(searchParams.get('limit') || '500');
+    const offset = parseInt(searchParams.get('offset') || '0');
+    const status = searchParams.get('status');
+    const search = searchParams.get('search');
 
-    console.log('🚀 Fazendo requisição para:', railwayUrl);
+    console.log('📊 Parâmetros:', { limit, offset, status, search });
 
-    // ✅ Fazer requisição para o Railway com token
-    const response = await fetch(railwayUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
+    client = await pool.connect();
+    
+    // Query principal para buscar conversas com dados do usuário
+    let conversationsQuery = `
+      SELECT 
+        c.id,
+        c.user_id,
+        c.status,
+        c.last_message_at,
+        c.created_at,
+        c.updated_at,
+        u.nome as user_name,
+        u.telefone as user_phone,
+        COUNT(m.id) as total_messages,
+        (
+          SELECT m2.content 
+          FROM messages m2 
+          WHERE m2.conversation_id = c.id 
+          ORDER BY m2.created_at DESC 
+          LIMIT 1
+        ) as last_message_content,
+        (
+          SELECT m2.created_at 
+          FROM messages m2 
+          WHERE m2.conversation_id = c.id 
+          ORDER BY m2.created_at DESC 
+          LIMIT 1
+        ) as last_message_time
+      FROM conversations c
+      JOIN users u ON c.user_id = u.id
+      LEFT JOIN messages m ON c.id = m.conversation_id
+    `;
 
-    console.log('📡 Resposta do Railway:', response.status, response.statusText);
+    const conditions = [];
+    const params = [];
+    let paramCount = 0;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.log('❌ Erro do Railway:', errorText);
-
-      // Se Railway retornar 401, retornar dados mock
-      if (response.status === 401) {
-        console.log('🔄 Railway não autenticado, retornando dados mock');
-        const mockData = {
-          conversations: [
-            {
-              id: 1,
-              customer_name: "João Silva",
-              customer_phone: "+5511999999999",
-              status: "active",
-              last_message: "Olá, gostaria de saber mais sobre os serviços",
-              last_message_time: new Date().toISOString(),
-              created_at: new Date(Date.now() - 3600000).toISOString(),
-              message_count: 5
-            },
-            {
-              id: 2,
-              customer_name: "Maria Santos",
-              customer_phone: "+5511888888888",
-              status: "closed",
-              last_message: "Obrigada pelo atendimento!",
-              last_message_time: new Date(Date.now() - 7200000).toISOString(),
-              created_at: new Date(Date.now() - 7200000).toISOString(),
-              message_count: 12
-            }
-          ],
-          total: 2,
-          limit: 100,
-          offset: 0
-        };
-
-        return NextResponse.json(mockData, {
-          status: 200,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
-        });
-      }
-
-      return NextResponse.json(
-        { error: `Erro do servidor: ${response.status} ${response.statusText}` },
-        { status: response.status }
-      );
+    // Aplicar filtros
+    if (status) {
+      paramCount++;
+      conditions.push(`c.status = $${paramCount}`);
+      params.push(status);
     }
 
-    // ✅ Retornar dados com CORS headers
-    const data = await response.json();
-    console.log('✅ Dados obtidos:', data ? 'Sim' : 'Não');
+    if (search) {
+      paramCount++;
+      conditions.push(`(u.nome ILIKE $${paramCount} OR u.telefone ILIKE $${paramCount})`);
+      params.push(`%${search}%`);
+    }
 
-    return NextResponse.json(data, {
+    if (conditions.length > 0) {
+      conversationsQuery += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    conversationsQuery += `
+      GROUP BY c.id, u.nome, u.telefone, c.status, c.last_message_at, c.created_at, c.updated_at
+      ORDER BY c.last_message_at DESC
+      LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
+    `;
+    
+    params.push(limit, offset);
+
+    console.log('🔍 Executando query de conversas...');
+    const conversationsResult = await client.query(conversationsQuery, params);
+    
+    // Buscar total de conversas para paginação
+    let totalQuery = `SELECT COUNT(*) as total FROM conversations c JOIN users u ON c.user_id = u.id`;
+    const totalParams = [];
+    let totalParamCount = 0;
+
+    if (status) {
+      totalParamCount++;
+      totalQuery += ` WHERE c.status = $${totalParamCount}`;
+      totalParams.push(status);
+    }
+
+    if (search) {
+      totalParamCount++;
+      const whereClause = totalParamCount === 1 ? ' WHERE' : ' AND';
+      totalQuery += `${whereClause} (u.nome ILIKE $${totalParamCount} OR u.telefone ILIKE $${totalParamCount})`;
+      totalParams.push(`%${search}%`);
+    }
+
+    const totalResult = await client.query(totalQuery, totalParams);
+    const total = parseInt(totalResult.rows[0].total);
+
+    // Formatear resposta
+    const conversations = conversationsResult.rows.map(row => ({
+      id: row.id,
+      user_id: row.user_id,
+      status: row.status,
+      last_message_at: row.last_message_at,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      nome: row.user_name,  // Mapear para nome esperado pelo frontend
+      phone: row.user_phone,  // Mapear para phone esperado pelo frontend
+      message_count: parseInt(row.total_messages) || 0,  // Mapear para message_count
+      unread_messages: 0,  // Placeholder - sem campo is_read
+      last_message: row.last_message_content || "Nenhuma mensagem",  // Usar última mensagem real
+      last_message_time: row.last_message_time || row.last_message_at,  // Usar timestamp real
+    }));
+
+    console.log(`✅ Encontradas ${conversations.length} conversas de ${total} totais`);
+
+    const responseData = {
+      conversations,
+      total,
+      limit,
+      offset,
+      has_more: (offset + conversations.length) < total,
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: conversations,
+      conversations: conversations, // Manter compatibilidade
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: (offset + conversations.length) < total,
+      }
+    }, {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -111,6 +176,10 @@ export async function GET(request: NextRequest) {
       { error: 'Erro interno do servidor' },
       { status: 500 }
     );
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 }
 
@@ -129,7 +198,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ✅ Fazer requisição POST para o Railway
-    const response = await fetch(`${RAILWAY_API_URL}/conversations/`, {
+    const response = await fetch(`${process.env.RAILWAY_API_URL || 'http://localhost:8000'}/conversations/`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${authToken}`,

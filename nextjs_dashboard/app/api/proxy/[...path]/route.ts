@@ -178,7 +178,7 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
 
     // Extrair cookies Set-Cookie do backend para repassar
     const setCookieHeader = response.headers.get('set-cookie');
-    const responseHeaders: HeadersInit = {
+    const responseHeaders: Record<string, string | string[]> = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -200,7 +200,10 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
       
       // Adicionar ao Set-Cookie existente ou criar novo
       if (responseHeaders['Set-Cookie']) {
-        responseHeaders['Set-Cookie'] = [responseHeaders['Set-Cookie'], cookieValue];
+        const existingCookie = responseHeaders['Set-Cookie'];
+        responseHeaders['Set-Cookie'] = Array.isArray(existingCookie) 
+          ? [...existingCookie, cookieValue]
+          : [existingCookie, cookieValue];
       } else {
         responseHeaders['Set-Cookie'] = cookieValue;
       }
@@ -210,7 +213,7 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
 
     return NextResponse.json(data, {
       status: response.status,
-      headers: responseHeaders
+      headers: responseHeaders as HeadersInit
     });
 
   } catch (error) {

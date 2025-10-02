@@ -1,9 +1,9 @@
 /**
  * Compatibility wrapper for api-client
- * Points to archived version to prevent build errors
+ * Points to robust version to prevent build errors
  */
 
-import { apiClient as archiveApiClient } from './archive/api-client';
+import apiService from './api-service-robust';
 
-export const apiClient = archiveApiClient;
+export const apiClient = apiService;
 export default apiClient;

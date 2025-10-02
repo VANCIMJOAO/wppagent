@@ -17,6 +17,18 @@
 
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useCallback, useRef } from 'react'
+import { toast } from 'sonner'
+
+// Helper para converter readyState em texto
+function getReadyStateText(readyState: number): string {
+  switch (readyState) {
+    case WebSocket.CONNECTING: return 'CONNECTING'
+    case WebSocket.OPEN: return 'OPEN'
+    case WebSocket.CLOSING: return 'CLOSING'
+    case WebSocket.CLOSED: return 'CLOSED'
+    default: return 'UNKNOWN'
+  }
+}
 
 // ===== TYPES =====
 
@@ -169,7 +181,7 @@ export function useApiWithInvalidation() {
  */
 export function useWebSocketCacheSync(
   enabled: boolean = true,
-  wsUrl: string = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws/cache-sync'
+  wsUrl: string = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws'
 ) {
   const { invalidateRelatedQueries } = useApiWithInvalidation()
   const wsRef = useRef<WebSocket | null>(null)
@@ -182,17 +194,21 @@ export function useWebSocketCacheSync(
 
     try {
       console.log('🔗 Connecting to WebSocket:', wsUrl)
+      console.log('🔍 Current time:', new Date().toISOString())
+      console.log('🔍 Environment:', {
+        isBrowser: typeof window !== 'undefined',
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
+        protocol: typeof location !== 'undefined' ? location.protocol : 'N/A'
+      })
+      
       const ws = new WebSocket(wsUrl)
+      console.log('🔌 WebSocket object created:', {
+        readyState: ws.readyState,
+        readyStateText: getReadyStateText(ws.readyState),
+        url: ws.url,
+        protocol: ws.protocol
+      })
 
-      ws.onopen = () => {
-        console.log('✅ WebSocket connected for cache sync')
-
-        // Enviar mensagem de inicialização
-        ws.send(JSON.stringify({
-          type: 'subscribe',
-          events: ['all'] // Se inscrever em todos os eventos
-        }))
-      }
 
       ws.onmessage = (event) => {
         try {
@@ -213,6 +229,9 @@ export function useWebSocketCacheSync(
 
           else if (message.type === 'connection_established') {
             console.log('🔌 WebSocket connection established:', message)
+            toast.success('🔌 Conectado em tempo real', {
+              description: 'Notificações ativas'
+            })
           }
 
           else if (message.type === 'heartbeat') {
@@ -220,6 +239,41 @@ export function useWebSocketCacheSync(
             if (ws.readyState === WebSocket.OPEN) {
               ws.send(JSON.stringify({ type: 'ping', timestamp: new Date().toISOString() }))
             }
+          }
+
+          // Tratar eventos de agendamento
+          else if (message.type === 'appointment_created') {
+            console.log('📅 Novo agendamento:', message)
+            toast.success('📅 Novo agendamento criado!', {
+              description: message.data?.client_name ? `Para: ${message.data.client_name}` : 'Novo agendamento'
+            })
+            // Invalidar cache de agendamentos
+            invalidateRelatedQueries('appointment_created', message.data?.id)
+          }
+
+          else if (message.type === 'appointment_updated') {
+            console.log('✏️ Agendamento atualizado:', message)
+            toast.info('✏️ Agendamento atualizado!', {
+              description: message.data?.client_name ? `${message.data.client_name} - ${message.data.status}` : 'Agendamento atualizado'
+            })
+            // Invalidar cache de agendamentos
+            invalidateRelatedQueries('appointment_updated', message.data?.id)
+          }
+
+          else if (message.type === 'appointment_cancelled') {
+            console.log('❌ Agendamento cancelado:', message)
+            toast.error('❌ Agendamento cancelado', {
+              description: message.data?.client_name ? `Cliente: ${message.data.client_name}` : 'Agendamento cancelado'
+            })
+            // Invalidar cache de agendamentos
+            invalidateRelatedQueries('appointment_cancelled', message.data?.id)
+          }
+
+          else if (message.type === 'system_notification') {
+            console.log('🔔 Notificação do sistema:', message)
+            toast.info('🔔 Notificação', {
+              description: message.data?.title || message.data?.message || 'Nova notificação'
+            })
           }
 
         } catch (error) {
@@ -240,7 +294,49 @@ export function useWebSocketCacheSync(
       }
 
       ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', error)
+        console.error('❌ WebSocket error:', {
+          error,
+          errorType: typeof error,
+          errorKeys: error ? Object.keys(error) : 'null',
+          url: wsUrl,
+          readyState: ws.readyState,
+          readyStateText: getReadyStateText(ws.readyState),
+          timestamp: new Date().toISOString()
+        })
+        
+        // Tentar obter mais informações do erro
+        if (error && error.target) {
+          console.error('❌ Error target:', error.target)
+          console.error('❌ Error target readyState:', (error.target as WebSocket)?.readyState)
+        }
+      }
+
+      // Timeout para conexão
+      const connectionTimeout = setTimeout(() => {
+        if (ws.readyState === WebSocket.CONNECTING) {
+          console.warn('⏰ WebSocket connection timeout')
+          ws.close()
+        }
+      }, 10000) // 10 segundos
+
+      ws.onopen = () => {
+        clearTimeout(connectionTimeout)
+        console.log('✅ WebSocket connected for cache sync')
+        console.log('🔍 Connection details:', {
+          url: wsUrl,
+          readyState: ws.readyState,
+          timestamp: new Date().toISOString()
+        })
+
+        // Enviar mensagem de inicialização
+        ws.send(JSON.stringify({
+          type: 'subscribe',
+          events: ['all'] // Se inscrever em todos os eventos
+        }))
+      }
+
+      ws.onclose = () => {
+        clearTimeout(connectionTimeout)
       }
 
       wsRef.current = ws

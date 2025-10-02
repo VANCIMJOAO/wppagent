@@ -60,7 +60,7 @@ def configure_enhanced_openapi(app: FastAPI) -> None:
                 description=app.description,
                 routes=app.routes,
                 servers=app.servers,
-                tags=app.tags_metadata,
+                tags=app.openapi_tags,
             )
         except Exception as e:
             logger.error(f"❌ Erro ao gerar OpenAPI schema: {e}")
@@ -365,7 +365,7 @@ This API uses **JWT tokens with HttpOnly cookies** for maximum security:
         },
         {"url": "http://localhost:8000", "description": "Development server"},
     ],
-    "tags_metadata": [
+    "openapi_tags": [
         {
             "name": "Authentication",
             "description": "🔐 User authentication, 2FA, JWT token management",

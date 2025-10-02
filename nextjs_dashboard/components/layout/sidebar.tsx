@@ -18,7 +18,10 @@ import {
   UserX,
   Activity,
   Menu,
-  X
+  X,
+  Shield,
+  MessageSquare,
+  Database
 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -238,6 +241,30 @@ export default function Sidebar({ children }: SidebarProps) {
       icon: Settings,
       href: '/configuracoes',
       description: 'Sistema'
+    },
+    {
+      id: 'admin-usuarios',
+      label: 'Gestão de Usuários',
+      icon: Shield,
+      href: '/admin/usuarios',
+      description: 'Admin',
+      adminOnly: true
+    },
+    {
+      id: 'templates',
+      label: 'Templates WhatsApp',
+      icon: MessageSquare,
+      href: '/configuracoes/templates',
+      description: 'Admin',
+      adminOnly: true
+    },
+    {
+      id: 'admin-backup',
+      label: 'Gestão de Backups',
+      icon: Database,
+      href: '/admin/backup',
+      description: 'Admin',
+      adminOnly: true
     }
   ]
 
@@ -365,7 +392,13 @@ export default function Sidebar({ children }: SidebarProps) {
             </h3>
 
             <div className="space-y-1 md:space-y-2">
-              {menuItems.map((item) => {
+              {menuItems.filter(item => {
+                // Filtrar itens admin se o usuário não for admin
+                if (item.adminOnly && user?.role !== 'admin') {
+                  return false;
+                }
+                return true;
+              }).map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href
 

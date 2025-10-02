@@ -1,479 +1,440 @@
 """
-Analytics Routes - Endpoints para dashboard de business intelligence
-Fornece APIs REST para análises avançadas do WhatsApp Agent
+Analytics Endpoints - SPRINT 3
+Endpoints otimizados para analytics calculados no backend
 """
 
 from datetime import datetime, timedelta
-from typing import Optional
-
+from typing import Dict, List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text, func, and_, or_
+from sqlalchemy.orm import Session
 
-from app.auth.middleware import get_current_user  # 🔧 Usar middleware unificado
-from app.database import get_db
-from app.services.analytics_engine import AdvancedAnalyticsEngine
-from app.utils.logger import get_logger
+from ..database import get_db
+from ..services.cache_service import cache_service
+from ..config.logging_config import get_optimized_logger
 
-logger = get_logger(__name__)
-router = APIRouter(prefix="/analytics", tags=["Advanced Analytics"])
+logger = get_optimized_logger(__name__)
+router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
 
 
 @router.get("/funnel")
-async def get_conversion_funnel_analysis(
-    start_date: Optional[datetime] = Query(
-        default=None, description="Data início (ISO format). Default: 30 dias atrás"
-    ),
-    end_date: Optional[datetime] = Query(
-        default=None, description="Data fim (ISO format). Default: hoje"
-    ),
-    session: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user),  # 🔧 Usar middleware
+async def get_conversion_funnel(
+    start_date: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="Data final (YYYY-MM-DD)"),
+    db: Session = Depends(get_db)
 ):
     """
-    📊 Análise completa do funil de conversão
-
-    Retorna:
-    - Número de usuários em cada etapa do funil
-    - Taxas de conversão entre etapas
-    - Análise de drop-off
-    - Recomendações de otimização
+    📊 Funil de Conversão
+    
+    Retorna o funil de conversão: Lead → Interessado → Negociação → Cliente
+    com taxas de conversão entre estágios.
     """
-    logger.info(f"🔍 User {current_user['user_id']} solicitou análise do funil")
-
+    cache_key = f"analytics:funnel:{start_date}:{end_date}"
+    
+    # Verificar cache primeiro
+    cached_result = await cache_service.get(cache_key)
+    if cached_result:
+        logger.info("Analytics funnel served from cache", cache_key=cache_key)
+        return cached_result
+    
     try:
-        # Define período padrão se não fornecido
-        if not end_date:
-            end_date = datetime.now()
-        if not start_date:
-            start_date = end_date - timedelta(days=30)
-
-        # Validar período
-        if start_date >= end_date:
-            raise HTTPException(
-                status_code=400, detail="Data início deve ser anterior à data fim"
+        # Construir filtros de data
+        date_filters = []
+        if start_date:
+            date_filters.append(text("c.created_at >= :start_date"))
+        if end_date:
+            date_filters.append(text("c.created_at <= :end_date"))
+        
+        date_where = " AND ".join(date_filters) if date_filters else "1=1"
+        
+        # Query otimizada para funil de conversão
+        funnel_query = text(f"""
+            WITH conversation_stages AS (
+                SELECT 
+                    c.id,
+                    c.status,
+                    c.created_at,
+                    CASE 
+                        WHEN c.status = 'new' THEN 'Lead'
+                        WHEN c.status = 'active' THEN 'Interessado'
+                        WHEN c.status = 'negotiation' THEN 'Negociação'
+                        WHEN c.status = 'closed' AND c.outcome = 'success' THEN 'Cliente'
+                        WHEN c.status = 'closed' AND c.outcome != 'success' THEN 'Perdido'
+                        ELSE 'Outros'
+                    END as stage
+                FROM conversations c
+                WHERE {date_where}
+            ),
+            stage_counts AS (
+                SELECT 
+                    stage,
+                    COUNT(*) as count,
+                    MIN(created_at) as first_occurrence,
+                    MAX(created_at) as last_occurrence
+                FROM conversation_stages
+                GROUP BY stage
             )
-
-        if (end_date - start_date).days > 365:
-            raise HTTPException(status_code=400, detail="Período máximo: 365 dias")
-
-        analytics = AdvancedAnalyticsEngine(session)
-        result = await analytics.get_conversion_funnel(start_date, end_date)
-
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-
-        logger.info(
-            f"✅ Funil analisado: {result['conversion_rates']['overall_conversion']:.1f}% conversão"
-        )
-        return {
-            "status": "success",
-            "data": result,
-            "message": f"Funil analisado para período de {(end_date - start_date).days} dias",
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ Erro na análise do funil: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
-
-
-@router.get("/time-analysis")
-async def get_time_based_analytics(
-    days: int = Query(30, le=365, ge=1, description="Período em dias (1-365)"),
-    session: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user),  # 🔧 Usar middleware
-):
-    """
-    🕐 Análise temporal detalhada de atividade
-
-    Retorna:
-    - Padrões por hora do dia
-    - Atividade por dia da semana
-    - Tendências diárias
-    - Insights e recomendações
-    """
-    logger.info(
-        f"🕐 User {current_user['user_id']} solicitou análise temporal - {days} dias"
-    )
-
-    try:
-        analytics = AdvancedAnalyticsEngine(session)
-        result = await analytics.get_time_based_analytics(days)
-
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-
-        # Estatísticas do resultado
-        total_messages = sum(
-            h.get("messages", 0) for h in result.get("hourly_patterns", [])
-        )
-        peak_hour = max(
-            result.get("hourly_patterns", []),
-            key=lambda x: x.get("messages", 0),
-            default={},
-        )
-
-        logger.info(
-            f"✅ Análise temporal concluída: {total_messages} mensagens, pico às {peak_hour.get('hour', 'N/A')}h"
-        )
-        return {
-            "status": "success",
-            "data": result,
+            SELECT 
+                stage,
+                count,
+                first_occurrence,
+                last_occurrence,
+                ROUND(
+                    (count::float / SUM(count) OVER()) * 100, 2
+                ) as percentage_of_total
+            FROM stage_counts
+            ORDER BY 
+                CASE stage
+                    WHEN 'Lead' THEN 1
+                    WHEN 'Interessado' THEN 2
+                    WHEN 'Negociação' THEN 3
+                    WHEN 'Cliente' THEN 4
+                    WHEN 'Perdido' THEN 5
+                    ELSE 6
+                END
+        """)
+        
+        params = {}
+        if start_date:
+            params['start_date'] = start_date
+        if end_date:
+            params['end_date'] = end_date
+        
+        result = db.execute(funnel_query, params).fetchall()
+        
+        # Calcular taxas de conversão
+        stages = [dict(row._mapping) for row in result]
+        total_leads = next((s['count'] for s in stages if s['stage'] == 'Lead'), 0)
+        
+        conversion_rates = []
+        for i, stage in enumerate(stages):
+            if i == 0:  # Primeiro estágio
+                conversion_rates.append(100.0)
+            else:
+                prev_count = stages[i-1]['count']
+                current_count = stage['count']
+                rate = (current_count / prev_count * 100) if prev_count > 0 else 0
+                conversion_rates.append(round(rate, 2))
+        
+        # Adicionar taxas de conversão aos dados
+        for i, stage in enumerate(stages):
+            stage['conversion_rate'] = conversion_rates[i]
+        
+        response_data = {
+            "funnel": stages,
             "summary": {
-                "total_messages_analyzed": total_messages,
-                "peak_hour": peak_hour.get("hour", None),
-                "analysis_period_days": days,
+                "total_conversations": sum(s['count'] for s in stages),
+                "total_leads": total_leads,
+                "total_clients": next((s['count'] for s in stages if s['stage'] == 'Cliente'), 0),
+                "overall_conversion_rate": round(
+                    (next((s['count'] for s in stages if s['stage'] == 'Cliente'), 0) / total_leads * 100) 
+                    if total_leads > 0 else 0, 2
+                )
             },
+            "generated_at": datetime.utcnow().isoformat(),
+            "cache_ttl": 300  # 5 minutos
         }
-
+        
+        # Cache por 5 minutos
+        await cache_service.set(cache_key, response_data, ttl=300)
+        
+        logger.info("Analytics funnel calculated", 
+                   total_conversations=response_data['summary']['total_conversations'],
+                   overall_conversion_rate=response_data['summary']['overall_conversion_rate'])
+        
+        return response_data
+        
     except Exception as e:
-        logger.error(f"❌ Erro na análise temporal: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+        logger.error("Error calculating conversion funnel", error=str(e), error_type=type(e).__name__)
+        raise HTTPException(status_code=500, detail=f"Error calculating conversion funnel: {str(e)}")
 
 
-@router.get("/customer-insights")
-async def get_customer_insights_analysis(
-    days: int = Query(30, le=365, ge=1, description="Período em dias para análise"),
-    include_detailed: bool = Query(
-        False, description="Incluir detalhes completos dos clientes"
-    ),
-    session: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user),  # 🔧 Usar middleware
+@router.get("/performance")
+async def get_performance_metrics(
+    start_date: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="Data final (YYYY-MM-DD)"),
+    db: Session = Depends(get_db)
 ):
     """
-    👥 Insights detalhados sobre base de clientes
-
-    Retorna:
-    - Clientes VIP (alto valor)
-    - Clientes em churn (inativos)
-    - Prospects de alto valor
-    - Métricas de segmentação
+    ⚡ Métricas de Performance
+    
+    Retorna tempo médio de resposta, taxa de engajamento e satisfação do cliente.
     """
-    logger.info(
-        f"👥 User {current_user['user_id']} solicitou insights de clientes - {days} dias"
-    )
-
+    cache_key = f"analytics:performance:{start_date}:{end_date}"
+    
+    # Verificar cache primeiro
+    cached_result = await cache_service.get(cache_key)
+    if cached_result:
+        logger.info("Analytics performance served from cache", cache_key=cache_key)
+        return cached_result
+    
     try:
-        analytics = AdvancedAnalyticsEngine(session)
-        result = await analytics.get_customer_insights(days)
-
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-
-        # Remover dados sensíveis se não solicitado detalhamento
-        if not include_detailed:
-            for customer_list in [
-                "vip_customers",
-                "churned_customers",
-                "high_value_prospects",
-            ]:
-                for customer in result.get(customer_list, []):
-                    if "phone" in customer:
-                        # Mascarar telefone
-                        phone = customer["phone"]
-                        customer["phone"] = (
-                            phone[:2] + "*" * (len(phone) - 4) + phone[-2:]
-                            if phone and len(phone) > 4
-                            else "***"
-                        )
-
-        summary = result.get("customer_summary", {})
-        logger.info(
-            f"✅ Insights calculados: {summary.get('total_vip', 0)} VIPs, {summary.get('total_prospects', 0)} prospects"
-        )
-
-        return {
-            "status": "success",
-            "data": result,
-            "summary": {
-                "total_segments_analyzed": 3,
-                "total_customers": summary.get("total_vip", 0)
-                + summary.get("total_churned", 0),
-                "analysis_period_days": days,
-                "data_privacy": "enabled" if not include_detailed else "disabled",
-            },
-        }
-
-    except Exception as e:
-        logger.error(f"❌ Erro nos insights de clientes: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
-
-
-@router.get("/business-metrics")
-async def get_business_metrics_analysis(
-    days: int = Query(30, le=365, ge=1, description="Período em dias para análise"),
-    include_financial: bool = Query(
-        True, description="Incluir métricas financeiras detalhadas"
-    ),
-    session: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user),  # 🔧 Usar middleware
-):
-    """
-    💰 Métricas de negócio essenciais
-
-    Retorna:
-    - Revenue metrics (receita, AOV, etc.)
-    - Customer metrics (CAC, LTV, etc.)
-    - Growth metrics (crescimento, tendências)
-    - Efficiency metrics (ROI, conversão)
-    """
-    logger.info(
-        f"💰 User {current_user['user_id']} solicitou métricas de negócio - {days} dias"
-    )
-
-    try:
-        analytics = AdvancedAnalyticsEngine(session)
-        result = await analytics.get_business_metrics(days)
-
-        if "error" in result:
-            raise HTTPException(status_code=500, detail=result["error"])
-
-        # Filtrar métricas financeiras se solicitado
-        if not include_financial:
-            result["revenue_metrics"] = {
-                k: v
-                for k, v in result.get("revenue_metrics", {}).items()
-                if k not in ["total_revenue", "revenue_per_customer"]
-            }
-            result["customer_metrics"]["estimated_marketing_spend"] = "***"
-
-        revenue = result.get("revenue_metrics", {}).get("total_revenue", 0)
-        roi = result.get("efficiency_metrics", {}).get("roi_percentage", 0)
-
-        logger.info(f"✅ Métricas calculadas: R$ {revenue:.2f} receita, {roi:.1f}% ROI")
-
-        return {
-            "status": "success",
-            "data": result,
-            "summary": {
-                "analysis_period_days": days,
-                "revenue_analyzed": revenue if include_financial else "***",
-                "roi_percentage": roi,
-                "financial_details_included": include_financial,
-            },
-        }
-
-    except Exception as e:
-        logger.error(f"❌ Erro nas métricas de negócio: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
-
-
-@router.get("/dashboard-summary")
-async def get_dashboard_summary(
-    days: int = Query(
-        7, le=30, ge=1, description="Período em dias (máx 30 para performance)"
-    ),
-    session: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user),  # 🔧 Usar middleware
-):
-    """
-    🎯 Resumo executivo para dashboard principal
-
-    Combina métricas essenciais de todas as análises em um endpoint otimizado
-    """
-    logger.info(
-        f"🎯 User {current_user['user_id']} solicitou resumo do dashboard - {days} dias"
-    )
-
-    try:
-        analytics = AdvancedAnalyticsEngine(session)
-
-        # Executar análises em paralelo (versões simplificadas)
-        funnel_data = await analytics.get_conversion_funnel(
-            datetime.now() - timedelta(days=days), datetime.now()
-        )
-
-        customer_data = await analytics.get_customer_insights(days)
-        business_data = await analytics.get_business_metrics(days)
-
-        # Compilar resumo executivo
-        summary = {
-            "period": {
-                "days": days,
-                "start_date": (datetime.now() - timedelta(days=days)).isoformat(),
-                "end_date": datetime.now().isoformat(),
-            },
-            "key_metrics": {
-                "overall_conversion_rate": funnel_data.get("conversion_rates", {}).get(
-                    "overall_conversion", 0
-                ),
-                "total_customers": customer_data.get("customer_summary", {}).get(
-                    "total_vip", 0
-                ),
-                "total_revenue": business_data.get("revenue_metrics", {}).get(
-                    "total_revenue", 0
-                ),
-                "roi_percentage": business_data.get("efficiency_metrics", {}).get(
-                    "roi_percentage", 0
-                ),
-            },
-            "alerts": [],
-            "quick_insights": [
-                f"Taxa de conversão: {funnel_data.get('conversion_rates', {}).get('overall_conversion', 0):.1f}%",
-                f"Clientes VIP: {customer_data.get('customer_summary', {}).get('total_vip', 0)}",
-                f"ROI: {business_data.get('efficiency_metrics', {}).get('roi_percentage', 0):.1f}%",
-            ],
-        }
-
-        # Adicionar alertas baseados em métricas
-        conversion_rate = funnel_data.get("conversion_rates", {}).get(
-            "overall_conversion", 0
-        )
-        if conversion_rate < 5:
-            summary["alerts"].append("⚠️ Taxa de conversão baixa - revisar estratégia")
-
-        churn_rate = customer_data.get("customer_summary", {}).get("churn_rate", 0)
-        if churn_rate > 20:
-            summary["alerts"].append("⚠️ Taxa de churn elevada - focar retenção")
-
-        logger.info(
-            f"✅ Resumo gerado: {conversion_rate:.1f}% conversão, {len(summary['alerts'])} alertas"
-        )
-
-        return {
-            "status": "success",
-            "data": summary,
-            "generated_at": datetime.now().isoformat(),
-        }
-
-    except Exception as e:
-        logger.error(f"❌ Erro no resumo do dashboard: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
-
-
-@router.get("/export/{analysis_type}")
-async def export_analytics_data(
-    analysis_type: str,
-    format: str = Query("json", pattern="^(json|csv)$"),
-    days: int = Query(30, le=365, ge=1),
-    session: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user),  # 🔧 Usar middleware
-):
-    """
-    📥 Exportar dados de analytics em diferentes formatos
-
-    Tipos disponíveis: funnel, time-analysis, customer-insights, business-metrics
-    Formatos: json, csv
-    """
-    logger.info(
-        f"📥 User {current_user['user_id']} exportando {analysis_type} - {format}"
-    )
-
-    try:
-        analytics = AdvancedAnalyticsEngine(session)
-
-        # Executar análise baseada no tipo solicitado
-        if analysis_type == "funnel":
-            data = await analytics.get_conversion_funnel(
-                datetime.now() - timedelta(days=days), datetime.now()
+        # Construir filtros de data
+        date_filters = []
+        if start_date:
+            date_filters.append(text("c.created_at >= :start_date"))
+        if end_date:
+            date_filters.append(text("c.created_at <= :end_date"))
+        
+        date_where = " AND ".join(date_filters) if date_filters else "1=1"
+        
+        # Query para métricas de performance
+        performance_query = text(f"""
+            WITH conversation_metrics AS (
+                SELECT 
+                    c.id,
+                    c.status,
+                    c.created_at,
+                    c.updated_at,
+                    c.outcome,
+                    COUNT(m.id) as message_count,
+                    COUNT(CASE WHEN m.sender = 'user' THEN 1 END) as user_messages,
+                    COUNT(CASE WHEN m.sender = 'agent' THEN 1 END) as agent_messages,
+                    EXTRACT(EPOCH FROM (c.updated_at - c.created_at)) as duration_seconds,
+                    CASE 
+                        WHEN c.outcome = 'success' THEN 5
+                        WHEN c.outcome = 'partial' THEN 3
+                        WHEN c.outcome = 'failed' THEN 1
+                        ELSE NULL
+                    END as satisfaction_score
+                FROM conversations c
+                LEFT JOIN messages m ON c.id = m.conversation_id
+                WHERE {date_where}
+                GROUP BY c.id, c.status, c.created_at, c.updated_at, c.outcome
             )
-        elif analysis_type == "time-analysis":
-            data = await analytics.get_time_based_analytics(days)
-        elif analysis_type == "customer-insights":
-            data = await analytics.get_customer_insights(days)
-        elif analysis_type == "business-metrics":
-            data = await analytics.get_business_metrics(days)
+            SELECT 
+                COUNT(*) as total_conversations,
+                AVG(message_count) as avg_messages_per_conversation,
+                AVG(duration_seconds) as avg_response_time_seconds,
+                AVG(satisfaction_score) as avg_satisfaction_score,
+                COUNT(CASE WHEN status = 'active' THEN 1 END) as active_conversations,
+                COUNT(CASE WHEN status = 'closed' THEN 1 END) as closed_conversations,
+                COUNT(CASE WHEN outcome = 'success' THEN 1 END) as successful_conversations,
+                AVG(user_messages::float / NULLIF(message_count, 0)) as user_engagement_rate,
+                AVG(agent_messages::float / NULLIF(message_count, 0)) as agent_engagement_rate
+            FROM conversation_metrics
+        """)
+        
+        params = {}
+        if start_date:
+            params['start_date'] = start_date
+        if end_date:
+            params['end_date'] = end_date
+        
+        result = db.execute(performance_query, params).fetchone()
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="No performance data found")
+        
+        # Calcular métricas derivadas
+        total_conversations = result.total_conversations or 0
+        successful_conversations = result.successful_conversations or 0
+        closed_conversations = result.closed_conversations or 0
+        
+        success_rate = (successful_conversations / closed_conversations * 100) if closed_conversations > 0 else 0
+        engagement_rate = (result.user_engagement_rate or 0) * 100
+        
+        response_data = {
+            "performance_metrics": {
+                "total_conversations": total_conversations,
+                "active_conversations": result.active_conversations or 0,
+                "closed_conversations": closed_conversations,
+                "successful_conversations": successful_conversations,
+                "success_rate_percent": round(success_rate, 2),
+                "avg_messages_per_conversation": round(result.avg_messages_per_conversation or 0, 2),
+                "avg_response_time_seconds": round(result.avg_response_time_seconds or 0, 2),
+                "avg_response_time_minutes": round((result.avg_response_time_seconds or 0) / 60, 2),
+                "avg_satisfaction_score": round(result.avg_satisfaction_score or 0, 2),
+                "user_engagement_rate_percent": round(engagement_rate, 2),
+                "agent_engagement_rate_percent": round((result.agent_engagement_rate or 0) * 100, 2)
+            },
+            "generated_at": datetime.utcnow().isoformat(),
+            "cache_ttl": 300  # 5 minutos
+        }
+        
+        # Cache por 5 minutos
+        await cache_service.set(cache_key, response_data, ttl=300)
+        
+        logger.info("Analytics performance calculated", 
+                   total_conversations=total_conversations,
+                   success_rate=success_rate,
+                   avg_response_time=result.avg_response_time_seconds)
+        
+        return response_data
+        
+    except Exception as e:
+        logger.error("Error calculating performance metrics", error=str(e), error_type=type(e).__name__)
+        raise HTTPException(status_code=500, detail=f"Error calculating performance metrics: {str(e)}")
+
+
+@router.get("/timeseries")
+async def get_timeseries_data(
+    metric: str = Query("conversations", description="Métrica: conversations, messages, revenue, satisfaction"),
+    granularity: str = Query("day", description="Granularidade: hour, day, week, month"),
+    start_date: Optional[str] = Query(None, description="Data inicial (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="Data final (YYYY-MM-DD)"),
+    db: Session = Depends(get_db)
+):
+    """
+    📈 Dados Temporais
+    
+    Retorna dados temporais por métrica com granularidade configurável.
+    """
+    cache_key = f"analytics:timeseries:{metric}:{granularity}:{start_date}:{end_date}"
+    
+    # Verificar cache primeiro
+    cached_result = await cache_service.get(cache_key)
+    if cached_result:
+        logger.info("Analytics timeseries served from cache", cache_key=cache_key)
+        return cached_result
+    
+    try:
+        # Validar parâmetros
+        valid_metrics = ["conversations", "messages", "revenue", "satisfaction"]
+        valid_granularities = ["hour", "day", "week", "month"]
+        
+        if metric not in valid_metrics:
+            raise HTTPException(status_code=400, detail=f"Invalid metric. Must be one of: {valid_metrics}")
+        
+        if granularity not in valid_granularities:
+            raise HTTPException(status_code=400, detail=f"Invalid granularity. Must be one of: {valid_granularities}")
+        
+        # Definir formato de data baseado na granularidade
+        date_formats = {
+            "hour": "%Y-%m-%d %H:00:00",
+            "day": "%Y-%m-%d",
+            "week": "%Y-%m-%d",
+            "month": "%Y-%m-01"
+        }
+        
+        date_format = date_formats[granularity]
+        
+        # Construir filtros de data
+        date_filters = []
+        if start_date:
+            date_filters.append(text("c.created_at >= :start_date"))
+        if end_date:
+            date_filters.append(text("c.created_at <= :end_date"))
+        
+        date_where = " AND ".join(date_filters) if date_filters else "1=1"
+        
+        # Query baseada na métrica
+        if metric == "conversations":
+            timeseries_query = text(f"""
+                SELECT 
+                    TO_CHAR(c.created_at, '{date_format}') as period,
+                    COUNT(*) as value,
+                    COUNT(CASE WHEN c.status = 'closed' AND c.outcome = 'success' THEN 1 END) as successful,
+                    COUNT(CASE WHEN c.status = 'active' THEN 1 END) as active
+                FROM conversations c
+                WHERE {date_where}
+                GROUP BY TO_CHAR(c.created_at, '{date_format}')
+                ORDER BY period
+            """)
+        elif metric == "messages":
+            timeseries_query = text(f"""
+                SELECT 
+                    TO_CHAR(m.created_at, '{date_format}') as period,
+                    COUNT(*) as value,
+                    COUNT(CASE WHEN m.sender = 'user' THEN 1 END) as user_messages,
+                    COUNT(CASE WHEN m.sender = 'agent' THEN 1 END) as agent_messages
+                FROM messages m
+                JOIN conversations c ON m.conversation_id = c.id
+                WHERE {date_where}
+                GROUP BY TO_CHAR(m.created_at, '{date_format}')
+                ORDER BY period
+            """)
         else:
-            raise HTTPException(status_code=400, detail="Tipo de análise inválido")
-
-        if "error" in data:
-            raise HTTPException(status_code=500, detail=data["error"])
-
-        # Para CSV, converter dados complexos em formato tabular
-        if format == "csv":
-            import csv
-            import io
-
-            output = io.StringIO()
-
-            if analysis_type == "funnel":
-                writer = csv.writer(output)
-                writer.writerow(["Etapa", "Quantidade", "Taxa_Conversao"])
-                stages = data.get("funnel_stages", {})
-                rates = data.get("conversion_rates", {})
-
-                writer.writerow(
-                    ["Primeiro Contato", stages.get("first_contact", 0), "100%"]
-                )
-                writer.writerow(
-                    [
-                        "Bot Response",
-                        stages.get("bot_response", 0),
-                        f"{rates.get('contact_to_response', 0):.1f}%",
-                    ]
-                )
-                writer.writerow(
-                    [
-                        "Agendado",
-                        stages.get("scheduled", 0),
-                        f"{rates.get('contact_to_schedule', 0):.1f}%",
-                    ]
-                )
-                writer.writerow(
-                    [
-                        "Confirmado",
-                        stages.get("confirmed", 0),
-                        f"{rates.get('schedule_to_confirm', 0):.1f}%",
-                    ]
-                )
-                writer.writerow(
-                    [
-                        "Realizado",
-                        stages.get("completed", 0),
-                        f"{rates.get('confirm_to_complete', 0):.1f}%",
-                    ]
-                )
-
-            csv_content = output.getvalue()
-            output.close()
-
-            from fastapi.responses import Response
-
-            return Response(
-                content=csv_content,
-                media_type="text/csv",
-                headers={
-                    "Content-Disposition": f"attachment; filename={analysis_type}_{days}days.csv"
-                },
-            )
-
-        # Formato JSON (padrão)
-        return {
-            "status": "success",
-            "analysis_type": analysis_type,
-            "format": format,
-            "period_days": days,
-            "exported_at": datetime.now().isoformat(),
-            "data": data,
+            # Para revenue e satisfaction, usar conversas como base
+            timeseries_query = text(f"""
+                SELECT 
+                    TO_CHAR(c.created_at, '{date_format}') as period,
+                    COUNT(*) as value,
+                    COUNT(CASE WHEN c.outcome = 'success' THEN 1 END) as successful_deals
+                FROM conversations c
+                WHERE {date_where}
+                GROUP BY TO_CHAR(c.created_at, '{date_format}')
+                ORDER BY period
+            """)
+        
+        params = {}
+        if start_date:
+            params['start_date'] = start_date
+        if end_date:
+            params['end_date'] = end_date
+        
+        result = db.execute(timeseries_query, params).fetchall()
+        
+        # Processar dados
+        timeseries_data = []
+        for row in result:
+            data_point = {
+                "period": row.period,
+                "value": float(row.value) if row.value is not None else 0
+            }
+            
+            # Adicionar métricas adicionais baseadas no tipo
+            if metric == "conversations":
+                data_point.update({
+                    "successful": row.successful or 0,
+                    "active": row.active or 0
+                })
+            elif metric == "messages":
+                data_point.update({
+                    "user_messages": row.user_messages or 0,
+                    "agent_messages": row.agent_messages or 0
+                })
+            elif metric in ["revenue", "satisfaction"]:
+                data_point.update({
+                    "successful_deals": row.successful_deals or 0
+                })
+            
+            timeseries_data.append(data_point)
+        
+        response_data = {
+            "metric": metric,
+            "granularity": granularity,
+            "data": timeseries_data,
+            "summary": {
+                "total_points": len(timeseries_data),
+                "total_value": sum(point["value"] for point in timeseries_data),
+                "avg_value": sum(point["value"] for point in timeseries_data) / len(timeseries_data) if timeseries_data else 0
+            },
+            "generated_at": datetime.utcnow().isoformat(),
+            "cache_ttl": 300  # 5 minutos
         }
-
-    except HTTPException:
-        raise
+        
+        # Cache por 5 minutos
+        await cache_service.set(cache_key, response_data, ttl=300)
+        
+        logger.info("Analytics timeseries calculated", 
+                   metric=metric,
+                   granularity=granularity,
+                   data_points=len(timeseries_data))
+        
+        return response_data
+        
     except Exception as e:
-        logger.error(f"❌ Erro na exportação: {e}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+        logger.error("Error calculating timeseries data", error=str(e), error_type=type(e).__name__)
+        raise HTTPException(status_code=500, detail=f"Error calculating timeseries data: {str(e)}")
 
 
-# Health check específico para analytics
 @router.get("/health")
-async def analytics_health_check(session: AsyncSession = Depends(get_db)):
-    """🏥 Health check do sistema de analytics"""
-    try:
-        # Teste básico de conexão com banco
-        from sqlalchemy import func, select
-
-        result = await session.execute(select(func.now()))
-        db_time = result.scalar()
-
-        return {
-            "status": "healthy",
-            "service": "analytics-engine",
-            "database": "connected",
-            "server_time": datetime.now().isoformat(),
-            "database_time": db_time.isoformat() if db_time else None,
-            "version": "1.0.0",
-        }
-    except Exception as e:
-        logger.error(f"❌ Analytics health check failed: {e}")
-        return {"status": "unhealthy", "service": "analytics-engine", "error": str(e)}
+async def analytics_health():
+    """
+    🏥 Health Check dos Analytics
+    
+    Verifica se os endpoints de analytics estão funcionando.
+    """
+    return {
+        "status": "healthy",
+        "service": "analytics",
+        "version": "1.0.0",
+        "endpoints": [
+            "/api/analytics/funnel",
+            "/api/analytics/performance", 
+            "/api/analytics/timeseries"
+        ],
+        "cache_enabled": True,
+        "timestamp": datetime.utcnow().isoformat()
+    }

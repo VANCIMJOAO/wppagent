@@ -13,9 +13,9 @@ from typing import Any, Dict
 import schedule
 
 from ..services.lgpd_compliance import get_lgpd_manager
-from ..services.structured_apm import get_structured_logger
+from ..config.logging_config import get_optimized_logger
 
-logger = get_structured_logger(__name__)
+logger = get_optimized_logger(__name__)
 
 
 class LGPDRetentionScheduler:
@@ -73,11 +73,15 @@ class LGPDRetentionScheduler:
         # Execução a cada 6 horas - Verificação de dados expirados críticos
         schedule.every(6).hours.do(self._run_critical_cleanup)
 
-        logger.info("📅 Agendamentos LGPD configurados:")
-        logger.info("   - Retenção diária: 02:00")
-        logger.info("   - Limpeza semanal: Dom 03:00")
-        logger.info("   - Auditoria mensal: a cada 30 dias, 04:00")
-        logger.info("   - Verificação crítica: a cada 6h")
+        logger.info(
+            "lgpd_schedules_configured",
+            schedules={
+                "daily_retention": "02:00",
+                "weekly_cleanup": "Sun 03:00", 
+                "monthly_audit": "30d 04:00",
+                "critical_check": "6h"
+            }
+        )
 
     def _run_scheduler(self):
         """Executa o loop do agendador"""

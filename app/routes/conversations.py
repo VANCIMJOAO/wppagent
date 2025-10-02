@@ -25,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.database import Conversation, Message, User
-from app.routes.admin_auth import AdminUser, get_current_admin_user
+from app.routes.admin_auth import AdminUser, get_current_admin_user_with_cookies
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -76,7 +76,7 @@ async def get_conversations(
     offset: int = Query(0, ge=0, description="Offset para paginação"),
     status: Optional[str] = Query(None, description="Filtrar por status"),
     search: Optional[str] = Query(None, description="Buscar por nome ou telefone"),
-    current_admin: AdminUser = Depends(get_current_admin_user),
+    current_admin: AdminUser = Depends(get_current_admin_user_with_cookies),
     session: AsyncSession = Depends(get_db),
 ):
     """
@@ -91,16 +91,28 @@ async def get_conversations(
         )
 
         # Query principal com correção para evitar ambiguidade e contagem duplicada
+        # Incluir última mensagem usando subquery
+        last_message_subquery = (
+            select(Message.content, Message.created_at)
+            .where(Message.conversation_id == Conversation.id)
+            .order_by(desc(Message.created_at))
+            .limit(1)
+            .subquery()
+        )
+        
         query = (
             select(
                 Conversation,
                 User.nome.label("user_name"),
                 User.telefone.label("user_phone"),
                 func.count(func.distinct(Message.id)).label("total_messages"),
+                last_message_subquery.c.content.label("last_message_content"),
+                last_message_subquery.c.created_at.label("last_message_time"),
             )
             .select_from(Conversation)
             .join(User, Conversation.user_id == User.id)
             .outerjoin(Message, Conversation.id == Message.conversation_id)
+            .outerjoin(last_message_subquery, true)
         )
 
         # Aplicar filtros
@@ -145,11 +157,12 @@ async def get_conversations(
                     "last_message_at": conversation.last_message_at,
                     "created_at": conversation.created_at,
                     "updated_at": conversation.updated_at,
-                    "user_name": row.user_name,
-                    "user_phone": row.user_phone,
-                    "total_messages": row.total_messages or 0,
+                    "nome": row.user_name,  # Mapear para nome esperado pelo frontend
+                    "phone": row.user_phone,  # Mapear para phone esperado pelo frontend
+                    "message_count": row.total_messages or 0,  # Mapear para message_count
                     "unread_messages": 0,  # Placeholder - sem campo is_read
-                    "last_message": "N/A",  # Simplificado por ora
+                    "last_message": row.last_message_content or "Nenhuma mensagem",  # Usar última mensagem real
+                    "last_message_time": row.last_message_time or conversation.last_message_at,  # Usar timestamp real
                 }
                 conversations.append(conversation_data)
                 logger.debug(
@@ -200,7 +213,7 @@ async def get_conversation(
     conversation_id: int,
     include_messages: bool = Query(True, description="Incluir mensagens"),
     messages_limit: int = Query(50, le=200, description="Limite de mensagens"),
-    current_admin: AdminUser = Depends(get_current_admin_user),
+    current_admin: AdminUser = Depends(get_current_admin_user_with_cookies),
     session: AsyncSession = Depends(get_db),
 ):
     """
@@ -274,7 +287,7 @@ async def get_conversation_messages(
     conversation_id: int,
     limit: int = Query(50, le=200, description="Limite de mensagens"),
     offset: int = Query(0, ge=0, description="Offset para paginação"),
-    current_admin: AdminUser = Depends(get_current_admin_user),
+    current_admin: AdminUser = Depends(get_current_admin_user_with_cookies),
     session: AsyncSession = Depends(get_db),
 ):
     """
@@ -379,7 +392,7 @@ async def get_conversation_messages(
 async def update_conversation_status(
     conversation_id: int,
     status: str = Query(..., description="Novo status"),
-    current_admin: AdminUser = Depends(get_current_admin_user),
+    current_admin: AdminUser = Depends(get_current_admin_user_with_cookies),
     session: AsyncSession = Depends(get_db),
 ):
     """
@@ -415,7 +428,7 @@ async def update_conversation_status(
 
 @router.get("/stats/summary")
 async def get_conversations_stats(
-    current_admin: AdminUser = Depends(get_current_admin_user),
+    current_admin: AdminUser = Depends(get_current_admin_user_with_cookies),
     session: AsyncSession = Depends(get_db),
 ):
     """

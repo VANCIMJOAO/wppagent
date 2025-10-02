@@ -140,7 +140,7 @@ export async function GET(
 
     // ✅ Mensagens reais obtidas do Railway - formatar para o frontend
     const formattedMessages = realMessages
-      .map(msg => ({
+      .map((msg: any) => ({
         ...msg,
         // ✅ CORRIGIDO: Mapear direction do Railway para frontend
         direction: msg.direction === 'incoming' ? 'in' : msg.direction === 'outgoing' ? 'out' : (msg.sender_type === 'user' ? 'in' : 'out'),

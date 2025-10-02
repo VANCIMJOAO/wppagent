@@ -4,22 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-
-export interface Client {
-  id: string;
-  wa_id: string;
-  name: string;
-  email: string;
-  phone: string;
-  birthDate: string | null;
-  registrationDate: string;
-  lastVisit: string | null;
-  totalAppointments: number;
-  totalConversations: number;
-  totalMessages: number;
-  status: 'active' | 'inactive' | 'vip';
-  notes?: string | null;
-}
+import type { Client } from '@/types/api';
 
 export interface ClientsResponse {
   success: boolean;
@@ -47,7 +32,7 @@ export interface UseClientsReturn {
   error: string | null;
   pagination: ClientsResponse['pagination'] | null;
   refetch: () => Promise<void>;
-  createClient: (clientData: { name: string; email?: string; phone: string }) => Promise<Client | null>;
+  createClient: (clientData: { name: string; email: string; phone: string }) => Promise<Client | null>;
   updateFilters: (filters: Partial<UseClientsOptions>) => void;
 }
 

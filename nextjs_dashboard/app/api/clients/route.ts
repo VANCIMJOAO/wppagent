@@ -1,223 +1,152 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { executeQuery, executeCount } from '@/lib/database';
+import { Pool } from 'pg';
+
+// Force dynamic rendering for this route since it uses cookies
+export const dynamic = 'force-dynamic';
+
+// Configuração do banco PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:UGARTPCwAADBBeBLctoRnQXLsoUvLJxz@caboose.proxy.rlwy.net:13910/railway',
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 export async function GET(request: NextRequest) {
+  let client;
+  
   try {
-    console.log('👥 Buscando clientes do PostgreSQL...');
-    
-    // Extrair parâmetros de query
+    console.log('🔍 API Clients: Buscando dados reais do PostgreSQL');
+
+    // ✅ Extrair token do cookie HTTP-only para validação
+    const authToken = request.cookies.get('access_token')?.value;
+    console.log('🔍 Token encontrado no cookie:', authToken ? 'Sim' : 'Não');
+
+    if (!authToken) {
+      console.log('❌ Token não encontrado');
+      return NextResponse.json(
+        { error: 'Token de autenticação não encontrado' },
+        { status: 401 }
+      );
+    }
+
+    // ✅ Extrair query params
     const searchParams = request.nextUrl.searchParams;
-    const search = searchParams.get('search') || '';
-    const status = searchParams.get('status') || 'all';
-    const sortBy = searchParams.get('sortBy') || 'name';
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
+    const search = searchParams.get('search');
 
-    // Construir query base
-    let whereConditions = [];
-    let queryParams: any[] = [];
-    let paramIndex = 1;
+    console.log('📊 Parâmetros:', { limit, offset, search });
 
-    // Filtro de busca
-    if (search) {
-      whereConditions.push(`(
-        u.nome ILIKE $${paramIndex} OR 
-        u.email ILIKE $${paramIndex} OR 
-        u.telefone ILIKE $${paramIndex}
-      )`);
-      queryParams.push(`%${search}%`);
-      paramIndex++;
-    }
-
-    // Filtro de status (baseado na última conversa)
-    if (status !== 'all') {
-      whereConditions.push(`c.status = $${paramIndex}`);
-      queryParams.push(status);
-      paramIndex++;
-    }
-
-    const whereClause = whereConditions.length > 0 
-      ? `WHERE ${whereConditions.join(' AND ')}`
-      : '';
-
-    // Ordenação
-    let orderBy = 'ORDER BY u.nome ASC';
-    switch (sortBy) {
-      case 'registrationDate':
-        orderBy = 'ORDER BY u.created_at DESC';
-        break;
-      case 'lastVisit':
-        orderBy = 'ORDER BY c.last_message_at DESC NULLS LAST';
-        break;
-      case 'appointments':
-        orderBy = 'ORDER BY appointment_count DESC';
-        break;
-      default:
-        orderBy = 'ORDER BY u.nome ASC';
-    }
-
-    // Query principal para buscar clientes
-    const clientsQuery = `
+    client = await pool.connect();
+    
+    // Query para buscar clientes (usuários)
+    let clientsQuery = `
       SELECT 
         u.id,
-        u.wa_id,
-        u.nome as name,
+        u.nome,
+        u.telefone,
         u.email,
-        u.telefone as phone,
-        u.created_at as registration_date,
-        c.status,
-        c.last_message_at as last_visit,
-        COUNT(DISTINCT a.id) as total_appointments,
+        u.created_at,
         COUNT(DISTINCT c.id) as total_conversations,
-        COUNT(DISTINCT m.id) as total_messages,
-        CASE 
-          WHEN COUNT(DISTINCT a.id) >= 10 THEN 'vip'
-          WHEN c.status = 'active' THEN 'active'
-          WHEN c.status = 'closed' OR c.status IS NULL THEN 'inactive'
-          ELSE 'active'
-        END as client_status
+        COUNT(DISTINCT a.id) as total_appointments
       FROM users u
       LEFT JOIN conversations c ON u.id = c.user_id
       LEFT JOIN appointments a ON u.id = a.user_id
-      LEFT JOIN messages m ON u.id = m.user_id
-      ${whereClause}
-      GROUP BY u.id, u.wa_id, u.nome, u.email, u.telefone, u.created_at, c.status, c.last_message_at
-      ${orderBy}
-      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
-    queryParams.push(limit, offset);
+    const conditions = [];
+    const params = [];
+    let paramCount = 0;
 
-    // Executar query
-    const clients = await executeQuery(clientsQuery, queryParams);
+    // Aplicar filtro de busca
+    if (search) {
+      paramCount++;
+      conditions.push(`(u.nome ILIKE $${paramCount} OR u.telefone ILIKE $${paramCount} OR u.email ILIKE $${paramCount})`);
+      params.push(`%${search}%`);
+    }
 
-    // Buscar total de clientes para paginação
-    const countQuery = `
-      SELECT COUNT(DISTINCT u.id) as total
-      FROM users u
-      LEFT JOIN conversations c ON u.id = c.user_id
-      ${whereClause}
+    if (conditions.length > 0) {
+      clientsQuery += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    clientsQuery += `
+      GROUP BY u.id, u.nome, u.telefone, u.email, u.created_at
+      ORDER BY u.nome ASC
+      LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
     `;
     
-    const totalResult = await executeQuery(countQuery, queryParams.slice(0, -2));
-    const total = parseInt(totalResult[0]?.total || '0');
+    params.push(limit, offset);
 
-    // Formatar dados para o frontend
-    const formattedClients = clients.map(client => ({
-      id: client.id.toString(),
-      wa_id: client.wa_id,
-      name: client.name || 'Cliente sem nome',
-      email: client.email || '',
-      phone: client.phone || '',
-      birthDate: null, // Não temos data de nascimento na tabela users
-      registrationDate: client.registration_date,
-      lastVisit: client.last_visit,
-      totalAppointments: parseInt(client.total_appointments || '0'),
-      totalConversations: parseInt(client.total_conversations || '0'),
-      totalMessages: parseInt(client.total_messages || '0'),
-      status: client.client_status,
-      notes: null // Podemos adicionar notas futuramente
+    console.log('🔍 Executando query de clientes...');
+    const clientsResult = await client.query(clientsQuery, params);
+    
+    // Buscar total de clientes para paginação
+    let totalQuery = `SELECT COUNT(*) as total FROM users u`;
+    const totalParams = [];
+    let totalParamCount = 0;
+
+    if (search) {
+      totalParamCount++;
+      totalQuery += ` WHERE (u.nome ILIKE $${totalParamCount} OR u.telefone ILIKE $${totalParamCount} OR u.email ILIKE $${totalParamCount})`;
+      totalParams.push(`%${search}%`);
+    }
+
+    const totalResult = await client.query(totalQuery, totalParams);
+    const total = parseInt(totalResult.rows[0].total);
+
+    // Formatear resposta
+    const clients = clientsResult.rows.map(row => ({
+      id: row.id,
+      nome: row.nome,
+      telefone: row.telefone,
+      email: row.email,
+      created_at: row.created_at,
+      total_conversations: parseInt(row.total_conversations) || 0,
+      total_appointments: parseInt(row.total_appointments) || 0,
+      status: 'active', // Status padrão - pode ser expandido no futuro
+      wa_id: row.telefone, // Usar telefone como wa_id por enquanto
+      last_interaction: null, // Campo para compatibilidade
     }));
 
-    console.log(`✅ Encontrados ${formattedClients.length} clientes (total: ${total})`);
+    console.log(`✅ Encontrados ${clients.length} clientes de ${total} totais`);
+
+    const responseData = {
+      clients,
+      total,
+      limit,
+      offset,
+      has_more: (offset + clients.length) < total,
+    };
 
     return NextResponse.json({
       success: true,
-      clients: formattedClients,
+      data: clients,
+      clients: clients, // Manter compatibilidade
       pagination: {
         total,
         limit,
         offset,
-        hasMore: offset + limit < total
+        hasMore: (offset + clients.length) < total,
       }
+    }, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar clientes:', error);
+    console.error('❌ Erro na API clients:', error);
     return NextResponse.json(
-      { 
-        success: false,
-        error: 'Erro interno do servidor',
-        details: error instanceof Error ? error.message : 'Erro desconhecido'
-      },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { name, email, phone } = body;
-
-    if (!name || !phone || !email) {
-      return NextResponse.json(
-        { success: false, error: 'Nome, telefone e email são obrigatórios' },
-        { status: 400 }
-      );
+  } finally {
+    if (client) {
+      client.release();
     }
-
-    // Validar formato do email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { success: false, error: 'Formato de email inválido' },
-        { status: 400 }
-      );
-    }
-
-    // Gerar wa_id baseado no telefone
-    const wa_id = phone.replace(/\D/g, ''); // Remove caracteres não numéricos
-
-    // Verificar se já existe um usuário com este telefone ou email
-    const existingUser = await executeQuery(
-      'SELECT id FROM users WHERE telefone = $1 OR wa_id = $2 OR email = $3',
-      [phone, wa_id, email]
-    );
-
-    if (existingUser.length > 0) {
-      return NextResponse.json(
-        { success: false, error: 'Já existe um cliente com este telefone ou email' },
-        { status: 409 }
-      );
-    }
-
-    // Inserir novo cliente
-    const insertQuery = `
-      INSERT INTO users (wa_id, nome, email, telefone, created_at)
-      VALUES ($1, $2, $3, $4, NOW())
-      RETURNING id, wa_id, nome, email, telefone, created_at
-    `;
-
-    const newClient = await executeQuery(insertQuery, [wa_id, name, email, phone]);
-
-    console.log('✅ Novo cliente criado:', newClient[0]);
-
-    return NextResponse.json({
-      success: true,
-      client: {
-        id: newClient[0].id.toString(),
-        wa_id: newClient[0].wa_id,
-        name: newClient[0].nome,
-        email: newClient[0].email,
-        phone: newClient[0].telefone,
-        registrationDate: newClient[0].created_at,
-        status: 'active',
-        totalAppointments: 0,
-        totalConversations: 0,
-        totalMessages: 0
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ Erro ao criar cliente:', error);
-    return NextResponse.json(
-      { 
-        success: false,
-        error: 'Erro interno do servidor',
-        details: error instanceof Error ? error.message : 'Erro desconhecido'
-      },
-      { status: 500 }
-    );
   }
 }

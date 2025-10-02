@@ -36,6 +36,10 @@ export default function ConversasPage() {
     refreshConversations,
   } = useConversations();
 
+  // Verificar se é erro de autenticação
+  const isAuthError = conversationsError?.includes('Sessão expirada') || 
+                     conversationsError?.includes('Token de autenticação');
+
   // ✅ Hook para buscar mensagens reais
   const {
     messages,
@@ -170,7 +174,21 @@ export default function ConversasPage() {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Erro ao carregar conversas: {conversationsError}
+                  {isAuthError ? (
+                    <div>
+                      <p className="font-semibold">Sessão expirada</p>
+                      <p>Faça login novamente para acessar as conversas.</p>
+                      <Button 
+                        onClick={() => window.location.href = '/login'} 
+                        className="mt-2"
+                        size="sm"
+                      >
+                        Ir para Login
+                      </Button>
+                    </div>
+                  ) : (
+                    `Erro ao carregar conversas: ${conversationsError}`
+                  )}
                 </AlertDescription>
               </Alert>
             </div>

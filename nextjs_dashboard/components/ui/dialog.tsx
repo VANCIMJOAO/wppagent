@@ -41,7 +41,7 @@ export function Dialog({ children, open: controlledOpen, onOpenChange }: DialogP
               onClick={() => setOpen(false)}
             />
             {/* Modal */}
-            <div className="relative bg-white rounded-lg shadow-lg max-w-lg w-full mx-4 max-h-[90vh] overflow-auto">
+            <div className="relative bg-white rounded-lg shadow-lg max-w-lg w-full mx-4 max-h-[90vh] overflow-auto" role="dialog" aria-modal="true">
               {React.Children.map(children, child => {
                 if (React.isValidElement(child) && child.type === DialogContent) {
                   return child;
@@ -115,4 +115,12 @@ export function DialogHeader({ children, className = '' }: { children: ReactNode
 
 export function DialogTitle({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <h2 className={`text-lg font-semibold ${className}`}>{children}</h2>;
+}
+
+export function DialogDescription({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <p className={`text-sm text-gray-600 ${className}`}>{children}</p>;
+}
+
+export function DialogFooter({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`flex justify-end space-x-2 mt-4 ${className}`}>{children}</div>;
 }

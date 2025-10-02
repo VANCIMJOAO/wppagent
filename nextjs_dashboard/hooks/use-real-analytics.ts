@@ -252,8 +252,8 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       console.log(`📊 Carregando dashboard summary - ${days} dias`);
 
       // Usar API real do PostgreSQL
-      console.log('📡 Fazendo requisição para /analytics/real-dashboard-summary');
-      const result = await apiService.makeRequest('/analytics/real-dashboard-summary');
+      console.log('📡 Fazendo requisição para /api/dashboard');
+      const result = await apiService.getDashboardStats();
       
       console.log('📡 Resposta da API:', result);
 
@@ -266,8 +266,8 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       const realData = result.data;
       console.log('📊 Dados reais obtidos do PostgreSQL:', realData);
 
-      // Usar dados reais do PostgreSQL diretamente
-      const mappedData = realData;
+      // Extrair apenas os dados do objeto de resposta
+      const mappedData = realData.data || realData;
       
       console.log('📊 Dados mapeados:', mappedData);
 

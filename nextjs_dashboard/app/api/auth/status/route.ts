@@ -19,43 +19,45 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Verificar se o token ainda é válido fazendo uma requisição para o backend
+    // ✅ CORREÇÃO: Verificar token localmente como o middleware
     try {
-      const backendUrl = process.env.BACKEND_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://wppagent-production.up.railway.app');
-      const backendResponse = await fetch(`${backendUrl}/admin/me`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (backendResponse.ok) {
-        console.log('✅ Token válido - usuário autenticado');
+      const { jwtVerify } = await import('jose');
+      const secret = process.env.JWT_SECRET || 'fallback-secret-key';
+      const secretKey = new TextEncoder().encode(secret);
+      
+      const result = await jwtVerify(accessToken, secretKey);
+      
+      if (result.payload) {
+        console.log('✅ Token válido - usuário autenticado localmente');
         return NextResponse.json({
           success: true,
           isAuthenticated: true,
           status: 'online',
           message: 'Usuário autenticado',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          user: {
+            user_id: result.payload.user_id,
+            username: result.payload.username,
+            role: result.payload.role
+          }
         });
       } else {
-        console.log('❌ Token inválido ou expirado:', backendResponse.status);
+        console.log('❌ Token inválido - payload vazio');
         return NextResponse.json({
           success: false,
           isAuthenticated: false,
           status: 'offline',
-          message: 'Token inválido ou expirado',
+          message: 'Token inválido',
           timestamp: new Date().toISOString()
         });
       }
-    } catch (backendError) {
-      console.error('❌ Erro ao verificar token no backend:', backendError);
+    } catch (jwtError) {
+      console.error('❌ Erro ao verificar token JWT:', jwtError);
       return NextResponse.json({
         success: false,
         isAuthenticated: false,
         status: 'offline',
-        message: 'Erro ao verificar token',
+        message: 'Token inválido ou expirado',
         timestamp: new Date().toISOString()
       });
     }

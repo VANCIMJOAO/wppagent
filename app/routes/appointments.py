@@ -41,7 +41,7 @@ from app.services.cache_invalidation import CacheEvent
 from app.services.cache_optimized import CacheKeys, cache_service
 
 # WebSocket integration
-from app.services.websocket_manager import WebSocketEventType, websocket_manager
+from app.services.realtime_websocket_manager import RealtimeEventType, get_realtime_manager
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -368,9 +368,9 @@ async def create_appointment(
             user_id=appointment_data.user_id,
             business_id=appointment_data.business_id,
             service_id=appointment_data.service_id,
-            date_time=appointment_data.date_time,
-            status=appointment_data.status,
-            notes=appointment_data.notes,
+            date_time=appointment_data.data_agendamento,
+            status="scheduled",  # Status padrão
+            notes=appointment_data.observacoes,
         )
 
         session.add(new_appointment)
@@ -403,9 +403,9 @@ async def create_appointment(
 
             # 🔥 NEW: WebSocket real-time notification for appointment creation
             try:
-                await websocket_manager.broadcast_to_topic(
+                await get_realtime_manager().broadcast_to_topic(
                     topic="appointments",
-                    event_type=WebSocketEventType.APPOINTMENT_CREATED,
+                    event_type=RealtimeEventType.APPOINTMENT_CREATED,
                     data={
                         "appointment": {
                             "id": new_appointment.id,
@@ -425,9 +425,9 @@ async def create_appointment(
                 )
 
                 # 🔥 NEW: Update dashboard stats in real-time
-                await websocket_manager.broadcast_to_topic(
+                await get_realtime_manager().broadcast_to_topic(
                     topic="dashboard",
-                    event_type=WebSocketEventType.DASHBOARD_STATS_UPDATE,
+                    event_type=RealtimeEventType.DASHBOARD_STATS_UPDATE,
                     data={
                         "metric": "appointments_today",
                         "increment": 1,
@@ -585,9 +585,9 @@ async def update_appointment(
             if update_data.service_id is not None:
                 changes["service_id"] = update_data.service_id
 
-            await websocket_manager.broadcast_to_topic(
+            await get_realtime_manager().broadcast_to_topic(
                 topic="appointments",
-                event_type=WebSocketEventType.APPOINTMENT_UPDATED,
+                event_type=RealtimeEventType.APPOINTMENT_UPDATED,
                 data={
                     "appointment_id": appointment_id,
                     "changes": changes,
@@ -614,12 +614,12 @@ async def update_appointment(
                 "realizado",
             ]:
                 status_event = {
-                    "confirmado": WebSocketEventType.APPOINTMENT_CONFIRMED,
-                    "cancelado": WebSocketEventType.APPOINTMENT_CANCELLED,
-                    "realizado": WebSocketEventType.APPOINTMENT_UPDATED,
-                }.get(update_data.status, WebSocketEventType.APPOINTMENT_UPDATED)
+                    "confirmado": RealtimeEventType.APPOINTMENT_CONFIRMED,
+                    "cancelado": RealtimeEventType.APPOINTMENT_CANCELLED,
+                    "realizado": RealtimeEventType.APPOINTMENT_UPDATED,
+                }.get(update_data.status, RealtimeEventType.APPOINTMENT_UPDATED)
 
-                await websocket_manager.broadcast_to_topic(
+                await get_realtime_manager().broadcast_to_topic(
                     topic="dashboard",
                     event_type=status_event,
                     data={

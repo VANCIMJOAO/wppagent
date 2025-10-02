@@ -22,9 +22,9 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 
 from app.services.cache_optimized import cache_service
-from app.utils.logger import get_logger
+from app.config.logging_config import get_optimized_logger
 
-logger = get_logger(__name__)
+logger = get_optimized_logger(__name__)
 
 
 class CacheEvent(str, Enum):
@@ -324,7 +324,7 @@ class CacheInvalidationService:
             # 🔔 NOTIFICAR VIA WEBSOCKET - Integração automática
             try:
                 # Import dinâmico para evitar circular imports
-                from app.services.websocket_cache_sync import notify_cache_invalidation
+                from app.services.realtime_websocket_manager import notify_cache_invalidation
 
                 # Notificar clientes WebSocket sobre a invalidação
                 websocket_result = await notify_cache_invalidation(
@@ -496,17 +496,25 @@ async def invalidate_client_cache(event: CacheEvent, client_id: Optional[int] = 
 
 
 def log_cache_invalidation_summary():
-    """📊 Log resumo das rules de invalidation"""
+    """📊 Log resumo das rules de invalidation - OTIMIZADO"""
     rules = cache_invalidation_service.list_all_rules()
 
-    logger.info("📊 Cache Invalidation Rules Summary:")
-    for event, rule_info in rules.items():
-        logger.info(f"  🔹 {event}:")
-        logger.info(f"    - Patterns: {len(rule_info['patterns'])}")
-        logger.info(f"    - Dependencies: {len(rule_info['dependencies'])}")
-        logger.info(f"    - Priority: {rule_info['priority']}")
-        if rule_info["delay_seconds"] > 0:
-            logger.info(f"    - Delay: {rule_info['delay_seconds']}s")
+    # Agregar estatísticas em um único log
+    total_patterns = sum(len(rule_info['patterns']) for rule_info in rules.values())
+    total_dependencies = sum(len(rule_info['dependencies']) for rule_info in rules.values())
+    avg_priority = sum(rule_info['priority'] for rule_info in rules.values()) / len(rules) if rules else 0
+    events_with_delay = sum(1 for rule_info in rules.values() if rule_info['delay_seconds'] > 0)
+    
+    logger.info(
+        "cache_invalidation_rules_loaded",
+        **{
+            "events": len(rules),
+            "total_patterns": total_patterns,
+            "total_dependencies": total_dependencies,
+            "avg_priority": round(avg_priority, 1),
+            "events_with_delay": events_with_delay
+        }
+    )
 
 
 # Log summary na inicialização

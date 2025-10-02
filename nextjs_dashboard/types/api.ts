@@ -63,7 +63,6 @@ export interface Appointment {
   duracao_minutos?: number; // Alias para durationMinutes
   valor?: number; // Alias para price
   observacoes?: string; // Alias para notes
-  notes?: string; // Alias para observacoes
   date_time?: string; // Alias antigo para dateTime
   duration_minutes?: number; // Alias antigo para durationMinutes
 

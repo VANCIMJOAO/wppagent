@@ -9,7 +9,7 @@ export default function DashboardDebugPage() {
   const router = useRouter()
   const [apiData, setApiData] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   // ✅ Não redirecionar - página de debug deve funcionar sempre
   // useEffect(() => {
@@ -46,7 +46,7 @@ export default function DashboardDebugPage() {
       
     } catch (err) {
       console.error('❌ Erro na API:', err)
-      setError(err.message)
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
       setLoading(false)
     }

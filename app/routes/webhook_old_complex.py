@@ -30,7 +30,7 @@ from app.services.data import ConversationService, MessageService, UserService
 from app.services.response_control import unified_response_control
 
 # 🔥 WebSocket Integration para notificações em tempo real
-from app.services.websocket_integration import (
+from app.services.realtime_get_realtime_manager() import (
     notify_message_sent,
     notify_new_whatsapp_message,
 )

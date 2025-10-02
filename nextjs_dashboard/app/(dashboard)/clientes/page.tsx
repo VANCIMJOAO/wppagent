@@ -32,14 +32,24 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
-import { useClients, Client } from '@/hooks/useClients';
+import { useClients } from '@/hooks/useClients';
+import type { Client } from '@/types/api';
 import { NewClientForm } from '@/components/NewClientForm';
+import EditClientModal from '@/components/clients/EditClientModal';
+import DeleteClientModal from '@/components/clients/DeleteClientModal';
+import { toast } from 'sonner';
 
 export default function ClientesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('name');
   const [showNewClientForm, setShowNewClientForm] = useState(false);
+
+  // Estados para modais
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Usar o hook personalizado para gerenciar dados dos clientes
   const {
@@ -103,14 +113,73 @@ export default function ClientesPage() {
   };
 
   const handleNewClient = async (clientData: { name: string; email?: string; phone: string }) => {
-    const newClient = await createClient(clientData);
+    const newClient = await createClient({
+      name: clientData.name,
+      email: clientData.email || '',
+      phone: clientData.phone
+    });
     if (newClient) {
       setShowNewClientForm(false);
     }
   };
 
+  // Funções para modais
+  const handleOpenEditModal = (client: Client) => {
+    setSelectedClient(client);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedClient(null);
+  };
+
+  const handleOpenDeleteModal = (client: Client) => {
+    setSelectedClient(client);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedClient(null);
+  };
+
+  const handleDeleteClient = async () => {
+    if (!selectedClient) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/clients/${selectedClient.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao excluir cliente');
+      }
+
+      toast.success('Cliente excluído com sucesso!');
+      await refetch(); // Recarregar dados
+      handleCloseDeleteModal();
+    } catch (error) {
+      console.error('Erro ao excluir cliente:', error);
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : 'Erro ao excluir cliente'
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleEditSuccess = async () => {
+    await refetch(); // Recarregar dados após editar
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="clients-page">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -315,7 +384,7 @@ export default function ClientesPage() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <h3 className="font-medium text-gray-900">{client.name}</h3>
+                          <h3 className="font-medium text-gray-900">{client.nome}</h3>
                           {getStatusBadge(client.status)}
                         </div>
                         <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
@@ -327,7 +396,7 @@ export default function ClientesPage() {
                           )}
                           <span className="flex items-center">
                             <Phone className="h-3 w-3 mr-1" />
-                            {client.phone}
+                            {client.telefone}
                           </span>
                           <span className="flex items-center">
                             <Calendar className="h-3 w-3 mr-1" />
@@ -335,27 +404,30 @@ export default function ClientesPage() {
                           </span>
                         </div>
                         <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
-                          <span>Cadastrado: {formatDate(client.registrationDate)}</span>
-                          <span>Última visita: {formatDate(client.lastVisit)}</span>
-                          <span>Consultas: {client.totalAppointments}</span>
-                          <span>Conversas: {client.totalConversations}</span>
+                          <span>Cadastrado: {formatDate(client.created_at)}</span>
+                          <span>Última visita: {formatDate(client.last_interaction || null)}</span>
+                          <span>Consultas: {client.total_appointments}</span>
+                          <span>Conversas: {client.total_conversations}</span>
                         </div>
-                        {client.notes && (
-                          <p className="text-xs text-gray-500 mt-1 italic">
-                            {client.notes}
-                          </p>
-                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm" title="Ver detalhes">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" title="Editar cliente">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        title="Editar cliente"
+                        onClick={() => handleOpenEditModal(client)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" title="Mais opções">
-                        <MoreVertical className="h-4 w-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        title="Excluir cliente"
+                        onClick={() => handleOpenDeleteModal(client)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -376,6 +448,22 @@ export default function ClientesPage() {
           }}
         />
       )}
+
+      {/* Modais */}
+      <EditClientModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSuccess={handleEditSuccess}
+        client={selectedClient}
+      />
+
+      <DeleteClientModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleDeleteClient}
+        client={selectedClient}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

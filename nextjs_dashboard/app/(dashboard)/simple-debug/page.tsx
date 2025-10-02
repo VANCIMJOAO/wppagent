@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 export default function SimpleDebugPage() {
   const [apiData, setApiData] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const testApi = async () => {
     setLoading(true)
@@ -35,7 +35,7 @@ export default function SimpleDebugPage() {
       
     } catch (err) {
       console.error('❌ Erro na API:', err)
-      setError(err.message)
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
       setLoading(false)
     }

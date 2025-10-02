@@ -101,8 +101,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: formattedAppointments, // Retornar array direto para compatibilidade
-      appointments: formattedAppointments, // Manter compatibilidade com código existente
+      data: formattedAppointments,
+      appointments: formattedAppointments, // Manter compatibilidade
       pagination: {
         total,
         limit,
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
 
     const newAppointment = await executeQuery(insertQuery, [
       user_id, 
-      business_id || 1, // Default business_id
+      business_id || 3, // Default business_id (primeiro ID válido)
       service_id || 1, // Default service_id
       date_time, 
       duration_minutes,

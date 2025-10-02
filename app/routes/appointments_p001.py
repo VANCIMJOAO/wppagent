@@ -32,7 +32,7 @@ from app.schemas.appointments import (
 from app.schemas.unified import SchemaTransformer
 from app.services.cache_service import CacheEvent, cache_service, invalidate_cache
 from app.utils.logger import get_logger
-from app.websocket.connection_manager import WebSocketEventType, websocket_manager
+from app.websocket.connection_manager import RealtimeEventType, get_realtime_manager()
 
 logger = get_logger(__name__)
 router = APIRouter()
