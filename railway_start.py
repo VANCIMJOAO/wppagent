@@ -43,35 +43,9 @@ def setup_railway_logging():
 
 def print_railway_info():
     """Print Railway-specific information"""
-    print("=" * 60, flush=True)
-    print("🚀 RAILWAY STARTUP SCRIPT", flush=True)
-    print("=" * 60, flush=True)
-    print(f"⏰ Timestamp: {datetime.now().isoformat()}", flush=True)
-    print(f"🐍 Python Version: {sys.version}", flush=True)
-    print(f"💻 Platform: {sys.platform}", flush=True)
-    print(f"📁 Working Directory: {os.getcwd()}", flush=True)
-    print(f"🔧 Python Executable: {sys.executable}", flush=True)
-    print("", flush=True)
-    
-    print("🔍 ENVIRONMENT VARIABLES:", flush=True)
-    railway_vars = [
-        'PORT', 'RAILWAY_ENVIRONMENT', 'RAILWAY_FAST_START', 
-        'PYTHONUNBUFFERED', 'RAILWAY_PROJECT_ID', 'RAILWAY_SERVICE_ID'
-    ]
-    
-    for var in railway_vars:
-        value = os.getenv(var, 'NOT SET')
-        print(f"   {var}: {value}", flush=True)
-    
-    print("", flush=True)
-    print("🔍 ALL ENVIRONMENT VARIABLES (first 20):", flush=True)
-    for i, (key, value) in enumerate(os.environ.items()):
-        if i >= 20:
-            print(f"   ... and {len(os.environ) - 20} more", flush=True)
-            break
-        print(f"   {key}: {value}", flush=True)
-    
-    print("=" * 60, flush=True)
+    print("🚀 Starting WhatsApp Agent API on Railway", flush=True)
+    print(f"🌐 Port: {os.getenv('PORT', '8000')}", flush=True)
+    print(f"🏗️ Environment: {os.getenv('RAILWAY_ENVIRONMENT', 'unknown')}", flush=True)
 
 def main():
     """Main startup function"""
@@ -83,11 +57,7 @@ def main():
     
     # Import and start the application
     try:
-        print("🔄 Importing FastAPI application...", flush=True)
         from app.main import app
-        print("✅ FastAPI application imported successfully", flush=True)
-        
-        print("🔄 Starting uvicorn server...", flush=True)
         import uvicorn
         
         port = int(os.getenv("PORT", 8000))

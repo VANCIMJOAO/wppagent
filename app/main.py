@@ -296,17 +296,8 @@ async def health():
         import os
         import sys
         
-        # Force immediate output for Railway
-        print("🔍 Health check iniciado", flush=True)
-        print(f"🔍 PORT: {os.getenv('PORT', '8000')}", flush=True)
-        print(f"🔍 RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'unknown')}", flush=True)
-        print(f"🔍 PYTHON_VERSION: {sys.version}", flush=True)
-        
-        # Log detalhado para debugging
-        logger.info("🔍 Health check iniciado")
-        logger.info(f"🔍 PORT: {os.getenv('PORT', '8000')}")
-        logger.info(f"🔍 RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'unknown')}")
-        logger.info(f"🔍 PYTHON_VERSION: {sys.version}")
+        # Log health check
+        logger.info("Health check requested")
         
         # Verificação básica de saúde
         health_data = {
@@ -323,8 +314,7 @@ async def health():
             }
         }
         
-        print("✅ Health check concluído com sucesso", flush=True)
-        logger.info("✅ Health check concluído com sucesso")
+        logger.info("Health check completed successfully")
         return health_data
         
     except Exception as e:
@@ -360,9 +350,7 @@ async def railway_health():
     import os
     import sys
     
-    # Force immediate output for Railway
-    print("🔍 Railway health check called", flush=True)
-    print(f"🔍 Current time: {datetime.now().isoformat()}", flush=True)
+    # Simple Railway health check
     
     return {
         "status": "ok", 
@@ -386,7 +374,7 @@ async def debug_info():
     import sys
     import platform
     
-    print("🔍 Debug endpoint called", flush=True)
+    # Debug endpoint with system information
     
     return {
         "status": "debug",
@@ -1937,21 +1925,7 @@ if __name__ == "__main__":
     import os
     import sys
     
-    # Force immediate output for Railway
-    sys.stdout.flush()
-    sys.stderr.flush()
-    
-    # Logs detalhados de startup - Railway optimized
-    print("🚀 Iniciando WhatsApp Agent API...", flush=True)
-    print(f"🔍 Python version: {sys.version}", flush=True)
-    print(f"🔍 Platform: {sys.platform}", flush=True)
-    print(f"🔍 Working directory: {os.getcwd()}", flush=True)
-    print(f"🔍 Environment variables:", flush=True)
-    for key in ['PORT', 'RAILWAY_ENVIRONMENT', 'RAILWAY_FAST_START', 'PYTHONUNBUFFERED']:
-        print(f"   {key}: {os.getenv(key, 'NOT SET')}", flush=True)
-    
     port = int(os.getenv("PORT", 8000))
-    print(f"🔍 Starting server on port: {port}", flush=True)
     
     # Railway-specific logging configuration (SIMPLIFIED)
     uvicorn.run(
