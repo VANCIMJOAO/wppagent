@@ -50,8 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // ✅ Redirecionar para login se não autenticado e não estiver na página de login
           if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
             debugLog.info('🔄 Redirecionando para login - usuário não autenticado');
-            // Usar URL relativa para funcionar em qualquer porta
-            window.location.href = '/login';
+            // ✅ CORREÇÃO: Usar router.push em vez de window.location.href para evitar full page reload
+            router.push('/login');
           }
         }
       } catch (error) {

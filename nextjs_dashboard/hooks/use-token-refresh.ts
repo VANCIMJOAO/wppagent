@@ -107,9 +107,9 @@ export function useTokenRefresh() {
           const refreshed = await refreshToken();
           
           if (!refreshed) {
-            debugLog.error('❌ Falha ao renovar token, redirecionando para login...');
-            // Redirecionar para login se não conseguir renovar
-            window.location.href = '/login';
+            debugLog.error('❌ Falha ao renovar token - deixando auth-context fazer redirecionamento');
+            // ✅ CORREÇÃO: NÃO redirecionar aqui - auth-context centraliza redirecionamentos
+            // window.location.href = '/login'; // REMOVIDO para evitar loop infinito
           }
         } else {
           debugLog.success('✅ Token válido');
@@ -126,7 +126,7 @@ export function useTokenRefresh() {
       }
       clearTimeout(initialDelay);
     };
-  }, []);
+  }, [refreshToken, checkTokenValidity]); // ✅ CORREÇÃO: Dependências corretas
 
   return {
     refreshToken,
