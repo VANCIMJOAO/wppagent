@@ -10,13 +10,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'WhatsApp Agent Dashboard',
-  description: 'Dashboard de gestão do WhatsApp Agent',
-  icons: {
-    icon: [
-      { url: '/icon-96x96.png', sizes: '96x96', type: 'image/png' },
-      { url: '/icon-128x128.png', sizes: '128x128', type: 'image/png' }
-    ]
-  }
+  description: 'Dashboard de gestão do WhatsApp Agent'
 }
 
 export const viewport = {
@@ -34,9 +28,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        {/* Standard Icons */}
-        <link rel="icon" type="image/png" sizes="96x96" href="/icon-96x96.png" />
-        <link rel="icon" type="image/png" sizes="128x128" href="/icon-128x128.png" />
       </head>
       <body className={inter.className}>
         <ErrorProvider>
