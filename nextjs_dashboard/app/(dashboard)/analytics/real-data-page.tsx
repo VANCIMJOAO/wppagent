@@ -14,7 +14,6 @@ import { useRealAnalytics } from '@/hooks/use-real-analytics';
 import {
   BarChart3,
   Database,
-  Activity,
   RefreshCw,
   Users,
   MessageSquare,
@@ -23,8 +22,6 @@ import {
 } from 'lucide-react';
 
 export default function RealAnalyticsPage() {
-  const [useRealData, setUseRealData] = useState(true);
-
   const {
     dashboardSummary,
     loadingDashboard,
@@ -44,17 +41,17 @@ export default function RealAnalyticsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center">
             <BarChart3 className="w-8 h-8 mr-3 text-blue-600" />
-            Analytics com Dados Reais
+            Analytics - Dados Reais
           </h1>
           <p className="text-gray-600 mt-2">
-            Dashboard integrado com backend FastAPI - Sem dados mock
+            Dashboard integrado com backend FastAPI e PostgreSQL
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
-          <Badge variant={useRealData ? "default" : "secondary"} className="flex items-center">
-            <Activity className="w-3 h-3 mr-1" />
-            {useRealData ? 'Dados Reais' : 'Dados Simulados'}
+          <Badge variant="default" className="flex items-center bg-green-600">
+            <Database className="w-3 h-3 mr-1" />
+            Dados Reais PostgreSQL
           </Badge>
 
           <Button
@@ -64,14 +61,6 @@ export default function RealAnalyticsPage() {
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Atualizar
-          </Button>
-
-          <Button
-            variant="ghost"
-            onClick={() => setUseRealData(!useRealData)}
-          >
-            <Database className="w-4 h-4 mr-2" />
-            {useRealData ? 'Usar Mock' : 'Usar Real'}
           </Button>
         </div>
       </div>

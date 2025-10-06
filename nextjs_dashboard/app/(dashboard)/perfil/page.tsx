@@ -60,50 +60,88 @@ interface UserProfile {
   };
 }
 
-const mockUser: UserProfile = {
-  id: '1',
-  name: 'João Silva',
-  email: 'joao.silva@empresa.com',
-  phone: '+55 11 99999-9999',
-  role: 'Atendente',
-  company: 'Empresa XYZ',
-  address: 'São Paulo, SP',
-  joinedAt: '2023-01-15',
-  lastActive: '2024-01-20 14:30:00',
-  stats: {
-    totalConversations: 1250,
-    totalMessages: 8430,
-    responseTime: '2.5 min',
-    customerSatisfaction: 4.8
-  },
-  preferences: {
-    emailNotifications: true,
-    pushNotifications: true,
-    soundNotifications: false,
-    autoReply: true,
-    workingHours: {
-      enabled: true,
-      start: '09:00',
-      end: '18:00'
-    }
-  }
-};
-
 export default function ProfilePage() {
-  const [user, setUser] = useState<UserProfile>(mockUser);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Carregar dados reais do usuário
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const response = await fetch('/api/users/me', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            // Mapear dados da API para UserProfile
+            const userProfile: UserProfile = {
+              id: data.user.id.toString(),
+              name: data.user.full_name || data.user.username,
+              email: data.user.email || data.user.username + '@sistema.local',
+              phone: data.user.phone || 'Não informado',
+              role: data.user.role || 'admin',
+              company: 'WhatsApp Agent',
+              address: 'Não informado',
+              joinedAt: data.user.created_at || new Date().toISOString(),
+              lastActive: data.user.last_login || new Date().toISOString(),
+              stats: {
+                totalConversations: 0,
+                totalMessages: 0,
+                responseTime: '0 min',
+                customerSatisfaction: 0
+              },
+              preferences: {
+                emailNotifications: true,
+                pushNotifications: true,
+                soundNotifications: false,
+                autoReply: false,
+                workingHours: {
+                  enabled: false,
+                  start: '09:00',
+                  end: '18:00'
+                }
+              }
+            };
+            setUser(userProfile);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, []);
 
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    company: user.company,
-    address: user.address
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    company: user?.company || '',
+    address: user?.address || ''
   });
+  
+  // Atualizar formData quando user carregar
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        company: user.company,
+        address: user.address
+      });
+    }
+  }, [user]);
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -151,6 +189,18 @@ export default function ProfilePage() {
     alert('Senha alterada com sucesso!');
     setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
+
+  // Loading state
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <Skeleton className="h-12 w-64" />
+          <Skeleton className="h-96 w-full" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20">

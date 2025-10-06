@@ -25,15 +25,30 @@ export function RoleGuard({ children, requiredRole, fallback }: RoleGuardProps) 
 
   const checkUserRole = async () => {
     try {
-      // Simular verificação de role do usuário
-      // Em um app real, isso viria de um contexto de autenticação ou API
-      const mockUserRole = 'admin'; // Simular usuário admin
+      // Buscar role real do usuário autenticado
+      const response = await fetch('/api/users/me', {
+        credentials: 'include'
+      });
       
-      setUserRole(mockUserRole);
+      if (!response.ok) {
+        debugLog.error('Usuário não autenticado');
+        setIsAuthorized(false);
+        setLoading(false);
+        return;
+      }
       
-      // Verificar se o usuário tem permissão
-      const hasPermission = checkPermission(mockUserRole, requiredRole);
-      setIsAuthorized(hasPermission);
+      const data = await response.json();
+      
+      if (data.success && data.user) {
+        const userRoleFromAPI = data.user.role || 'visualizador';
+        setUserRole(userRoleFromAPI);
+        
+        // Verificar se o usuário tem permissão
+        const hasPermission = checkPermission(userRoleFromAPI, requiredRole);
+        setIsAuthorized(hasPermission);
+      } else {
+        setIsAuthorized(false);
+      }
     } catch (error) {
       debugLog.error('Erro ao verificar role do usuário:', error);
       setIsAuthorized(false);

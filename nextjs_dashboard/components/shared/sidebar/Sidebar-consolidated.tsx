@@ -35,23 +35,23 @@ export default function ConsolidatedSidebar({ children }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Simular carregamento do usuário
+  // Carregar dados reais do usuário
   useEffect(() => {
     const loadUser = async () => {
       try {
-        // Simular delay de carregamento
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const response = await fetch('/api/users/me', {
+          credentials: 'include'
+        });
         
-        // Simular dados do usuário (em produção, viria da API)
-        const mockUser: User = {
-          id: 1,
-          email: 'admin@example.com',
-          name: 'Administrador',
-          role: 'admin',
-          avatar_url: undefined
-        };
+        if (!response.ok) {
+          throw new Error('Erro ao carregar dados do usuário');
+        }
         
-        setUser(mockUser);
+        const data = await response.json();
+        
+        if (data.success && data.user) {
+          setUser(data.user);
+        }
       } catch (error) {
         debugLog.error('Erro ao carregar usuário:', error);
       } finally {
