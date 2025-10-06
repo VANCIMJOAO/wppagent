@@ -19,7 +19,6 @@ from app.database import init_db
 from app.middleware.request_logging import add_request_logging_middleware
 from app.routes.webhook_unified import router as webhook_router
 from app.routes.fast_auth import router as fast_auth_router
-from app.routes.debug_jwt import router as debug_jwt_router
 from app.services.connection_pool_manager import initialize_pool
 from app.schemas.health import (
     AppInfo,
@@ -760,6 +759,7 @@ app.include_router(users_admin_router, tags=["Admin Users"])
 # � DEBUG ROUTER - DESABILITADO EM PRODUÇÃO
 if str(settings.environment) == "development" and getattr(settings, 'enable_debug_routes', False):
     from app.routes.debug_auth import router as debug_auth_router
+    from app.routes.debug_jwt import router as debug_jwt_router
     app.include_router(debug_auth_router, tags=["Debug"])
     app.include_router(debug_jwt_router, tags=["Debug JWT"])
     logger.warning("⚠️ Debug Auth/JWT routes enabled - desenvolvimento apenas!")
