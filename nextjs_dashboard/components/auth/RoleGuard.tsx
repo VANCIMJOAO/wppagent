@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { debugLog } from '@/lib/debug';
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -34,7 +35,7 @@ export function RoleGuard({ children, requiredRole, fallback }: RoleGuardProps) 
       const hasPermission = checkPermission(mockUserRole, requiredRole);
       setIsAuthorized(hasPermission);
     } catch (error) {
-      console.error('Erro ao verificar role do usuário:', error);
+      debugLog.error('Erro ao verificar role do usuário:', error);
       setIsAuthorized(false);
     } finally {
       setLoading(false);

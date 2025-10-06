@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📈 API: Série temporal solicitada');
+    debugLog.info('📈 API: Série temporal solicitada');
     
     const searchParams = request.nextUrl.searchParams;
     const metric = searchParams.get('metric') || 'conversations';
@@ -55,11 +56,11 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    console.log(`✅ Série temporal para ${metric} retornada com sucesso`);
+    debugLog.info(`✅ Série temporal para ${metric} retornada com sucesso`);
     return NextResponse.json(timeseriesData);
 
   } catch (error) {
-    console.error('❌ Erro ao buscar série temporal:', error);
+    debugLog.error('Erro ao buscar série temporal:', error);
     return NextResponse.json(
       {
         success: false,

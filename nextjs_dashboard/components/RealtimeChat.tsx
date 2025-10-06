@@ -12,8 +12,9 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react'
-import { useMessagesWebSocket } from '../hooks/useRealtimeWebSocket'
+// import { useMessagesWebSocket } from '../hooks/useRealtimeWebSocket' // Hook removido na consolidação
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { debugLog } from '@/lib/debug';
 
 // ============= TYPES =============
 interface Message {
@@ -54,9 +55,11 @@ const fetchMessages = async (conversationId?: number): Promise<Message[]> => {
             ? `/api/messages?conversation_id=${conversationId}`
             : '/api/messages'
 
+        // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
         const response = await fetch(url, {
+            credentials: 'include', // Inclui cookies HttpOnly automaticamente
             headers: {
-                'Authorization': `Bearer ${null}`
+                'Content-Type': 'application/json'
             }
         })
 
@@ -67,15 +70,17 @@ const fetchMessages = async (conversationId?: number): Promise<Message[]> => {
         const data = await response.json()
         return data as Message[]
     } catch (error) {
-        console.error('Erro ao buscar mensagens:', error)
+        debugLog.error('Erro ao buscar mensagens:', error)
         return []
     }
 }
 
 const fetchConversations = async (): Promise<Conversation[]> => {
+    // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
     const response = await fetch('/api/conversations', {
+        credentials: 'include', // Inclui cookies HttpOnly automaticamente
         headers: {
-            'Authorization': `Bearer ${null}`
+            'Content-Type': 'application/json'
         }
     })
 
@@ -91,11 +96,12 @@ const sendMessageApi = async (data: {
     conversation_id?: number
     client_phone?: string
 }): Promise<Message> => {
+    // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
     const response = await fetch('/api/messages', {
         method: 'POST',
+        credentials: 'include', // Inclui cookies HttpOnly automaticamente
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${null}`
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
     })
@@ -119,16 +125,16 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
     const [selectedConversation, setSelectedConversation] = useState<number | undefined>(conversationId)
 
     // WebSocket connection
-    const {
-        isConnected,
-        status,
-        typingUsers,
-        sendChatMessage,
-        sendTypingStart,
-        sendTypingStop,
-        markMessageRead,
-        connectionId
-    } = useMessagesWebSocket(token, selectedConversation)
+    // TODO: Implementar WebSocket após consolidação
+    const wsMessages: any[] = []
+    const isConnected = false
+    const status = 'disconnected'
+    const typingUsers: any[] = []
+    const sendChatMessage = (...args: any[]) => {}
+    const sendTypingStart = () => {}
+    const sendTypingStop = () => {}
+    const markMessageRead = (...args: any[]) => {}
+    const connectionId: any = ''
 
     // Queries
     const { data: conversations = [], isLoading: loadingConversations } = useQuery({
@@ -211,10 +217,10 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
                 selectedConversation
             )
 
-            if (wsSuccess) {
+             // if (wsSuccess) { // TODO: Implementar após consolidação
                 setMessageText('')
                 setIsTyping(false)
-            }
+             // }
 
             // Also send via API as backup
             await sendMessageMutation.mutateAsync({
@@ -223,7 +229,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
             })
 
         } catch (error) {
-            console.error('Erro ao enviar mensagem:', error)
+            debugLog.error('Erro ao enviar mensagem:', error)
         }
     }
 
@@ -268,7 +274,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
 
                 {/* Connection Info */}
                 <div className="text-xs text-gray-400">
-                    {connectionId && `ID: ${connectionId.slice(-8)}`}
+                     {connectionId && `ID: ${connectionId.toString().slice(-8)}`}
                 </div>
             </div>
 
@@ -408,7 +414,7 @@ export default function RealtimeChat({ token, conversationId, className = '' }: 
 // ============= CHAT WIDGET =============
 export function ChatWidget({ token }: { token?: string }) {
     const [isOpen, setIsOpen] = useState(false)
-    const { isConnected, status } = useMessagesWebSocket(token)
+    const { isConnected, status } = { isConnected: false, status: 'disconnected' } // Hook removido na consolidação
 
     return (
         <>

@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import api from '@/lib/api-service';
 import type { Appointment, AppointmentCreateRequest, AppointmentUpdateRequest, AppointmentStatus } from '@/types/api';
+import { debugLog } from '@/lib/debug';
 
 interface AppointmentModalProps {
   isOpen: boolean;
@@ -96,25 +97,50 @@ export default function AppointmentModal({
   // Carregar dados do agendamento para edição
   useEffect(() => {
     if (appointment && isOpen) {
-      const appointmentDate = new Date(appointment.dateTime || appointment.data_agendamento || '');
-      setFormData({
-        user_id: appointment.user_id,
-        business_id: appointment.business_id,
-        service_id: appointment.service_id || 0,
-        data_agendamento: appointmentDate.toISOString().split('T')[0],
-        hora_agendamento: appointmentDate.toTimeString().slice(0, 5),
-        duracao_minutos: appointment.durationMinutes || appointment.duracao_minutos || 60,
-        valor: appointment.price || appointment.valor || 0,
+      debugLog.info('🔍 Carregando agendamento para edição:', appointment);
+      debugLog.info(`🔍 Clientes disponíveis: ${clients.length}, Serviços disponíveis: ${services.length}`);
+      
+      // ✅ Tratar data_agendamento ou date_time
+      const dateStr = appointment.date_time || appointment.data_agendamento || '';
+      const appointmentDate = dateStr ? new Date(dateStr) : new Date();
+      
+      // ✅ Tratar hora_agendamento
+      const hora = appointment.hora_agendamento || '';
+      const horaFormatted = hora.includes(':') ? hora.slice(0, 5) : '';
+      
+      // ✅ Buscar service_id pelo service_name se não tiver service_id
+      let serviceId = appointment.service_id || 0;
+      if (!serviceId && appointment.service_name && services.length > 0) {
+        const matchingService = services.find(s => s.name === appointment.service_name);
+        if (matchingService) {
+          serviceId = matchingService.id;
+          debugLog.success(`✅ Service ID encontrado: ${serviceId} para "${appointment.service_name}"`);
+        }
+      }
+      
+      const newFormData = {
+        user_id: typeof appointment.user_id === 'string' ? parseInt(appointment.user_id) : appointment.user_id,
+        business_id: appointment.business_id || 3, // Default business_id
+        service_id: serviceId,
+        data_agendamento: dateStr.split('T')[0] || appointmentDate.toISOString().split('T')[0],
+        hora_agendamento: horaFormatted,
+        duracao_minutos: appointment.duration_minutes || appointment.duracao_minutos || 60,
+        valor: typeof appointment.price === 'string' ? parseFloat(appointment.price) : (appointment.price || appointment.valor || 0),
         observacoes: appointment.notes || appointment.observacoes || '',
         status: appointment.status
-      });
+      };
+      
+      debugLog.info('📝 Dados do formulário:', newFormData);
+      setFormData(newFormData);
       setSelectedDate(appointmentDate);
+      
+      debugLog.success('✅ Formulário populado com dados do agendamento');
     } else if (isOpen && !appointment) {
       // Reset para novo agendamento
       setFormData(initialFormData);
       setSelectedDate(undefined);
     }
-  }, [appointment, isOpen]);
+  }, [appointment, isOpen, services]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -179,10 +205,10 @@ export default function AppointmentModal({
       // Combinar data e hora
       const dateTime = new Date(`${formData.data_agendamento}T${formData.hora_agendamento}:00`);
       
-      console.log('📅 Data selecionada:', formData.data_agendamento);
-      console.log('⏰ Hora selecionada:', formData.hora_agendamento);
-      console.log('🕐 DateTime combinado:', dateTime);
-      console.log('📤 FormData completo:', formData);
+      debugLog.info('📅 Data selecionada:', formData.data_agendamento);
+      debugLog.info('⏰ Hora selecionada:', formData.hora_agendamento);
+      debugLog.info('🕐 DateTime combinado:', dateTime);
+      debugLog.info('📤 FormData completo:', formData);
       
       const appointmentData: AppointmentCreateRequest | AppointmentUpdateRequest = {
         user_id: formData.user_id,
@@ -195,7 +221,7 @@ export default function AppointmentModal({
         ...(isEdit && { status: formData.status })
       };
 
-      console.log('📤 AppointmentData sendo enviado:', appointmentData);
+      debugLog.info('📤 AppointmentData sendo enviado:', appointmentData);
 
       let response;
       if (isEdit && appointment) {
@@ -237,7 +263,7 @@ export default function AppointmentModal({
       onClose();
       
     } catch (error) {
-      console.error('Erro ao salvar agendamento:', error);
+      debugLog.error('Erro ao salvar agendamento:', error);
       toast.error(
         error instanceof Error 
           ? error.message 
@@ -258,11 +284,11 @@ export default function AppointmentModal({
   };
 
   const handleDateSelect = (date: Date | undefined) => {
-    console.log('🗓️ Data selecionada:', date);
+    debugLog.info('🗓️ Data selecionada:', date);
     if (date) {
       setSelectedDate(date);
       handleInputChange('data_agendamento', format(date, 'yyyy-MM-dd'));
-      console.log('✅ Data formatada:', format(date, 'yyyy-MM-dd'));
+      debugLog.success('Data formatada:', format(date, 'yyyy-MM-dd'));
     }
   };
 
@@ -271,7 +297,7 @@ export default function AppointmentModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose} key={appointment?.id || 'new'}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
@@ -294,7 +320,8 @@ export default function AppointmentModal({
                 Cliente *
               </Label>
               <Select
-                value={formData.user_id.toString()}
+                key={`client-${formData.user_id}`}
+                value={formData.user_id > 0 ? formData.user_id.toString() : ''}
                 onValueChange={(value) => handleInputChange('user_id', parseInt(value))}
               >
                 <SelectTrigger className={cn(errors.user_id && "border-red-500")}>
@@ -323,7 +350,8 @@ export default function AppointmentModal({
                 Serviço *
               </Label>
               <Select
-                value={formData.service_id.toString()}
+                key={`service-${formData.service_id}`}
+                value={formData.service_id > 0 ? formData.service_id.toString() : ''}
                 onValueChange={(value) => {
                   const serviceId = parseInt(value);
                   const service = services.find(s => s.id === serviceId);
@@ -399,7 +427,8 @@ export default function AppointmentModal({
                 Horário *
               </Label>
               <Select
-                value={formData.hora_agendamento}
+                key={`time-${formData.hora_agendamento}`}
+                value={formData.hora_agendamento || ''}
                 onValueChange={(value) => handleInputChange('hora_agendamento', value)}
               >
                 <SelectTrigger className={cn(errors.hora_agendamento && "border-red-500")}>

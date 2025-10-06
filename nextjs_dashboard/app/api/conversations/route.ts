@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it uses cookies
 export const dynamic = 'force-dynamic';
@@ -16,14 +17,14 @@ export async function GET(request: NextRequest) {
   let client;
   
   try {
-    console.log('🔍 API Conversations: Buscando dados reais do PostgreSQL');
+    debugLog.info('🔍 API Conversations: Buscando dados reais do PostgreSQL');
 
     // ✅ Extrair token do cookie HTTP-only para validação
     const authToken = request.cookies.get('access_token')?.value;
-    console.log('🔍 Token encontrado no cookie:', authToken ? 'Sim' : 'Não');
+    debugLog.info('🔍 Token encontrado no cookie:', authToken ? 'Sim' : 'Não');
 
     if (!authToken) {
-      console.log('❌ Token não encontrado');
+      debugLog.error('Token não encontrado');
       return NextResponse.json(
         { error: 'Token de autenticação não encontrado' },
         { status: 401 }
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const search = searchParams.get('search');
 
-    console.log('📊 Parâmetros:', { limit, offset, status, search });
+    debugLog.info('📊 Parâmetros:', { limit, offset, status, search });
 
     client = await pool.connect();
     
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
         c.last_message_at,
         c.created_at,
         c.updated_at,
-        u.nome as user_name,
+        COALESCE(NULLIF(TRIM(u.nome), ''), u.telefone, 'Usuário sem identificação') as user_name,
         u.telefone as user_phone,
         COUNT(m.id) as total_messages,
         (
@@ -95,13 +96,13 @@ export async function GET(request: NextRequest) {
 
     conversationsQuery += `
       GROUP BY c.id, u.nome, u.telefone, c.status, c.last_message_at, c.created_at, c.updated_at
-      ORDER BY c.last_message_at DESC
+      ORDER BY c.last_message_at DESC NULLS LAST
       LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
     `;
     
     params.push(limit, offset);
 
-    console.log('🔍 Executando query de conversas...');
+    debugLog.info('🔍 Executando query de conversas...');
     const conversationsResult = await client.query(conversationsQuery, params);
     
     // Buscar total de conversas para paginação
@@ -133,15 +134,18 @@ export async function GET(request: NextRequest) {
       last_message_at: row.last_message_at,
       created_at: row.created_at,
       updated_at: row.updated_at,
-      nome: row.user_name,  // Mapear para nome esperado pelo frontend
-      phone: row.user_phone,  // Mapear para phone esperado pelo frontend
-      message_count: parseInt(row.total_messages) || 0,  // Mapear para message_count
+      user_name: row.user_name,  // Já vem tratado do SQL com COALESCE
+      nome: row.user_name,  // Manter compatibilidade
+      phone: row.user_phone,
+      user_phone: row.user_phone,  // Manter compatibilidade
+      message_count: parseInt(row.total_messages) || 0,
+      total_messages: parseInt(row.total_messages) || 0,  // Manter compatibilidade
       unread_messages: 0,  // Placeholder - sem campo is_read
-      last_message: row.last_message_content || "Nenhuma mensagem",  // Usar última mensagem real
-      last_message_time: row.last_message_time || row.last_message_at,  // Usar timestamp real
+      last_message: row.last_message_content || "Nenhuma mensagem",
+      last_message_time: row.last_message_time || row.last_message_at,
     }));
 
-    console.log(`✅ Encontradas ${conversations.length} conversas de ${total} totais`);
+    debugLog.info(`✅ Encontradas ${conversations.length} conversas de ${total} totais`);
 
     const responseData = {
       conversations,
@@ -171,7 +175,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro na API conversations:', error);
+    debugLog.error('Erro na API conversations:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
@@ -226,7 +230,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro na API conversations POST:', error);
+    debugLog.error('Erro na API conversations POST:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

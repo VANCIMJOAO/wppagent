@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔔 Buscando configurações de notificações...');
+    debugLog.info('🔔 Buscando configurações de notificações...');
 
     // Por enquanto, retornar configurações padrão
     // Em um sistema real, isso viria de uma tabela de configurações de notificações
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    console.log('✅ Configurações de notificações carregadas (padrão)');
+    debugLog.success('Configurações de notificações carregadas (padrão)');
 
     return NextResponse.json({
       success: true,
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar configurações de notificações:', error);
+    debugLog.error('Erro ao buscar configurações de notificações:', error);
     return NextResponse.json(
       {
         success: false,
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('💾 Salvando configurações de notificações...');
+    debugLog.info('💾 Salvando configurações de notificações...');
 
     const body = await request.json();
     const {
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    console.log('✅ Configurações de notificações salvas');
+    debugLog.success('Configurações de notificações salvas');
 
     return NextResponse.json({
       success: true,
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao salvar configurações de notificações:', error);
+    debugLog.error('Erro ao salvar configurações de notificações:', error);
     return NextResponse.json(
       {
         success: false,

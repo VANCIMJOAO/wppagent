@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('👥 API Users: Iniciando carregamento de usuários...');
+    debugLog.info('API Users: Iniciando carregamento de usuários...');
     
     // Buscar dados do backend
     const backendUrl = process.env.RAILWAY_API_URL || 'http://localhost:8000';
@@ -15,12 +16,12 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error('❌ Erro na resposta do backend:', response.status, response.statusText);
+      debugLog.error(`Erro na resposta do backend: ${response.status} ${response.statusText}`);
       throw new Error(`Backend error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('✅ API Users: Dados recebidos do backend:', data);
+    debugLog.success('API Users: Dados recebidos do backend');
 
     // Retornar dados padronizados
     return NextResponse.json({
@@ -43,66 +44,33 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro na API Users:', error);
+    debugLog.error('Erro na API Users:', error);
     
-    // Fallback para dados mock em caso de erro
-    const mockUsers = [
-      {
-        id: 1,
-        nome: 'Admin Principal',
-        email: 'admin@whatsapp-agent.com',
-        role: 'admin',
-        status: 'active',
-        created_at: new Date().toISOString(),
-        last_login: new Date(Date.now() - 86400000).toISOString(),
-      },
-      {
-        id: 2,
-        nome: 'Operador 1',
-        email: 'operador1@whatsapp-agent.com',
-        role: 'operator',
-        status: 'active',
-        created_at: new Date(Date.now() - 172800000).toISOString(),
-        last_login: new Date(Date.now() - 3600000).toISOString(),
-      },
-      {
-        id: 3,
-        nome: 'Operador 2',
-        email: 'operador2@whatsapp-agent.com',
-        role: 'operator',
-        status: 'inactive',
-        created_at: new Date(Date.now() - 259200000).toISOString(),
-        last_login: new Date(Date.now() - 604800000).toISOString(),
-      }
-    ];
-
+    // Retornar erro apropriado sem fallback mock
     return NextResponse.json({
-      success: true,
-      data: mockUsers,
-      users: mockUsers,
-      pagination: {
-        total: mockUsers.length,
-        limit: 100,
-        offset: 0,
-        hasMore: false,
-      }
-    }, {
-      status: 200,
+      success: false,
+      error: 'Serviço de usuários temporariamente indisponível',
+      message: error instanceof Error ? error.message : 'Erro ao conectar com backend',
+      data: [],
+      users: []
+    }, { 
+      status: 503, // Service Unavailable
       headers: {
+        'Retry-After': '60', // Cliente deve tentar novamente em 60 segundos
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
+      }
     });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('👥 API Users: Criando novo usuário...');
+    debugLog.info('API Users: Criando novo usuário...');
     
     const body = await request.json();
-    console.log('📝 Dados do usuário:', body);
+    debugLog.info('Dados do usuário recebidos');
     
     // Buscar dados do backend
     const backendUrl = process.env.RAILWAY_API_URL || 'http://localhost:8000';
@@ -116,12 +84,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error('❌ Erro na resposta do backend:', response.status, response.statusText);
+      debugLog.error(`Erro na resposta do backend: ${response.status} ${response.statusText}`);
       throw new Error(`Backend error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('✅ API Users: Usuário criado:', data);
+    debugLog.success('API Users: Usuário criado');
 
     return NextResponse.json({
       success: true,
@@ -137,7 +105,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro na API Users POST:', error);
+    debugLog.error('Erro na API Users POST:', error);
     
     return NextResponse.json({
       success: false,

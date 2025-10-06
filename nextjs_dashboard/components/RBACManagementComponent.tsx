@@ -91,9 +91,11 @@ const RBACManagementComponent: React.FC = () => {
   // Carregar dados
   const loadUsers = useCallback(async () => {
     try {
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch('/api/rbac/users', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${null}`, // ✅ REMOVIDO: Token inseguro
+          'Content-Type': 'application/json'
         },
       });
 
@@ -108,9 +110,11 @@ const RBACManagementComponent: React.FC = () => {
 
   const loadRoles = useCallback(async () => {
     try {
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch('/api/rbac/roles', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${null}`, // ✅ REMOVIDO: Token inseguro
+          'Content-Type': 'application/json'
         },
       });
 
@@ -125,9 +129,11 @@ const RBACManagementComponent: React.FC = () => {
 
   const loadPermissions = useCallback(async () => {
     try {
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch('/api/rbac/permissions', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${null}`, // ✅ REMOVIDO: Token inseguro
+          'Content-Type': 'application/json'
         },
       });
 
@@ -142,9 +148,11 @@ const RBACManagementComponent: React.FC = () => {
 
   const loadStats = useCallback(async () => {
     try {
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch('/api/rbac/stats', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${null}`, // ✅ REMOVIDO: Token inseguro
+          'Content-Type': 'application/json'
         },
       });
 

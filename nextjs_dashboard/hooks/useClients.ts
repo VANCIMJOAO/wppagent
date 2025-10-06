@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Client } from '@/types/api';
+import { debugLog } from '@/lib/debug';
 
 export interface ClientsResponse {
   success: boolean;
@@ -82,7 +83,7 @@ export function useClients(options: UseClientsOptions = {}): UseClientsReturn {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       setError(errorMessage);
-      console.error('❌ Erro ao buscar clientes:', err);
+      debugLog.error('Erro ao buscar clientes:', err);
     } finally {
       setLoading(false);
     }
@@ -116,7 +117,7 @@ export function useClients(options: UseClientsOptions = {}): UseClientsReturn {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       setError(errorMessage);
-      console.error('❌ Erro ao criar cliente:', err);
+      debugLog.error('Erro ao criar cliente:', err);
       return null;
     }
   }, [fetchClients]);

@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 Verificando status de autenticação...');
+    debugLog.info('🔍 Verificando status de autenticação...');
 
     // Verificar se há token nos cookies
     const accessToken = request.cookies.get('access_token')?.value;
     const sessionInfo = request.cookies.get('session-info')?.value;
 
     if (!accessToken) {
-      console.log('❌ Nenhum token de acesso encontrado');
+      debugLog.error('Nenhum token de acesso encontrado');
       return NextResponse.json({
         success: false,
         isAuthenticated: false,
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
       const result = await jwtVerify(accessToken, secretKey);
       
       if (result.payload) {
-        console.log('✅ Token válido - usuário autenticado localmente');
+        debugLog.success('Token válido - usuário autenticado localmente');
         return NextResponse.json({
           success: true,
           isAuthenticated: true,
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
           }
         });
       } else {
-        console.log('❌ Token inválido - payload vazio');
+        debugLog.error('Token inválido - payload vazio');
         return NextResponse.json({
           success: false,
           isAuthenticated: false,
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
         });
       }
     } catch (jwtError) {
-      console.error('❌ Erro ao verificar token JWT:', jwtError);
+      debugLog.error('Erro ao verificar token JWT:', jwtError);
       return NextResponse.json({
         success: false,
         isAuthenticated: false,
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('❌ Erro no sistema de autenticação:', error);
+    debugLog.error('Erro no sistema de autenticação:', error);
     return NextResponse.json(
       {
         success: false,

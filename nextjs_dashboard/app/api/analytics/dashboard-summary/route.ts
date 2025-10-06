@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📊 API: Dashboard summary solicitado');
+    debugLog.info('📊 API: Dashboard summary solicitado');
 
     // Verificar autenticação
     const authToken = request.cookies.get('access_token')?.value;
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    console.log('✅ Dashboard summary retornado com sucesso');
+    debugLog.success('Dashboard summary retornado com sucesso');
 
     return NextResponse.json({
       success: true,
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('❌ Erro na API dashboard-summary:', error.message);
+    debugLog.error('Erro na API dashboard-summary:', error.message);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

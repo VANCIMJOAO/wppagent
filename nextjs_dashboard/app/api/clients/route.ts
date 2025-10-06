@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it uses cookies
 export const dynamic = 'force-dynamic';
@@ -16,14 +17,14 @@ export async function GET(request: NextRequest) {
   let client;
   
   try {
-    console.log('🔍 API Clients: Buscando dados reais do PostgreSQL');
+    debugLog.info('🔍 API Clients: Buscando dados reais do PostgreSQL');
 
     // ✅ Extrair token do cookie HTTP-only para validação
     const authToken = request.cookies.get('access_token')?.value;
-    console.log('🔍 Token encontrado no cookie:', authToken ? 'Sim' : 'Não');
+    debugLog.info('🔍 Token encontrado no cookie:', authToken ? 'Sim' : 'Não');
 
     if (!authToken) {
-      console.log('❌ Token não encontrado');
+      debugLog.error('Token não encontrado');
       return NextResponse.json(
         { error: 'Token de autenticação não encontrado' },
         { status: 401 }
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
     const search = searchParams.get('search');
 
-    console.log('📊 Parâmetros:', { limit, offset, search });
+    debugLog.info('📊 Parâmetros:', { limit, offset, search });
 
     client = await pool.connect();
     
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
     
     params.push(limit, offset);
 
-    console.log('🔍 Executando query de clientes...');
+    debugLog.info('🔍 Executando query de clientes...');
     const clientsResult = await client.query(clientsQuery, params);
     
     // Buscar total de clientes para paginação
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
       last_interaction: null, // Campo para compatibilidade
     }));
 
-    console.log(`✅ Encontrados ${clients.length} clientes de ${total} totais`);
+    debugLog.info(`✅ Encontrados ${clients.length} clientes de ${total} totais`);
 
     const responseData = {
       clients,
@@ -139,7 +140,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro na API clients:', error);
+    debugLog.error('Erro na API clients:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

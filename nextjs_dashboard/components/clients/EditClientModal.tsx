@@ -23,6 +23,7 @@ import {
 import { User, Phone, Mail, AlertCircle, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Client } from '@/types/api';
+import { debugLog } from '@/lib/debug';
 
 interface EditClientModalProps {
   isOpen: boolean;
@@ -155,7 +156,7 @@ export default function EditClientModal({
       onClose();
       
     } catch (error) {
-      console.error('Erro ao atualizar cliente:', error);
+      debugLog.error('Erro ao atualizar cliente:', error);
       toast.error(
         error instanceof Error 
           ? error.message 

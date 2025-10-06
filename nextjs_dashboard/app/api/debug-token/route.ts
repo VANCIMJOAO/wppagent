@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
     // Extrair token do cookie
     const authToken = request.cookies.get('access_token')?.value;
     
-    console.log('🔍 Debug Token - Token encontrado:', authToken ? 'Sim' : 'Não');
+    debugLog.info('🔍 Debug Token - Token encontrado:', authToken ? 'Sim' : 'Não');
     
     if (authToken) {
-      console.log('🔍 Token completo:', authToken);
-      console.log('🔍 Token length:', authToken.length);
-      console.log('🔍 Token primeiros 50 chars:', authToken.substring(0, 50));
+      debugLog.info('🔍 Token completo:', authToken);
+      debugLog.info('🔍 Token length:', authToken.length);
+      debugLog.info('🔍 Token primeiros 50 chars:', authToken.substring(0, 50));
       
       // Testar se o token funciona com Railway
       const testResponse = await fetch('https://wppagent-production.up.railway.app/admin/me', {
@@ -21,11 +22,11 @@ export async function GET(request: NextRequest) {
         },
       });
       
-      console.log('🧪 Teste Railway - Status:', testResponse.status);
+      debugLog.info('🧪 Teste Railway - Status:', testResponse.status);
       
       if (testResponse.ok) {
         const userData = await testResponse.json();
-        console.log('✅ Token válido no Railway:', userData);
+        debugLog.success('Token válido no Railway:', userData);
         
         // Testar também o endpoint de conversas
         const conversationsResponse = await fetch('https://wppagent-production.up.railway.app/conversations?limit=5', {
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
         });
       } else {
         const errorText = await testResponse.text();
-        console.log('❌ Token inválido no Railway:', errorText);
+        debugLog.error('Token inválido no Railway:', errorText);
         
         return NextResponse.json({
           success: false,
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('❌ Erro no debug token:', error);
+    debugLog.error('Erro no debug token:', error);
     return NextResponse.json({
       success: false,
       message: 'Erro interno',

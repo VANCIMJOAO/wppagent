@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/react-query'
 import { toast } from 'sonner'
 import type { Conversation, Message } from '@/types/api'
+import { debugLog } from '@/lib/debug';
 
 // Simulando serviço de API para conversas
 const conversationsApi = {
@@ -18,11 +19,12 @@ const conversationsApi = {
     if (filters.status) params.append('status', filters.status)
     if (filters.user_id) params.append('user_id', filters.user_id.toString())
 
+    // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
     const response = await fetch(`/api/conversations?${params}`, {
       method: 'GET',
+      credentials: 'include', // Inclui cookies HttpOnly automaticamente
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${null}`
+        'Content-Type': 'application/json'
       }
     })
 
@@ -34,11 +36,12 @@ const conversationsApi = {
   },
 
   async getConversation(id: number): Promise<Conversation> {
+    // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
     const response = await fetch(`/api/conversations/${id}`, {
       method: 'GET',
+      credentials: 'include', // Inclui cookies HttpOnly automaticamente
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${null}`
+        'Content-Type': 'application/json'
       }
     })
 
@@ -58,11 +61,12 @@ const conversationsApi = {
     if (filters.limit) params.append('limit', filters.limit.toString())
     if (filters.page) params.append('page', filters.page.toString())
 
+    // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
     const response = await fetch(`/api/conversations/${conversationId}/messages?${params}`, {
       method: 'GET',
+      credentials: 'include', // Inclui cookies HttpOnly automaticamente
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${null}`
+        'Content-Type': 'application/json'
       }
     })
 
@@ -74,11 +78,12 @@ const conversationsApi = {
   },
 
   async sendMessage(conversationId: number, data: { content: string; message_type?: string }): Promise<Message> {
+    // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
     const response = await fetch(`/api/conversations/${conversationId}/messages`, {
       method: 'POST',
+      credentials: 'include', // Inclui cookies HttpOnly automaticamente
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${null}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     })
@@ -222,7 +227,7 @@ export function useSendMessage() {
         )
       }
 
-      console.error('Erro ao enviar mensagem:', error)
+      debugLog.error('Erro ao enviar mensagem:', error)
       toast.error(error.message || 'Erro ao enviar mensagem')
     },
 
@@ -244,11 +249,12 @@ export function useMarkAsRead() {
       conversationId: number
       messageIds: number[]
     }) => {
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch(`/api/conversations/${conversationId}/messages/read`, {
         method: 'POST',
+        credentials: 'include', // Inclui cookies HttpOnly automaticamente
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${null}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ message_ids: messageIds })
       })
@@ -283,7 +289,7 @@ export function useMarkAsRead() {
     },
 
     onError: (error: any) => {
-      console.error('Erro ao marcar como lida:', error)
+      debugLog.error('Erro ao marcar como lida:', error)
       toast.error('Erro ao marcar mensagens como lidas')
     }
   })

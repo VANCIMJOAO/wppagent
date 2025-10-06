@@ -10,8 +10,10 @@ from typing import Optional
 
 import bcrypt
 from sqlalchemy import (
+    ARRAY,
     JSON,
     Boolean,
+    CheckConstraint,
     Column,
     DateTime,
     Float,
@@ -111,6 +113,7 @@ class User(Base):
     conversations = relationship("Conversation", back_populates="user")
     appointments = relationship("Appointment", back_populates="user")
     messages = relationship("Message", back_populates="user")
+    feedbacks = relationship("CustomerFeedback", back_populates="user")  # ✅ NOVO: Para dashboard
 
 
 class Conversation(Base):
@@ -120,17 +123,19 @@ class Conversation(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    status = Column(String(20), default="active", index=True)  # active, human, closed
+    status = Column(String(20), default="active", index=True)  # active, human, closed, converted, scheduled
     phone_number = Column(String(20))  # ✅ Campo adicionado conforme database
     last_message_at = Column(
         DateTime(timezone=True), server_default=func.now(), index=True
     )
+    first_response_at = Column(DateTime(timezone=True), nullable=True, index=True)  # ✅ NOVO: Para dashboard
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relacionamentos
     user = relationship("User", back_populates="conversations")
     messages = relationship("Message", back_populates="conversation")
+    feedbacks = relationship("CustomerFeedback", back_populates="conversation")  # ✅ NOVO
 
 
 class Message(Base):
@@ -153,6 +158,33 @@ class Message(Base):
     # Relacionamentos
     user = relationship("User", back_populates="messages")
     conversation = relationship("Conversation", back_populates="messages")
+
+
+class CustomerFeedback(Base):
+    """Modelo para feedback de satisfação dos clientes
+    
+    Usado para métricas de satisfação no dashboard e analytics.
+    Ratings de 1-5 estrelas com comentários opcionais.
+    """
+
+    __tablename__ = "customer_feedback"
+
+    id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    rating = Column(Integer, nullable=False)  # 1-5 estrelas
+    comment = Column(Text, nullable=True)
+    feedback_type = Column(String(50), nullable=True)  # 'nps', 'csat', 'ces', etc
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relacionamentos
+    conversation = relationship("Conversation", back_populates="feedbacks")
+    user = relationship("User", back_populates="feedbacks")
+
+    __table_args__ = (
+        CheckConstraint('rating >= 1 AND rating <= 5', name='check_rating_range'),
+    )
 
 
 class Business(Base):
@@ -791,3 +823,40 @@ class AuthUser(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
     last_login = Column(DateTime(timezone=True))
+
+
+class Template(Base):
+    """
+    Modelo para templates de mensagens WhatsApp
+    """
+    __tablename__ = "templates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    category = Column(String(50), nullable=False, index=True)
+    language = Column(String(10), default='pt-BR')
+    content = Column(Text, nullable=False)
+    status = Column(String(20), default='pending', index=True)
+    variables = Column(ARRAY(String), default=[])
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    approved_at = Column(DateTime(timezone=True), nullable=True)
+    rejected_at = Column(DateTime(timezone=True), nullable=True)
+    rejection_reason = Column(Text, nullable=True)
+
+    def to_dict(self):
+        """Converter para dicionário"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'category': self.category,
+            'language': self.language,
+            'content': self.content,
+            'status': self.status,
+            'variables': self.variables or [],
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'approved_at': self.approved_at.isoformat() if self.approved_at else None,
+            'rejected_at': self.rejected_at.isoformat() if self.rejected_at else None,
+            'rejection_reason': self.rejection_reason
+        }

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔄 API: Funnel de conversão solicitado');
+    debugLog.info('🔄 API: Funnel de conversão solicitado');
     
     // Mock data para o funil de conversão
     const funnelData = {
@@ -21,11 +22,11 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    console.log('✅ Funnel de conversão retornado com sucesso');
+    debugLog.success('Funnel de conversão retornado com sucesso');
     return NextResponse.json(funnelData);
 
   } catch (error) {
-    console.error('❌ Erro ao buscar funnel de conversão:', error);
+    debugLog.error('Erro ao buscar funnel de conversão:', error);
     return NextResponse.json(
       {
         success: false,

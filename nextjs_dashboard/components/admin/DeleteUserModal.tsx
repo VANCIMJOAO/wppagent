@@ -9,6 +9,7 @@ import {
   DialogTitle 
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { debugLog } from '@/lib/debug';
 import { 
   AlertTriangle, 
   Shield, 
@@ -57,7 +58,7 @@ export function DeleteUserModal({ user, onClose, onConfirm }: DeleteUserModalPro
       await new Promise(resolve => setTimeout(resolve, 1000));
       onConfirm(user.id);
     } catch (error) {
-      console.error('Erro ao deletar usuário:', error);
+      debugLog.error('Erro ao deletar usuário:', error);
     } finally {
       setIsDeleting(false);
     }

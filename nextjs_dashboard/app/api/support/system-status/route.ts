@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('⚡ Verificando status do sistema...');
+    debugLog.info('⚡ Verificando status do sistema...');
 
     // Função para verificar se uma URL está respondendo
     const checkUrl = async (url: string, timeout = 5000): Promise<{status: string, responseTime: number}> => {
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
           total_messages: parseInt(messagesResult[0]?.total || '0')
         };
       } catch (error) {
-        console.warn('Erro ao coletar métricas:', error);
+        debugLog.warn('Erro ao coletar métricas:', error);
       }
     }
 
@@ -173,7 +174,7 @@ export async function GET(request: NextRequest) {
     const overallStatus = onlineServices === totalServices ? 'online' : 
                          onlineServices > totalServices / 2 ? 'warning' : 'offline';
 
-    console.log(`✅ Status do sistema: ${overallStatus} (${onlineServices}/${totalServices} serviços online)`);
+    debugLog.info(`✅ Status do sistema: ${overallStatus} (${onlineServices}/${totalServices} serviços online)`);
 
     return NextResponse.json({
       success: true,
@@ -187,7 +188,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao verificar status do sistema:', error);
+    debugLog.error('Erro ao verificar status do sistema:', error);
     return NextResponse.json(
       {
         success: false,

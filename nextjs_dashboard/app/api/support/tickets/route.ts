@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🎫 Buscando tickets de suporte do PostgreSQL...');
+    debugLog.info('🎫 Buscando tickets de suporte do PostgreSQL...');
 
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get('status') || '';
@@ -84,7 +85,7 @@ export async function GET(request: NextRequest) {
       resolved_at: ticket.resolved_at
     }));
 
-    console.log(`✅ Encontrados ${formattedTickets.length} tickets (total: ${total})`);
+    debugLog.info(`✅ Encontrados ${formattedTickets.length} tickets (total: ${total})`);
 
     return NextResponse.json({
       success: true,
@@ -99,7 +100,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar tickets:', error);
+    debugLog.error('Erro ao buscar tickets:', error);
     return NextResponse.json(
       {
         success: false,
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🎫 Criando novo ticket de suporte...');
+    debugLog.info('🎫 Criando novo ticket de suporte...');
 
     const body = await request.json();
     const { name, email, category, priority, subject, message } = body;
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
 
     const newTicket = result[0];
 
-    console.log(`✅ Ticket criado com ID: ${newTicket.id}`);
+    debugLog.info(`✅ Ticket criado com ID: ${newTicket.id}`);
 
     return NextResponse.json({
       success: true,
@@ -155,7 +156,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao criar ticket:', error);
+    debugLog.error('Erro ao criar ticket:', error);
     return NextResponse.json(
       {
         success: false,

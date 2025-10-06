@@ -1,15 +1,27 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { debugLog } from '@/lib/debug';
+import { emitAuthEvent, AuthEventType } from '@/lib/auth-events';
 
 /**
  * Hook para renovação automática de token
- * Verifica e renova o token antes que expire
+ * 
+ * Funcionalidades:
+ * - Verifica validade do token a cada 10 minutos
+ * - Renova token automaticamente quando necessário
+ * - Emite eventos de autenticação para sincronização global
+ * - Previne múltiplas renovações simultâneas
+ * 
+ * ✅ CORREÇÃO #11: Todos os logs são condicionais via debugLog
+ * - debugLog só executa em NODE_ENV=development
+ * - Zero logs em produção (performance e segurança)
+ * - Para produção, use sistema de monitoring (Sentry, DataDog)
  */
 export function useTokenRefresh() {
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isRefreshingRef = useRef(false);
 
-  const refreshToken = async (): Promise<boolean> => {
+  const refreshToken = useCallback(async (): Promise<boolean> => {
+    // Prevenir múltiplas renovações simultâneas
     if (isRefreshingRef.current) {
       debugLog.warn('⚠️ Renovação de token já em andamento, pulando...');
       return false;
@@ -29,20 +41,32 @@ export function useTokenRefresh() {
 
       if (response.ok) {
         debugLog.success('✅ Token renovado automaticamente!');
+        emitAuthEvent(AuthEventType.TOKEN_REFRESHED, {
+          source: 'use-token-refresh',
+          reason: 'Token renovado com sucesso'
+        });
         return true;
       } else {
         debugLog.warn('⚠️ Falha ao renovar token automaticamente');
+        emitAuthEvent(AuthEventType.TOKEN_EXPIRED, {
+          source: 'use-token-refresh',
+          reason: 'Falha ao renovar token'
+        });
         return false;
       }
     } catch (error) {
       debugLog.error('❌ Erro ao renovar token:', error);
+      emitAuthEvent(AuthEventType.SESSION_EXPIRED, {
+        source: 'use-token-refresh',
+        reason: 'Erro ao renovar token'
+      });
       return false;
     } finally {
       isRefreshingRef.current = false;
     }
-  };
+  }, []);
 
-  const checkTokenValidity = async (): Promise<boolean> => {
+  const checkTokenValidity = useCallback(async (): Promise<boolean> => {
     try {
       const response = await fetch('/api/auth/status', {
         method: 'GET',
@@ -64,32 +88,24 @@ export function useTokenRefresh() {
         debugLog.success('✅ Token válido via secure cookie');
       } else {
         debugLog.warn('⚠️ Token inválido ou expirado');
-        
-        // ✅ CORREÇÃO: Redirecionamento removido para evitar loop infinito
-        // O auth-context.tsx agora centraliza todos os redirecionamentos
-        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-          debugLog.info('🔄 Token expirado detectado - deixando auth-context fazer redirecionamento');
-          // Redirecionamento centralizado no auth-context.tsx
-        }
+        emitAuthEvent(AuthEventType.TOKEN_EXPIRED, {
+          source: 'use-token-refresh',
+          reason: 'Token inválido ou expirado'
+        });
       }
       
       return isValid;
     } catch (error) {
       debugLog.error('❌ Erro ao verificar validade do token:', error);
-      
-      // ✅ CORREÇÃO: Redirecionamento removido para evitar loop infinito
-      // O auth-context.tsx agora centraliza todos os redirecionamentos
-      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-        debugLog.info('🔄 Erro de verificação detectado - deixando auth-context fazer redirecionamento');
-        // Redirecionamento centralizado no auth-context.tsx
-      }
-      
+      emitAuthEvent(AuthEventType.SESSION_EXPIRED, {
+        source: 'use-token-refresh',
+        reason: 'Erro ao verificar validade do token'
+      });
       return false;
     }
-  };
+  }, []);
 
   useEffect(() => {
-    // Verificar token a cada 10 minutos (token agora expira em 2 horas)
     const checkInterval = 10 * 60 * 1000; // 10 minutos
     
     const startTokenRefresh = () => {
@@ -104,13 +120,7 @@ export function useTokenRefresh() {
         
         if (!isValid) {
           debugLog.warn('⚠️ Token inválido, tentando renovar...');
-          const refreshed = await refreshToken();
-          
-          if (!refreshed) {
-            debugLog.error('❌ Falha ao renovar token - deixando auth-context fazer redirecionamento');
-            // ✅ CORREÇÃO: NÃO redirecionar aqui - auth-context centraliza redirecionamentos
-            // window.location.href = '/login'; // REMOVIDO para evitar loop infinito
-          }
+          await refreshToken();
         } else {
           debugLog.success('✅ Token válido');
         }
@@ -126,7 +136,8 @@ export function useTokenRefresh() {
       }
       clearTimeout(initialDelay);
     };
-  }, [refreshToken, checkTokenValidity]); // ✅ CORREÇÃO: Dependências corretas
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Dependências vazias intencionais - funções são estáveis via useCallback
 
   return {
     refreshToken,

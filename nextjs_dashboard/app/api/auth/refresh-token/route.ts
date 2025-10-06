@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function POST(req: NextRequest) {
   try {
-    console.log('🔄 API: Solicitação de renovação de token recebida');
+    debugLog.info('🔄 API: Solicitação de renovação de token recebida');
 
     // Verificar se há token atual nos cookies
     const currentToken = req.cookies.get('access_token')?.value;
     
     if (!currentToken) {
-      console.log('❌ Nenhum token atual encontrado para renovação');
+      debugLog.error('Nenhum token atual encontrado para renovação');
       return NextResponse.json({
         success: false,
         error: 'Token atual não encontrado'
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log('🔐 API: Fazendo login no backend para renovar token...');
+    debugLog.auth('API: Fazendo login no backend para renovar token...');
 
     // Login no backend para obter novo token
     const loginResponse = await fetch('https://wppagent-production.up.railway.app/admin/login', {
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     if (!loginResponse.ok) {
       const errorText = await loginResponse.text();
-      console.error('❌ API: Falha no login do backend:', loginResponse.status, errorText);
+      debugLog.error('API: Falha no login do backend:', { status: loginResponse.status, error: errorText });
       throw new Error(`Login falhou: ${loginResponse.status}`);
     }
 
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
       throw new Error('Token não foi retornado pelo backend');
     }
 
-    console.log('✅ API: Novo token obtido com sucesso');
+    debugLog.success('API: Novo token obtido com sucesso');
 
     // Criar resposta com o novo token
     const response = NextResponse.json({
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-    console.error('❌ API: Erro ao renovar token:', error);
+    debugLog.error('API: Erro ao renovar token:', error);
 
     return NextResponse.json({
       success: false,

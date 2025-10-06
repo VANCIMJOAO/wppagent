@@ -1,19 +1,36 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { useToast } from '@/components/error-boundaries/ToastProvider'
+import { useToast } from '@/components/shared/toast/ToastProvider-consolidated'
+import { debugLog } from '@/lib/debug'
 
+/**
+ * Hook robusto para gerenciar conexão WebSocket
+ * 
+ * ✅ CORREÇÃO #21: Todos os logs são condicionais via debugLog
+ * - console.log substituído por debugLog (15 ocorrências)
+ * - Zero logs em produção (NODE_ENV=development apenas)
+ * - Para produção, use sistema de monitoring (Sentry, DataDog)
+ */
 export function useWebSocketRobust(url: string) {
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const mountedRef = useRef(true)
-  const { showSuccess, showInfo, showWarning } = useToast()
+  const { success: showSuccess, info: showInfo, warning: showWarning } = useToast()
+  
+  // ✅ CORREÇÃO #20: Usar refs para funções de toast (evitar mudanças de dependências)
+  const toastRef = useRef({ showSuccess, showInfo, showWarning })
+  
+  // Atualizar refs quando funções mudarem
+  useEffect(() => {
+    toastRef.current = { showSuccess, showInfo, showWarning }
+  }, [showSuccess, showInfo, showWarning])
 
   const connect = useCallback(() => {
     if (!mountedRef.current) return
 
     // Se já existe uma conexão ativa, não criar nova
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      console.log('✅ useWebSocketRobust: Já conectado')
+      debugLog.info('✅ useWebSocketRobust: Já conectado')
       setIsConnected(true)
       setError(null)
       return
@@ -21,81 +38,87 @@ export function useWebSocketRobust(url: string) {
 
     // Se está conectando, aguardar
     if (wsRef.current && wsRef.current.readyState === WebSocket.CONNECTING) {
-      console.log('⏳ useWebSocketRobust: Conectando...')
+      debugLog.info('⏳ useWebSocketRobust: Conectando...')
       return
     }
 
-    console.log('🔗 useWebSocketRobust: Iniciando conexão para:', url)
+    debugLog.info('🔗 useWebSocketRobust: Iniciando conexão para:', url)
     
     try {
       const ws = new WebSocket(url)
-      wsRef.current = ws
-
-      ws.onopen = () => {
+      
+      // 🔧 FIX: Definir handlers como funções nomeadas para poder remover depois
+      const handleOpen = () => {
         if (!mountedRef.current) return
-        console.log('✅ useWebSocketRobust: Conectado!')
+        debugLog.success('✅ useWebSocketRobust: Conectado!')
         setIsConnected(true)
         setError(null)
       }
 
-      ws.onmessage = (event) => {
+      const handleMessage = (event: MessageEvent) => {
         if (!mountedRef.current) return
-        console.log('📥 useWebSocketRobust: Mensagem recebida:', event.data)
+        debugLog.info('📥 useWebSocketRobust: Mensagem recebida:', event.data)
         
         try {
           const data = JSON.parse(event.data)
-          console.log('🔍 useWebSocketRobust: Dados parseados:', data)
-          console.log('🔍 useWebSocketRobust: Tipo da mensagem:', data.type)
+          debugLog.info('🔍 useWebSocketRobust: Dados parseados:', data)
+          debugLog.info('🔍 useWebSocketRobust: Tipo da mensagem:', data.type)
           
           // Processar notificações
           if (data.type === 'notification') {
             const { event_type, data: notificationData } = data
-            console.log('🔔 useWebSocketRobust: Processando notificação:', event_type, notificationData)
+            debugLog.info(`🔔 useWebSocketRobust: Processando notificação: ${event_type}`, notificationData)
             
             // Mostrar toast baseado no tipo de evento
             switch (event_type) {
               case 'appointment_created':
-                console.log('🎯 useWebSocketRobust: Mostrando toast de agendamento criado')
-                showSuccess('📅 Novo Agendamento!', notificationData.message || 'Um novo agendamento foi criado')
+                debugLog.info('🎯 useWebSocketRobust: Mostrando toast de agendamento criado')
+                toastRef.current.showSuccess('📅 Novo Agendamento!', notificationData.message || 'Um novo agendamento foi criado')
                 break
               case 'appointment_updated':
-                showInfo('✏️ Agendamento Atualizado!', notificationData.message || 'Um agendamento foi atualizado')
+                toastRef.current.showInfo('✏️ Agendamento Atualizado!', notificationData.message || 'Um agendamento foi atualizado')
                 break
               case 'appointment_cancelled':
-                showWarning('❌ Agendamento Cancelado!', notificationData.message || 'Um agendamento foi cancelado')
+                toastRef.current.showWarning('❌ Agendamento Cancelado!', notificationData.message || 'Um agendamento foi cancelado')
                 break
               case 'system_notification':
-                showInfo('🔔 Notificação do Sistema', notificationData.message || 'Nova notificação do sistema')
+                toastRef.current.showInfo('🔔 Notificação do Sistema', notificationData.message || 'Nova notificação do sistema')
                 break
               case 'client_created':
-                showSuccess('👤 Novo Cliente!', notificationData.message || 'Um novo cliente foi cadastrado')
+                toastRef.current.showSuccess('👤 Novo Cliente!', notificationData.message || 'Um novo cliente foi cadastrado')
                 break
               default:
-                showInfo('🔔 Nova Notificação', notificationData.message || 'Nova notificação recebida')
+                toastRef.current.showInfo('🔔 Nova Notificação', notificationData.message || 'Nova notificação recebida')
             }
           } else {
-            console.log('⚠️ useWebSocketRobust: Tipo de mensagem não é notificação:', data.type)
+            debugLog.warn('⚠️ useWebSocketRobust: Tipo de mensagem não é notificação:', data.type)
           }
         } catch (error) {
-          console.error('❌ Erro ao processar mensagem WebSocket:', error)
+          debugLog.error('❌ Erro ao processar mensagem WebSocket:', error)
         }
       }
 
-      ws.onerror = (error) => {
+      const handleError = (error: Event) => {
         if (!mountedRef.current) return
-        console.error('❌ useWebSocketRobust: Erro:', error)
+        debugLog.error('❌ useWebSocketRobust: Erro:', error)
         setError('Erro na conexão WebSocket')
         setIsConnected(false)
       }
 
-      ws.onclose = (event) => {
+      const handleClose = (event: CloseEvent) => {
         if (!mountedRef.current) return
-        console.log('🔌 useWebSocketRobust: Fechado:', event.code, event.reason)
+        debugLog.info(`🔌 useWebSocketRobust: Fechado: code=${event.code} reason=${event.reason}`)
         setIsConnected(false)
+        
+        // 🔧 FIX: Remover todos os event listeners antes de reconectar
+        ws.removeEventListener('open', handleOpen)
+        ws.removeEventListener('message', handleMessage)
+        ws.removeEventListener('error', handleError)
+        ws.removeEventListener('close', handleClose)
         
         // Reconectar após 3 segundos se não foi fechado intencionalmente
         if (event.code !== 1000 && mountedRef.current) {
-          console.log('🔄 useWebSocketRobust: Tentando reconectar em 3s...')
+          debugLog.info('🔄 useWebSocketRobust: Tentando reconectar em 3s...')
           setTimeout(() => {
             if (mountedRef.current) {
               connect()
@@ -104,15 +127,26 @@ export function useWebSocketRobust(url: string) {
         }
       }
 
+      // 🔧 FIX: Usar addEventListener em vez de propriedades diretas
+      // Isso permite remover os listeners depois
+      ws.addEventListener('open', handleOpen)
+      ws.addEventListener('message', handleMessage)
+      ws.addEventListener('error', handleError)
+      ws.addEventListener('close', handleClose)
+      
+      wsRef.current = ws
+
     } catch (err) {
       if (!mountedRef.current) return
-      console.error('❌ useWebSocketRobust: Erro ao criar WebSocket:', err)
+      debugLog.error('❌ useWebSocketRobust: Erro ao criar WebSocket:', err)
       setError('Erro ao criar WebSocket')
     }
-  }, [url])
+  }, [url]) // ✅ CORREÇÃO #20: Apenas url nas dependências (toast functions via ref)
 
   const disconnect = useCallback(() => {
     if (wsRef.current) {
+      // 🔧 FIX: Fechar conexão de forma limpa
+      // O evento 'close' já vai remover os listeners via handleClose
       wsRef.current.close(1000, 'Disconnect requested')
       wsRef.current = null
     }
@@ -124,10 +158,28 @@ export function useWebSocketRobust(url: string) {
     connect()
 
     return () => {
+      // 🔧 FIX: Cleanup adequado
       mountedRef.current = false
-      disconnect()
+      
+      // Fechar conexão e limpar listeners
+      if (wsRef.current) {
+        // Se o WebSocket ainda existe, remover listeners manualmente
+        // antes de fechar para evitar que handleClose tente reconectar
+        const ws = wsRef.current
+        
+        // Criar dummy handlers para garantir que não há reconexão
+        ws.onopen = null
+        ws.onmessage = null
+        ws.onerror = null
+        ws.onclose = null
+        
+        ws.close(1000, 'Component unmounting')
+        wsRef.current = null
+      }
+      
+      setIsConnected(false)
     }
-  }, [connect, disconnect])
+  }, [connect])
 
   return { isConnected, error, reconnect: connect, disconnect }
 }

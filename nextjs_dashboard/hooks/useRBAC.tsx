@@ -5,6 +5,7 @@
 'use client';
 
 import { useState, useEffect, useContext, createContext, ReactNode, useCallback } from 'react';
+import { debugLog } from '@/lib/debug';
 
 // Tipos
 interface User {
@@ -79,7 +80,7 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
         // ✅ REMOVIDO: Token inseguro;
       }
     } catch (error) {
-      console.error('Erro ao verificar autenticação:', error);
+      debugLog.error('Erro ao verificar autenticação:', error);
       // ✅ REMOVIDO: Token inseguro;
     } finally {
       setIsLoading(false);
@@ -158,7 +159,7 @@ export const RBACProvider: React.FC<RBACProviderProps> = ({ children }) => {
         setRoles(userData.roles || []);
       }
     } catch (error) {
-      console.error('Erro ao atualizar dados do usuário:', error);
+      debugLog.error('Erro ao atualizar dados do usuário:', error);
     }
   };
 

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { debugLog } from '@/lib/debug';
 import { 
   AlertTriangle, 
   Trash2,
@@ -90,7 +91,7 @@ export function DeleteTemplateModal({ template, onClose, onConfirm }: DeleteTemp
       await new Promise(resolve => setTimeout(resolve, 1000));
       onConfirm(template.id);
     } catch (error) {
-      console.error('Erro ao deletar template:', error);
+      debugLog.error('Erro ao deletar template:', error);
     } finally {
       setIsDeleting(false);
     }

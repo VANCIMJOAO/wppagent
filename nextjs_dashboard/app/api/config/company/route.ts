@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🏢 Buscando configurações da empresa...');
+    debugLog.info('🏢 Buscando configurações da empresa...');
 
     const companyQuery = `
       SELECT
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       updated_at: company.updated_at
     };
 
-    console.log(`✅ Configurações da empresa carregadas: ${formattedCompany.name}`);
+    debugLog.info(`✅ Configurações da empresa carregadas: ${formattedCompany.name}`);
 
     return NextResponse.json({
       success: true,
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar configurações da empresa:', error);
+    debugLog.error('Erro ao buscar configurações da empresa:', error);
     return NextResponse.json(
       {
         success: false,
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('💾 Salvando configurações da empresa...');
+    debugLog.info('💾 Salvando configurações da empresa...');
 
     const body = await request.json();
     const { name, phone, email, address, description, website } = body;
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     const savedCompany = result[0];
 
-    console.log(`✅ Configurações da empresa salvas: ${savedCompany.name}`);
+    debugLog.info(`✅ Configurações da empresa salvas: ${savedCompany.name}`);
 
     return NextResponse.json({
       success: true,
@@ -150,7 +151,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao salvar configurações da empresa:', error);
+    debugLog.error('Erro ao salvar configurações da empresa:', error);
     return NextResponse.json(
       {
         success: false,

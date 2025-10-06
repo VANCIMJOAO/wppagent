@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RealAnalyticsDashboard } from '@/components/analytics/RealAnalyticsDashboard';
-import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary';
+import { UniversalErrorBoundary } from '@/components/shared/error-boundary/UniversalErrorBoundary';
 import { useRealAnalytics } from '@/hooks/use-real-analytics';
 import {
   BarChart3,
@@ -138,7 +138,7 @@ export default function RealAnalyticsPage() {
       )}
 
       {/* Main Dashboard */}
-      <AdvancedErrorBoundary>
+      <UniversalErrorBoundary level="component" name="Analytics Dashboard">
         {useRealData ? (
           <Card>
             <CardHeader>
@@ -171,7 +171,7 @@ export default function RealAnalyticsPage() {
             </CardContent>
           </Card>
         )}
-      </AdvancedErrorBoundary>
+      </UniversalErrorBoundary>
 
       {/* Error Display */}
       {dashboardError && (

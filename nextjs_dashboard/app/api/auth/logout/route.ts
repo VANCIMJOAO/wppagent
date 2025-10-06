@@ -4,10 +4,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔓 Logout realizado');
+    debugLog.info('🔓 Logout realizado');
 
     // Criar resposta de sucesso
     const response = NextResponse.json({
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error: any) {
-    console.error('❌ Erro no logout:', error.message);
+    debugLog.error('Erro no logout:', error.message);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

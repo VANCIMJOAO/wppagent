@@ -8,7 +8,7 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { useDashboardStatsRobust } from '@/hooks/useDashboardStatsRobust'
+import { useDashboard } from '@/hooks/useDashboard'
 import {
   AlertTriangle,
   Wifi,
@@ -36,7 +36,8 @@ export const DashboardWithRecovery: React.FC<DashboardRecoveryProps> = ({
   className = ''
 }) => {
   const {
-    data: stats,
+    data,
+    stats,
     error,
     isLoading,
     isFetching,
@@ -52,14 +53,7 @@ export const DashboardWithRecovery: React.FC<DashboardRecoveryProps> = ({
     isDegraded,
     canRetry,
     debugInfo
-  } = useDashboardStatsRobust({
-    maxRetries: 3,
-    retryDelay: 1000,
-    cacheTimeout: 30 * 60 * 1000, // 30 min
-    enableDegradedMode: true,
-    enableNetworkDetection: true,
-    enableOfflineMode: true
-  })
+  } = useDashboard() // TODO: Implementar funcionalidades robustas após consolidação
 
   // Status visual baseado no modo de recovery
   const getStatusInfo = () => {

@@ -11,8 +11,9 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { useDashboardWebSocket } from '../hooks/useRealtimeWebSocket'
+// import { useDashboardWebSocket } from '../hooks/useRealtimeWebSocket' // Hook removido na consolidação
 import { useQuery } from '@tanstack/react-query'
+import { debugLog } from '@/lib/debug';
 
 // ============= TYPES =============
 interface DashboardStats {
@@ -32,9 +33,11 @@ interface DashboardProps {
 // ============= API FUNCTIONS =============
 const fetchDashboardStats = async (): Promise<DashboardStats> => {
     try {
+        // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
         const response = await fetch('/api/dashboard/stats', {
+            credentials: 'include', // Inclui cookies HttpOnly automaticamente
             headers: {
-                'Authorization': `Bearer ${null}`
+                'Content-Type': 'application/json'
             }
         })
 
@@ -45,7 +48,7 @@ const fetchDashboardStats = async (): Promise<DashboardStats> => {
         const data = await response.json()
         return data as DashboardStats
     } catch (error) {
-        console.error('Erro ao buscar estatísticas:', error)
+        debugLog.error('Erro ao buscar estatísticas:', error)
         throw error
     }
 }
@@ -183,13 +186,12 @@ export default function RealtimeDashboard({
     const [animatingCards, setAnimatingCards] = useState<Set<string>>(new Set())
 
     // WebSocket connection
-    const {
-        isConnected,
-        status,
-        connectionId,
-        lastMessage,
-        refreshDashboard
-    } = useDashboardWebSocket(token)
+    // TODO: Implementar WebSocket após consolidação
+    const isConnected = false
+    const status = 'disconnected'
+    const connectionId: any = ''
+    const lastMessage: any = null
+    const refreshDashboard = () => {}
 
     // Query for dashboard stats
     const { data: stats, isLoading, error, refetch } = useQuery({
@@ -398,7 +400,7 @@ export function MiniDashboard({ token }: { token?: string }) {
         refetchInterval: 30000
     })
 
-    const { isConnected } = useDashboardWebSocket(token)
+    const { isConnected } = { isConnected: false } // Hook removido na consolidação
 
     if (!stats) return null
 

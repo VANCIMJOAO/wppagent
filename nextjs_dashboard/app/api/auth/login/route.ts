@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/lib/environment-config';
+import { debugLog } from '@/lib/debug';
 
 interface LoginRequest {
   username: string;
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error) {
-    console.error('🚨 Erro no login:', error);
+    debugLog.error('🚨 Erro no login:', error);
     return NextResponse.json(
       { success: false, error: 'Erro interno do servidor' },
       { status: 500 }

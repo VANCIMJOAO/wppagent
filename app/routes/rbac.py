@@ -15,6 +15,7 @@ from app.auth.rbac_decorators import (
     RequireSuperAdmin,
     get_current_user,
 )
+from app.auth.jwt_manager import get_current_user_from_token
 from app.models.rbac import (
     PERMISSION_DEFINITIONS,
     ROLE_CONFIGURATIONS,
@@ -443,7 +444,7 @@ async def rbac_health_check():
 
 
 @router.get("/my-permissions")
-async def get_my_permissions(current_user=Depends(get_current_user)):
+async def get_my_permissions(current_user=Depends(get_current_user_from_token)):
     """Obter permissões do usuário atual (sem necessidade de permissões especiais)"""
     permissions = current_user.get_all_permissions()
 

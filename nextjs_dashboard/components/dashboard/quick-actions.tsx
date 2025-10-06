@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MessageCircle, CalendarPlus, UserPlus, BarChart3 } from "lucide-react"
+import { debugLog } from '@/lib/debug';
 
 export const QuickActions = () => {
   const actions = [
@@ -10,25 +11,25 @@ export const QuickActions = () => {
       icon: <MessageCircle className="h-6 w-6" />,
       label: "Nova Conversa",
       color: "bg-green-500 hover:bg-green-600",
-      onClick: () => console.log("Nova conversa")
+      onClick: () => debugLog.info("Nova conversa")
     },
     {
       icon: <CalendarPlus className="h-6 w-6" />,
       label: "Novo Agendamento",
       color: "bg-blue-500 hover:bg-blue-600",
-      onClick: () => console.log("Novo agendamento")
+      onClick: () => debugLog.info("Novo agendamento")
     },
     {
       icon: <UserPlus className="h-6 w-6" />,
       label: "Adicionar Cliente",
       color: "bg-purple-500 hover:bg-purple-600",
-      onClick: () => console.log("Novo cliente")
+      onClick: () => debugLog.info("Novo cliente")
     },
     {
       icon: <BarChart3 className="h-6 w-6" />,
       label: "Ver Relatórios",
       color: "bg-orange-500 hover:bg-orange-600",
-      onClick: () => console.log("Ver relatórios")
+      onClick: () => debugLog.info("Ver relatórios")
     }
   ]
 

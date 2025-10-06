@@ -34,13 +34,13 @@ import {
   Wifi,
   WifiOff
 } from 'lucide-react';
-import api from '@/lib/api-service';
 import type { Appointment as ApiAppointment, AppointmentStatus } from '@/types/api';
 import { toast } from 'sonner';
 import { ExportButtons } from '@/components/export-buttons';
 import { useWebSocketRobust } from '@/hooks/useWebSocketRobust';
 import AppointmentModal from '@/components/appointments/AppointmentModal';
 import DeleteConfirmationModal from '@/components/appointments/DeleteConfirmationModal';
+import { debugLog } from '@/lib/debug';
 
 interface AppointmentStats {
   total: number;
@@ -54,28 +54,40 @@ interface AppointmentStats {
 }
 
 // Definir tipos específicos para os mapeamentos
-const statusColors: Record<AppointmentStatus, string> = {
+const statusColors: Record<string, string> = {
     'confirmado': 'bg-green-100 text-green-800',
     'agendado': 'bg-yellow-100 text-yellow-800',
+    'scheduled': 'bg-yellow-100 text-yellow-800', // ✅ Alias para agendado
     'cancelado': 'bg-red-100 text-red-800',
+    'cancelled': 'bg-red-100 text-red-800', // ✅ Alias para cancelado
     'realizado': 'bg-blue-100 text-blue-800',
-    pendente: ''
+    'completed': 'bg-blue-100 text-blue-800', // ✅ Alias para realizado
+    'pendente': 'bg-gray-100 text-gray-800',
+    'pending': 'bg-gray-100 text-gray-800', // ✅ Alias para pendente
 };
 
-const statusLabels: Record<AppointmentStatus, string> = {
+const statusLabels: Record<string, string> = {
   'confirmado': 'Confirmado',
   'agendado': 'Agendado',
+  'scheduled': 'Agendado', // ✅ Alias para agendado
   'cancelado': 'Cancelado',
+  'cancelled': 'Cancelado', // ✅ Alias para cancelado
   'realizado': 'Realizado',
-  'pendente': 'Pendente'
+  'completed': 'Realizado', // ✅ Alias para realizado
+  'pendente': 'Pendente',
+  'pending': 'Pendente', // ✅ Alias para pendente
 };
 
-const statusIcons: Record<AppointmentStatus, LucideIcon> = {
+const statusIcons: Record<string, LucideIcon> = {
   'confirmado': CheckCircle,
   'agendado': AlertCircle,
+  'scheduled': AlertCircle, // ✅ Alias para agendado
   'cancelado': XCircle,
+  'cancelled': XCircle, // ✅ Alias para cancelado
   'realizado': CheckCircle,
-  'pendente': Clock
+  'completed': CheckCircle, // ✅ Alias para realizado
+  'pendente': Clock,
+  'pending': Clock, // ✅ Alias para pendente
 };
 
 export default function AgendamentosPage() {
@@ -113,8 +125,15 @@ export default function AgendamentosPage() {
 
   // Funções para modais
   const handleOpenAppointmentModal = (appointment?: ApiAppointment) => {
-    setSelectedAppointment(appointment || null);
-    setIsAppointmentModalOpen(true);
+    // ✅ Garantir que o modal anterior seja fechado primeiro
+    setIsAppointmentModalOpen(false);
+    setSelectedAppointment(null);
+    
+    // ✅ Pequeno delay para garantir re-render
+    setTimeout(() => {
+      setSelectedAppointment(appointment || null);
+      setIsAppointmentModalOpen(true);
+    }, 50);
   };
 
   const handleCloseAppointmentModal = () => {
@@ -151,7 +170,7 @@ export default function AgendamentosPage() {
       await loadData(); // Recarregar dados
       handleCloseDeleteModal();
     } catch (error) {
-      console.error('Erro ao excluir agendamento:', error);
+      debugLog.error('Erro ao excluir agendamento:', error);
       toast.error(
         error instanceof Error 
           ? error.message 
@@ -172,8 +191,8 @@ export default function AgendamentosPage() {
       setLoading(true);
 
       const [appointmentsResponse, dashboardResponse] = await Promise.all([
-        api.getAppointments(),
-        api.getDashboardStats()
+        fetch('/api/appointments', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/dashboard/stats', { credentials: 'include' }).then(r => r.json())
       ]);
 
       // Acessa os dados da resposta da API
@@ -210,7 +229,7 @@ export default function AgendamentosPage() {
         setAppointmentStats(calculatedStats);
 
       } catch (error) {
-        console.error('Erro ao carregar dados dos agendamentos:', error);
+        debugLog.error('Erro ao carregar dados dos agendamentos:', error);
         toast.error('Erro ao carregar dados dos agendamentos');
       } finally {
         setLoading(false);
@@ -226,7 +245,7 @@ export default function AgendamentosPage() {
   // Carregar dados de clientes e serviços para os modais
   const loadClientsAndServices = async () => {
     try {
-      console.log('🔍 Carregando dados reais de clientes e serviços...');
+      debugLog.info('Carregando dados reais de clientes e serviços...');
       
       // Buscar clientes reais do banco
       const clientsResponse = await fetch('/api/clients?limit=100', {
@@ -242,7 +261,7 @@ export default function AgendamentosPage() {
       }
 
       const clientsData = await clientsResponse.json();
-      console.log('✅ Clientes carregados:', clientsData.clients?.length || 0);
+      debugLog.success(`Clientes carregados: ${clientsData.clients?.length || 0}`);
       
       // Buscar serviços reais do banco
       const servicesResponse = await fetch('/api/services?limit=100', {
@@ -258,7 +277,7 @@ export default function AgendamentosPage() {
       }
 
       const servicesData = await servicesResponse.json();
-      console.log('✅ Serviços carregados:', servicesData.services?.length || 0);
+      debugLog.success(`Serviços carregados: ${servicesData.services?.length || 0}`);
 
       // Mapear dados para o formato esperado pelo modal
       setClients(
@@ -278,23 +297,14 @@ export default function AgendamentosPage() {
         }))
       );
 
-      console.log('✅ Dados reais carregados com sucesso!');
+      debugLog.success('Dados reais carregados com sucesso!');
     } catch (error) {
-      console.error('❌ Erro ao carregar dados para modais:', error);
+      debugLog.error('Erro ao carregar dados para modais:', error);
       
-      // Fallback para dados mock em caso de erro
-      console.log('🔄 Usando dados de fallback...');
-      setClients([
-        { id: 1, nome: 'João Silva', telefone: '(11) 99999-9999' },
-        { id: 2, nome: 'Maria Santos', telefone: '(11) 88888-8888' },
-        { id: 3, nome: 'Pedro Oliveira', telefone: '(11) 77777-7777' },
-      ]);
-
-      setServices([
-        { id: 1, name: 'Consulta Médica', duration_minutes: 60, price: 150.00 },
-        { id: 2, name: 'Exame de Sangue', duration_minutes: 30, price: 80.00 },
-        { id: 3, name: 'Ultrassom', duration_minutes: 45, price: 200.00 },
-      ]);
+      // Sem fallback - apenas exibir erro e manter arrays vazios
+      toast.error('Erro ao carregar clientes e serviços. Verifique sua conexão.');
+      setClients([]);
+      setServices([]);
     }
   };
 
@@ -360,274 +370,356 @@ export default function AgendamentosPage() {
   };
 
   return (
-    <div className="space-y-6" data-testid="appointments-page">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 space-y-6" data-testid="appointments-page">
+      {/* Header Moderno */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <div className="flex items-center space-x-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Agendamentos</h1>
-            <p className="text-gray-600 mt-1">Gestão de agenda e compromissos</p>
+          <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md">
+            <Calendar className="h-7 w-7 text-white" />
           </div>
-          {/* WebSocket Status */}
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              Agendamentos
+            </h1>
+            <p className="text-gray-500 mt-0.5 text-sm">Gerencie sua agenda de forma inteligente</p>
+          </div>
+          {/* WebSocket Status - Compacto */}
           <Badge
             variant={isConnected ? "default" : "destructive"}
-            className={`flex items-center space-x-2 ${
-              isConnected ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+            className={`flex items-center gap-1.5 px-2.5 py-1 ${
+              isConnected ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"
             }`}
           >
-            <Wifi className="w-3 h-3" />
-            <span>{isConnected ? "Conectado" : "Desconectado"}</span>
-          </Badge>
-          {/* Real-time Activity Counter */}
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-xs">
-              {error ? `Erro: ${error}` : "WebSocket ativo"}
-            </Badge>
-            {error && (
-              <Button 
-                onClick={reconnect} 
-                size="sm" 
-                variant="outline"
-                className="text-xs"
-              >
-                🔄 Reconectar
-              </Button>
+            {isConnected ? (
+              <Wifi className="w-3.5 h-3.5" />
+            ) : (
+              <WifiOff className="w-3.5 h-3.5" />
             )}
-          </div>
+            <span className="text-xs font-medium">{isConnected ? "Online" : "Offline"}</span>
+          </Badge>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3">
           <ExportButtons
             startDate={new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0]}
             endDate={new Date().toISOString().split('T')[0]}
-            className="bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600"
+            className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 shadow-md transition-all duration-200"
           />
-          <Button onClick={() => handleOpenAppointmentModal()}>
+          <Button 
+            onClick={() => handleOpenAppointmentModal()}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md transition-all duration-200"
+          >
             <CalendarPlus className="h-4 w-4 mr-2" />
             Novo Agendamento
           </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total</p>
-                {loading ? (
-                  <Skeleton className="h-6 w-12" />
-                ) : (
-                  <p className="text-2xl font-bold text-gray-900">{appointmentStats.total}</p>
-                )}
+      {/* Stats Cards - Design Moderno */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {/* Total */}
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-5">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Total</p>
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <Calendar className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <Calendar className="h-6 w-6 text-blue-600" />
+              {loading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <p className="text-3xl font-bold text-blue-900">{appointmentStats.total}</p>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Hoje</p>
-                {loading ? (
-                  <Skeleton className="h-6 w-12" />
-                ) : (
-                  <p className="text-2xl font-bold text-orange-600">{appointmentStats.today}</p>
-                )}
+        {/* Hoje */}
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-5">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide">Hoje</p>
+                <div className="p-2 bg-orange-500 rounded-lg">
+                  <Clock className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <Clock className="h-6 w-6 text-orange-600" />
+              {loading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <p className="text-3xl font-bold text-orange-900">{appointmentStats.today}</p>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Confirmados</p>
-                {loading ? (
-                  <Skeleton className="h-6 w-12" />
-                ) : (
-                  <p className="text-2xl font-bold text-green-600">{appointmentStats.confirmed}</p>
-                )}
+        {/* Confirmados */}
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-5">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-green-700 uppercase tracking-wide">Confirmados</p>
+                <div className="p-2 bg-green-500 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <CheckCircle className="h-6 w-6 text-green-600" />
+              {loading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <p className="text-3xl font-bold text-green-900">{appointmentStats.confirmed}</p>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Pendentes</p>
-                {loading ? (
-                  <Skeleton className="h-6 w-12" />
-                ) : (
-                  <p className="text-2xl font-bold text-yellow-600">{appointmentStats.pending}</p>
-                )}
+        {/* Pendentes */}
+        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-5">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">Pendentes</p>
+                <div className="p-2 bg-yellow-500 rounded-lg">
+                  <AlertCircle className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <AlertCircle className="h-6 w-6 text-yellow-600" />
+              {loading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <p className="text-3xl font-bold text-yellow-900">{appointmentStats.pending}</p>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Concluídos</p>
-                {loading ? (
-                  <Skeleton className="h-6 w-12" />
-                ) : (
-                  <p className="text-2xl font-bold text-blue-600">{appointmentStats.completed}</p>
-                )}
+        {/* Concluídos */}
+        <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200 hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-5">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">Concluídos</p>
+                <div className="p-2 bg-indigo-500 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <CheckCircle className="h-6 w-6 text-blue-600" />
+              {loading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <p className="text-3xl font-bold text-indigo-900">{appointmentStats.completed}</p>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Cancelados</p>
-                {loading ? (
-                  <Skeleton className="h-6 w-12" />
-                ) : (
-                  <p className="text-2xl font-bold text-red-600">{appointmentStats.cancelled}</p>
-                )}
+        {/* Cancelados */}
+        <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200 hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-5">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-red-700 uppercase tracking-wide">Cancelados</p>
+                <div className="p-2 bg-red-500 rounded-lg">
+                  <XCircle className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <XCircle className="h-6 w-6 text-red-600" />
+              {loading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <p className="text-3xl font-bold text-red-900">{appointmentStats.cancelled}</p>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList>
-          <TabsTrigger value="list">Lista</TabsTrigger>
-          <TabsTrigger value="calendar">Calendário</TabsTrigger>
-          <TabsTrigger value="today">Hoje</TabsTrigger>
+      {/* Tabs - Design Moderno */}
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+        <TabsList className="bg-white border border-gray-200 p-1.5 shadow-sm rounded-lg">
+          <TabsTrigger 
+            value="list" 
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all duration-200"
+          >
+            📋 Lista Completa
+          </TabsTrigger>
+          <TabsTrigger 
+            value="calendar" 
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all duration-200"
+          >
+            📅 Calendário
+          </TabsTrigger>
+          <TabsTrigger 
+            value="today" 
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all duration-200"
+          >
+            🔥 Hoje
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="list" className="space-y-6">
-          {/* Filters */}
-          <Card>
+        <TabsContent value="list" className="space-y-6 mt-6">
+          {/* Filters - Design Melhorado */}
+          <Card className="shadow-md border-gray-200 bg-white">
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
+                    <Search className="h-5 w-5 absolute left-3 top-2.5 text-blue-400" />
                     <Input
-                      placeholder="Buscar agendamentos..."
+                      placeholder="🔍 Buscar por cliente ou serviço..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                      className="pl-11 border-2 border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-lg transition-all duration-200"
                     />
                   </div>
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Status" />
+                  <SelectTrigger className="w-full sm:w-52 border-2 border-gray-200 focus:border-blue-400 rounded-lg">
+                    <SelectValue placeholder="📊 Status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos os Status</SelectItem>
-                    <SelectItem value="confirmado">Confirmado</SelectItem>
-                    <SelectItem value="agendado">Agendado</SelectItem>
-                    <SelectItem value="realizado">Realizado</SelectItem>
-                    <SelectItem value="cancelado">Cancelado</SelectItem>
+                    <SelectItem value="confirmado">✅ Confirmado</SelectItem>
+                    <SelectItem value="agendado">📅 Agendado</SelectItem>
+                    <SelectItem value="realizado">✔️ Realizado</SelectItem>
+                    <SelectItem value="cancelado">❌ Cancelado</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={dateFilter} onValueChange={setDateFilter}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Data" />
+                  <SelectTrigger className="w-full sm:w-52 border-2 border-gray-200 focus:border-blue-400 rounded-lg">
+                    <SelectValue placeholder="📆 Período" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todas as Datas</SelectItem>
-                    <SelectItem value="today">Hoje</SelectItem>
-                    <SelectItem value="tomorrow">Amanhã</SelectItem>
-                    <SelectItem value="week">Esta Semana</SelectItem>
+                    <SelectItem value="today">🔥 Hoje</SelectItem>
+                    <SelectItem value="tomorrow">⏭️ Amanhã</SelectItem>
+                    <SelectItem value="week">📅 Esta Semana</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </CardContent>
           </Card>
 
-          {/* Appointments List */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Agendamentos</CardTitle>
+          {/* Appointments List - Design Premium */}
+          <Card className="shadow-lg border-gray-200 overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200 py-5">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-3 text-2xl">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                    <Calendar className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Agendamentos
+                  </span>
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-blue-100 text-blue-700 font-semibold">
+                    {filteredAppointments.length} {filteredAppointments.length === 1 ? 'agendamento' : 'agendamentos'}
+                  </Badge>
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {filteredAppointments.map((appointment) => {
-                  const StatusIcon = statusIcons[appointment.status];
-                  return (
-                    <div
-                      key={appointment.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100">
-                          <StatusIcon className={`h-5 w-5 ${
-                            appointment.status === 'confirmado' ? 'text-green-600' :
-                            appointment.status === 'agendado' ? 'text-yellow-600' :
-                            appointment.status === 'cancelado' ? 'text-red-600' :
-                            'text-blue-600'
-                          }`} />
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <h3 className="font-medium text-gray-900">{appointment.customer_name}</h3>
-                            <Badge className={statusColors[appointment.status]}>
-                              {statusLabels[appointment.status]}
-                            </Badge>
+            <CardContent className="p-6 bg-gray-50">
+              {loading ? (
+                <div className="space-y-4">
+                  {[1,2,3].map(i => (
+                    <Skeleton key={i} className="h-28 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : filteredAppointments.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl inline-block mb-4">
+                    <Calendar className="h-20 w-20 text-blue-300 mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">Nenhum agendamento encontrado</h3>
+                  <p className="text-gray-500 text-sm">Ajuste os filtros ou crie um novo agendamento</p>
+                  <Button 
+                    onClick={() => handleOpenAppointmentModal()}
+                    className="mt-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+                  >
+                    <CalendarPlus className="h-4 w-4 mr-2" />
+                    Criar Primeiro Agendamento
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredAppointments.map((appointment) => {
+                    // ✅ Fallback seguro para status desconhecidos
+                    const StatusIcon = statusIcons[appointment.status] || Clock;
+                    const isConfirmed = appointment.status === 'confirmado';
+                    const isCancelled = appointment.status === 'cancelado' || appointment.status === 'cancelled';
+                    const isScheduled = appointment.status === 'agendado' || appointment.status === 'scheduled';
+                    
+                    return (
+                      <div
+                        key={appointment.id}
+                        className="group flex items-center justify-between p-6 bg-white border-2 border-gray-100 rounded-xl hover:border-blue-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                      >
+                        <div className="flex items-center space-x-5 flex-1">
+                          {/* Icon com gradiente */}
+                          <div className={`flex items-center justify-center w-14 h-14 rounded-xl shadow-lg ${
+                            isConfirmed ? 'bg-gradient-to-br from-green-400 via-green-500 to-green-600' :
+                            isScheduled ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600' :
+                            isCancelled ? 'bg-gradient-to-br from-red-400 via-red-500 to-red-600' :
+                            'bg-gradient-to-br from-indigo-400 via-indigo-500 to-indigo-600'
+                          }`}>
+                            <StatusIcon className="h-7 w-7 text-white drop-shadow-md" />
                           </div>
-                          <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                            <span className="flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              {appointment.data_agendamento ? formatDate(appointment.data_agendamento) : 'Data não informada'} às {appointment.hora_agendamento}
-                            </span>
-                            <span className="flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
-                              {appointment.service_name}
-                            </span>
+                          
+                          <div className="flex-1 min-w-0">
+                            {/* Nome e Badge */}
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="font-bold text-gray-900 text-lg truncate">{appointment.customer_name}</h3>
+                              <Badge className={`${statusColors[appointment.status] || 'bg-gray-100 text-gray-800'} font-semibold text-xs px-3 py-1 shadow-sm`}>
+                                {statusLabels[appointment.status] || appointment.status}
+                              </Badge>
+                            </div>
+                            
+                            {/* Informações */}
+                            <div className="flex flex-wrap items-center gap-4 text-sm">
+                              <span className="flex items-center gap-2 text-gray-700 font-medium bg-blue-50 px-3 py-1.5 rounded-lg">
+                                <Calendar className="h-4 w-4 text-blue-600" />
+                                {appointment.data_agendamento ? formatDate(appointment.data_agendamento) : 'Data não informada'}
+                              </span>
+                              <span className="flex items-center gap-2 text-gray-700 font-medium bg-indigo-50 px-3 py-1.5 rounded-lg">
+                                <Clock className="h-4 w-4 text-indigo-600" />
+                                {appointment.hora_agendamento}
+                              </span>
+                              <span className="flex items-center gap-2 text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg">
+                                <User className="h-4 w-4 text-gray-500" />
+                                {appointment.service_name}
+                              </span>
+                            </div>
+                            
+                            {appointment.observacoes && (
+                              <p className="text-xs text-gray-600 mt-3 italic bg-yellow-50 border-l-4 border-yellow-400 px-3 py-2 rounded-r-lg">
+                                💬 {appointment.observacoes}
+                              </p>
+                            )}
                           </div>
-                          {appointment.observacoes && (
-                            <p className="text-xs text-gray-500 mt-1">{appointment.observacoes}</p>
-                          )}
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="flex space-x-1">
+                        
+                        {/* Actions - aparecem no hover */}
+                        <div className="flex items-center gap-2 ml-4 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-2 group-hover:translate-x-0">
                           <Button 
-                            variant="ghost" 
+                            variant="outline" 
                             size="sm"
                             onClick={() => handleOpenAppointmentModal(appointment)}
-                            title="Editar agendamento"
+                            className="border-2 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-500 shadow-sm font-medium"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-4 w-4 mr-1.5" />
+                            Editar
                           </Button>
                           <Button 
-                            variant="ghost" 
+                            variant="outline" 
                             size="sm"
                             onClick={() => handleOpenDeleteModal(appointment)}
-                            title="Excluir agendamento"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="border-2 border-red-300 text-red-700 hover:bg-red-50 hover:border-red-500 shadow-sm font-medium"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4 mr-1.5" />
+                            Excluir
                           </Button>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -673,8 +765,8 @@ export default function AgendamentosPage() {
                           </div>
                           <p className="text-sm text-gray-600">{appointment.service_name}</p>
                         </div>
-                        <Badge className={statusColors[appointment.status]}>
-                          {statusLabels[appointment.status]}
+                        <Badge className={statusColors[appointment.status] || 'bg-gray-100 text-gray-800'}>
+                          {statusLabels[appointment.status] || appointment.status}
                         </Badge>
                       </div>
                     );
@@ -710,8 +802,8 @@ export default function AgendamentosPage() {
                                 <span className="font-medium">{appointment.hora_agendamento}</span>
                                 <span>-</span>
                                 <span className="font-medium">{appointment.customer_name}</span>
-                                <Badge className={statusColors[appointment.status]}>
-                                  {statusLabels[appointment.status]}
+                                <Badge className={statusColors[appointment.status] || 'bg-gray-100 text-gray-800'}>
+                                  {statusLabels[appointment.status] || appointment.status}
                                 </Badge>
                               </div>
                               <p className="text-sm text-gray-600">{appointment.service_name}</p>
@@ -727,23 +819,29 @@ export default function AgendamentosPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Modais */}
-      <AppointmentModal
-        isOpen={isAppointmentModalOpen}
-        onClose={handleCloseAppointmentModal}
-        onSuccess={handleAppointmentSuccess}
-        appointment={selectedAppointment || undefined}
-        clients={clients}
-        services={services}
-      />
+      {/* Modais - Apenas renderizar quando aberto */}
+      {isAppointmentModalOpen && (
+        <AppointmentModal
+          key={selectedAppointment?.id || 'new-appointment'}
+          isOpen={isAppointmentModalOpen}
+          onClose={handleCloseAppointmentModal}
+          onSuccess={handleAppointmentSuccess}
+          appointment={selectedAppointment || undefined}
+          clients={clients}
+          services={services}
+        />
+      )}
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleDeleteAppointment}
-        appointment={selectedAppointment || undefined}
-        isLoading={isDeleting}
-      />
+      {isDeleteModalOpen && (
+        <DeleteConfirmationModal
+          key={`delete-${selectedAppointment?.id}`}
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleDeleteAppointment}
+          appointment={selectedAppointment || undefined}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 }

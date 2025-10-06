@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeQueryWithRetry } from '@/lib/database-optimized';
 import authCache from '@/lib/auth-cache';
 import { SignJWT } from 'jose';
+import { debugLog } from '@/lib/debug';
 
 // Chave secreta para JWT local
 const JWT_SECRET = new TextEncoder().encode(
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     let admin = authCache.getCachedAdmin(username);
     
     if (!admin) {
-      console.log('🔍 Buscando admin no banco de dados...');
+      debugLog.info('🔍 Buscando admin no banco de dados...');
       // Buscar usuário admin na tabela admin_users
       const adminResult = await executeQueryWithRetry(
         'SELECT id, username, password_hash, full_name, is_active FROM admin_users WHERE username = $1 AND is_active = true',
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       );
 
       if (adminResult.length === 0) {
-        console.log('❌ Usuário admin não encontrado:', username);
+        debugLog.error('Usuário admin não encontrado:', username);
         return NextResponse.json(
           { error: 'Credenciais inválidas' },
           { status: 401 }
@@ -45,14 +46,14 @@ export async function POST(request: NextRequest) {
       }
 
       admin = adminResult[0];
-      console.log('✅ Usuário admin encontrado:', admin?.username);
+      debugLog.success('Usuário admin encontrado:', admin?.username);
       
       // Cachear admin para próximas consultas
       if (admin) {
         authCache.setCachedAdmin(username, admin);
       }
     } else {
-      console.log('⚡ Admin encontrado no cache:', admin?.username);
+      debugLog.info('⚡ Admin encontrado no cache:', admin?.username);
     }
 
     // Verificar senha (usando bcrypt)
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
     const isValidPassword = await bcrypt.compare(password, admin.password_hash);
 
     if (!isValidPassword) {
-      console.log('❌ Senha inválida para usuário:', username);
+      debugLog.error('Senha inválida para usuário:', username);
       // Invalidar cache em caso de senha incorreta
       authCache.invalidateAdmin(username);
       return NextResponse.json(
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('✅ Login realizado com sucesso para:', admin.username);
+    debugLog.success('Login realizado com sucesso para:', admin.username);
 
     // 🚀 OTIMIZAÇÃO: Gerar JWT local (sem requisição externa)
     const token = await new SignJWT({
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
       .sign(JWT_SECRET);
 
     const totalTime = Date.now() - startTime;
-    console.log(`⚡ Login ULTRA-RÁPIDO concluído em ${totalTime}ms`);
+    debugLog.info(`⚡ Login ULTRA-RÁPIDO concluído em ${totalTime}ms`);
 
     // ✅ SEGURO: Definir cookies HttpOnly seguros
     const loginResponse = NextResponse.json({
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest) {
     return loginResponse;
 
   } catch (error) {
-    console.error('❌ Erro no login:', error);
+    debugLog.error('Erro no login:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

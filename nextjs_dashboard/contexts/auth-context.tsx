@@ -1,9 +1,21 @@
 "use client";
 
+/**
+ * 🔐 Auth Context Provider
+ * ========================
+ * 
+ * ✅ CORREÇÃO #7: Todos os logs são condicionais via debugLog
+ * - debugLog.* apenas executa em NODE_ENV=development
+ * - Nenhum log é emitido em produção
+ * - Informações sensíveis (email, tokens) não são logadas
+ * - Erros críticos devem usar sistema de monitoring (Sentry, DataDog, etc)
+ */
+
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { debugLog } from '@/lib/debug';
 import { useTokenRefresh } from '@/hooks/use-token-refresh';
+import { onAuthEvent, AuthEventType } from '@/lib/auth-events';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -20,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const pathname = usePathname(); // ✅ CORREÇÃO #8: Usar pathname do Next.js router
   
   // ✅ Hook para renovação automática de token
   const { refreshToken, checkTokenValidity } = useTokenRefresh();
@@ -28,6 +41,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // ✅ CORREÇÃO #12: Escutar eventos de autenticação para sincronizar estado
+  useEffect(() => {
+    if (!mounted) return;
+
+    // Escutar evento de token expirado
+    const unsubscribeTokenExpired = onAuthEvent(AuthEventType.TOKEN_EXPIRED, (data) => {
+      debugLog.warn('🔔 Evento TOKEN_EXPIRED recebido:', data);
+      
+      // Atualizar estado imediatamente
+      setIsAuthenticated(false);
+      
+      // ✅ CORREÇÃO #8: Usar pathname do Next.js router
+      if (pathname !== '/login') {
+        debugLog.info('🔄 Redirecionando para login após token expirado');
+        router.push('/login');
+      }
+    });
+
+    // Escutar evento de sessão expirada
+    const unsubscribeSessionExpired = onAuthEvent(AuthEventType.SESSION_EXPIRED, (data) => {
+      debugLog.warn('🔔 Evento SESSION_EXPIRED recebido:', data);
+      
+      // Atualizar estado imediatamente
+      setIsAuthenticated(false);
+      
+      // ✅ CORREÇÃO #8: Usar pathname do Next.js router
+      if (pathname !== '/login') {
+        debugLog.info('🔄 Redirecionando para login após sessão expirada');
+        router.push('/login');
+      }
+    });
+
+    // Escutar evento de não autorizado (401)
+    const unsubscribeUnauthorized = onAuthEvent(AuthEventType.UNAUTHORIZED, (data) => {
+      debugLog.warn('🔔 Evento UNAUTHORIZED recebido:', data);
+      
+      // Atualizar estado imediatamente
+      setIsAuthenticated(false);
+      
+      // ✅ CORREÇÃO #8: Usar pathname do Next.js router
+      if (pathname !== '/login') {
+        debugLog.info('🔄 Redirecionando para login após 401');
+        router.push('/login');
+      }
+    });
+
+    // Cleanup - remover listeners
+    return () => {
+      unsubscribeTokenExpired();
+      unsubscribeSessionExpired();
+      unsubscribeUnauthorized();
+    };
+  }, [mounted, router, pathname]); // ✅ CORREÇÃO #8: Adicionar pathname às dependências
 
   // Verificar autenticação ao carregar - APENAS via cookies seguros
   useEffect(() => {
@@ -47,10 +114,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           debugLog.info('Usuário não autenticado');
           setIsAuthenticated(false);
           
-          // ✅ Redirecionar para login se não autenticado e não estiver na página de login
-          if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          // ✅ CORREÇÃO #8: Usar pathname do Next.js router
+          if (pathname !== '/login') {
             debugLog.info('🔄 Redirecionando para login - usuário não autenticado');
-            // ✅ CORREÇÃO: Usar router.push em vez de window.location.href para evitar full page reload
             router.push('/login');
           }
         }
@@ -63,11 +129,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-  }, [mounted]); // Removido checkTokenValidity da dependência
+  }, [mounted, checkTokenValidity, router, pathname]); // ✅ CORREÇÃO #8: Adicionar pathname às dependências
 
   const login = async (email: string, password: string) => {
     try {
-      debugLog.auth(`Tentando fazer login com: ${email}`);
+      // ✅ CORREÇÃO #7: Não logar email do usuário (informação sensível)
+      debugLog.auth('Tentando fazer login...');
 
       // Fazer login real com o backend usando cookies seguros
       const response = await fetch('/api/auth/admin-login', {
@@ -90,16 +157,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       debugLog.success('Login realizado com sucesso!');
-      debugLog.info('Dados do login:', data);
+      // ✅ CORREÇÃO #7: Não logar dados de resposta (podem conter informações sensíveis)
 
       // ✅ SEGURO: Tokens agora estão em cookies HttpOnly
       // ✅ SEGURO: NÃO salvar dados sensíveis (como role) em localStorage
       // Role será buscado do backend quando necessário via JWT
 
-      debugLog.info('Definindo isAuthenticated como true...');
       setIsAuthenticated(true);
-      
-      debugLog.info('Redirecionando para /dashboard...');
       router.push('/dashboard');
     } catch (error) {
       debugLog.error('Erro no login', error);

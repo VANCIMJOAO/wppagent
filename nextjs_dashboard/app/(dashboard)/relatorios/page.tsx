@@ -1,11 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { debugLog } from '@/lib/debug';
+import ReportExportComponent from '@/components/ReportExportComponent';
 import { 
   LineChart, 
   Line, 
@@ -74,6 +77,8 @@ const CHART_COLORS = {
 const FUNNEL_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
 
 export default function RelatoriosPage() {
+  const searchParams = useSearchParams();
+  
   // State for data
   const [businessOverview, setBusinessOverview] = useState<BusinessOverview | null>(null)
   const [conversationFunnel, setConversationFunnel] = useState<ConversationFunnel | null>(null)
@@ -89,6 +94,14 @@ export default function RelatoriosPage() {
   const [granularity, setGranularity] = useState<'hour' | 'day' | 'week' | 'month'>('day')
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
+
+  // Ler parâmetro da URL para definir tab inicial
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['overview', 'funnel', 'performance', 'trends', 'export'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Load initial data
   useEffect(() => {
@@ -117,7 +130,7 @@ export default function RelatoriosPage() {
       setConversationFunnel(funnelResponse.data)
       setPerformanceMetrics(performanceResponse.data)
     } catch (error) {
-      console.error('Erro ao carregar dados de relatórios:', error)
+      debugLog.error('Erro ao carregar dados de relatórios:', error)
     } finally {
       setIsLoading(false)
     }
@@ -131,7 +144,7 @@ export default function RelatoriosPage() {
       const timeSeriesResponse = await getTimeSeriesData(timeSeriesMetric, granularity, startDate, endDate)
       setTimeSeriesData(timeSeriesResponse.data)
     } catch (error) {
-      console.error('Erro ao carregar dados temporais:', error)
+      debugLog.error('Erro ao carregar dados temporais:', error)
     }
   }
 
@@ -153,7 +166,7 @@ export default function RelatoriosPage() {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Erro ao exportar dados:', error)
+      debugLog.error('Erro ao exportar dados:', error)
     }
   }
 
@@ -204,22 +217,22 @@ export default function RelatoriosPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-8 p-6 bg-gradient-to-br from-gray-50 to-white min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics Executivos</h1>
-          <p className="text-muted-foreground">
-            Relatórios abrangentes e insights de negócio
+          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Relatórios</h1>
+          <p className="text-gray-600 mt-2 text-lg">
+            Analytics abrangentes e insights de negócio
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-3">
           <Button
             onClick={loadAllData}
             disabled={isLoading}
-            size="sm"
             variant="outline"
+            className="h-10 shadow-sm hover:shadow-md transition-all hover:scale-105"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Atualizar
@@ -227,114 +240,128 @@ export default function RelatoriosPage() {
         </div>
       </div>
 
-      {/* Export Controls */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5" />
-            Exportar Relatórios
-          </CardTitle>
-          <CardDescription>
-            Baixe os dados em diferentes formatos para análise externa
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => handleExport('csv')} variant="outline" size="sm">
-              <FileText className="h-4 w-4 mr-2" />
-              CSV
-            </Button>
-            <Button onClick={() => handleExport('excel')} variant="outline" size="sm">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Excel
-            </Button>
-            <Button onClick={() => handleExport('json')} variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              JSON
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Main Analytics Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-5 bg-white p-1.5 rounded-xl shadow-md">
+          <TabsTrigger 
+            value="overview" 
+            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-semibold"
+          >
             <Eye className="h-4 w-4" />
             Visão Geral
           </TabsTrigger>
-          <TabsTrigger value="funnel" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="funnel" 
+            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-semibold"
+          >
             <Target className="h-4 w-4" />
             Funil
           </TabsTrigger>
-          <TabsTrigger value="performance" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="performance" 
+            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-semibold"
+          >
             <Activity className="h-4 w-4" />
             Performance
           </TabsTrigger>
-          <TabsTrigger value="trends" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="trends" 
+            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-semibold"
+          >
             <LineChartIcon className="h-4 w-4" />
             Tendências
+          </TabsTrigger>
+          <TabsTrigger 
+            value="export" 
+            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-semibold"
+          >
+            <Download className="h-4 w-4" />
+            Exportar
           </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6 mt-6">
           {businessOverview && (
             <>
               {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatCurrency(businessOverview.total_revenue)}</div>
-                    <div className={`text-xs flex items-center gap-1 ${getTrendColor(businessOverview.revenue_growth)}`}>
-                      {getTrendIcon(businessOverview.revenue_growth)}
-                      {formatPercentage(businessOverview.revenue_growth)} vs período anterior
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-green-50/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-600 mb-2">Receita Total</p>
+                        <p className="text-3xl font-bold text-gray-900 mb-3">
+                          {formatCurrency(businessOverview.total_revenue)}
+                        </p>
+                        <div className={`flex items-center gap-1.5 text-xs font-medium ${getTrendColor(businessOverview.revenue_growth)}`}>
+                          {getTrendIcon(businessOverview.revenue_growth)}
+                          {formatPercentage(businessOverview.revenue_growth)} vs anterior
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
+                        <DollarSign className="h-7 w-7 text-white" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Conversas Totais</CardTitle>
-                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatNumber(businessOverview.total_conversations)}</div>
-                    <div className={`text-xs flex items-center gap-1 ${getTrendColor(businessOverview.conversations_growth)}`}>
-                      {getTrendIcon(businessOverview.conversations_growth)}
-                      {formatPercentage(businessOverview.conversations_growth)} vs período anterior
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-blue-50/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-600 mb-2">Conversas Totais</p>
+                        <p className="text-3xl font-bold text-gray-900 mb-3">
+                          {formatNumber(businessOverview.total_conversations)}
+                        </p>
+                        <div className={`flex items-center gap-1.5 text-xs font-medium ${getTrendColor(businessOverview.conversations_growth)}`}>
+                          {getTrendIcon(businessOverview.conversations_growth)}
+                          {formatPercentage(businessOverview.conversations_growth)} vs anterior
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+                        <MessageSquare className="h-7 w-7 text-white" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Clientes Ativos</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatNumber(businessOverview.active_clients)}</div>
-                    <div className={`text-xs flex items-center gap-1 ${getTrendColor(businessOverview.clients_growth)}`}>
-                      {getTrendIcon(businessOverview.clients_growth)}
-                      {formatPercentage(businessOverview.clients_growth)} vs período anterior
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-purple-50/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-600 mb-2">Clientes Ativos</p>
+                        <p className="text-3xl font-bold text-gray-900 mb-3">
+                          {formatNumber(businessOverview.active_clients)}
+                        </p>
+                        <div className={`flex items-center gap-1.5 text-xs font-medium ${getTrendColor(businessOverview.clients_growth)}`}>
+                          {getTrendIcon(businessOverview.clients_growth)}
+                          {formatPercentage(businessOverview.clients_growth)} vs anterior
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg">
+                        <Users className="h-7 w-7 text-white" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Taxa de Conversão</CardTitle>
-                    <Target className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatPercentage(businessOverview.conversion_rate)}</div>
-                    <div className={`text-xs flex items-center gap-1 ${getTrendColor(businessOverview.conversion_growth)}`}>
-                      {getTrendIcon(businessOverview.conversion_growth)}
-                      {formatPercentage(businessOverview.conversion_growth)} vs período anterior
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-orange-50/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-600 mb-2">Taxa de Conversão</p>
+                        <p className="text-3xl font-bold text-gray-900 mb-3">
+                          {formatPercentage(businessOverview.conversion_rate)}
+                        </p>
+                        <div className={`flex items-center gap-1.5 text-xs font-medium ${getTrendColor(businessOverview.conversion_growth)}`}>
+                          {getTrendIcon(businessOverview.conversion_growth)}
+                          {formatPercentage(businessOverview.conversion_growth)} vs anterior
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-red-600 shadow-lg">
+                        <Target className="h-7 w-7 text-white" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -343,12 +370,15 @@ export default function RelatoriosPage() {
               {/* Revenue and Conversations Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Revenue by Source */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Receita por Fonte</CardTitle>
-                    <CardDescription>Distribuição de receita por canal</CardDescription>
+                <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50">
+                  <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-transparent pb-4">
+                    <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                      <PieChartIcon className="h-5 w-5 text-primary" />
+                      Receita por Fonte
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">Distribuição de receita por canal</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-6">
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
                         <Pie
@@ -364,26 +394,45 @@ export default function RelatoriosPage() {
                             <Cell key={`cell-${index}`} fill={FUNNEL_COLORS[index % FUNNEL_COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                        <Tooltip 
+                          formatter={(value) => formatCurrency(value as number)}
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                          }}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </CardContent>
                 </Card>
 
                 {/* Conversations by Status */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Conversas por Status</CardTitle>
-                    <CardDescription>Distribuição atual das conversas</CardDescription>
+                <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50">
+                  <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-transparent pb-4">
+                    <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                      <BarChart3 className="h-5 w-5 text-primary" />
+                      Conversas por Status
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">Distribuição atual das conversas</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-6">
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={businessOverview.conversations_by_status || []}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="status" />
-                        <YAxis />
-                        <Tooltip formatter={(value) => formatNumber(value as number)} />
-                        <Bar dataKey="count" fill={CHART_COLORS.primary} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="status" tick={{ fontSize: 12 }} />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <Tooltip 
+                          formatter={(value) => formatNumber(value as number)}
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                          }}
+                        />
+                        <Bar dataKey="count" fill={CHART_COLORS.primary} radius={[8, 8, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -394,34 +443,49 @@ export default function RelatoriosPage() {
         </TabsContent>
 
         {/* Funnel Tab */}
-        <TabsContent value="funnel" className="space-y-6">
+        <TabsContent value="funnel" className="space-y-6 mt-6">
           {conversationFunnel && (
             <>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Funil de Conversão</CardTitle>
-                  <CardDescription>
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50">
+                <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-transparent pb-4">
+                  <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                    <Target className="h-5 w-5 text-primary" />
+                    Funil de Conversão
+                  </CardTitle>
+                  <CardDescription className="text-gray-600">
                     Jornada do lead até cliente convertido
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <ResponsiveContainer width="100%" height={400}>
                     <AreaChart data={conversationFunnel.stages || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="stage" />
-                      <YAxis />
+                      <defs>
+                        <linearGradient id="colorFunnel" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="stage" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip 
                         formatter={(value, name) => [
                           formatNumber(value as number),
                           name === 'count' ? 'Quantidade' : name
                         ]}
+                        contentStyle={{ 
+                          backgroundColor: 'white', 
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                        }}
                       />
                       <Area 
                         type="monotone" 
                         dataKey="count" 
                         stroke={CHART_COLORS.primary} 
-                        fill={CHART_COLORS.primary}
-                        fillOpacity={0.3}
+                        fill="url(#colorFunnel)"
+                        fillOpacity={1}
                       />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -429,31 +493,25 @@ export default function RelatoriosPage() {
               </Card>
 
               {/* Conversion Rates */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Taxa Lead → Interessado</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatPercentage(conversationFunnel.lead_to_interested_rate)}</div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-blue-50/30">
+                  <CardContent className="p-6">
+                    <p className="text-sm font-semibold text-gray-600 mb-3">Taxa Lead → Interessado</p>
+                    <p className="text-3xl font-bold text-blue-600">{formatPercentage(conversationFunnel.lead_to_interested_rate)}</p>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Taxa Interessado → Negociação</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatPercentage(conversationFunnel.interested_to_negotiation_rate)}</div>
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-purple-50/30">
+                  <CardContent className="p-6">
+                    <p className="text-sm font-semibold text-gray-600 mb-3">Taxa Interessado → Negociação</p>
+                    <p className="text-3xl font-bold text-purple-600">{formatPercentage(conversationFunnel.interested_to_negotiation_rate)}</p>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Taxa Negociação → Cliente</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatPercentage(conversationFunnel.negotiation_to_client_rate)}</div>
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-green-50/30">
+                  <CardContent className="p-6">
+                    <p className="text-sm font-semibold text-gray-600 mb-3">Taxa Negociação → Cliente</p>
+                    <p className="text-3xl font-bold text-green-600">{formatPercentage(conversationFunnel.negotiation_to_client_rate)}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -462,76 +520,96 @@ export default function RelatoriosPage() {
         </TabsContent>
 
         {/* Performance Tab */}
-        <TabsContent value="performance" className="space-y-6">
+        <TabsContent value="performance" className="space-y-6 mt-6">
           {performanceMetrics && (
             <>
               {/* Performance KPIs */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Tempo Médio de Resposta</CardTitle>
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{(performanceMetrics.avg_response_time || 0).toFixed(1)}s</div>
-                    <Badge variant={performanceMetrics.avg_response_time < 30 ? "default" : "destructive"}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-blue-50/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-semibold text-gray-600">Tempo Médio de Resposta</p>
+                      <Clock className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900 mb-3">{(performanceMetrics.avg_response_time || 0).toFixed(1)}s</p>
+                    <Badge 
+                      variant={performanceMetrics.avg_response_time < 30 ? "default" : "destructive"}
+                      className="font-semibold shadow-sm"
+                    >
                       {performanceMetrics.avg_response_time < 30 ? "Excelente" : "Melhorar"}
                     </Badge>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Taxa de Engajamento</CardTitle>
-                    <Activity className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatPercentage(performanceMetrics.engagement_rate)}</div>
-                    <Badge variant={performanceMetrics.engagement_rate > 70 ? "default" : "secondary"}>
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-purple-50/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-semibold text-gray-600">Taxa de Engajamento</p>
+                      <Activity className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900 mb-3">{formatPercentage(performanceMetrics.engagement_rate)}</p>
+                    <Badge 
+                      variant={performanceMetrics.engagement_rate > 70 ? "default" : "secondary"}
+                      className="font-semibold shadow-sm"
+                    >
                       {performanceMetrics.engagement_rate > 70 ? "Alto" : "Médio"}
                     </Badge>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Satisfação do Cliente</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{(performanceMetrics.satisfaction_score || 0).toFixed(1)}/5</div>
-                    <Badge variant={performanceMetrics.satisfaction_score > 4 ? "default" : "secondary"}>
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-green-50/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-semibold text-gray-600">Satisfação do Cliente</p>
+                      <Users className="h-5 w-5 text-green-600" />
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900 mb-3">{(performanceMetrics.satisfaction_score || 0).toFixed(1)}/5</p>
+                    <Badge 
+                      variant={performanceMetrics.satisfaction_score > 4 ? "default" : "secondary"}
+                      className="font-semibold shadow-sm"
+                    >
                       {performanceMetrics.satisfaction_score > 4 ? "Muito Bom" : "Bom"}
                     </Badge>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Mensagens por Conversa</CardTitle>
-                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{(performanceMetrics.messages_per_conversation || 0).toFixed(1)}</div>
-                    <p className="text-xs text-muted-foreground">Média por conversa</p>
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-white to-orange-50/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-semibold text-gray-600">Mensagens por Conversa</p>
+                      <MessageSquare className="h-5 w-5 text-orange-600" />
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900 mb-3">{(performanceMetrics.messages_per_conversation || 0).toFixed(1)}</p>
+                    <p className="text-xs text-gray-500 font-medium">Média por conversa</p>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Response Time Distribution */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Distribuição de Tempo de Resposta</CardTitle>
-                  <CardDescription>Análise detalhada dos tempos de resposta</CardDescription>
+              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50">
+                <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-transparent pb-4">
+                  <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                    <Clock className="h-5 w-5 text-primary" />
+                    Distribuição de Tempo de Resposta
+                  </CardTitle>
+                  <CardDescription className="text-gray-600">Análise detalhada dos tempos de resposta</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={performanceMetrics.response_time_distribution || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="range" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => formatNumber(value as number)} />
-                      <Bar dataKey="count" fill={CHART_COLORS.info} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="range" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip 
+                        formatter={(value) => formatNumber(value as number)}
+                        contentStyle={{ 
+                          backgroundColor: 'white', 
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                        }}
+                      />
+                      <Bar dataKey="count" fill={CHART_COLORS.info} radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -541,19 +619,22 @@ export default function RelatoriosPage() {
         </TabsContent>
 
         {/* Trends Tab */}
-        <TabsContent value="trends" className="space-y-6">
+        <TabsContent value="trends" className="space-y-6 mt-6">
           {/* Time Series Controls */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Configuração do Gráfico</CardTitle>
-              <CardDescription>Personalize a visualização dos dados temporais</CardDescription>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+            <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-transparent pb-4">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                <Filter className="h-5 w-5 text-primary" />
+                Configuração do Gráfico
+              </CardTitle>
+              <CardDescription className="text-gray-600">Personalize a visualização dos dados temporais</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
-                  <label className="text-sm font-medium mb-2 block">Métrica</label>
+                  <label className="text-sm font-semibold mb-2 block text-gray-700">Métrica</label>
                   <Select value={timeSeriesMetric} onValueChange={(value: any) => setTimeSeriesMetric(value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11 shadow-sm border-gray-300 hover:border-gray-400 transition-colors">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -566,9 +647,9 @@ export default function RelatoriosPage() {
                 </div>
                 
                 <div className="flex-1">
-                  <label className="text-sm font-medium mb-2 block">Granularidade</label>
+                  <label className="text-sm font-semibold mb-2 block text-gray-700">Granularidade</label>
                   <Select value={granularity} onValueChange={(value: any) => setGranularity(value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11 shadow-sm border-gray-300 hover:border-gray-400 transition-colors">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -585,21 +666,23 @@ export default function RelatoriosPage() {
 
           {/* Time Series Chart */}
           {timeSeriesData && (
-            <Card>
-              <CardHeader>
-                <CardTitle>
+            <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50">
+              <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-transparent pb-4">
+                <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                  <LineChartIcon className="h-5 w-5 text-primary" />
                   Tendência - {timeSeriesData?.metric_type ? timeSeriesData.metric_type.charAt(0).toUpperCase() + timeSeriesData.metric_type.slice(1) : 'Métrica'}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-600">
                   Evolução temporal da métrica selecionada
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <ResponsiveContainer width="100%" height={400}>
                   <LineChart data={timeSeriesData?.data || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="timestamp" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="timestamp" tick={{ fontSize: 12 }} />
                     <YAxis 
+                      tick={{ fontSize: 12 }}
                       tickFormatter={(value) => 
                         timeSeriesMetric === 'revenue' ? formatCurrency(value) : formatNumber(value)
                       }
@@ -609,12 +692,18 @@ export default function RelatoriosPage() {
                         timeSeriesMetric === 'revenue' ? formatCurrency(value as number) : formatNumber(value as number),
                         timeSeriesData?.metric_type || 'Métrica'
                       ]}
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="value" 
                       stroke={CHART_COLORS.primary} 
-                      strokeWidth={2}
+                      strokeWidth={3}
                       dot={{ fill: CHART_COLORS.primary, strokeWidth: 2, r: 4 }}
                       activeDot={{ r: 6, stroke: CHART_COLORS.primary, strokeWidth: 2 }}
                     />
@@ -623,6 +712,11 @@ export default function RelatoriosPage() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Export Tab */}
+        <TabsContent value="export" className="space-y-6 mt-6">
+          <ReportExportComponent />
         </TabsContent>
       </Tabs>
     </div>

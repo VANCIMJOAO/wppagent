@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/lib/environment-config';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it uses cookies
 export const dynamic = 'force-dynamic';
@@ -84,14 +85,14 @@ export async function POST(request: NextRequest) {
           path: '/',
         });
       } catch (e) {
-        console.error('Erro ao atualizar session-info:', e);
+        debugLog.error('Erro ao atualizar session-info:', e);
       }
     }
 
     return response;
 
   } catch (error) {
-    console.error('🚨 Erro no refresh:', error);
+    debugLog.error('🚨 Erro no refresh:', error);
     return NextResponse.json(
       { success: false, error: 'Erro interno do servidor' },
       { status: 500 }

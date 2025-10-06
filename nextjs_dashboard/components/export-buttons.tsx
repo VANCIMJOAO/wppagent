@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Download, FileText, FileSpreadsheet, Database, Loader2 } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { useState } from 'react'
+import { debugLog } from '@/lib/debug';
 
 interface ExportButtonsProps {
   periodDays?: number
@@ -33,19 +34,10 @@ export function ExportButtons({
     try {
       setLoading(exportType)
 
-      const token = null // ✅ REMOVIDO: Token inseguro
-      if (!token) {
-        showNotification(
-          "Erro de Autenticação",
-          "Token de acesso não encontrado. Faça login novamente.",
-          'error'
-        )
-        return
-      }
-
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch(url, {
+        credentials: 'include', // Inclui cookies HttpOnly automaticamente
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       })
@@ -80,7 +72,7 @@ export function ExportButtons({
       )
 
     } catch (error: any) {
-      console.error('Erro no download:', error)
+      debugLog.error('Erro no download:', error)
       showNotification(
         "Erro no Download",
         error.message || "Falha ao baixar arquivo. Tente novamente.",

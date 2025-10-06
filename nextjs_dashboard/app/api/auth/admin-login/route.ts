@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import authCache from '@/lib/auth-cache';
 import { executeQueryWithRetry } from '@/lib/database-optimized';
+import { debugLog } from '@/lib/debug';
 
 // Configuração do banco PostgreSQL
 const pool = new Pool({
@@ -18,7 +19,7 @@ const pool = new Pool({
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔐 Login admin via autenticação local PostgreSQL...');
+    debugLog.auth('Login admin via autenticação local PostgreSQL...');
 
     // Obter credenciais do body da requisição
     let username, password;
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
       username = body.username;
       password = body.password;
     } catch (jsonError) {
-      console.error('❌ Erro ao fazer parse do JSON:', jsonError);
+      debugLog.error('Erro ao fazer parse do JSON:', jsonError);
       return NextResponse.json(
         { error: 'Dados inválidos no corpo da requisição' },
         { status: 400 }
@@ -35,22 +36,22 @@ export async function POST(request: NextRequest) {
     }
 
     if (!username || !password) {
-      console.log('❌ Username ou password ausentes:', { username: !!username, password: !!password });
+      debugLog.error('Username ou password ausentes:', { username: !!username, password: !!password });
       return NextResponse.json(
         { error: 'Username e password são obrigatórios' },
         { status: 400 }
       );
     }
 
-    console.log('🔍 Tentando login para usuário:', username);
+    debugLog.info('🔍 Tentando login para usuário:', username);
 
     // Verificar credenciais na database
     let client;
     try {
       client = await pool.connect();
-      console.log('✅ Conectado ao banco PostgreSQL');
+      debugLog.success('Conectado ao banco PostgreSQL');
     } catch (dbError) {
-      console.error('❌ Erro ao conectar com o banco:', dbError);
+      debugLog.error('Erro ao conectar com o banco:', dbError);
       return NextResponse.json(
         { error: 'Erro de conexão com o banco de dados' },
         { status: 500 }
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
       let admin = authCache.getCachedAdmin(username);
       
       if (!admin) {
-        console.log('🔍 Buscando admin no banco de dados...');
+        debugLog.info('🔍 Buscando admin no banco de dados...');
         // Buscar usuário admin na tabela admin_users
         const adminResult = await executeQueryWithRetry(
           'SELECT id, username, password_hash, full_name, is_active FROM admin_users WHERE username = $1 AND is_active = true',
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
         );
 
         if (adminResult.length === 0) {
-          console.log('❌ Usuário admin não encontrado:', username);
+          debugLog.error('Usuário admin não encontrado:', username);
           return NextResponse.json(
             { error: 'Credenciais inválidas' },
             { status: 401 }
@@ -80,14 +81,14 @@ export async function POST(request: NextRequest) {
         }
 
         admin = adminResult[0];
-        console.log('✅ Usuário admin encontrado:', admin?.username);
+        debugLog.success('Usuário admin encontrado:', admin?.username);
         
         // Cachear admin para próximas consultas
         if (admin) {
           authCache.setCachedAdmin(username, admin);
         }
       } else {
-        console.log('⚡ Admin encontrado no cache:', admin?.username);
+        debugLog.info('⚡ Admin encontrado no cache:', admin?.username);
       }
 
       // Verificar senha (usando bcrypt)
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
       const isValidPassword = await bcrypt.compare(password, admin.password_hash);
 
       if (!isValidPassword) {
-        console.log('❌ Senha inválida para usuário:', username);
+        debugLog.error('Senha inválida para usuário:', username);
         // Invalidar cache em caso de senha incorreta
         authCache.invalidateAdmin(username);
         return NextResponse.json(
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.log('✅ Login realizado com sucesso para:', admin.username);
+      debugLog.success('Login realizado com sucesso para:', admin.username);
 
       // 🚀 OTIMIZAÇÃO: Verificar cache de token primeiro
       let token = authCache.getCachedToken(admin.id);
@@ -124,10 +125,11 @@ export async function POST(request: NextRequest) {
         );
 
         token = await new SignJWT({
-          user_id: admin.id,
+          sub: admin.id.toString(), // Campo obrigatório para o backend
           username: admin.username,
           role: 'admin',
-          full_name: admin.full_name
+          full_name: admin.full_name,
+          type: 'access' // Adicionar campo obrigatório para o backend
         })
           .setProtectedHeader({ alg: 'HS256' })
           .setIssuedAt()
@@ -137,17 +139,18 @@ export async function POST(request: NextRequest) {
         // Cachear token para próximas requisições
         authCache.setCachedToken(admin.id, token, 2 * 60 * 60); // 2 horas
       } else {
-        console.log('⚡ Token encontrado no cache para admin:', admin.username);
+        debugLog.info('⚡ Token encontrado no cache para admin:', admin.username);
       }
       const totalTime = Date.now() - startTime;
-      console.log('🔑 Token Railway obtido, length:', token.length);
-      console.log('🔑 Token primeiros 50 chars:', token.substring(0, 50));
-      console.log(`⚡ Login otimizado concluído em ${totalTime}ms`);
+      debugLog.info('🔑 Token Railway obtido, length:', token.length);
+      debugLog.info('🔑 Token primeiros 50 chars:', token.substring(0, 50));
+      debugLog.info(`⚡ Login otimizado concluído em ${totalTime}ms`);
 
       // ✅ SEGURO: Definir cookies HttpOnly seguros
       const loginResponse = NextResponse.json({
         success: true,
         message: 'Login realizado com sucesso',
+        access_token: token, // Adicionar token na resposta
         user: {
           id: admin.id,
           username: admin.username,
@@ -192,7 +195,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('❌ Erro geral na API route de login:', error.message);
+    debugLog.error('Erro geral na API route de login:', error.message);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

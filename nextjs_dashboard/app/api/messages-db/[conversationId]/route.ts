@@ -1,6 +1,7 @@
 // API para conectar diretamente ao PostgreSQL e buscar TODAS as mensagens
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { debugLog } from '@/lib/debug';
 
 // Configuração do banco PostgreSQL
 const pool = new Pool({
@@ -23,7 +24,7 @@ export async function GET(
   try {
     const { conversationId } = await params;
 
-    console.log(`🔍 POSTGRESQL: Buscando TODAS as mensagens da conversa ${conversationId}`);
+    debugLog.info(`🔍 POSTGRESQL: Buscando TODAS as mensagens da conversa ${conversationId}`);
 
     // Conectar ao PostgreSQL
     client = await pool.connect();
@@ -45,7 +46,7 @@ export async function GET(
     const result = await client.query(query, [conversationId]);
 
     if (result.rows.length === 0) {
-      console.log(`⚠️ Nenhuma mensagem encontrada para conversa ${conversationId}`);
+      debugLog.info(`⚠️ Nenhuma mensagem encontrada para conversa ${conversationId}`);
 
       return NextResponse.json({
         success: true,
@@ -75,7 +76,7 @@ export async function GET(
       message_type: row.message_type || 'text'
     }));
 
-    console.log(`✅ POSTGRESQL: ${formattedMessages.length} mensagens REAIS carregadas da conversa ${conversationId}`);
+    debugLog.info(`✅ POSTGRESQL: ${formattedMessages.length} mensagens REAIS carregadas da conversa ${conversationId}`);
 
     return NextResponse.json({
       success: true,
@@ -86,7 +87,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('❌ Erro ao conectar ao PostgreSQL:', error);
+    debugLog.error('Erro ao conectar ao PostgreSQL:', error);
 
     return NextResponse.json({
       success: false,

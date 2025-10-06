@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { format, subDays, parseISO } from 'date-fns';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it uses searchParams
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // Validação de segurança
 if (!ADMIN_PASSWORD) {
-  console.error('❌ ADMIN_PASSWORD não configurado nas variáveis de ambiente!');
+  debugLog.error('ADMIN_PASSWORD não configurado nas variáveis de ambiente!');
 }
 
 // Authentication cache
@@ -45,7 +46,7 @@ function setCache(key: string, data: any, ttl: number = 60000): void {
 function getCache(key: string): any | null {
   const entry = cache.get(key);
   if (entry && isValidCacheEntry(entry)) {
-    console.log(`📦 Server cache hit: ${key}`);
+    debugLog.info(`📦 Server cache hit: ${key}`);
     return entry.data;
   }
   return null;
@@ -54,12 +55,12 @@ function getCache(key: string): any | null {
 async function getAuthToken(): Promise<string> {
   // Check if we have a valid token
   if (authToken && tokenExpiry && Date.now() < tokenExpiry - 60000) {
-    console.log('✅ Using cached auth token');
+    debugLog.success('Using cached auth token');
     return authToken;
   }
 
-  console.log('🔐 Getting new auth token...');
-  console.log(`🔍 Using credentials: ${ADMIN_USERNAME} / ${ADMIN_PASSWORD ? 'PASSWORD_SET' : 'PASSWORD_EMPTY'}`);
+  debugLog.auth('Getting new auth token...');
+  debugLog.info(`🔍 Using credentials: ${ADMIN_USERNAME} / ${ADMIN_PASSWORD ? 'PASSWORD_SET' : 'PASSWORD_EMPTY'}`);
 
   // Login to get new token
   const loginResponse = await fetch(`${BACKEND_URL}/admin/login`, {
@@ -76,7 +77,7 @@ async function getAuthToken(): Promise<string> {
 
   if (!loginResponse.ok) {
     const errorText = await loginResponse.text();
-    console.error('❌ Login failed:', loginResponse.status, errorText);
+    debugLog.error('Login failed:', { status: loginResponse.status, error: errorText });
     throw new Error(`Login failed: ${loginResponse.status} - ${errorText}`);
   }
 
@@ -90,15 +91,15 @@ async function getAuthToken(): Promise<string> {
   try {
     const payload = JSON.parse(atob(loginData.access_token.split('.')[1]));
     tokenExpiry = payload.exp * 1000; // Convert to milliseconds
-    console.log('🕐 Token expires at:', new Date(tokenExpiry).toISOString());
+    debugLog.info('🕐 Token expires at:', new Date(tokenExpiry).toISOString());
   } catch (e) {
     // Default to 30 minutes if can't decode
     tokenExpiry = Date.now() + (30 * 60 * 1000);
-    console.warn('⚠️ Could not decode token expiry, using 30min default');
+    debugLog.warn('Could not decode token expiry, using 30min default');
   }
 
   authToken = loginData.access_token;
-  console.log('✅ Auth token acquired successfully');
+  debugLog.success('Auth token acquired successfully');
   return authToken;
 }
 
@@ -127,7 +128,7 @@ export async function GET(request: NextRequest) {
 
     // Professional fallback with intelligent data simulation
     try {
-      console.log(`🔄 Fetching analytics data from Railway backend...`);
+      debugLog.info(`🔄 Fetching analytics data from Railway backend...`);
 
       // Get authentication token
       const token = await getAuthToken();
@@ -135,8 +136,8 @@ export async function GET(request: NextRequest) {
       // Since diagnostics show all endpoints failing, try only login verification
       // If we got here, authentication works but data endpoints are broken
 
-      console.log('⚠️ Using intelligent fallback: Backend authentication works but data endpoints unavailable');
-      console.log('📊 Generating realistic analytics data based on business patterns...');
+      debugLog.warn('Using intelligent fallback: Backend authentication works but data endpoints unavailable');
+      debugLog.info('📊 Generating realistic analytics data based on business patterns...');
 
       // Create enhanced realistic data
       const enhancedData = createIntelligentFallbackResponse(startDate, endDate, days);
@@ -158,9 +159,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(response);
     } catch (backendError: any) {
       if (backendError.name === 'AbortError') {
-        console.warn('⏱️ Backend request timeout - using fallback');
+        debugLog.warn('⏱️ Backend request timeout - using fallback');
       } else {
-        console.warn('⚠️ Backend connection failed:', backendError.message);
+        debugLog.warn('Backend connection failed:', backendError.message);
       }
 
       // Use fallback data
@@ -182,7 +183,7 @@ export async function GET(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('❌ Analytics API error:', error);
+    debugLog.error('Analytics API error:', error);
     return NextResponse.json(
       {
         success: false,

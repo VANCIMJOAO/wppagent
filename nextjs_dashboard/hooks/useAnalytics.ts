@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { debugLog } from '@/lib/debug';
 
 // Tipos para dados de analytics
 export interface AnalyticsTimeRange {
@@ -138,10 +139,10 @@ export const useAnalytics = (
       const queryString = buildQueryString(memoizedFilters);
       const url = `/api/analytics/${endpoint}${queryString ? `?${queryString}` : ''}`;
 
-      const token = null // ✅ REMOVIDO: Token inseguro;
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch(url, {
+        credentials: 'include', // Inclui cookies HttpOnly automaticamente
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -158,7 +159,7 @@ export const useAnalytics = (
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
-      console.error('Erro ao carregar analytics:', err);
+      debugLog.error('Erro ao carregar analytics:', err);
     } finally {
       setLoading(false);
     }
@@ -289,10 +290,11 @@ export const useAnalyticsExport = () => {
         ...filters.agents?.length && { agents: filters.agents.join(',') },
       }).toString();
 
-      const token = null // ✅ REMOVIDO: Token inseguro;
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch(`/api/analytics/export?${queryString}`, {
+        credentials: 'include', // Inclui cookies HttpOnly automaticamente
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
       });
 

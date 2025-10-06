@@ -7,9 +7,10 @@ import type {
   AppointmentCreateRequest,
   AppointmentUpdateRequest,
   AppointmentsListResponse
-} from '@/types/api-cf001'
+} from '@/types/api'
 // TODO: CF-001 - Remove normalizers after full migration
 import { normalizeAppointment, normalizeAppointments, toAppointmentCreateData, toAppointmentUpdateData } from '@/lib/appointment-normalizer'
+import { debugLog } from '@/lib/debug';
 
 // Simulando serviço de API - você pode substituir pela implementação real
 const api = {
@@ -66,21 +67,12 @@ const api = {
     const data = await response.json()
     // ✅ Normalizar dados para garantir compatibilidade
     const normalized = normalizeAppointment(data)
-    return {
-      ...normalized,
-      userId: normalized.user_id ?? data.user_id,
-      businessId: normalized.business_id ?? data.businessId ?? data.business_id,
-      createdAt: normalized.created_at ?? data.createdAt ?? data.created_at,
-    }
+    return normalized
   },
 
   async createAppointment(data: AppointmentCreateRequest): Promise<Appointment> {
     // ✅ Converter para formato brasileiro antes de enviar
-    const normalizedData = toAppointmentCreateData({
-      ...data,
-      service_id: data.service_id == null ? undefined : data.service_id,
-      notes: data.notes == null ? undefined : data.notes
-    })
+    const normalizedData = toAppointmentCreateData(data)
 
     try {
       const response = await fetch('/api/appointments', {
@@ -99,12 +91,7 @@ const api = {
       const result = await response.json()
       // ✅ Normalizar resposta
       const normalized = normalizeAppointment(result)
-      return {
-        ...normalized,
-        userId: normalized.user_id ?? result.user_id,
-        businessId: normalized.business_id ?? result.businessId ?? result.business_id,
-        createdAt: normalized.created_at ?? result.createdAt ?? result.created_at,
-      }
+      return normalized
     } catch (error) {
       // Garantir que sempre retorna um valor ou lança erro
       throw error
@@ -113,15 +100,7 @@ const api = {
 
   async updateAppointment(id: number, data: AppointmentUpdateRequest): Promise<Appointment> {
     // ✅ Converter para formato brasileiro antes de enviar
-    const sanitizedData = {
-      ...data,
-      price: data.price == null ? undefined : data.price,
-      duration_minutes: data.duration_minutes == null ? undefined : data.duration_minutes,
-      date_time: data.date_time == null ? undefined : data.date_time,
-      status: data.status == null ? undefined : data.status,
-      notes: data.notes == null ? undefined : data.notes,
-    }
-    const normalizedData = toAppointmentUpdateData(sanitizedData)
+    const normalizedData = toAppointmentUpdateData(data)
 
     const response = await fetch(`/api/appointments/${id}`, {
       method: 'PUT',
@@ -139,12 +118,7 @@ const api = {
     const result = await response.json()
     // ✅ Normalizar resposta
     const normalized = normalizeAppointment(result)
-    return {
-      ...normalized,
-      userId: normalized.user_id ?? result.user_id,
-      businessId: normalized.business_id ?? result.businessId ?? result.business_id,
-      createdAt: normalized.created_at ?? result.createdAt ?? result.created_at,
-    }
+    return normalized
   },
 
   async deleteAppointment(id: number): Promise<{ message: string; id: number }> {
@@ -229,7 +203,7 @@ export function useCreateAppointment() {
     },
     onError: (error: any, variables, context) => {
       // Reverter optimistic update se implementado
-      console.error('Erro ao criar agendamento:', error)
+      debugLog.error('Erro ao criar agendamento:', error)
       toast.error(error.message || 'Erro ao criar agendamento')
     },
     onSettled: () => {
@@ -287,7 +261,7 @@ export function useUpdateAppointment() {
         )
       }
 
-      console.error('Erro ao atualizar agendamento:', error)
+      debugLog.error('Erro ao atualizar agendamento:', error)
       toast.error(error.message || 'Erro ao atualizar agendamento')
     },
     onSettled: (data, error, variables) => {
@@ -349,7 +323,7 @@ export function useDeleteAppointment() {
       // Invalidar listas para reverter mudanças
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.lists() })
 
-      console.error('Erro ao excluir agendamento:', error)
+      debugLog.error('Erro ao excluir agendamento:', error)
       toast.error(error.message || 'Erro ao excluir agendamento')
     }
   })

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it handles proxy requests
 export const dynamic = 'force-dynamic';
@@ -48,18 +49,18 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
   try {
     // Construir URL do backend
     const backendUrl = `${BACKEND_URL}${endpoint}${queryString}`;
-    if (isDev) console.log(`[Proxy] ${method} request to:`, backendUrl);
+    if (isDev) debugLog.info(`[Proxy] ${method} request to:`, backendUrl);
 
     // Extrair Authorization header
     const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
-    if (isDev) console.log('[Proxy] Authorization header presente:', !!authHeader);
+    if (isDev) debugLog.info('[Proxy] Authorization header presente:', !!authHeader);
 
     // Extrair cookies do frontend
     const cookieHeader = request.headers.get('Cookie');
-    if (isDev) console.log('[Proxy] Cookies present:', !!cookieHeader);
+    if (isDev) debugLog.info('[Proxy] Cookies present:', !!cookieHeader);
 
     if (authHeader && isDev) {
-      console.log('[Proxy] Authorization header preview:', authHeader.substring(0, 10) + '...');
+      debugLog.info('[Proxy] Authorization header preview:', authHeader.substring(0, 10) + '...');
     }
 
     // Preparar headers para o backend
@@ -83,13 +84,13 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     if (method !== 'GET' && method !== 'HEAD') {
       try {
         body = await request.text();
-        if (isDev) console.log('[Proxy] Request body length:', body?.length || 0);
+        if (isDev) debugLog.info('[Proxy] Request body length:', body?.length || 0);
       } catch (e) {
-        console.log('[Proxy] No body or error reading body');
+        debugLog.info('[Proxy] No body or error reading body');
       }
     }
 
-    console.log('[Proxy] Sending request with headers:', Object.keys(headers));
+    debugLog.info('[Proxy] Sending request with headers:', Object.keys(headers));
 
     // Fazer requisição para o backend
     const response = await fetch(backendUrl, {
@@ -100,13 +101,13 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
       redirect: 'manual'
     });
 
-    console.log(`[Proxy] Backend response status:`, response.status);
+    debugLog.info(`[Proxy] Backend response status:`, response.status);
 
     // Tratar redirect 307/308 manualmente
     if (response.status === 307 || response.status === 308) {
       const locationHeader = response.headers.get('location');
       if (locationHeader) {
-        console.log(`[Proxy] Following redirect to:`, locationHeader);
+        debugLog.info(`[Proxy] Following redirect to:`, locationHeader);
 
         // Refazer requisição com mesmos headers
         const redirectResponse = await fetch(locationHeader, {
@@ -125,11 +126,11 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
             data = await redirectResponse.text();
           }
         } catch (e) {
-          console.error('[Proxy] Error parsing redirect response:', e);
+          debugLog.error('[Proxy] Error parsing redirect response:', e);
           data = { error: 'Failed to parse response' };
         }
 
-        console.log(`[Proxy] Redirect response status:`, redirectResponse.status);
+        debugLog.info(`[Proxy] Redirect response status:`, redirectResponse.status);
 
         // Extrair cookies Set-Cookie do redirect também
         const redirectSetCookie = redirectResponse.headers.get('set-cookie');
@@ -167,13 +168,13 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
         }
       }
     } catch (e) {
-      console.error('[Proxy] Error parsing response:', e);
+      debugLog.error('[Proxy] Error parsing response:', e);
       data = { error: 'Failed to parse response from backend' };
     }
 
     // Log de debug para respostas de erro
     if (response.status >= 400) {
-      console.error(`[Proxy] Error response ${response.status}:`, data);
+      debugLog.error(`[Proxy] Error response ${response.status}:`, data);
     }
 
     // Extrair cookies Set-Cookie do backend para repassar
@@ -187,12 +188,12 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     // Repassar cookies Set-Cookie se existirem
     if (setCookieHeader) {
       responseHeaders['Set-Cookie'] = setCookieHeader;
-      if (isDev) console.log('[Proxy] Repassing Set-Cookie to frontend');
+      if (isDev) debugLog.info('[Proxy] Repassing Set-Cookie to frontend');
     }
 
     // ✅ DETECÇÃO ESPECIAL PARA LOGIN: Extrair token e definir cookie local
     if (method === 'POST' && endpoint.includes('/admin/login') && response.status === 200 && data?.success && data?.data?.access_token) {
-      if (isDev) console.log('[Proxy] Login detectado - extraindo token e definindo cookie');
+      if (isDev) debugLog.info('[Proxy] Login detectado - extraindo token e definindo cookie');
       
       const token = data.data.access_token;
       // ✅ CORRIGIDO: Usar o mesmo nome de cookie que o backend espera
@@ -208,7 +209,7 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
         responseHeaders['Set-Cookie'] = cookieValue;
       }
       
-      if (isDev) console.log('[Proxy] Cookie access_token definido com sucesso');
+      if (isDev) debugLog.info('[Proxy] Cookie access_token definido com sucesso');
     }
 
     return NextResponse.json(data, {
@@ -217,7 +218,7 @@ async function handleProxyRequest(request: Request, method: string, pathSegments
     });
 
   } catch (error) {
-    console.error('[Proxy] Fatal error:', error);
+    debugLog.error('[Proxy] Fatal error:', error);
     return NextResponse.json({
       error: 'Proxy error',
       message: error instanceof Error ? error.message : 'Unknown error',

@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { format, subDays } from 'date-fns';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it uses searchParams
 export const dynamic = 'force-dynamic';
@@ -208,7 +209,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erro ao carregar dados de performance:', error);
+    debugLog.error('Erro ao carregar dados de performance:', error);
     return NextResponse.json(
       {
         success: false,

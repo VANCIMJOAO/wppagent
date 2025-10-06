@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useDashboardWebSocket } from '@/hooks/useWebSocket'
+import { useWebSocketRobust } from '@/hooks/useWebSocketRobust'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -181,14 +181,17 @@ function AlertItem({ alert }: { alert: SystemAlert }) {
 }
 
 export default function RealTimeStats() {
-  const {
-    dashboardStats,
-    systemAlerts,
-    analyticsUpdates,
-    isConnected,
-    connectionStats,
-    requestStats
-  } = useDashboardWebSocket()
+  // TODO: Implementar WebSocket após consolidação
+  const dashboardStats: any = null
+  const systemAlerts: any[] = []
+  const analyticsUpdates: any[] = []
+  const isConnected = false
+  const connectionStats: any = { 
+    subscriptions: [], 
+    connectionTime: null, 
+    reconnectCount: 0 
+  }
+  const requestStats = () => {}
 
   const [previousStats, setPreviousStats] = useState<any>(null)
   const [animatingStats, setAnimatingStats] = useState<Set<string>>(new Set())
@@ -339,7 +342,7 @@ export default function RealTimeStats() {
             <div className="flex items-center justify-between py-2">
               <span className="text-sm text-gray-600">Inscrições</span>
               <div className="flex flex-wrap gap-1">
-                {connectionStats.subscriptions.map((sub) => (
+                 {connectionStats.subscriptions.map((sub: any) => (
                   <Badge key={sub} variant="outline" className="text-xs">
                     {sub}
                   </Badge>
@@ -383,7 +386,7 @@ export default function RealTimeStats() {
           </CardHeader>
           <CardContent className="space-y-2">
             {systemAlerts.length > 0 ? (
-              systemAlerts.slice(0, 5).map((alert, index) => (
+               systemAlerts.slice(0, 5).map((alert: any, index: number) => (
                 <AlertItem key={index} alert={alert} />
               ))
             ) : (
@@ -406,7 +409,7 @@ export default function RealTimeStats() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {analyticsUpdates.slice(0, 3).map((update, index) => (
+               {analyticsUpdates.slice(0, 3).map((update: any, index: number) => (
                 <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                   <span className="text-sm">{update.report_type || 'Relatório'}</span>
                   <span className="text-xs text-gray-500">

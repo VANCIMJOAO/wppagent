@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import pushNotificationService from '../lib/push-service';
+import { debugLog } from '@/lib/debug';
 
 interface PushNotificationStatus {
   supported: boolean;
@@ -46,7 +47,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         await pushNotificationService.initialize();
         updateStatus();
       } catch (error) {
-        console.error('Error initializing push notifications:', error);
+        debugLog.error('Error initializing push notifications:', error);
       } finally {
         setIsLoading(false);
       }
@@ -64,7 +65,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       updateStatus();
       return success;
     } catch (error) {
-      console.error('Error subscribing:', error);
+      debugLog.error('Error subscribing:', error);
       return false;
     } finally {
       setIsLoading(false);
@@ -80,7 +81,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       updateStatus();
       return success;
     } catch (error) {
-      console.error('Error unsubscribing:', error);
+      debugLog.error('Error unsubscribing:', error);
       return false;
     } finally {
       setIsLoading(false);
@@ -92,7 +93,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
     try {
       return await pushNotificationService.sendTestNotification();
     } catch (error) {
-      console.error('Error sending test notification:', error);
+      debugLog.error('Error sending test notification:', error);
       return false;
     }
   }, []);

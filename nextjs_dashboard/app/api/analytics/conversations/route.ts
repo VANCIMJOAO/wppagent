@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { format, subDays, parseISO } from 'date-fns';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it uses searchParams
 export const dynamic = 'force-dynamic';
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erro ao carregar dados de conversas:', error);
+    debugLog.error('Erro ao carregar dados de conversas:', error);
     return NextResponse.json(
       {
         success: false,

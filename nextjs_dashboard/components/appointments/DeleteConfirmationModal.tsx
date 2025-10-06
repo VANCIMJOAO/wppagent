@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { debugLog } from '@/lib/debug';
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -40,7 +41,7 @@ export default function DeleteConfirmationModal({
       await onConfirm();
       onClose();
     } catch (error) {
-      console.error('Erro ao excluir agendamento:', error);
+      debugLog.error('Erro ao excluir agendamento:', error);
       toast.error('Erro ao excluir agendamento');
     }
   };

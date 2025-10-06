@@ -46,6 +46,7 @@ import { TemplateModal } from '@/components/templates/TemplateModal';
 import { DeleteTemplateModal } from '@/components/templates/DeleteTemplateModal';
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { useToast } from '@/hooks/use-toast';
+import { debugLog } from '@/lib/debug';
 
 // Tipos
 interface Template {
@@ -137,66 +138,7 @@ export default function TemplatesPage() {
   const [isEdit, setIsEdit] = useState(false);
   const { toast } = useToast();
 
-  // Dados mock para demonstração
-  const mockTemplates: Template[] = [
-    {
-      id: 1,
-      nome: 'Confirmação de Agendamento',
-      categoria: 'agendamento',
-      linguagem: 'pt-BR',
-      conteudo: 'Olá {{1}}! Seu agendamento para {{2}} foi confirmado para {{3}} às {{4}}. Aguardamos você!',
-      status: 'aprovado',
-      variaveis: ['{{1}}', '{{2}}', '{{3}}', '{{4}}'],
-      created_at: '2025-09-15T10:00:00Z',
-      aprovado_em: '2025-09-16T14:30:00Z'
-    },
-    {
-      id: 2,
-      nome: 'Lembrete de Consulta',
-      categoria: 'lembrete',
-      linguagem: 'pt-BR',
-      conteudo: 'Lembrete: Sua consulta está marcada para amanhã às {{1}}. Não esqueça!',
-      status: 'aprovado',
-      variaveis: ['{{1}}'],
-      created_at: '2025-09-20T09:15:00Z',
-      aprovado_em: '2025-09-21T11:20:00Z'
-    },
-    {
-      id: 3,
-      nome: 'Promoção Especial',
-      categoria: 'marketing',
-      linguagem: 'pt-BR',
-      conteudo: '🎉 Oferta especial! {{1}} de desconto em todos os serviços até {{2}}. Agende já!',
-      status: 'pendente',
-      variaveis: ['{{1}}', '{{2}}'],
-      created_at: '2025-10-01T16:00:00Z'
-    },
-    {
-      id: 4,
-      nome: 'Código de Verificação',
-      categoria: 'autenticacao',
-      linguagem: 'pt-BR',
-      conteudo: 'Seu código de verificação é: {{1}}. Válido por 5 minutos.',
-      status: 'rejeitado',
-      variaveis: ['{{1}}'],
-      created_at: '2025-09-25T13:45:00Z',
-      rejeitado_em: '2025-09-26T10:15:00Z',
-      motivo_rejeicao: 'Formato de código não está claro'
-    },
-    {
-      id: 5,
-      nome: 'Cancelamento de Agendamento',
-      categoria: 'transacional',
-      linguagem: 'pt-BR',
-      conteudo: 'Seu agendamento de {{1}} foi cancelado. Entre em contato para reagendar.',
-      status: 'aprovado',
-      variaveis: ['{{1}}'],
-      created_at: '2025-09-28T11:30:00Z',
-      aprovado_em: '2025-09-29T09:45:00Z'
-    }
-  ];
-
-  // Carregar templates
+  // Carregar templates do backend (PostgreSQL)
   const loadTemplates = useCallback(async () => {
     setLoading(true);
     try {
@@ -213,11 +155,11 @@ export default function TemplatesPage() {
       }
 
       const data = await response.json();
-      console.log('✅ Templates carregados:', data);
-      console.log('🔍 Estrutura dos dados:', JSON.stringify(data, null, 2));
+      debugLog.success('Templates carregados:', data);
+      debugLog.info('🔍 Estrutura dos dados:', JSON.stringify(data, null, 2));
       
       if (data.success && data.data) {
-        console.log('📝 Primeiro template:', data.data[0]);
+        debugLog.info('📝 Primeiro template:', data.data[0]);
         // Mapear dados para o formato esperado
         const mappedTemplates = data.data.map((template: any) => ({
           id: template.id,
@@ -230,13 +172,13 @@ export default function TemplatesPage() {
           created_at: template.created_at,
           aprovado_em: template.approved_at || template.aprovado_em
         }));
-        console.log('📝 Templates mapeados:', mappedTemplates);
+        debugLog.info('📝 Templates mapeados:', mappedTemplates);
         setTemplates(mappedTemplates);
       } else {
         throw new Error('Dados de templates não encontrados');
       }
     } catch (error) {
-      console.error('Erro ao carregar templates:', error);
+      debugLog.error('Erro ao carregar templates:', error);
       toast({
         title: 'Erro',
         description: 'Falha ao carregar templates',

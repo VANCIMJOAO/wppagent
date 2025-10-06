@@ -7,6 +7,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { debugLog } from '@/lib/debug';
 import {
   Grid,
   Plus,
@@ -174,7 +175,7 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
       setLayout(updatedLayout);
       onLayoutChange?.(updatedLayout);
     } catch (error) {
-      console.warn('Dashboard: Não foi possível salvar layout')
+      debugLog.warn('Dashboard: Não foi possível salvar layout')
     }
   }, [layout, onLayoutChange]);
 
@@ -187,7 +188,7 @@ export const CustomDashboard: React.FC<CustomDashboardProps> = ({
         setLayout(parsedLayout);
       }
     } catch (error) {
-      console.warn('Dashboard: Erro ao carregar layout salvo:', error);
+      debugLog.warn('Dashboard: Erro ao carregar layout salvo:', error);
     }
   }, [layout.id]);
 

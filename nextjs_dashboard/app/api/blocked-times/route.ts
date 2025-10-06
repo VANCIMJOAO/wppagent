@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🚫 Buscando horários bloqueados do PostgreSQL...');
+    debugLog.info('🚫 Buscando horários bloqueados do PostgreSQL...');
     
     // Extrair parâmetros de query
     const searchParams = request.nextUrl.searchParams;
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
       notes: blockedTime.reason || '', // Usar reason como notes para compatibilidade
     }));
 
-    console.log(`✅ Encontrados ${formattedBlockedTimes.length} horários bloqueados (total: ${total})`);
+    debugLog.info(`✅ Encontrados ${formattedBlockedTimes.length} horários bloqueados (total: ${total})`);
 
     return NextResponse.json({
       success: true,
@@ -112,7 +113,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar horários bloqueados:', error);
+    debugLog.error('Erro ao buscar horários bloqueados:', error);
     return NextResponse.json(
       { 
         success: false,
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest) {
       created_by
     ]);
 
-    console.log('✅ Novo horário bloqueado criado:', newBlockedTime[0]);
+    debugLog.success('Novo horário bloqueado criado:', newBlockedTime[0]);
 
     return NextResponse.json({
       success: true,
@@ -181,7 +182,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao criar horário bloqueado:', error);
+    debugLog.error('Erro ao criar horário bloqueado:', error);
     return NextResponse.json(
       { 
         success: false,

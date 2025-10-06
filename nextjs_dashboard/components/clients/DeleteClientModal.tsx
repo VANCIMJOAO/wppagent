@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, Trash2, Users, MessageSquare, Calendar, Database } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Client } from '@/types/api';
+import { debugLog } from '@/lib/debug';
 
 interface DeleteClientModalProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ export default function DeleteClientModal({
       await onConfirm();
       onClose();
     } catch (error) {
-      console.error('Erro ao excluir cliente:', error);
+      debugLog.error('Erro ao excluir cliente:', error);
       toast.error('Erro ao excluir cliente');
     }
   };

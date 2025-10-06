@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { debugLog } from '@/lib/debug'
 
 export interface BackendStatus {
   connected: boolean;
@@ -54,10 +55,10 @@ export function useBackendStatus() {
             results[endpoint] = response.ok || response.status !== 404
             if (response.ok) connected = true
 
-            console.log(`Endpoint ${endpoint}: ${response.status}`)
+            debugLog.info(`Endpoint ${endpoint}: ${response.status}`)
           } catch (err) {
             results[endpoint] = false
-            console.log(`Endpoint ${endpoint}: ERROR`, err)
+            debugLog.error(`Endpoint ${endpoint}: ERROR`, err)
           }
         }
       } catch (err) {
@@ -108,12 +109,12 @@ export function useRealDashboardData() {
 
         for (const endpoint of possibleEndpoints) {
           try {
-            console.log(`Tentando endpoint: ${endpoint}`)
+            debugLog.api(`Tentando endpoint`, endpoint)
             const response = await fetch(endpoint)
 
             if (response.ok) {
               const responseData = await response.json()
-              console.log(`Dados encontrados em ${endpoint}:`, responseData)
+              debugLog.success(`Dados encontrados em ${endpoint}`)
               fetchedData = {
                 endpoint,
                 data: responseData,
@@ -121,10 +122,10 @@ export function useRealDashboardData() {
               }
               break
             } else {
-              console.log(`${endpoint}: ${response.status} ${response.statusText}`)
+              debugLog.info(`${endpoint}: ${response.status} ${response.statusText}`)
             }
           } catch (err) {
-            console.log(`${endpoint}: ERROR`, err)
+            debugLog.error(`${endpoint}: ERROR`, err)
           }
         }
 

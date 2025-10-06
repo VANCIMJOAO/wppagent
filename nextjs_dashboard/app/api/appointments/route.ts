@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📅 Buscando agendamentos do PostgreSQL...');
+    debugLog.info('📅 Buscando agendamentos do PostgreSQL...');
     
     // Extrair parâmetros de query
     const searchParams = request.nextUrl.searchParams;
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    console.log(`✅ Encontrados ${formattedAppointments.length} agendamentos (total: ${total})`);
+    debugLog.info(`✅ Encontrados ${formattedAppointments.length} agendamentos (total: ${total})`);
 
     return NextResponse.json({
       success: true,
@@ -112,7 +113,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar agendamentos:', error);
+    debugLog.error('Erro ao buscar agendamentos:', error);
     return NextResponse.json(
       { 
         success: false,
@@ -155,7 +156,7 @@ export async function POST(request: NextRequest) {
       price
     ]);
 
-    console.log('✅ Novo agendamento criado:', newAppointment[0]);
+    debugLog.success('Novo agendamento criado:', newAppointment[0]);
 
     return NextResponse.json({
       success: true,
@@ -164,7 +165,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao criar agendamento:', error);
+    debugLog.error('Erro ao criar agendamento:', error);
     return NextResponse.json(
       { 
         success: false,

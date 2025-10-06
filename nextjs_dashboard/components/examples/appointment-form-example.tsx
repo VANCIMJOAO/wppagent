@@ -22,7 +22,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 // Importar schemas e hooks de validação
 import { appointmentSchema, AppointmentFormData } from "@/lib/validations"
 import { useFormValidation } from "@/hooks/useFormValidation"
-import { useApiState } from "@/hooks/useApiState"
 
 // Dados mockados para serviços
 const mockServices = [
@@ -54,14 +53,11 @@ export function AppointmentForm() {
     clearFieldError
   } = useFormValidation(appointmentSchema)
 
-  // ✅ Hook de estado da API
-  const {
-    loading,
-    error: submitError,
-    setLoading,
-    setData,
-    setError
-  } = useApiState()
+  // ✅ Estado do submit (substituindo useApiState)
+  const [loading, setLoading] = useState(false)
+  const [submitError, setSubmitError] = useState<Error | null>(null)
+  const setError = (error: Error) => setSubmitError(error)
+  const setData = () => setSubmitError(null)
 
   // ✅ Atualizar campo e validar
   const updateField = (fieldName: keyof AppointmentFormData, value: any) => {
@@ -92,7 +88,7 @@ export function AppointmentForm() {
         throw new Error('Erro ao salvar agendamento')
       }
 
-      setData(formData)
+      setData() // Limpa o erro
 
       // Reset do formulário
       setFormData({

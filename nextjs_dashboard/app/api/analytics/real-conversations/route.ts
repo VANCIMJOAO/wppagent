@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { debugLog } from '@/lib/debug';
 
 // Configuração do banco PostgreSQL
 const pool = new Pool({
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
   let client;
   
   try {
-    console.log('💬 Buscando conversas reais do PostgreSQL...');
+    debugLog.info('💬 Buscando conversas reais do PostgreSQL...');
     
     // Extrair query params
     const searchParams = request.nextUrl.searchParams;
@@ -65,7 +66,7 @@ export async function GET(request: NextRequest) {
       message_count: parseInt(conv.message_count) || 0
     }));
     
-    console.log('✅ Conversas reais obtidas:', {
+    debugLog.success('Conversas reais obtidas:', {
       total: total,
       returned: conversations.length,
       limit: limit,
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('❌ Erro ao buscar conversas:', error);
+    debugLog.error('Erro ao buscar conversas:', error);
     return NextResponse.json(
       { error: 'Erro ao buscar conversas' },
       { status: 500 }

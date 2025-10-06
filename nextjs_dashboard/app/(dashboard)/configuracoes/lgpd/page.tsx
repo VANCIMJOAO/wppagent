@@ -35,8 +35,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
-import api from '@/lib/api-service';
-
+import { debugLog } from '@/lib/debug';
 interface PersonalData {
   user_identifier: string;
   data_access_date: string;
@@ -110,10 +109,13 @@ export default function LGPDPage() {
   const loadPersonalData = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/lgpd/my-data');
-      setPersonalData(response.data);
+      const response = await fetch('/api/lgpd/my-data', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setPersonalData(data);
     } catch (error) {
-      console.error('Erro ao carregar dados pessoais:', error);
+      debugLog.error('Erro ao carregar dados pessoais:', error);
       toast.error('Erro ao carregar dados pessoais');
     } finally {
       setLoading(false);
@@ -122,10 +124,13 @@ export default function LGPDPage() {
 
   const loadUserRights = async () => {
     try {
-      const response = await api.get('/lgpd/user-rights');
-      setUserRights(response.data);
+      const response = await fetch('/api/lgpd/user-rights', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setUserRights(data);
     } catch (error) {
-      console.error('Erro ao carregar direitos do usuário:', error);
+      debugLog.error('Erro ao carregar direitos do usuário:', error);
     }
   };
 
@@ -139,22 +144,31 @@ export default function LGPDPage() {
         delivery_method: 'download'
       };
 
-      const response = await api.post('/lgpd/data-portability', requestData);
-      setPortabilityRequest(response.data.data);
+      const response = await fetch('/api/lgpd/data-portability', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(requestData)
+      });
+      const data = await response.json();
+      setPortabilityRequest(data.data);
       toast.success('Solicitação de portabilidade enviada com sucesso!');
     } catch (error) {
-      console.error('Erro ao solicitar portabilidade:', error);
+      debugLog.error('Erro ao solicitar portabilidade:', error);
       toast.error('Erro ao solicitar portabilidade de dados');
     }
   };
 
   const downloadDataExport = async (requestId: string) => {
     try {
-      const response = await api.get(`/lgpd/data-portability/${requestId}/download`, {
-        responseType: 'blob'
+      const response = await fetch(`/api/lgpd/data-portability/${requestId}/download`, {
+        credentials: 'include'
       });
       
-      const blob = new Blob([response.data], { type: 'application/zip' });
+      const data = await response.blob();
+      const blob = new Blob([data], { type: 'application/zip' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -166,7 +180,7 @@ export default function LGPDPage() {
       
       toast.success('Download iniciado com sucesso!');
     } catch (error) {
-      console.error('Erro ao baixar dados:', error);
+      debugLog.error('Erro ao baixar dados:', error);
       toast.error('Erro ao baixar arquivo de dados');
     }
   };
@@ -179,16 +193,23 @@ export default function LGPDPage() {
 
     try {
       setDeleting(true);
-      const response = await api.post('/lgpd/delete-account', {
+      const response = await fetch('/api/lgpd/delete-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
         confirmation: deleteConfirmation,
         reason: 'User requested account deletion via LGPD interface'
+      })
       });
       
       toast.success('Solicitação de exclusão enviada com sucesso!');
       setDeleteAccountDialog(false);
       setDeleteConfirmation('');
     } catch (error) {
-      console.error('Erro ao solicitar exclusão:', error);
+      debugLog.error('Erro ao solicitar exclusão:', error);
       toast.error('Erro ao solicitar exclusão da conta');
     } finally {
       setDeleting(false);

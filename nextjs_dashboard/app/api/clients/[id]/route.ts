@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function PUT(
   request: NextRequest,
@@ -10,7 +11,7 @@ export async function PUT(
     const body = await request.json();
     const { nome, telefone, email, status, notas } = body;
 
-    console.log(`👤 Atualizando cliente ${clientId}...`);
+    debugLog.info(`👤 Atualizando cliente ${clientId}...`);
 
     // Fazer requisição para o backend
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
@@ -35,7 +36,7 @@ export async function PUT(
     }
 
     const result = await response.json();
-    console.log('✅ Cliente atualizado:', result);
+    debugLog.success('Cliente atualizado:', result);
 
     return NextResponse.json({
       success: true,
@@ -44,7 +45,7 @@ export async function PUT(
     });
 
   } catch (error) {
-    console.error('❌ Erro ao atualizar cliente:', error);
+    debugLog.error('Erro ao atualizar cliente:', error);
     return NextResponse.json(
       { 
         success: false,
@@ -64,7 +65,7 @@ export async function DELETE(
     const resolvedParams = await params;
     const clientId = resolvedParams.id;
 
-    console.log(`🗑️ Excluindo cliente ${clientId}...`);
+    debugLog.info(`🗑️ Excluindo cliente ${clientId}...`);
 
     // Fazer requisição para o backend
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
@@ -81,7 +82,7 @@ export async function DELETE(
     }
 
     const result = await response.json();
-    console.log('✅ Cliente excluído:', result);
+    debugLog.success('Cliente excluído:', result);
 
     return NextResponse.json({
       success: true,
@@ -90,7 +91,7 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('❌ Erro ao excluir cliente:', error);
+    debugLog.error('Erro ao excluir cliente:', error);
     return NextResponse.json(
       { 
         success: false,

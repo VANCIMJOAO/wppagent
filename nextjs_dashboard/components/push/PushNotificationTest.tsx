@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Bell, BellRing, Send, Settings } from 'lucide-react'
+import { debugLog } from '@/lib/debug';
 
 const PushNotificationTest: React.FC = () => {
   const [subscription, setSubscription] = useState<PushSubscription | null>(null)
@@ -32,7 +33,7 @@ const PushNotificationTest: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Error loading subscription:', error)
+      debugLog.error('Error loading subscription:', error)
     }
   }
 
@@ -42,7 +43,7 @@ const PushNotificationTest: React.FC = () => {
       setPermission(permission)
       return permission === 'granted'
     } catch (error) {
-      console.error('Error requesting permission:', error)
+      debugLog.error('Error requesting permission:', error)
       return false
     }
   }
@@ -100,7 +101,7 @@ const PushNotificationTest: React.FC = () => {
         throw new Error('Erro ao salvar subscription no backend')
       }
     } catch (error) {
-      console.error('Error subscribing:', error)
+      debugLog.error('Error subscribing:', error)
       setStatus(`Erro: ${error}`)
     } finally {
       setLoading(false)
@@ -132,7 +133,7 @@ const PushNotificationTest: React.FC = () => {
         setStatus('Inscrição cancelada')
       }
     } catch (error) {
-      console.error('Error unsubscribing:', error)
+      debugLog.error('Error unsubscribing:', error)
       setStatus(`Erro: ${error}`)
     } finally {
       setLoading(false)
@@ -164,7 +165,7 @@ const PushNotificationTest: React.FC = () => {
         throw new Error('Erro ao enviar notificação')
       }
     } catch (error) {
-      console.error('Error sending notification:', error)
+      debugLog.error('Error sending notification:', error)
       setStatus(`Erro: ${error}`)
     } finally {
       setLoading(false)

@@ -19,6 +19,7 @@ from app.database import init_db
 from app.middleware.request_logging import add_request_logging_middleware
 from app.routes.webhook_unified import router as webhook_router
 from app.routes.fast_auth import router as fast_auth_router
+from app.routes.debug_jwt import router as debug_jwt_router
 from app.services.connection_pool_manager import initialize_pool
 from app.schemas.health import (
     AppInfo,
@@ -690,6 +691,7 @@ except Exception as e:
 from app.routes.alerts import router as alerts_router
 from app.routes.alert_config import router as alert_config_router
 from app.routes.clients import router as clients_router
+from app.routes.clients_history import router as clients_history_router
 
 app.include_router(alerts_router, tags=["Alert System"])
 app.include_router(alert_config_router, tags=["Alert Configuration"])
@@ -725,8 +727,10 @@ logger.info("🔍 Debug WhatsApp ativado - Para investigar envio")
 
 # Dashboard Routes
 from app.routes.clients import router as clients_router
+from app.routes.clients_history import router as clients_history_router
 
 app.include_router(clients_router, tags=["Dashboard - Clients"])
+app.include_router(clients_history_router, tags=["Clients - History"])
 
 # 📊 Dashboard migrado com padrão C002
 from app.routes.dashboard import router as dashboard_router
@@ -749,18 +753,30 @@ except Exception as e:
 # Analytics routes - Relatórios Executivos
 from app.routes.analytics import router as analytics_router
 from app.routes.analytics_dashboard import router as dashboard_analytics_router
+from app.routes.analytics_revenue import router as analytics_revenue_router
+from app.routes.analytics_appointments import router as analytics_appointments_router
+from app.routes.analytics_clients import router as analytics_clients_router
+from app.routes.templates import router as templates_router
+from app.routes.users_admin import router as users_admin_router
 
 # Conversation & messaging routes
 app.include_router(clients_router, tags=["Dashboard - Clients"])
+app.include_router(clients_history_router, tags=["Clients - History"])
 
 # Dashboard Analytics (executivo)
 app.include_router(analytics_router, tags=["Dashboard - Analytics"])
 app.include_router(dashboard_analytics_router, tags=["Dashboard - Real Data"])
+app.include_router(analytics_revenue_router, tags=["Analytics - Revenue"])
+app.include_router(analytics_appointments_router, tags=["Analytics - Appointments"])
+app.include_router(analytics_clients_router, tags=["Analytics - Clients"])
+app.include_router(templates_router, tags=["Templates"])
+app.include_router(users_admin_router, tags=["Admin Users"])
 
 # � DEBUG ROUTER - Para testar autenticação
 from app.routes.debug_auth import router as debug_auth_router
 
 app.include_router(debug_auth_router, tags=["Debug"])
+app.include_router(debug_jwt_router, tags=["Debug JWT"])
 log_system_event("debug", "Debug Auth Router activated for troubleshooting")
 
 # � ANALYTICS AVANÇADAS - Business Intelligence - ATIVADO

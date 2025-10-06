@@ -1,134 +1,222 @@
+/**
+ * 🚀 HOOK API CONSOLIDADO - VERSÃO FINAL
+ * =====================================
+ * 
+ * Hook unificado que consolida 3 implementações diferentes:
+ * - useApi.ts (simples com retry)
+ * - useApiState.ts (gerenciamento de estado)
+ * - useAdvancedApi.ts (features avançadas)
+ * 
+ * ✅ Funcionalidades principais:
+ * - Retry automático com exponential backoff
+ * - Cache inteligente com invalidação
+ * - Network status detection
+ * - Timeout configurável
+ * - Debouncing
+ * - Optimistic updates
+ * - Toast notifications
+ * - Error boundary integration
+ * - Credenciais HttpOnly (cookies seguros)
+ * 
+ * Autor: Claude AI - Consolidação Final
+ * Data: 02/10/2025
+ */
+
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useToast } from '../components/shared/toast/ToastProvider-consolidated';
+import { useErrorHandler } from '../components/shared/error-boundary/ConsolidatedErrorProvider';
+import { emitAuthEvent, AuthEventType } from '@/lib/auth-events';
+
+// Types
+interface ApiCallOptions {
+  onSuccess?: (data: any) => void;
+  onError?: (error: ApiError) => void;
+  retryAttempts?: number;
+  retryDelay?: number;
+  showToasts?: boolean;
+  showErrorBoundary?: boolean;
+  timeout?: number;
+  debounceMs?: number;
+  useCache?: boolean;
+  cacheTimeout?: number;
+  optimistic?: boolean;
+  rollback?: () => void;
+  transform?: (data: any) => any;
+  validate?: (data: any) => boolean | string;
+}
 
 interface ApiError extends Error {
   status?: number;
-  statusText?: string;
-  data?: any;
   endpoint?: string;
-  method?: string;
-  isNetworkError?: boolean;
-  isTimeoutError?: boolean;
+  data?: any;
   isRetryable?: boolean;
 }
 
-interface UseApiOptions {
-  timeout?: number;
-  retries?: number;
-  retryDelay?: number;
-  baseUrl?: string;
-  showToast?: boolean;
-  showLoading?: boolean;
-  onError?: (error: ApiError) => void;
-  onSuccess?: (data: any) => void;
-  requireAuth?: boolean;
-}
-
-interface UseApiResult<T> {
+interface ApiState<T> {
   data: T | null;
   loading: boolean;
   error: ApiError | null;
-  request: (endpoint: string, options?: RequestInit) => Promise<void>;
-  reset: () => void;
-  refetch: () => Promise<void>;
-  abort: () => void;
+  success: boolean;
+  retryCount: number;
+  lastUpdated: number | null;
 }
 
-export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
-  const {
-    timeout = 30000,
-    retries = 3,
-    retryDelay = 1000,
-    baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://wppagent-production.up.railway.app')
-  } = options;
+interface CachedResponse<T> {
+  data: T;
+  timestamp: number;
+  endpoint: string;
+}
 
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
+// Cache implementation
+class ApiCache {
+  private cache = new Map<string, CachedResponse<any>>();
+  private defaultTimeout = 5 * 60 * 1000; // 5 minutes
 
-  const request = useCallback(async (endpoint: string, requestOptions: RequestInit = {}) => {
-    // Cancel previous request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+  set<T>(key: string, data: T, endpoint: string, timeout?: number): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      endpoint
+    });
+
+    // Auto cleanup
+    setTimeout(() => {
+      this.cache.delete(key);
+    }, timeout || this.defaultTimeout);
+  }
+
+  get<T>(key: string, maxAge?: number): T | null {
+    const cached = this.cache.get(key);
+    if (!cached) return null;
+
+    const age = Date.now() - cached.timestamp;
+    const maxAgeMs = maxAge || this.defaultTimeout;
+
+    if (age > maxAgeMs) {
+      this.cache.delete(key);
+      return null;
     }
 
-    abortControllerRef.current = new AbortController();
-    const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), timeout);
+    return cached.data;
+  }
 
-    setLoading(true);
-    setError(null);
+  invalidate(pattern?: string): void {
+    if (!pattern) {
+      this.cache.clear();
+      return;
+    }
 
-    const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
+    const regex = new RegExp(pattern);
+    const keysToDelete: string[] = [];
 
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      try {
-        const response = await fetch(url, {
-          ...requestOptions,
-          signal: abortControllerRef.current.signal,
-          headers: {
-            'Content-Type': 'application/json',
-            ...requestOptions.headers,
-          },
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        setData(result);
-        setLoading(false);
-        return;
-
-      } catch (err) {
-        clearTimeout(timeoutId);
-
-        if (err instanceof Error && err.name === 'AbortError') {
-          return; // Request was cancelled
-        }
-
-        if (attempt === retries) {
-          // Last attempt failed
-          const apiError: ApiError = {
-            name: 'ApiError',
-            message: err instanceof Error ? err.message : 'Request failed',
-            status: err instanceof Response ? err.status : 0,
-            statusText: err instanceof Response ? err.statusText : 'Unknown error'
-          };
-          setError(apiError);
-          setLoading(false);
-          return;
-        }
-
-        // Wait before retry with exponential backoff
-        await new Promise(resolve => setTimeout(resolve, retryDelay * Math.pow(2, attempt)));
+    this.cache.forEach((value, key) => {
+      if (regex.test(key) || regex.test(value.endpoint)) {
+        keysToDelete.push(key);
       }
-    }
-  }, [baseUrl, retries, retryDelay, timeout]);
+    });
 
-  const reset = useCallback(() => {
-    setData(null);
-    setError(null);
-    setLoading(false);
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+    keysToDelete.forEach(key => this.cache.delete(key));
+  }
+
+  getStats() {
+    return {
+      size: this.cache.size,
+      keys: Array.from(this.cache.keys()),
+      memory: JSON.stringify(Array.from(this.cache.entries())).length
+    };
+  }
+}
+
+const apiCache = new ApiCache();
+
+// Network status detection
+function useNetworkStatus() {
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [connectionType, setConnectionType] = useState<string>('unknown');
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    const handleConnectionChange = () => {
+      const connection = (navigator as any).connection;
+      if (connection) {
+        setConnectionType(connection.effectiveType || 'unknown');
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+
+      const connection = (navigator as any).connection;
+      if (connection) {
+        connection.addEventListener('change', handleConnectionChange);
+        handleConnectionChange();
+      }
+
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+        if (connection) {
+          connection.removeEventListener('change', handleConnectionChange);
+        }
+      };
     }
   }, []);
 
-  const abort = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-  }, []);
+  return { isOnline, connectionType, isSlowConnection: ['slow-2g', '2g'].includes(connectionType) };
+}
 
-  const refetch = useCallback(async () => {
-    // This would need to store the last request parameters
-    // For now, it's a placeholder
-  }, []);
+// Enhanced fetch with timeout and retry logic
+async function enhancedFetch(
+  url: string,
+  options: RequestInit = {},
+  timeout = 10000
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    // 🔒 SECURITY: Usar cookies HttpOnly seguros
+    const response = await fetch(url, {
+      ...options,
+      credentials: 'include', // Inclui cookies HttpOnly automaticamente
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    });
+
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
+
+// Main useApi hook
+export function useApi<T = any>(defaultOptions: ApiCallOptions = {}) {
+  const [state, setState] = useState<ApiState<T>>({
+    data: null,
+    loading: false,
+    error: null,
+    success: false,
+    retryCount: 0,
+    lastUpdated: null
+  });
+
+  const { error: toastError, success: toastSuccess, loading: toastLoading, removeToast } = useToast();
+  const { addApiError, addNetworkError } = useErrorHandler();
+  const { isOnline, isSlowConnection } = useNetworkStatus();
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const loadingToastRef = useRef<string | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -136,132 +224,416 @@ export function useApi<T>(options: UseApiOptions = {}): UseApiResult<T> {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      if (loadingToastRef.current) {
+        removeToast(loadingToastRef.current);
+      }
     };
-  }, []);
+  }, [removeToast]);
 
-  return { data, loading, error, request, reset, refetch, abort };
-}
+  const createApiError = (message: string, status?: number, endpoint?: string, data?: any): ApiError => {
+    const error = new Error(message) as ApiError;
+    error.status = status;
+    error.endpoint = endpoint;
+    error.data = data;
+    error.isRetryable = !status || status >= 500 || status === 408 || status === 429;
+    return error;
+  };
 
-// Specialized hooks for common HTTP methods
-export function useApiGet<T>(endpoint: string, options?: UseApiOptions) {
-  const api = useApi<T>(options);
+  const shouldRetry = (error: ApiError, retryCount: number, maxRetries: number): boolean => {
+    if (retryCount >= maxRetries) return false;
+    if (!error.isRetryable) return false;
+    if (!isOnline) return false;
+    return true;
+  };
 
-  const get = useCallback(() => {
-    return api.request(endpoint, { method: 'GET' });
-  }, [api.request, endpoint]);
+  const calculateRetryDelay = (retryCount: number, baseDelay = 1000): number => {
+    return Math.min(baseDelay * Math.pow(2, retryCount), 10000); // Max 10s
+  };
 
-  return { ...api, get };
-}
+  const executeRequest = useCallback(async <TData = T>(
+    endpoint: string,
+    options: (RequestInit & ApiCallOptions) | ApiCallOptions = {}
+  ): Promise<TData> => {
+    const {
+      retryAttempts = 3,
+      retryDelay = 1000,
+      showToasts = true,
+      showErrorBoundary = false,
+      timeout = isSlowConnection ? 20000 : 10000,
+      useCache = false,
+      cacheTimeout,
+      optimistic = false,
+      rollback,
+      transform,
+      validate,
+      onSuccess,
+      onError,
+      debounceMs,
+      ...fetchOptions
+    } = { ...defaultOptions, ...options };
 
-export function useApiPost<T>(options?: UseApiOptions) {
-  const api = useApi<T>(options);
+    const method = (fetchOptions && 'method' in fetchOptions ? fetchOptions.method : undefined) || 'GET';
 
-  const post = useCallback((endpoint: string, body: unknown) => {
-    return api.request(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-  }, [api.request]);
-
-  return { ...api, post };
-}
-
-export function useApiPut<T>(options?: UseApiOptions) {
-  const api = useApi<T>(options);
-
-  const put = useCallback((endpoint: string, body: unknown) => {
-    return api.request(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
-  }, [api.request]);
-
-  return { ...api, put };
-}
-
-export function useApiDelete<T>(options?: UseApiOptions) {
-  const api = useApi<T>(options);
-
-  const del = useCallback((endpoint: string) => {
-    return api.request(endpoint, { method: 'DELETE' });
-  }, [api.request]);
-
-  return { ...api, delete: del };
-}
-
-// Hook específico para dados do dashboard
-export function useDashboardData() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchDashboardData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Simular dados do dashboard para desenvolvimento
-      const mockData = {
-        kpis: {
-          totalClients: 150,
-          totalConversations: 45,
-          totalAppointments: 12,
-          totalMessages: 328
-        },
-        charts: {
-          conversationsOverTime: [],
-          appointmentsByStatus: [],
-          clientGrowth: []
-        },
-        recentActivity: [
-          {
-            id: 1,
-            type: 'conversation',
-            title: 'Nova conversa',
-            description: 'Cliente João iniciou uma conversa',
-            timestamp: new Date().toISOString()
-          },
-          {
-            id: 2,
-            type: 'appointment',
-            title: 'Agendamento confirmado',
-            description: 'Consulta com Maria confirmada',
-            timestamp: new Date().toISOString()
-          }
-        ]
-      };
-
-      setData(mockData);
-      return mockData;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
+    // Check cache first
+    if (useCache && method !== 'POST' && method !== 'PUT' && method !== 'DELETE') {
+      const cacheKey = `${endpoint}_${JSON.stringify(fetchOptions)}`;
+      const cached = apiCache.get<TData>(cacheKey, cacheTimeout);
+      if (cached) {
+        setState(prev => ({ ...prev, data: cached as T, loading: false, success: true, lastUpdated: Date.now() }));
+        return cached;
+      }
     }
+
+    // Abort previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    // Set loading state
+    setState(prev => ({
+      ...prev,
+      loading: true,
+      error: null,
+      success: false
+    }));
+
+    // Show loading toast
+    if (showToasts) {
+      loadingToastRef.current = toastLoading(
+        'Carregando...',
+        `Processando solicitação para ${endpoint}`
+      );
+    }
+
+    let lastError: ApiError | null = null;
+
+    for (let attempt = 0; attempt <= retryAttempts; attempt++) {
+      try {
+        // Network check
+        if (!isOnline) {
+          throw createApiError('Sem conexão com a internet', 0, endpoint);
+        }
+
+        // Make request
+        const response = await enhancedFetch(
+          endpoint,
+          {
+            ...fetchOptions,
+            signal: abortControllerRef.current.signal
+          },
+          timeout
+        );
+
+        // Handle response
+        if (!response.ok) {
+          const errorData = await response.text().then(text => {
+            try { return JSON.parse(text); } catch { return { message: text }; }
+          });
+
+          // ✅ CORREÇÃO #12: Emitir evento quando receber 401 para sincronizar estado de autenticação
+          if (response.status === 401 || response.status === 403) {
+            emitAuthEvent(AuthEventType.UNAUTHORIZED, {
+              source: 'useApi',
+              reason: `API retornou ${response.status} - ${endpoint}`
+            });
+          }
+
+          throw createApiError(
+            errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+            response.status,
+            endpoint,
+            errorData
+          );
+        }
+
+        // Parse response
+        let data: TData;
+        const contentType = response.headers.get('content-type');
+        if (contentType?.includes('application/json')) {
+          data = await response.json();
+        } else {
+          data = await response.text() as any;
+        }
+
+        // Transform data if provided
+        if (transform) {
+          data = transform(data);
+        }
+
+        // Validate data if provided
+        if (validate) {
+          const validation = validate(data);
+          if (validation !== true) {
+            throw createApiError(
+              typeof validation === 'string' ? validation : 'Dados recebidos são inválidos',
+              0,
+              endpoint,
+              data
+            );
+          }
+        }
+
+        // Cache successful response
+        if (useCache) {
+          const cacheKey = `${endpoint}_${JSON.stringify(fetchOptions)}`;
+          apiCache.set(cacheKey, data, endpoint, cacheTimeout);
+        }
+
+        // Update state
+        setState(prev => ({
+          ...prev,
+          data: data as unknown as T,
+          loading: false,
+          error: null,
+          success: true,
+          retryCount: attempt,
+          lastUpdated: Date.now()
+        }));
+
+        // Remove loading toast and show success
+        if (loadingToastRef.current) {
+          removeToast(loadingToastRef.current);
+          loadingToastRef.current = null;
+        }
+
+        if (showToasts && attempt > 0) {
+          toastSuccess('Sucesso!', `Operação completada após ${attempt + 1} tentativa(s)`);
+        }
+
+        // Call success callback
+        if (onSuccess) {
+          onSuccess(data);
+        }
+
+        return data;
+
+      } catch (error: any) {
+        lastError = error.name === 'AbortError' ?
+          createApiError('Operação cancelada', 0, endpoint) :
+          error instanceof Error ?
+            createApiError(error.message, (error as ApiError).status, endpoint, (error as ApiError).data) :
+            createApiError('Erro desconhecido', 0, endpoint);
+
+        setState(prev => ({
+          ...prev,
+          retryCount: attempt,
+          error: lastError
+        }));
+
+        // Check if should retry
+        if (shouldRetry(lastError, attempt, retryAttempts)) {
+          const delay = calculateRetryDelay(attempt, retryDelay);
+
+          if (showToasts) {
+            toastError(
+              'Tentando novamente...',
+              `Tentativa ${attempt + 2}/${retryAttempts + 1} em ${delay}ms`,
+              { duration: delay }
+            );
+          }
+
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+
+        // Max retries reached or non-retryable error
+        break;
+      }
+    }
+
+    // Handle final error
+    setState(prev => ({
+      ...prev,
+      loading: false,
+      error: lastError,
+      success: false
+    }));
+
+    // Remove loading toast
+    if (loadingToastRef.current) {
+      removeToast(loadingToastRef.current);
+      loadingToastRef.current = null;
+    }
+
+    // Show error feedback
+    if (showToasts && lastError) {
+      if (lastError.status) {
+        addApiError(lastError.message, {
+          endpoint,
+          status: lastError.status,
+          context: lastError.data
+        });
+      } else {
+        addNetworkError(lastError.message);
+      }
+    }
+
+    // Show error boundary if requested
+    if (showErrorBoundary && lastError) {
+      throw lastError;
+    }
+
+    // Call error callback
+    if (onError && lastError) {
+      onError(lastError);
+    }
+
+    // Rollback optimistic updates
+    if (optimistic && rollback) {
+      rollback();
+    }
+
+    throw lastError;
+  }, [defaultOptions, isOnline, isSlowConnection, toastError, toastSuccess, toastLoading, removeToast, addApiError, addNetworkError]);
+
+  // Debounced version of executeRequest
+  const debouncedExecute = useCallback((
+    endpoint: string,
+    options: RequestInit & ApiCallOptions = {}
+  ) => {
+    const debounceMs = options.debounceMs || 0;
+
+    if (debounceMs > 0) {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
+        executeRequest(endpoint, options);
+      }, debounceMs);
+    } else {
+      return executeRequest(endpoint, options);
+    }
+  }, [executeRequest]);
+
+  // Convenience methods
+  const get = useCallback((endpoint: string, options?: ApiCallOptions) => {
+    const { method, ...requestOptions } = { method: 'GET', ...options };
+    return debouncedExecute(endpoint, requestOptions);
+  }, [debouncedExecute]);
+
+  const post = useCallback((endpoint: string, data?: any, options?: ApiCallOptions) => {
+    const { method, body, ...requestOptions } = {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+      ...options
+    };
+    return debouncedExecute(endpoint, requestOptions);
+  }, [debouncedExecute]);
+
+  const put = useCallback((endpoint: string, data?: any, options?: ApiCallOptions) => {
+    const { method, body, ...requestOptions } = {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+      ...options
+    };
+    return debouncedExecute(endpoint, requestOptions);
+  }, [debouncedExecute]);
+
+  const del = useCallback((endpoint: string, options?: ApiCallOptions) => {
+    const { method, ...requestOptions } = { method: 'DELETE', ...options };
+    return debouncedExecute(endpoint, requestOptions);
+  }, [debouncedExecute]);
+
+  const patch = useCallback((endpoint: string, data?: any, options?: ApiCallOptions) => {
+    const { method, body, ...requestOptions } = {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+      ...options
+    };
+    return debouncedExecute(endpoint, requestOptions);
+  }, [debouncedExecute]);
+
+  // State management
+  const reset = useCallback(() => {
+    setState({
+      data: null,
+      loading: false,
+      error: null,
+      success: false,
+      retryCount: 0,
+      lastUpdated: null
+    });
   }, []);
 
-  const refetch = useCallback(() => {
-    return fetchDashboardData();
-  }, [fetchDashboardData]);
+  const retry = useCallback(() => {
+    if (state.error?.endpoint) {
+      executeRequest(state.error.endpoint);
+    }
+  }, [state.error, executeRequest]);
 
-  // Extrair dados para compatibilidade
-  const kpis = data?.kpis;
-  const charts = data?.charts;
-  const recentActivity = data?.recentActivity;
+  const cancel = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    if (loadingToastRef.current) {
+      removeToast(loadingToastRef.current);
+      loadingToastRef.current = null;
+    }
+    setState(prev => ({ ...prev, loading: false }));
+  }, [removeToast]);
 
   return {
-    kpis,
-    charts,
-    recentActivity,
-    data,
-    loading,
-    error,
-    fetchDashboardData,
-    refetch,
-    reset: () => {
-      setData(null);
-      setError(null);
-    }
+    // State
+    ...state,
+    isOnline,
+    isSlowConnection,
+
+    // Methods
+    execute: executeRequest,
+    get,
+    post,
+    put,
+    delete: del,
+    patch,
+
+    // Control
+    reset,
+    retry,
+    cancel,
+
+    // Cache control
+    invalidateCache: apiCache.invalidate.bind(apiCache),
+    getCacheStats: apiCache.getStats.bind(apiCache)
   };
 }
+
+// Specialized hooks
+export function useQuery<T = any>(
+  endpoint: string,
+  options: ApiCallOptions & { enabled?: boolean; refetchInterval?: number } = {}
+) {
+  const { enabled = true, refetchInterval, ...apiOptions } = options;
+  const api = useApi<T>(apiOptions);
+
+  useEffect(() => {
+    if (enabled) {
+      api.get(endpoint);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endpoint, enabled]);
+
+  useEffect(() => {
+    if (refetchInterval && enabled) {
+      const interval = setInterval(() => {
+        api.get(endpoint);
+      }, refetchInterval);
+
+      return () => clearInterval(interval);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endpoint, refetchInterval, enabled]);
+
+  return api;
+}
+
+export function useMutation<T = any>(options: ApiCallOptions = {}) {
+  return useApi<T>(options);
+}
+
+export default useApi;
+

@@ -4,12 +4,12 @@
  */
 
 import { DashboardSkeleton } from '@/components/ui/skeleton'
-import { useDashboardStats } from '@/hooks/useDashboardStats'
+import { useDashboard } from '@/hooks/useDashboard'
 import { ErrorFallback } from '@/components/ui/error-fallback'
 import { StatsCards } from '@/components/dashboard/stats-cards'
 
 export function StatsSection() {
-  const { stats, loading, error } = useDashboardStats()
+  const { stats, loading, error } = useDashboard()
 
   if (loading) return <DashboardSkeleton />
   if (error) return <ErrorFallback error={error} />
@@ -24,7 +24,7 @@ interface StatsWithPeriodProps {
 }
 
 export function StatsWithPeriod({ period, onPeriodChange }: StatsWithPeriodProps) {
-  const { stats, loading, error } = useDashboardStats()
+  const { stats, loading, error } = useDashboard()
 
   if (loading) return <DashboardSkeleton />
   if (error) return <ErrorFallback error={error} retry={() => window.location.reload()} />

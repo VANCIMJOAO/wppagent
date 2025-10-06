@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { debugLog } from '@/lib/debug';
 
 // Configuração do banco PostgreSQL
 const pool = new Pool({
@@ -13,7 +14,7 @@ export async function GET() {
   let client;
   
   try {
-    console.log('📊 Buscando dados reais do dashboard do PostgreSQL...');
+    debugLog.info('📊 Buscando dados reais do dashboard do PostgreSQL...');
     
     client = await pool.connect();
     
@@ -125,7 +126,7 @@ export async function GET() {
       }
     };
     
-    console.log('✅ Dados reais do dashboard obtidos:', {
+    debugLog.success('Dados reais do dashboard obtidos:', {
       customers: dashboardData.key_metrics.total_customers,
       conversations: dashboardData.key_metrics.total_conversations,
       appointments: dashboardData.key_metrics.total_appointments,
@@ -135,7 +136,7 @@ export async function GET() {
     return NextResponse.json(dashboardData);
     
   } catch (error) {
-    console.error('❌ Erro ao buscar dados do dashboard:', error);
+    debugLog.error('Erro ao buscar dados do dashboard:', error);
     return NextResponse.json(
       { error: 'Erro ao buscar dados do dashboard' },
       { status: 500 }

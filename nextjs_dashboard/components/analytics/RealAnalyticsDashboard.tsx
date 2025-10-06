@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { useRealAnalytics } from '@/hooks/use-real-analytics';
-import { ApiErrorBoundary } from '@/components/error-boundaries/ApiErrorBoundary';
+import { UniversalErrorBoundary } from '@/components/shared/error-boundary/UniversalErrorBoundary';
 import {
   LineChart,
   Line,
@@ -122,7 +122,7 @@ export function RealAnalyticsDashboard({
 
       {/* Métricas principais */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <ApiErrorBoundary>
+        <UniversalErrorBoundary level="component" name="Analytics Chart">
           <MetricCard
             title="Clientes Únicos"
             value={dashboardSummary?.key_metrics.total_customers || 0}
@@ -130,18 +130,18 @@ export function RealAnalyticsDashboard({
             icon={<Users className="w-4 h-4" />}
             loading={loadingDashboard}
           />
-        </ApiErrorBoundary>
+        </UniversalErrorBoundary>
 
-        <ApiErrorBoundary>
+        <UniversalErrorBoundary level="component" name="Analytics Chart">
           <MetricCard
             title="Total de Mensagens"
             value={dashboardSummary?.key_metrics.total_messages || 0}
             icon={<MessageCircle className="w-4 h-4" />}
             loading={loadingDashboard}
           />
-        </ApiErrorBoundary>
+        </UniversalErrorBoundary>
 
-        <ApiErrorBoundary>
+        <UniversalErrorBoundary level="component" name="Analytics Chart">
           <MetricCard
             title="Taxa de Conversão"
             value={dashboardSummary?.key_metrics.overall_conversion_rate || 0}
@@ -150,21 +150,21 @@ export function RealAnalyticsDashboard({
             icon={<TrendingUp className="w-4 h-4" />}
             loading={loadingDashboard}
           />
-        </ApiErrorBoundary>
+        </UniversalErrorBoundary>
 
-        <ApiErrorBoundary>
+        <UniversalErrorBoundary level="component" name="Analytics Chart">
           <MetricCard
             title="Agendamentos"
             value={dashboardSummary?.key_metrics.total_appointments || 0}
             icon={<Calendar className="w-4 h-4" />}
             loading={loadingDashboard}
           />
-        </ApiErrorBoundary>
+        </UniversalErrorBoundary>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Funil de Conversão */}
-        <ApiErrorBoundary>
+        <UniversalErrorBoundary level="component" name="Analytics Chart">
           <Card>
             <CardHeader>
               <CardTitle>Funil de Conversão</CardTitle>
@@ -211,32 +211,32 @@ export function RealAnalyticsDashboard({
               )}
             </CardContent>
           </Card>
-        </ApiErrorBoundary>
+        </UniversalErrorBoundary>
 
         {/* Série Temporal */}
-        <ApiErrorBoundary>
+        <UniversalErrorBoundary level="component" name="Analytics Chart">
           <TimeSeriesChart
             data={dashboardSummary?.time_series || []}
             loading={loadingDashboard}
           />
-        </ApiErrorBoundary>
+        </UniversalErrorBoundary>
       </div>
 
       {/* Performance por Canal */}
-      <ApiErrorBoundary>
+      <UniversalErrorBoundary level="component" name="Analytics Chart">
         <ChannelPerformanceChart
           data={dashboardSummary?.channel_performance || []}
           loading={loadingDashboard}
         />
-      </ApiErrorBoundary>
+      </UniversalErrorBoundary>
 
       {/* Breakdown de Satisfação */}
-      <ApiErrorBoundary>
+      <UniversalErrorBoundary level="component" name="Analytics Chart">
         <SatisfactionChart
           data={dashboardSummary?.satisfaction_breakdown || []}
           loading={loadingDashboard}
         />
-      </ApiErrorBoundary>
+      </UniversalErrorBoundary>
     </div>
   );
 }

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('⏰ Buscando configurações de horários...');
+    debugLog.info('⏰ Buscando configurações de horários...');
 
     const scheduleQuery = `
       SELECT
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
       business_hours: schedules
     };
 
-    console.log(`✅ Configurações de horários carregadas: ${workDays.length} dias de trabalho`);
+    debugLog.info(`✅ Configurações de horários carregadas: ${workDays.length} dias de trabalho`);
 
     return NextResponse.json({
       success: true,
@@ -104,7 +105,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar configurações de horários:', error);
+    debugLog.error('Erro ao buscar configurações de horários:', error);
     return NextResponse.json(
       {
         success: false,
@@ -118,7 +119,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('💾 Salvando configurações de horários...');
+    debugLog.info('💾 Salvando configurações de horários...');
 
     const body = await request.json();
     const { workDays, startTime, endTime, lunchStart, lunchEnd, timezone } = body;
@@ -185,7 +186,7 @@ export async function POST(request: NextRequest) {
       ORDER BY day_of_week
     `);
 
-    console.log(`✅ Configurações de horários salvas: ${workDays.length} dias de trabalho`);
+    debugLog.info(`✅ Configurações de horários salvas: ${workDays.length} dias de trabalho`);
 
     return NextResponse.json({
       success: true,
@@ -202,7 +203,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao salvar configurações de horários:', error);
+    debugLog.error('Erro ao salvar configurações de horários:', error);
     return NextResponse.json(
       {
         success: false,

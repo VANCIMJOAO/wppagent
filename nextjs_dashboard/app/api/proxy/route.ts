@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it handles proxy requests
 export const dynamic = 'force-dynamic';
@@ -33,7 +34,7 @@ async function handleProxyRequest(request: Request, method: string) {
 
   try {
     const backendUrl = `https://wppagent-production.up.railway.app${endpoint}${queryString}`;
-    console.log('Proxy request to:', backendUrl);
+    debugLog.info('Proxy request to:', backendUrl);
 
     const requestBody = method !== 'GET' ? await request.text() : undefined;
 
@@ -65,7 +66,7 @@ async function handleProxyRequest(request: Request, method: string) {
     });
 
   } catch (error) {
-    console.error('Proxy error:', error);
+    debugLog.error('Proxy error:', error);
     return NextResponse.json({
       error: `Failed to fetch data from backend: ${error}`
     }, { status: 500 });

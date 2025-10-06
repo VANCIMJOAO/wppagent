@@ -9,7 +9,7 @@ import { LoadingSpinner } from '@/components/ui/loading-states'
 import { useAppointments, useCreateAppointment, useUpdateAppointment, useDeleteAppointment } from '@/hooks/useAppointments'
 import { useConversations } from '@/hooks/useConversations'
 import { useDashboard } from '@/hooks/useDashboard'
-import type { Appointment, AppointmentStatus } from '@/types/api-cf001'
+import type { Appointment, AppointmentStatus } from '@/types/api'
 
 // Componente de exemplo para mostrar como usar os hooks do React Query
 export function ReactQueryExample() {
@@ -38,13 +38,10 @@ export function ReactQueryExample() {
 
   const {
     data: dashboardData,
-    isLoading: dashboardLoading,
-    refresh: refreshDashboard,
+    loading: dashboardLoading,
+    refreshDashboard,
     isRefreshing
-  } = useDashboard({
-    period: '7d',
-    autoRefresh: true
-  })
+  } = useDashboard('7d')
 
   // Mutations
   const createAppointment = useCreateAppointment()
@@ -56,10 +53,8 @@ export function ReactQueryExample() {
       user_id: 1,
       business_id: 1,
       service_id: 1,
-      date_time: new Date().toISOString(),
-      duration_minutes: 60,
-      price: 100,
-      notes: 'Agendamento criado via React Query'
+      data_agendamento: new Date().toISOString(),
+      duracao_minutos: 60
     })
   }
 
@@ -67,8 +62,7 @@ export function ReactQueryExample() {
     updateAppointment.mutate({
       id: appointment.id,
       data: {
-        status: 'realizado' as AppointmentStatus,
-        notes: 'Atualizado via React Query'
+        status: 'realizado' as AppointmentStatus
       }
     })
   }
@@ -206,12 +200,12 @@ export function ReactQueryExample() {
                   className="border rounded-lg p-4 flex items-center justify-between"
                 >
                   <div>
-                    <div className="font-semibold">{appointment.clientName}</div>
+                    <div className="font-semibold">{appointment.cliente_nome}</div>
                     <div className="text-sm text-gray-600">
-                      {appointment.serviceName} - {appointment.dateTime}
+                      {appointment.service_name || 'Serviço'} - {appointment.data_agendamento}
                     </div>
-                    {appointment.notes && (
-                      <div className="text-sm text-gray-500 mt-1">{appointment.notes}</div>
+                    {appointment.observacoes && (
+                      <div className="text-sm text-gray-500 mt-1">{appointment.observacoes}</div>
                     )}
                   </div>
                   <div className="flex items-center gap-2">

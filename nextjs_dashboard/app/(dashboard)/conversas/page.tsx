@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { debugLog } from '@/lib/debug';
 import {
   MessageCircle,
   Search,
@@ -20,65 +21,86 @@ import {
   RefreshCw,
   Loader2
 } from 'lucide-react';
-import { useConversations, useMessages, Conversation, Message } from '@/hooks/use-conversations';
+import { useConversations, useMessages, useSendMessage } from '@/hooks/useConversations';
+import type { Conversation, Message } from '@/types/api';
 
 export default function ConversasPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
   const [newMessage, setNewMessage] = useState('');
 
-  // ✅ Hook para buscar conversas reais
+  // ✅ Hook para buscar conversas reais com React Query
   const {
-    conversations,
-    loading: conversationsLoading,
+    data: conversationsData,
+    isLoading: conversationsLoading,
     error: conversationsError,
-    total,
-    refreshConversations,
+    refetch: refreshConversations,
   } = useConversations();
 
+  // Extrair dados do React Query
+  const conversations = conversationsData?.conversations || [];
+  const total = conversationsData?.total || 0;
+
   // Verificar se é erro de autenticação
-  const isAuthError = conversationsError?.includes('Sessão expirada') || 
-                     conversationsError?.includes('Token de autenticação');
+  const isAuthError = conversationsError?.message?.includes('Sessão expirada') || 
+                     conversationsError?.message?.includes('Token de autenticação');
 
-  // ✅ Hook para buscar mensagens reais
+  // ✅ Hook para buscar mensagens reais com React Query
   const {
-    messages,
-    loading: messagesLoading,
+    data: messagesData,
+    isLoading: messagesLoading,
     error: messagesError,
-    sendMessage,
-    messagesEndRef,
-    scrollToBottom,
-  } = useMessages(selectedConversationId);
+  } = useMessages(
+    selectedConversationId || 0, 
+    {}, 
+    !!selectedConversationId
+  );
 
-  // Filtrar conversas por termo de busca - ✅ CORRIGIDO: Usar campos reais da database
-  const filteredConversations = (conversations || []).filter(conv => {
-    const nome = conv.nome || '';
-    const phone = conv.phone || '';
-    const lastMessage = conv.last_message || '';
+  const messages = messagesData?.messages || [];
+
+  // ✅ Hook para enviar mensagem com React Query
+  const sendMessageMutation = useSendMessage();
+
+  // Ref para scroll automático
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll quando mensagens mudarem
+  useEffect(() => {
+    if (messages.length > 0 && !messagesLoading) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [messages, messagesLoading]);
+
+  // Filtrar conversas por termo de busca
+  const filteredConversations = conversations.filter(conv => {
+    const nome = conv.user_name || '';
+    const phone = conv.user_phone || '';
     
     return nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           phone.includes(searchTerm) ||
-           lastMessage.toLowerCase().includes(searchTerm.toLowerCase());
+           phone.includes(searchTerm);
   });
 
-  const selectedConversation = (conversations || []).find(
-    conv => String(conv.id) === selectedConversationId
+  const selectedConversation = conversations.find(
+    conv => conv.id === selectedConversationId
   );
 
   const handleSelectConversation = (conversation: Conversation) => {
-    console.log(`🎯 Selecionando conversa:`, conversation);
-    setSelectedConversationId(String(conversation.id));
-    console.log(`🎯 selectedConversationId definido como: ${String(conversation.id)}`);
+    setSelectedConversationId(conversation.id);
   };
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedConversationId) return;
 
     try {
-      await sendMessage(newMessage);
+      await sendMessageMutation.mutateAsync({
+        conversationId: selectedConversationId,
+        data: { content: newMessage }
+      });
       setNewMessage('');
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
+      debugLog.error('Erro ao enviar mensagem:', error);
     }
   };
 
@@ -142,7 +164,7 @@ export default function ConversasPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={refreshConversations}
+              onClick={() => refreshConversations()}
               disabled={conversationsLoading}
             >
               {conversationsLoading ? (
@@ -223,7 +245,7 @@ export default function ConversasPage() {
                   key={conversation.id}
                   onClick={() => handleSelectConversation(conversation)}
                   className={`p-4 cursor-pointer hover:bg-gray-50 border-l-4 ${
-                    selectedConversationId === String(conversation.id)
+                    selectedConversationId === conversation.id
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-transparent'
                   }`}
@@ -240,26 +262,26 @@ export default function ConversasPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <h3 className="font-medium text-gray-900 truncate">
-                          {conversation.nome || 'Usuário sem nome'}
+                          {conversation.user_name || 'Usuário sem nome'}
                         </h3>
                         <span className="text-xs text-gray-500">
-                          {conversation.last_message_time ? formatDate(conversation.last_message_time) : '--:--'}
+                          {conversation.last_message_at ? formatDate(conversation.last_message_at) : '--:--'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between mt-1">
                         <p className="text-sm text-gray-600 truncate">
                           {conversation.last_message || 'Sem mensagens'}
                         </p>
-                        {conversation.message_count > 0 && (
+                        {conversation.total_messages > 0 && (
                           <Badge variant="secondary" className="text-xs">
-                            {conversation.message_count}
+                            {conversation.total_messages}
                           </Badge>
                         )}
                       </div>
                       <div className="flex items-center space-x-2 mt-1">
                         <Phone className="h-3 w-3 text-gray-400" />
                         <span className="text-xs text-gray-500">
-                          {conversation.phone}
+                          {conversation.user_phone}
                         </span>
                         <span className="text-xs text-gray-400">•</span>
                         <span className="text-xs text-gray-500">
@@ -288,12 +310,12 @@ export default function ConversasPage() {
                   </div>
                   <div>
                     <h2 className="font-medium text-gray-900">
-                      {selectedConversation.nome || 'Usuário sem nome'}
+                      {selectedConversation.user_name || 'Usuário sem nome'}
                     </h2>
                     <div className="flex items-center space-x-2">
                       <Phone className="h-3 w-3 text-gray-400" />
                       <span className="text-sm text-gray-500">
-                        {selectedConversation.phone || 'Telefone não informado'}
+                        {selectedConversation.user_phone || 'Telefone não informado'}
                       </span>
                       <span className="text-sm text-gray-400">•</span>
                       <span className="text-sm text-gray-500">
@@ -314,7 +336,7 @@ export default function ConversasPage() {
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Erro ao carregar mensagens: {messagesError}
+                    Erro ao carregar mensagens: {messagesError instanceof Error ? messagesError.message : String(messagesError)}
                   </AlertDescription>
                 </Alert>
               )}

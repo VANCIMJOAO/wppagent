@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import apiService from '@/lib/api-service-robust';
 import { useAuth } from '@/contexts/auth-context';
+import { debugLog } from '@/lib/debug';
 
 // Tipos para os dados de analytics
 interface DashboardSummary {
@@ -198,7 +199,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
   const handleError = useCallback((error: any, context: string) => {
     if (!mounted.current) return '';
 
-    console.error(`❌ Erro em ${context}:`, error);
+    debugLog.error(`Erro em ${context}:`, error);
 
     const errorMessage = error?.message || error?.toString() || 'Erro desconhecido';
 
@@ -216,11 +217,11 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
 
   // Fetch Dashboard Summary with global coordination
   const refreshDashboard = useCallback(async (days: number = 30) => {
-    console.log('🔄 refreshDashboard chamado com days:', days);
-    console.log('🔄 mounted.current:', mounted.current);
+    debugLog.info('refreshDashboard chamado com days:', days);
+    debugLog.info('mounted.current:', mounted.current);
     
     if (!mounted.current) {
-      console.log('🚫 Componente não montado, abortando refresh');
+      debugLog.info('Componente não montado, abortando refresh');
       return;
     }
 
@@ -229,66 +230,62 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
     const cacheAge = now - globalState.lastFetch;
     const cacheLimit = 30000; // 30 seconds
 
-    console.log('📦 Verificando cache - idade:', cacheAge, 'limite:', cacheLimit);
+    debugLog.info(`Verificando cache - idade: ${cacheAge}, limite: ${cacheLimit}`);
 
     if (globalState.dashboardSummary && cacheAge < cacheLimit) {
-      console.log('📦 Usando cache global fresco para dashboard');
+      debugLog.info('Usando cache global fresco para dashboard');
       setDashboardSummary(globalState.dashboardSummary);
       return;
     }
 
     // Prevent duplicate requests
     if (globalState.loadingDashboard) {
-      console.log('⏳ Requisição de dashboard já em andamento');
+      debugLog.info('Requisição de dashboard já em andamento');
       return;
     }
 
-    console.log('🚀 Iniciando carregamento do dashboard...');
+    debugLog.info('Iniciando carregamento do dashboard...');
     globalState.loadingDashboard = true;
     setLoadingDashboard(true);
     setDashboardError(null);
 
     try {
-      console.log(`📊 Carregando dashboard summary - ${days} dias`);
+      debugLog.info(`Carregando dashboard summary - ${days} dias`);
 
       // Usar API real do PostgreSQL
-      console.log('📡 Fazendo requisição para /api/dashboard');
+      debugLog.api('Fazendo requisição', '/api/dashboard');
       const result = await apiService.getDashboardStats();
       
-      console.log('📡 Resposta da API:', result);
+      debugLog.info('Resposta da API:', result);
 
       if (!result.success) {
-        console.error('❌ API retornou erro:', result.error);
+        debugLog.error('API retornou erro:', result.error);
         throw new Error(result.error || 'Falha ao carregar dashboard');
       }
 
       // Usar dados reais do PostgreSQL diretamente
       const realData = result.data;
-      console.log('📊 Dados reais obtidos do PostgreSQL:', realData);
+      debugLog.info('Dados reais obtidos do PostgreSQL');
 
       // Extrair apenas os dados do objeto de resposta
       const mappedData = realData.data || realData;
       
-      console.log('📊 Dados mapeados:', mappedData);
+      debugLog.info('Dados mapeados com sucesso');
 
       // Update global state
       globalState.dashboardSummary = mappedData;
       globalState.lastFetch = now;
 
-      console.log('📦 Estado global atualizado');
+      debugLog.info('Estado global atualizado');
 
       // Notify all subscribers
       globalState.subscribers.forEach(callback => callback());
 
       // Always update local state - force update
       setDashboardSummary(mappedData);
-      console.log('✅ Estado local atualizado com dados do dashboard');
+      debugLog.success('Estado local atualizado com dados do dashboard');
 
-      console.log(`✅ Dashboard carregado com sucesso:`, {
-        customers: mappedData.key_metrics?.total_customers,
-        conversion: mappedData.key_metrics?.overall_conversion_rate?.toFixed(1) + '%',
-        source: 'backend'
-      });
+      debugLog.success(`Dashboard carregado - ${mappedData.key_metrics?.total_customers} clientes`);
 
       // Only show success toast for real backend data
       // Sempre cache o resultado válido
@@ -299,16 +296,16 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
       });
 
     } catch (error) {
-      console.error('❌ Erro no refreshDashboard:', error);
+      debugLog.error('Erro no refreshDashboard:', error);
       if (!mounted.current) return;
       const errorMsg = handleError(error, 'dashboard summary');
       setDashboardError(errorMsg);
     } finally {
-      console.log('🏁 Finalizando refreshDashboard');
+      debugLog.info('Finalizando refreshDashboard');
       if (mounted.current) {
         globalState.loadingDashboard = false;
         setLoadingDashboard(false);
-        console.log('✅ Estados de loading limpos');
+        debugLog.info('Estados de loading limpos');
       }
     }
   }, [handleError, toast]);
@@ -327,7 +324,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
 
       const endpoint = `/api/analytics/conversion-funnel${params.toString() ? '?' + params.toString() : ''}`;
 
-      console.log(`🔄 Carregando funil de conversão: ${endpoint}`);
+      debugLog.api('Carregando funil de conversão', endpoint);
 
       const result = await apiService.getPerformanceMetrics(); // 2 minute cache
 
@@ -339,7 +336,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
 
       setConversionFunnel(result.data);
 
-      console.log(`✅ Funil carregado - Conversão: ${result.data.overall_conversion.toFixed(1)}%`);
+      debugLog.success(`Funil carregado - Conversão: ${result.data.overall_conversion.toFixed(1)}%`);
 
     } catch (error) {
       if (!mounted.current) return;
@@ -360,7 +357,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
     setTemplatesError(null);
 
     try {
-      console.log(`📋 Carregando performance de templates - ${days} dias`);
+      debugLog.info(`Carregando performance de templates - ${days} dias`);
 
       const result = await apiService.getPerformanceMetrics();
 
@@ -372,7 +369,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
 
       setTemplatePerformance(result.data);
 
-      console.log(`✅ Templates carregados: ${result.data.total_templates_analyzed} analisados`);
+      debugLog.success(`Templates carregados: ${result.data.total_templates_analyzed} analisados`);
 
     } catch (error) {
       if (!mounted.current) return;
@@ -411,7 +408,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
 
       const endpoint = `/api/analytics/time-series?${params.toString()}`;
 
-      console.log(`📈 Carregando série temporal: ${endpoint}`);
+      debugLog.info(`📈 Carregando série temporal: ${endpoint}`);
 
       const result = await apiService.getTimeSeriesData(
         metrics.join(','),
@@ -429,7 +426,7 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
         metadata: result.data?.metadata || { period: { start: '', end: '' }, granularity: 'daily', metrics: [], total_data_points: 0 }
       });
 
-      console.log(`✅ Série temporal carregada: ${result.data?.length || 0} pontos`);    } catch (error) {
+      debugLog.info(`✅ Série temporal carregada: ${result.data?.length || 0} pontos`);    } catch (error) {
       if (!mounted.current) return;
       const errorMsg = handleError(error, 'série temporal');
       setTimeSeriesError(errorMsg);
@@ -443,22 +440,22 @@ export function useRealAnalytics(): UseRealAnalyticsReturn {
   // Auto-load dashboard summary on mount - always load fresh data when authenticated
   useEffect(() => {
     if (authLoading) {
-      console.log('⏳ useRealAnalytics: aguardando verificação de autenticação...');
+      debugLog.info('⏳ useRealAnalytics: aguardando verificação de autenticação...');
       return; // Aguardar verificação de autenticação
     }
     
     if (!isAuthenticated) {
-      console.log('🚫 useRealAnalytics: usuário não autenticado, não carregando dados');
+      debugLog.info('🚫 useRealAnalytics: usuário não autenticado, não carregando dados');
       return;
     }
     
     // Sempre carregar dados frescos quando o componente for montado
-    console.log('🚀 useRealAnalytics: usuário autenticado, carregando dados iniciais...');
+    debugLog.info('🚀 useRealAnalytics: usuário autenticado, carregando dados iniciais...');
     
     // Adicionar timeout para evitar loading infinito
     const timeoutId = setTimeout(() => {
       if (loadingDashboard && !dashboardSummary) {
-        console.warn('⚠️ Timeout no carregamento do dashboard, forçando estado de erro');
+        debugLog.warn('Timeout no carregamento do dashboard, forçando estado de erro');
         setDashboardError('Timeout ao carregar dados do dashboard');
         setLoadingDashboard(false);
       }

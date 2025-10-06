@@ -2,25 +2,45 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 import { logger } from './lib/logger';
+import { debugLog } from './lib/debug';
 
 const isDev = process.env.NODE_ENV === 'development';
+
+// ✅ CORREÇÃO #2: Verificar JWT_SECRET no início, antes de qualquer uso
+// Se não estiver configurado, a aplicação não deve continuar
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  // 🚨 ERRO FATAL: JWT_SECRET não configurado
+  debugLog.error('🚨🚨🚨 ERRO CRÍTICO: JWT_SECRET não está configurado!');
+  debugLog.error('🚨 A aplicação não pode funcionar sem JWT_SECRET.');
+  debugLog.error('🚨 Configure JWT_SECRET nas variáveis de ambiente.');
+  throw new Error('FATAL: JWT_SECRET must be configured in environment variables');
+}
+
+// Validar que o secret tem comprimento mínimo seguro
+if (JWT_SECRET.length < 32) {
+  debugLog.error('🚨🚨🚨 ERRO CRÍTICO: JWT_SECRET muito curto!');
+  debugLog.error('🚨 JWT_SECRET deve ter pelo menos 32 caracteres para segurança.');
+  throw new Error('FATAL: JWT_SECRET must be at least 32 characters long');
+}
+
+debugLog.success('JWT_SECRET configurado e validado');
 
 // Função para verificar se o JWT é válido
 async function verifyJWT(token: string): Promise<boolean> {
   try {
-    const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    console.error('🚨 JWT_SECRET não configurado!');
-    throw new Error('JWT_SECRET must be configured');
-  }
-    logger.debug('Middleware: Verificando JWT com secret:', secret);
-    logger.debug('Middleware: Token preview:', token.substring(0, 20) + '...');
+    // 🔒 SECURITY: Não logar secrets ou tokens
+    logger.debug('Middleware: Verificando JWT');
     
-    const result = await jwtVerify(token, new TextEncoder().encode(secret));
-    logger.debug('Middleware: JWT válido, payload:', result.payload);
+    // ✅ CORREÇÃO #2: JWT_SECRET já foi validado no topo do arquivo
+    // Não precisa verificar novamente aqui
+    const result = await jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
+    logger.debug('Middleware: JWT válido');
     return true;
   } catch (error) {
-    logger.debug('Middleware: JWT inválido:', error);
+    // 🔒 SECURITY: Não logar detalhes do erro que podem expor informações sensíveis
+    logger.debug('Middleware: JWT inválido');
     return false;
   }
 }
@@ -36,6 +56,7 @@ export async function middleware(request: NextRequest) {
 
     // Obter o token de autenticação - ✅ CORRIGIDO: Usar access_token
     const authToken = request.cookies.get('access_token')?.value;
+    // 🔒 SECURITY: Logar apenas presença do token, não o valor
     logger.debug('Middleware: Token encontrado:', !!authToken);
 
     if (authToken) {
@@ -71,8 +92,8 @@ export async function middleware(request: NextRequest) {
   const authToken = request.cookies.get('access_token')?.value;
   let isAuthenticated = false;
   
+  // 🔒 SECURITY: Logar apenas presença do token, não o valor
   logger.debug('Middleware: Cookie access_token encontrado:', !!authToken);
-  if (isDev && authToken) console.log('Middleware: Token preview:', authToken.substring(0, 20) + '...');
   
   if (authToken) {
     // Verificar se o JWT é válido
@@ -84,35 +105,68 @@ export async function middleware(request: NextRequest) {
   
   logger.debug('Middleware: Status de autenticação:', isAuthenticated)
 
-  // ✅ SECURITY FIX: Removidas exceções para páginas de debug - todas páginas precisam de autenticação
-
+  // ✅ CORREÇÃO #3: Simplificar lógica de redirecionamento
+  
   // Rotas que requerem autenticação
-  const protectedRoutes = ['/dashboard', '/conversas', '/agendamentos', '/monitoring', '/clientes', '/analytics', '/relatorios', '/configuracoes', '/perfil', '/suporte', '/horarios-bloqueados', '/exportar-relatorios'];
+  const protectedRoutes = [
+    '/dashboard', 
+    '/conversas', 
+    '/agendamentos', 
+    '/monitoring', 
+    '/clientes', 
+    '/analytics', 
+    '/relatorios', 
+    '/configuracoes', 
+    '/perfil', 
+    '/suporte', 
+    '/horarios-bloqueados', 
+    '/exportar-relatorios'
+  ];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
   logger.debug('Middleware: É rota protegida?', isProtectedRoute)
 
-  // Se não está autenticado e tenta acessar rota protegida
+  // Caso 1: Usuário NÃO autenticado tentando acessar rota protegida
   if (!isAuthenticated && isProtectedRoute) {
-    logger.debug('Middleware: Redirecionando para login (não autenticado)')
-    logger.debug('Middleware: Cookies disponíveis:', request.cookies.getAll().map(c => c.name));
+    logger.debug('Middleware: ❌ Não autenticado → Redirecionando para /login')
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // ✅ CORREÇÃO: Permitir acesso a /login mesmo com token presente
-  // O auth-context irá validar se o token é válido e redirecionar se necessário
+  // Caso 2: Usuário autenticado tentando acessar /login
   if (isAuthenticated && pathname === '/login') {
-    logger.debug('Middleware: Token presente, mas permitindo acesso a /login para validação pelo auth-context')
-    // Não redirecionar automaticamente - deixar auth-context validar
-    return NextResponse.next();
+    logger.debug('Middleware: ✅ Já autenticado → Redirecionando para /dashboard')
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  logger.debug('Middleware: Permitindo acesso')
+  // Caso 3: Acesso permitido (autenticado em rota protegida, ou rota pública)
+  logger.debug('Middleware: ✅ Permitindo acesso')
   return NextResponse.next();
 }
 
+// ✅ CORREÇÃO #4: Matcher refinado para ser mais específico
+// Aplica middleware apenas em rotas que realmente precisam de verificação de autenticação
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    // Rotas de dashboard (protegidas)
+    '/dashboard/:path*',
+    '/conversas/:path*',
+    '/agendamentos/:path*',
+    '/monitoring/:path*',
+    '/clientes/:path*',
+    '/analytics/:path*',
+    '/relatorios/:path*',
+    '/configuracoes/:path*',
+    '/perfil/:path*',
+    '/suporte/:path*',
+    '/horarios-bloqueados/:path*',
+    '/exportar-relatorios/:path*',
+    '/admin/:path*',
+    '/bloqueados/:path*',
+    
+    // Rotas de autenticação (redirecionamento)
+    '/login',
+    
+    // Rotas de API que precisam de token injection (proxy)
+    '/api/proxy/:path*',
   ],
 };

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function PUT(
   request: NextRequest,
@@ -20,7 +21,7 @@ export async function PUT(
       status 
     } = body;
 
-    console.log(`📅 Atualizando agendamento ${appointmentId}...`);
+    debugLog.info(`📅 Atualizando agendamento ${appointmentId}...`);
 
     // Verificar se o agendamento existe
     const checkQuery = 'SELECT id FROM appointments WHERE id = $1';
@@ -106,7 +107,7 @@ export async function PUT(
 
     const updatedAppointment = await executeQuery(updateQuery, updateValues);
 
-    console.log('✅ Agendamento atualizado:', updatedAppointment[0]);
+    debugLog.success('Agendamento atualizado:', updatedAppointment[0]);
 
     return NextResponse.json({
       success: true,
@@ -115,7 +116,7 @@ export async function PUT(
     });
 
   } catch (error) {
-    console.error('❌ Erro ao atualizar agendamento:', error);
+    debugLog.error('Erro ao atualizar agendamento:', error);
     return NextResponse.json(
       { 
         success: false,
@@ -135,7 +136,7 @@ export async function DELETE(
     const resolvedParams = await params;
     const appointmentId = resolvedParams.id;
 
-    console.log(`🗑️ Excluindo agendamento ${appointmentId}...`);
+    debugLog.info(`🗑️ Excluindo agendamento ${appointmentId}...`);
 
     // Verificar se o agendamento existe
     const checkQuery = 'SELECT id, status FROM appointments WHERE id = $1';
@@ -161,7 +162,7 @@ export async function DELETE(
     const deleteQuery = 'DELETE FROM appointments WHERE id = $1 RETURNING id';
     const deletedAppointment = await executeQuery(deleteQuery, [appointmentId]);
 
-    console.log('✅ Agendamento excluído:', deletedAppointment[0]);
+    debugLog.success('Agendamento excluído:', deletedAppointment[0]);
 
     return NextResponse.json({
       success: true,
@@ -170,7 +171,7 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('❌ Erro ao excluir agendamento:', error);
+    debugLog.error('Erro ao excluir agendamento:', error);
     return NextResponse.json(
       { 
         success: false,

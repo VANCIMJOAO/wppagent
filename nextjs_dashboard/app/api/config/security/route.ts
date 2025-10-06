@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔒 Buscando configurações de segurança...');
+    debugLog.auth('Buscando configurações de segurança...');
 
     // Buscar configurações de segurança do banco
     const securityQuery = `
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
       policies: policies
     };
 
-    console.log(`✅ Configurações de segurança carregadas: ${policies.length} políticas`);
+    debugLog.info(`✅ Configurações de segurança carregadas: ${policies.length} políticas`);
 
     return NextResponse.json({
       success: true,
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar configurações de segurança:', error);
+    debugLog.error('Erro ao buscar configurações de segurança:', error);
     return NextResponse.json(
       {
         success: false,
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('💾 Salvando configurações de segurança...');
+    debugLog.info('💾 Salvando configurações de segurança...');
 
     const body = await request.json();
     const {
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
 
       // Aqui você atualizaria a senha no banco de dados
       // Por segurança, não implementei a alteração real da senha
-      console.log('🔐 Alteração de senha solicitada (não implementada por segurança)');
+      debugLog.auth('Alteração de senha solicitada (não implementada por segurança)');
     }
 
     // Salvar configurações de segurança
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
       ipWhitelist: ipWhitelist || []
     };
 
-    console.log('✅ Configurações de segurança salvas');
+    debugLog.success('Configurações de segurança salvas');
 
     return NextResponse.json({
       success: true,
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao salvar configurações de segurança:', error);
+    debugLog.error('Erro ao salvar configurações de segurança:', error);
     return NextResponse.json(
       {
         success: false,

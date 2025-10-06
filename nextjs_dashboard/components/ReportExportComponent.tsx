@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { debugLog } from '@/lib/debug';
 
 interface ReportFilters {
   dateFrom?: string;
@@ -126,11 +127,12 @@ const ReportExportComponent: React.FC = () => {
 
       const url = `${baseUrl}?${params.toString()}`;
 
-      // Fazer request
+      // 🔒 SECURITY: Usando cookies HttpOnly seguros via credentials: 'include'
       const response = await fetch(url, {
         method: 'GET',
+        credentials: 'include', // Inclui cookies HttpOnly automaticamente
         headers: {
-          'Authorization': `Bearer ${null}`, // ✅ REMOVIDO: Token inseguro
+          'Content-Type': 'application/json'
         },
       });
 
@@ -166,7 +168,7 @@ const ReportExportComponent: React.FC = () => {
       setLastExport(format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }));
 
     } catch (err) {
-      console.error('Erro na exportação:', err);
+      debugLog.error('Erro na exportação:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido ao exportar relatório');
     } finally {
       setIsExporting(false);

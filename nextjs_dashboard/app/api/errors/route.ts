@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 // Force dynamic rendering for this route since it uses searchParams
 export const dynamic = 'force-dynamic';
@@ -24,24 +25,24 @@ export async function POST(request: NextRequest) {
 
     // Log do erro de forma estruturada
     console.group(`🚨 Frontend Error Report [${errorReport.level}]`);
-    console.log('📋 Error ID:', errorReport.id);
-    console.log('📍 Location:', errorReport.name);
-    console.log('🕒 Timestamp:', errorReport.timestamp);
-    console.log('🔗 URL:', errorReport.url);
-    console.log('👤 User ID:', errorReport.userId || 'Anonymous');
-    console.log('🎯 Session ID:', errorReport.sessionId || 'No session');
-    console.log('🔄 Retry Count:', errorReport.retryCount);
-    console.log('💻 User Agent:', errorReport.userAgent);
-    console.log('📝 Message:', errorReport.message);
+    debugLog.info('📋 Error ID:', errorReport.id);
+    debugLog.info('📍 Location:', errorReport.name);
+    debugLog.info('🕒 Timestamp:', errorReport.timestamp);
+    debugLog.info('🔗 URL:', errorReport.url);
+    debugLog.info('👤 User ID:', errorReport.userId || 'Anonymous');
+    debugLog.info('🎯 Session ID:', errorReport.sessionId || 'No session');
+    debugLog.info('🔄 Retry Count:', errorReport.retryCount);
+    debugLog.info('💻 User Agent:', errorReport.userAgent);
+    debugLog.info('📝 Message:', errorReport.message);
 
     if (errorReport.stack) {
-      console.log('📚 Stack Trace:');
-      console.log(errorReport.stack);
+      debugLog.info('📚 Stack Trace:');
+      debugLog.info(errorReport.stack);
     }
 
     if (errorReport.componentStack) {
-      console.log('🧩 Component Stack:');
-      console.log(errorReport.componentStack);
+      debugLog.info('🧩 Component Stack:');
+      debugLog.info(errorReport.componentStack);
     }
     console.groupEnd();
 
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Failed to process error report:', error);
+    debugLog.error('Failed to process error report:', error);
 
     return NextResponse.json(
       { success: false, message: 'Failed to process error report' },
@@ -106,9 +107,9 @@ async function saveErrorToDatabase(errorReport: ErrorReport) {
     ]);
     */
 
-    console.log(`💾 Error ${errorReport.id} saved to database`);
+    debugLog.info(`💾 Error ${errorReport.id} saved to database`);
   } catch (error) {
-    console.error('❌ Failed to save error to database:', error);
+    debugLog.error('Failed to save error to database:', error);
   }
 }
 
@@ -135,9 +136,9 @@ async function notifyTeam(errorReport: ErrorReport) {
     });
     */
 
-    console.log(`📢 Critical error ${errorReport.id} notification sent to team`);
+    debugLog.info(`📢 Critical error ${errorReport.id} notification sent to team`);
   } catch (error) {
-    console.error('❌ Failed to notify team:', error);
+    debugLog.error('Failed to notify team:', error);
   }
 }
 
@@ -160,7 +161,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Failed to fetch errors:', error);
+    debugLog.error('Failed to fetch errors:', error);
 
     return NextResponse.json(
       { success: false, message: 'Failed to fetch errors' },

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📚 Buscando FAQs do PostgreSQL...');
+    debugLog.info('📚 Buscando FAQs do PostgreSQL...');
 
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get('category') || '';
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
       is_active: faq.is_active
     }));
 
-    console.log(`✅ Encontrados ${formattedFAQs.length} FAQs`);
+    debugLog.info(`✅ Encontrados ${formattedFAQs.length} FAQs`);
 
     return NextResponse.json({
       success: true,
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar FAQs:', error);
+    debugLog.error('Erro ao buscar FAQs:', error);
     return NextResponse.json(
       {
         success: false,
@@ -66,7 +67,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('📝 Criando novo FAQ...');
+    debugLog.info('📝 Criando novo FAQ...');
 
     const body = await request.json();
     const { question, answer, category } = body;
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     const newFAQ = result[0];
 
-    console.log(`✅ FAQ criado com ID: ${newFAQ.id}`);
+    debugLog.info(`✅ FAQ criado com ID: ${newFAQ.id}`);
 
     return NextResponse.json({
       success: true,
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao criar FAQ:', error);
+    debugLog.error('Erro ao criar FAQ:', error);
     return NextResponse.json(
       {
         success: false,

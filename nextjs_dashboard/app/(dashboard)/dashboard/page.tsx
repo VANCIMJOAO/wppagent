@@ -1,6 +1,17 @@
 /**
  * Dashboard Principal - Página de Overview
  * Combina métricas principais com navegação para analytics avançadas
+ * 
+ * ⚠️ NOTA: Esta página PRECISA ser Client Component porque:
+ * - useState/useEffect para estado reativo
+ * - Botões interativos com onClick handlers
+ * - useRealAnalytics() com fetching dinâmico
+ * 
+ * ✅ CORREÇÃO #26: Confiar no middleware para autenticação
+ * - Middleware já protege /dashboard (redireciona não autenticados)
+ * - Não precisa duplicar verificação de auth no componente
+ * - Remove useAuth, useRouter, useEffect de redirecionamento
+ * - Simplifica código e remove lógica redundante
  */
 'use client';
 
@@ -8,10 +19,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRealAnalytics } from '@/hooks/use-real-analytics';
-import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary';
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { UniversalErrorBoundary } from '@/components/shared/error-boundary/UniversalErrorBoundary';
 import {
   Users,
   MessageSquare,
@@ -28,52 +36,16 @@ import { ptBR } from 'date-fns/locale';
 import { SafeLink } from '@/components/ui/safe-link';
 
 export default function DashboardPage() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const router = useRouter();
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-  // Redirecionar para login se não autenticado
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
-
-  // Só carregar analytics se autenticado
+  // ✅ CORREÇÃO #26: Middleware garante autenticação - não precisa verificar aqui
+  // Carregar analytics diretamente (usuário já está autenticado)
   const {
     dashboardSummary,
     loadingDashboard,
     dashboardError,
     refreshDashboard
   } = useRealAnalytics();
-
-  // DEBUG: Log dashboard data
-  useEffect(() => {
-    console.log('🔍 [Dashboard] dashboardSummary:', dashboardSummary);
-    console.log('🔍 [Dashboard] key_metrics:', dashboardSummary?.key_metrics);
-    console.log('🔍 [Dashboard] loadingDashboard:', loadingDashboard);
-  }, [dashboardSummary, loadingDashboard]);
-
-  // Mostrar loading enquanto verifica autenticação
-  if (authLoading) {
-    return (
-      <div className="space-y-6 p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Se não autenticado, não renderizar nada (será redirecionado)
-  if (!isAuthenticated) {
-    return null;
-  }
 
   if (loadingDashboard && !dashboardSummary) {
     return (
@@ -95,7 +67,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <AdvancedErrorBoundary>
+    <UniversalErrorBoundary level="component" name="Dashboard Content">
       <div className="space-y-6 p-6">
         {/* Header */}
         <div className="flex justify-between items-start">
@@ -334,6 +306,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-    </AdvancedErrorBoundary>
+    </UniversalErrorBoundary>
   );
 }

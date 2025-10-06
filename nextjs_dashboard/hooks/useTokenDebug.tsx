@@ -20,6 +20,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { tokenManager, getTokenInfo } from '../lib/token-manager';
+import { debugLog } from '@/lib/debug';
 
 interface TokenDebugInfo {
   hasAccessToken: boolean;
@@ -69,14 +70,14 @@ export function useTokenDebug() {
       attempt.success = true;
       attempt.duration = Date.now() - startTime;
 
-      console.log('✅ Test refresh successful');
+      debugLog.success('Test refresh successful');
 
     } catch (error: any) {
       attempt.success = false;
       attempt.duration = Date.now() - startTime;
       attempt.error = error.message;
 
-      console.error('❌ Test refresh failed:', error);
+      debugLog.error('Test refresh failed:', error);
     }
 
     setRefreshAttempts(prev => [attempt, ...prev.slice(0, 9)]); // Keep last 10 attempts

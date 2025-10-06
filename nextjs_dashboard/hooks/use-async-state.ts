@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
+import { debugLog } from '@/lib/debug';
 
 /**
  * 🎯 Hook para Estados Loading/Erro
@@ -276,7 +277,7 @@ export function useLocalStorageState<T>(
       const item = window.localStorage.getItem(key)
       return item ? JSON.parse(item) : initialValue
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error)
+      debugLog.warn(`Error reading localStorage key "${key}":`, error)
       return initialValue
     }
   })
@@ -288,7 +289,7 @@ export function useLocalStorageState<T>(
         window.localStorage.setItem(key, JSON.stringify(value))
       }
     } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error)
+      debugLog.error(`Error setting localStorage key "${key}":`, error)
     }
   }, [key])
 

@@ -1,9 +1,9 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/auth-context'
-import { AdvancedErrorBoundary } from '@/components/error-boundaries/AdvancedErrorBoundary'
-import { ErrorProvider } from '@/components/error-boundaries/ErrorProvider'
-import { ToastProvider } from '@/components/error-boundaries/ToastProvider'
+import { UniversalErrorBoundary } from '@/components/shared/error-boundary/UniversalErrorBoundary'
+import { ConsolidatedErrorProvider } from '@/components/shared/error-boundary/ConsolidatedErrorProvider'
+import { ConsolidatedToastProvider } from '@/components/shared/toast/ToastProvider-consolidated'
 import { ReactQueryProvider } from '@/components/providers/react-query-provider'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -30,12 +30,13 @@ export default function RootLayout({
       <head>
       </head>
       <body className={inter.className}>
-        <ErrorProvider>
-          <ToastProvider>
-            <AdvancedErrorBoundary
-              level="page"
-              context="Root Application"
-              showErrorDetails={false}
+        <ConsolidatedErrorProvider>
+          <ConsolidatedToastProvider>
+            <UniversalErrorBoundary
+              level="global"
+              name="Root Application"
+              showDetails={false}
+              maxRetries={3}
             >
               <ReactQueryProvider>
                 <AuthProvider>
@@ -44,9 +45,9 @@ export default function RootLayout({
                   </div>
                 </AuthProvider>
               </ReactQueryProvider>
-            </AdvancedErrorBoundary>
-          </ToastProvider>
-        </ErrorProvider>
+            </UniversalErrorBoundary>
+          </ConsolidatedToastProvider>
+        </ConsolidatedErrorProvider>
       </body>
     </html>
   )

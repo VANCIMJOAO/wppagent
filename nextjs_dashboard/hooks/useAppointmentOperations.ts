@@ -17,16 +17,17 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
-import { useAppointmentOperations } from './useApiWithInvalidation'
+import { debugLog } from '@/lib/debug'
+// import { useAppointmentOperations } from './useApiWithInvalidation' // Hook removido na consolidação
 
 // Usar toast nativo ou biblioteca disponível
 const toast = {
   success: (message: string, options?: any) => {
-    console.log('✅', message)
+    debugLog.success(message)
     // Pode ser substituído por sonner, react-toastify, ou outro
   },
   error: (message: string, options?: any) => {
-    console.error('❌', message)
+    debugLog.error(message)
     // Pode ser substituído por sonner, react-toastify, ou outro
   }
 }
@@ -128,31 +129,32 @@ async function deleteAppointment(id: number): Promise<{ message: string; id: num
  * 🔄 Hook para criar appointments com invalidação automática
  */
 export function useCreateAppointment() {
-  const { onAppointmentCreated } = useAppointmentOperations()
+  // const { onAppointmentCreated } = useAppointmentOperations() // Hook removido na consolidação
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: createAppointment,
     onMutate: async (newAppointment) => {
       // Optimistic update opcional
-      console.log('🔄 Creating appointment:', newAppointment)
+      debugLog.info('Creating appointment:', newAppointment)
     },
     onSuccess: (data, variables) => {
       // Invalidar cache automaticamente
-      onAppointmentCreated(data.id, {
-        client_id: data.user_id,
-        business_id: data.business_id
-      })
+      // TODO: Implementar invalidação de cache após consolidação
+      // onAppointmentCreated(data.id, {
+      //   client_id: data.user_id,
+      //   business_id: data.business_id
+      // })
 
       toast.success('Agendamento criado com sucesso!', {
         duration: 3000,
         position: 'top-right'
       })
 
-      console.log('✅ Appointment created successfully:', data.id)
+      debugLog.success(`Appointment created successfully: ${data.id}`)
     },
     onError: (error: Error, variables) => {
-      console.error('❌ Error creating appointment:', error)
+      debugLog.error('Error creating appointment:', error)
 
       toast.error(`Erro ao criar agendamento: ${error.message}`, {
         duration: 5000,
@@ -166,7 +168,7 @@ export function useCreateAppointment() {
  * 🔄 Hook para atualizar appointments com invalidação automática
  */
 export function useUpdateAppointment() {
-  const { onAppointmentUpdated } = useAppointmentOperations()
+  // const { onAppointmentUpdated } = useAppointmentOperations() // Hook removido na consolidação
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -174,7 +176,7 @@ export function useUpdateAppointment() {
       updateAppointment(id, data),
     onMutate: async ({ id, data }) => {
       // Optimistic update
-      console.log(`🔄 Updating appointment ${id}:`, data)
+      debugLog.info(`Updating appointment ${id}:`, data)
 
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['appointment-detail', id] })
@@ -195,17 +197,18 @@ export function useUpdateAppointment() {
     },
     onSuccess: (updatedAppointment, { id }) => {
       // Invalidar cache automaticamente
-      onAppointmentUpdated(id, {
-        client_id: updatedAppointment.user_id,
-        business_id: updatedAppointment.business_id
-      })
+      // TODO: Implementar invalidação de cache após consolidação
+      // onAppointmentUpdated(id, {
+      //   client_id: updatedAppointment.user_id,
+      //   business_id: updatedAppointment.business_id
+      // })
 
       toast.success('Agendamento atualizado com sucesso!', {
         duration: 3000,
         position: 'top-right'
       })
 
-      console.log('✅ Appointment updated successfully:', id)
+      debugLog.success(`Appointment updated successfully: ${id}`)
     },
     onError: (error: Error, { id }, context) => {
       // Rollback optimistic update
@@ -213,7 +216,7 @@ export function useUpdateAppointment() {
         queryClient.setQueryData(['appointment-detail', id], context.previousAppointment)
       }
 
-      console.error('❌ Error updating appointment:', error)
+      debugLog.error('Error updating appointment:', error)
 
       toast.error(`Erro ao atualizar agendamento: ${error.message}`, {
         duration: 5000,
@@ -227,13 +230,13 @@ export function useUpdateAppointment() {
  * 🔄 Hook para excluir appointments com invalidação automática
  */
 export function useDeleteAppointment() {
-  const { onAppointmentDeleted } = useAppointmentOperations()
+  // const { onAppointmentDeleted } = useAppointmentOperations() // Hook removido na consolidação
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: deleteAppointment,
     onMutate: async (appointmentId) => {
-      console.log(`🗑️ Deleting appointment ${appointmentId}`)
+      debugLog.info(`Deleting appointment ${appointmentId}`)
 
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['appointment-detail', appointmentId] })
@@ -262,17 +265,18 @@ export function useDeleteAppointment() {
       const appointment = context?.previousAppointment as AppointmentResponse
 
       // Invalidar cache automaticamente
-      onAppointmentDeleted(appointmentId, {
-        client_id: appointment?.user_id,
-        business_id: appointment?.business_id
-      })
+      // TODO: Implementar invalidação de cache após consolidação
+      // onAppointmentDeleted(appointmentId, {
+      //   client_id: appointment?.user_id,
+      //   business_id: appointment?.business_id
+      // })
 
       toast.success('Agendamento excluído com sucesso!', {
         duration: 3000,
         position: 'top-right'
       })
 
-      console.log('✅ Appointment deleted successfully:', appointmentId)
+      debugLog.success(`Appointment deleted successfully: ${appointmentId}`)
     },
     onError: (error: Error, appointmentId, context) => {
       // Rollback optimistic updates
@@ -283,7 +287,7 @@ export function useDeleteAppointment() {
         queryClient.invalidateQueries({ queryKey: ['appointments'] })
       }
 
-      console.error('❌ Error deleting appointment:', error)
+      debugLog.error('Error deleting appointment:', error)
 
       toast.error(`Erro ao excluir agendamento: ${error.message}`, {
         duration: 5000,
@@ -297,7 +301,7 @@ export function useDeleteAppointment() {
  * 🔄 Hook para operações em lote de appointments
  */
 export function useBulkAppointmentOperations() {
-  const { onAppointmentUpdated, onAppointmentDeleted } = useAppointmentOperations()
+  // const { onAppointmentUpdated, onAppointmentDeleted } = useAppointmentOperations() // Hook removido na consolidação
   const queryClient = useQueryClient()
 
   const bulkDelete = useMutation({
@@ -311,7 +315,7 @@ export function useBulkAppointmentOperations() {
     onSuccess: (results, appointmentIds) => {
       // Invalidar cache para todos os appointments afetados
       appointmentIds.forEach(id => {
-        onAppointmentDeleted(id)
+        // onAppointmentDeleted(id) // Função removida na consolidação
       })
 
       const successful = results.filter(r => r.status === 'fulfilled').length
@@ -326,7 +330,7 @@ export function useBulkAppointmentOperations() {
       }
     },
     onError: (error) => {
-      console.error('❌ Error in bulk delete:', error)
+      debugLog.error('Error in bulk delete:', error)
       toast.error('Erro na exclusão em lote')
     }
   })
@@ -342,7 +346,7 @@ export function useBulkAppointmentOperations() {
     onSuccess: (results, { ids, status }) => {
       // Invalidar cache para todos os appointments afetados
       ids.forEach(id => {
-        onAppointmentUpdated(id)
+        // onAppointmentUpdated(id) // Função removida na consolidação
       })
 
       const successful = results.filter(r => r.status === 'fulfilled').length
@@ -350,7 +354,7 @@ export function useBulkAppointmentOperations() {
       toast.success(`${successful} agendamento(s) atualizado(s) para '${status}'`)
     },
     onError: (error) => {
-      console.error('❌ Error in bulk update:', error)
+      debugLog.error('Error in bulk update:', error)
       toast.error('Erro na atualização em lote')
     }
   })
@@ -375,11 +379,11 @@ export function useAppointmentSync() {
         type: 'active'
       })
 
-      console.log(`🔄 Appointment ${appointmentId} synced with server`)
+      debugLog.info(`Appointment ${appointmentId} synced with server`)
       return true
 
     } catch (error) {
-      console.error(`❌ Failed to sync appointment ${appointmentId}:`, error)
+      debugLog.error(`Failed to sync appointment ${appointmentId}:`, error)
       return false
     }
   }, [queryClient])
@@ -392,11 +396,11 @@ export function useAppointmentSync() {
         type: 'active'
       })
 
-      console.log('🔄 All appointments synced with server')
+      debugLog.info('All appointments synced with server')
       return true
 
     } catch (error) {
-      console.error('❌ Failed to sync appointments:', error)
+      debugLog.error('Failed to sync appointments:', error)
       return false
     }
   }, [queryClient])

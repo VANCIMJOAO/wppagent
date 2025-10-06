@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/database';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🤖 Buscando configurações do bot...');
+    debugLog.info('🤖 Buscando configurações do bot...');
 
     const botQuery = `
       SELECT
@@ -139,7 +140,7 @@ export async function GET(request: NextRequest) {
       updated_at: bot.updated_at
     };
 
-    console.log(`✅ Configurações do bot carregadas`);
+    debugLog.info(`✅ Configurações do bot carregadas`);
 
     return NextResponse.json({
       success: true,
@@ -147,7 +148,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar configurações do bot:', error);
+    debugLog.error('Erro ao buscar configurações do bot:', error);
     return NextResponse.json(
       {
         success: false,
@@ -161,7 +162,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('💾 Salvando configurações do bot...');
+    debugLog.info('💾 Salvando configurações do bot...');
 
     const body = await request.json();
     const {
@@ -264,7 +265,7 @@ export async function POST(request: NextRequest) {
 
     const savedBot = result[0];
 
-    console.log(`✅ Configurações do bot salvas`);
+    debugLog.info(`✅ Configurações do bot salvas`);
 
     return NextResponse.json({
       success: true,
@@ -284,7 +285,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro ao salvar configurações do bot:', error);
+    debugLog.error('Erro ao salvar configurações do bot:', error);
     return NextResponse.json(
       {
         success: false,

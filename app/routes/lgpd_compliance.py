@@ -22,6 +22,7 @@ from ..services.lgpd_compliance import (
 )
 
 # from ..auth.dependencies import get_current_user  # Comentado para desenvolvimento
+from ..auth.jwt_manager import get_current_user_from_token
 from ..services.structured_apm import get_structured_logger
 
 logger = get_structured_logger(__name__)
@@ -106,7 +107,7 @@ router = APIRouter(prefix="/api/lgpd")
 
 @router.get("/my-data", response_model=Dict[str, Any])
 async def get_my_data(
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_user_from_token),
     lgpd_manager: LGPDComplianceManager = Depends(get_lgpd_manager),
 ):
     """
@@ -155,7 +156,7 @@ async def get_my_data(
 async def request_data_portability(
     request: DataPortabilityRequest,
     background_tasks: BackgroundTasks,
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_user_from_token),
     lgpd_manager: LGPDComplianceManager = Depends(get_lgpd_manager),
 ):
     """
@@ -230,7 +231,7 @@ async def _export_user_data_background(
 @router.get("/data-portability/{request_id}/download")
 async def download_data_export(
     request_id: str,
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_user_from_token),
     lgpd_manager: LGPDComplianceManager = Depends(get_lgpd_manager),
 ):
     """
@@ -272,7 +273,7 @@ async def download_data_export(
 @router.post("/delete-account", response_model=AccountDeletionResponse)
 async def delete_user_account(
     request: AccountDeletionRequest,
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_user_from_token),
     lgpd_manager: LGPDComplianceManager = Depends(get_lgpd_manager),
 ):
     """

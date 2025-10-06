@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { X, User, Mail, Phone, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { debugLog } from '@/lib/debug';
 
 interface NewClientFormProps {
   onClose: () => void;
@@ -97,7 +98,7 @@ export function NewClientForm({ onClose, onSuccess }: NewClientFormProps) {
       }
 
     } catch (error) {
-      console.error('❌ Erro ao criar cliente:', error);
+      debugLog.error('Erro ao criar cliente:', error);
       toast.error(error instanceof Error ? error.message : 'Erro ao criar cliente');
     } finally {
       setLoading(false);

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { debugLog } from '@/lib/debug';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📝 API Templates: Iniciando carregamento de templates...');
+    debugLog.info('API Templates: Iniciando carregamento de templates...');
     
     // Buscar dados do backend
     const backendUrl = process.env.RAILWAY_API_URL || 'http://localhost:8000';
@@ -15,12 +16,12 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error('❌ Erro na resposta do backend:', response.status, response.statusText);
+      debugLog.error(`Erro na resposta do backend: ${response.status} ${response.statusText}`);
       throw new Error(`Backend error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('✅ API Templates: Dados recebidos do backend:', data);
+    debugLog.success('API Templates: Dados recebidos do backend');
 
     // Retornar dados padronizados
     return NextResponse.json({
@@ -43,87 +44,33 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro na API Templates:', error);
+    debugLog.error('Erro na API Templates:', error);
     
-    // Fallback para dados mock em caso de erro
-    const mockTemplates = [
-      {
-        id: 1,
-        name: 'Boas-vindas',
-        category: 'welcome',
-        language: 'pt-BR',
-        content: 'Olá {{name}}! Bem-vindo ao nosso atendimento. Como posso ajudá-lo hoje?',
-        status: 'approved',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        variables: ['name'],
-        approval_status: 'approved',
-      },
-      {
-        id: 2,
-        name: 'Confirmação de Agendamento',
-        category: 'appointment',
-        language: 'pt-BR',
-        content: 'Seu agendamento foi confirmado para {{date}} às {{time}}. Aguardamos você!',
-        status: 'approved',
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-        updated_at: new Date(Date.now() - 86400000).toISOString(),
-        variables: ['date', 'time'],
-        approval_status: 'approved',
-      },
-      {
-        id: 3,
-        name: 'Lembrete de Consulta',
-        category: 'reminder',
-        language: 'pt-BR',
-        content: 'Lembrete: Você tem uma consulta amanhã às {{time}}. Não esqueça!',
-        status: 'pending',
-        created_at: new Date(Date.now() - 172800000).toISOString(),
-        updated_at: new Date(Date.now() - 172800000).toISOString(),
-        variables: ['time'],
-        approval_status: 'pending',
-      },
-      {
-        id: 4,
-        name: 'Cancelamento',
-        category: 'cancellation',
-        language: 'pt-BR',
-        content: 'Seu agendamento para {{date}} foi cancelado. Entre em contato para reagendar.',
-        status: 'approved',
-        created_at: new Date(Date.now() - 259200000).toISOString(),
-        updated_at: new Date(Date.now() - 259200000).toISOString(),
-        variables: ['date'],
-        approval_status: 'approved',
-      }
-    ];
-
+    // Retornar erro apropriado sem fallback mock
     return NextResponse.json({
-      success: true,
-      data: mockTemplates,
-      templates: mockTemplates,
-      pagination: {
-        total: mockTemplates.length,
-        limit: 100,
-        offset: 0,
-        hasMore: false,
-      }
-    }, {
-      status: 200,
+      success: false,
+      error: 'Serviço de templates temporariamente indisponível',
+      message: error instanceof Error ? error.message : 'Erro ao conectar com backend',
+      data: [],
+      templates: []
+    }, { 
+      status: 503, // Service Unavailable
       headers: {
+        'Retry-After': '60', // Cliente deve tentar novamente em 60 segundos
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
+      }
     });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('📝 API Templates: Criando novo template...');
+    debugLog.info('API Templates: Criando novo template...');
     
     const body = await request.json();
-    console.log('📝 Dados do template:', body);
+    debugLog.info('Dados do template recebidos');
     
     // Buscar dados do backend
     const backendUrl = process.env.RAILWAY_API_URL || 'http://localhost:8000';
@@ -137,12 +84,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error('❌ Erro na resposta do backend:', response.status, response.statusText);
+      debugLog.error(`Erro na resposta do backend: ${response.status} ${response.statusText}`);
       throw new Error(`Backend error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('✅ API Templates: Template criado:', data);
+    debugLog.success('API Templates: Template criado');
 
     return NextResponse.json({
       success: true,
@@ -158,7 +105,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Erro na API Templates POST:', error);
+    debugLog.error('Erro na API Templates POST:', error);
     
     return NextResponse.json({
       success: false,
