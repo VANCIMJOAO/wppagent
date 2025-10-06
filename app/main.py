@@ -510,15 +510,15 @@ app.include_router(webhook_router, tags=["webhook"])
 
 
 
-# Debug webhook (TEMPORÁRIO - remover em produção)
-from app.routes.debug_webhook import router as debug_webhook_router
-
-app.include_router(debug_webhook_router, tags=["Debug"])
-
-# Debug middleware (TEMPORÁRIO - remover em produção)
-from app.routes.debug_middleware import router as debug_middleware_router
-
-app.include_router(debug_middleware_router, tags=["Debug Middleware"])
+# 🚨 DEBUG ROUTES - Apenas em desenvolvimento
+# ATENÇÃO: Desabilitado em produção por segurança
+if settings.ENVIRONMENT == "development" and settings.ENABLE_DEBUG_ROUTES:
+    from app.routes.debug_webhook import router as debug_webhook_router
+    from app.routes.debug_middleware import router as debug_middleware_router
+    
+    app.include_router(debug_webhook_router, tags=["Debug"])
+    app.include_router(debug_middleware_router, tags=["Debug Middleware"])
+    logger.warning("⚠️ DEBUG ROUTES ENABLED - Apenas para desenvolvimento!")
 
 # System info (TEMPORÁRIO - verificar deploy)
 from app.routes.system_info import router as system_info_router
@@ -545,10 +545,11 @@ from app.security.csp_reporter import security_router as csp_security_router
 
 app.include_router(csp_security_router, tags=["CSP Security"])
 
-# 🔍 Incluir CSP Testing Routes
-from app.routes.csp_testing import csp_testing_router
-
-app.include_router(csp_testing_router, tags=["CSP Testing"])
+# 🔍 CSP Testing Routes - Apenas em desenvolvimento
+if settings.ENVIRONMENT == "development" and settings.ENABLE_DEBUG_ROUTES:
+    from app.routes.csp_testing import csp_testing_router
+    app.include_router(csp_testing_router, tags=["CSP Testing"])
+    logger.warning("⚠️ CSP Testing Routes enabled - desenvolvimento apenas")
 
 # Incluir rotas de administração de estratégias
 from app.routes.strategy_admin import router as strategy_admin_router
@@ -676,16 +677,16 @@ except ImportError as e:
 except Exception as e:
     logger.error(f"❌ PF-001 - Erro ao carregar rotas otimizadas: {e}")
 
-# 🧪 PF-001 - Rotas de teste sem autenticação (apenas para validação)
-try:
-    from app.routes.appointments_pf001_test import router as appointments_test_router
-
-    app.include_router(appointments_test_router, tags=["PF-001 Test - No Auth"])
-    logger.info("🧪 PF-001 - Rotas de teste carregadas: validação sem autenticação")
-except ImportError as e:
-    logger.warning(f"⚠️ PF-001 - Rotas de teste não disponíveis: {e}")
-except Exception as e:
-    logger.error(f"❌ PF-001 - Erro ao carregar rotas de teste: {e}")
+# 🧪 PF-001 - Rotas de teste sem autenticação (DESABILITADO EM PRODUÇÃO)
+if settings.ENVIRONMENT == "development" and settings.ENABLE_DEBUG_ROUTES:
+    try:
+        from app.routes.appointments_pf001_test import router as appointments_test_router
+        app.include_router(appointments_test_router, tags=["PF-001 Test - No Auth"])
+        logger.warning("⚠️ PF-001 Test routes enabled - desenvolvimento apenas!")
+    except ImportError as e:
+        logger.warning(f"⚠️ PF-001 - Rotas de teste não disponíveis: {e}")
+    except Exception as e:
+        logger.error(f"❌ PF-001 - Erro ao carregar rotas de teste: {e}")
 
 # 🚨 Sistema de Alertas
 from app.routes.alerts import router as alerts_router
@@ -701,29 +702,13 @@ from app.routes.public_health import public_router
 
 app.include_router(public_router, tags=["Public Health"])
 
-# 🧪 Rotas públicas de teste (sem autenticação)
-from app.routes.public_test import router as public_test_router
+# 🧪 Rotas públicas de teste (DESABILITADO EM PRODUÇÃO)
+if settings.ENVIRONMENT == "development" and settings.ENABLE_DEBUG_ROUTES:
+    from app.routes.public_test import router as public_test_router
+    app.include_router(public_test_router, tags=["Public Test"])
+    logger.warning("⚠️ Public test routes enabled - desenvolvimento apenas!")
 
-app.include_router(public_test_router, tags=["Public Test"])
-logger.info("🧪 Rotas públicas de teste ativadas - Para validação sem autenticação")
-
-# 🔍 Debug webhook (sem autenticação)
-from app.routes.debug_webhook import router as debug_webhook_router
-
-app.include_router(debug_webhook_router, tags=["Debug Webhook"])
-logger.info("🔍 Debug webhook ativado - Para investigação de problemas")
-
-# 🔍 Debug simple (sem autenticação)
-from app.routes.debug_simple import router as debug_simple_router
-
-app.include_router(debug_simple_router, tags=["Debug Simple"])
-logger.info("🔍 Debug simple ativado - Para testes básicos")
-
-# 🔍 Debug WhatsApp (sem autenticação)
-from app.routes.debug_whatsapp import router as debug_whatsapp_router
-
-app.include_router(debug_whatsapp_router, tags=["Debug WhatsApp"])
-logger.info("🔍 Debug WhatsApp ativado - Para investigar envio")
+# 🔍 Debug Routes - DESABILITADO EM PRODUÇÃO (DUPLICADO - já desabilitado acima)
 
 # Dashboard Routes
 from app.routes.clients import router as clients_router
@@ -772,12 +757,13 @@ app.include_router(analytics_clients_router, tags=["Analytics - Clients"])
 app.include_router(templates_router, tags=["Templates"])
 app.include_router(users_admin_router, tags=["Admin Users"])
 
-# � DEBUG ROUTER - Para testar autenticação
-from app.routes.debug_auth import router as debug_auth_router
-
-app.include_router(debug_auth_router, tags=["Debug"])
-app.include_router(debug_jwt_router, tags=["Debug JWT"])
-log_system_event("debug", "Debug Auth Router activated for troubleshooting")
+# � DEBUG ROUTER - DESABILITADO EM PRODUÇÃO
+if settings.ENVIRONMENT == "development" and settings.ENABLE_DEBUG_ROUTES:
+    from app.routes.debug_auth import router as debug_auth_router
+    app.include_router(debug_auth_router, tags=["Debug"])
+    app.include_router(debug_jwt_router, tags=["Debug JWT"])
+    logger.warning("⚠️ Debug Auth/JWT routes enabled - desenvolvimento apenas!")
+    log_system_event("debug", "Debug Auth Router activated - DEV ONLY")
 
 # � ANALYTICS AVANÇADAS - Business Intelligence - ATIVADO
 from app.routes.analytics_advanced import router as advanced_analytics_router
