@@ -682,43 +682,8 @@ class PushNotification(Base):
 # =============================================================================
 
 
-class LoginAttempt(Base):
-    """
-    Modelo para tabela login_attempts órfã
-    Sistema de rate limiting e auditoria de tentativas de login
-    """
-
-    __tablename__ = "login_attempts"
-
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), nullable=False, index=True)
-    ip_address = Column(String(45))  # Suporte IPv4 e IPv6
-    success = Column(Boolean, nullable=False)
-    attempted_at = Column(
-        DateTime(timezone=True), server_default=func.now(), index=True
-    )
-    error_message = Column(Text)
-
-
-class UserSession(Base):
-    """
-    Modelo para tabela user_sessions órfã
-    Sistema de sessões de usuários (não admin)
-    """
-
-    __tablename__ = "user_sessions"
-
-    id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(String(255), nullable=False, unique=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    expires_at = Column(DateTime(timezone=True), nullable=False)
-    ip_address = Column(String(45))
-    user_agent = Column(Text)
-    is_active = Column(Boolean, default=True)
-
-    # Relacionamento
-    user = relationship("User")
+# ✅ REMOVIDO: LoginAttempt (tabela vazia removida do banco em 06/10/2025)
+# ✅ REMOVIDO: UserSession (tabela vazia removida do banco em 06/10/2025)
 
 
 class BusinessHours(Base):
