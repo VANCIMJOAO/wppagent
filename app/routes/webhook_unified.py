@@ -8,6 +8,7 @@ eliminando sobreposições e redundâncias.
 
 import asyncio
 import json
+import os
 from datetime import datetime
 from typing import Any, Dict, Optional
 
@@ -17,6 +18,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models.database import MetaLog
 from app.services.data import ConversationService, MessageService, UserService
+from app.services.entity_extractor import entity_extractor
+from app.services.auto_booking import auto_booking_service
 from app.services.response_control import get_unified_response_control
 
 # 🔥 WebSocket Integration
@@ -37,44 +40,117 @@ router = APIRouter(prefix="/webhook", tags=["WhatsApp Webhook"])
 
 
 # Sistema de resposta simplificado
-class SimplifiedResponseGenerator:
+class AIResponseGenerator:
+    """Gerador de respostas usando OpenAI GPT-4"""
+    
     def __init__(self):
-        self.responses = {
-            "greeting": "Olá! Como posso ajudar você hoje no Studio Beleza Bem-Estar? 🌟",
-            "services": """📋 Aqui estão nossos serviços:
+        from openai import AsyncOpenAI
+        
+        self.client = AsyncOpenAI(
+            api_key=os.getenv("OPENAI_API_KEY", "")
+        )
+        
+        self.system_prompt = """Você é um assistente virtual do Studio Beleza Bem-Estar, uma clínica de estética e bem-estar.
 
+INFORMAÇÕES DA CLÍNICA:
+- Nome: Studio Beleza Bem-Estar
+- Horário: Segunda a Sexta 8h-18h, Sábado 8h-14h
+- Endereço: Rua das Flores, 123 - Centro
+- Telefone: (16) 3333-4444
+
+SERVIÇOS DISPONÍVEIS:
 🔹 Limpeza de Pele - R$ 80,00 (60 min)
 🔹 Hidrofacial - R$ 150,00 (75 min)
 🔹 Criolipólise - R$ 300,00 (60 min)
-🔹 Massagem - R$ 120,00 (60 min)
+🔹 Massagem Relaxante - R$ 120,00 (60 min)
+🔹 Drenagem Linfática - R$ 100,00 (50 min)
+🔹 Peeling - R$ 130,00 (45 min)
 
-Digite "mais serviços" para ver outras opções! 😊""",
-            "default": "Como posso ajudar você? 😊\\n\\nPosso falar sobre serviços, preços, agendamentos ou informações!",
-        }
+POLÍTICA DE AGENDAMENTO:
+- Agendamentos com 24h de antecedência
+- Cancelamento até 2h antes (sem taxa)
+- Reagendamento: até 2x por mês
+- Aceita: Dinheiro, PIX, Cartão
 
-    def generate_single_response(self, message: str) -> str:
-        """Gera resposta única baseada na mensagem"""
-        message_lower = message.lower().strip()
+INSTRUÇÕES:
+1. Seja simpático, profissional e prestativo
+2. Use emojis moderadamente (1-2 por mensagem)
+3. Respostas curtas e objetivas (máx 3 linhas)
+4. Se não souber, ofereça contato telefônico
+5. Ao falar de agendamento, sugira horários disponíveis
+6. Sempre finalize oferecendo mais ajuda
 
-        # Saudações
-        if any(
-            word in message_lower
-            for word in ["ola", "olá", "oi", "bom dia", "boa tarde", "boa noite"]
-        ):
-            return self.responses["greeting"]
+IMPORTANTE: Mantenha tom conversacional e natural."""
 
-        # Serviços
-        if any(
-            word in message_lower
-            for word in ["serviço", "serviços", "preço", "valor", "quanto"]
-        ):
-            return self.responses["services"]
+        self.conversation_history = {}  # {phone: [messages]}
+        
+    async def generate_single_response(self, message: str, phone: str = None) -> str:
+        """Gera resposta usando GPT-4 com contexto"""
+        
+        try:
+            # Inicializar histórico se necessário
+            if phone and phone not in self.conversation_history:
+                self.conversation_history[phone] = []
+            
+            # Adicionar mensagem ao histórico
+            if phone:
+                self.conversation_history[phone].append({
+                    "role": "user",
+                    "content": message
+                })
+                
+                # Limitar histórico a últimas 10 mensagens
+                if len(self.conversation_history[phone]) > 10:
+                    self.conversation_history[phone] = self.conversation_history[phone][-10:]
+            
+            # Montar mensagens para API
+            messages = [
+                {"role": "system", "content": self.system_prompt}
+            ]
+            
+            if phone and phone in self.conversation_history:
+                messages.extend(self.conversation_history[phone])
+            else:
+                messages.append({"role": "user", "content": message})
+            
+            # Chamar OpenAI
+            response = await self.client.chat.completions.create(
+                model="gpt-4",
+                messages=messages,
+                max_tokens=150,
+                temperature=0.7,
+            )
+            
+            bot_response = response.choices[0].message.content.strip()
+            
+            # Adicionar resposta ao histórico
+            if phone:
+                self.conversation_history[phone].append({
+                    "role": "assistant",
+                    "content": bot_response
+                })
+            
+            logger.info(f"🤖 GPT-4 gerou resposta: {bot_response[:50]}...")
+            
+            return bot_response
+            
+        except Exception as e:
+            logger.error(f"❌ Erro ao gerar resposta GPT-4: {e}")
+            # Fallback para resposta simples
+            return "Desculpe, estou com dificuldades no momento. Por favor, entre em contato pelo telefone (16) 3333-4444. 😊"
 
-        # Resposta padrão
-        return self.responses["default"]
+
+response_generator = AIResponseGenerator()
 
 
-response_generator = SimplifiedResponseGenerator()
+@router.post("/clear-memory/{phone}")
+async def clear_memory(phone: str):
+    """Limpa memória do GPT-4 para um telefone específico (útil para testes)"""
+    if phone in response_generator.conversation_history:
+        del response_generator.conversation_history[phone]
+        logger.info(f"🧹 Memória limpa para {phone}")
+        return {"status": "success", "message": f"Memória limpa para {phone}"}
+    return {"status": "info", "message": f"Nenhuma memória encontrada para {phone}"}
 
 
 @router.post("")
@@ -88,7 +164,12 @@ async def webhook_endpoint(request: Request, db: AsyncSession = Depends(get_db))
         logger.info(f"📥 Webhook recebido: {json.dumps(raw_data, indent=2)[:500]}...")
 
         # Log para auditoria
-        log_entry = MetaLog(webhook_data=raw_data, processed_at=datetime.utcnow())
+        log_entry = MetaLog(
+            direction="in",
+            endpoint="/webhook",
+            method="POST",
+            payload=raw_data
+        )
         db.add(log_entry)
         await db.commit()
 
@@ -130,8 +211,11 @@ async def webhook_endpoint(request: Request, db: AsyncSession = Depends(get_db))
         }
 
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
         logger.error(f"❌ Erro no webhook: {e}")
-        return {"status": "error", "error": str(e)}
+        logger.error(f"Traceback: {error_details}")
+        return {"status": "error", "error": str(e), "traceback": error_details[:500]}
 
 
 async def process_single_message(
@@ -181,39 +265,136 @@ async def process_single_message(
             raw_payload=message_data,
         )
 
-        # Gerar e enviar resposta
-        response_text = response_generator.generate_single_response(clean_content)
+        # Gerar e enviar resposta com contexto (GPT-4)
+        response_text = await response_generator.generate_single_response(clean_content, wa_id)
 
         # Enviar via WhatsApp
         whatsapp_response = await whatsapp_service.send_text_message(
             wa_id, response_text
         )
 
-        if whatsapp_response.get("success"):
-            # Salvar mensagem enviada
-            await MessageService.create_message(
-                db=db,
-                user_id=user.id,
-                conversation_id=conversation.id,
-                direction="out",
-                content=response_text,
-                message_type="text",
-                raw_payload=whatsapp_response,
+        # ✅ SEMPRE salvar mensagem OUT (independente de envio WhatsApp)
+        # Importante para testes e auditoria
+        await MessageService.create_message(
+            db=db,
+            user_id=user.id,
+            conversation_id=conversation.id,
+            direction="out",
+            content=response_text,
+            message_type="text",
+            raw_payload=whatsapp_response,
+        )
+
+        # 🧠 EXTRAÇÃO DE DADOS - Capturar informações da conversa
+        try:
+            # Carregar serviços (cache na primeira vez)
+            if not entity_extractor.services_map:
+                await entity_extractor.load_services(db)
+            
+            # Montar histórico de mensagens para contexto
+            conversation_messages = [
+                {"role": "user", "content": clean_content},
+                {"role": "assistant", "content": response_text}
+            ]
+            
+            # Adicionar histórico do GPT-4 se existir
+            if wa_id in response_generator.conversation_history:
+                conversation_messages = response_generator.conversation_history[wa_id][-6:]  # Últimas 6 msgs
+            
+            # Extrair dados
+            extracted_data = await entity_extractor.extract_from_messages(
+                messages=conversation_messages,
+                conversation_history=None
             )
+            
+            # Salvar apenas se tiver dados relevantes (confidence > 0.3)
+            if extracted_data.get("confidence", 0) > 0.3:
+                saved_data = await entity_extractor.save_extraction(
+                    db=db,
+                    conversation_id=conversation.id,
+                    user_id=user.id,
+                    extracted_data=extracted_data
+                )
+                
+                if saved_data:
+                    logger.info(f"🎯 DADOS EXTRAÍDOS: Nome={extracted_data.get('customer_name')}, Serviço={extracted_data.get('service_name')}, Data={extracted_data.get('appointment_date')}, Hora={extracted_data.get('appointment_time')}")
+                    
+                    # 📅 AGENDAMENTO AUTOMÁTICO - Tentar criar se tiver dados completos
+                    try:
+                        success, message, appointment = await auto_booking_service.try_auto_book(
+                            db=db,
+                            user_id=user.id,
+                            conversation_id=conversation.id,
+                            collected_data=saved_data.collected_data
+                        )
+                        
+                        if success and appointment:
+                            # Buscar nome do serviço
+                            from app.models.database import Service
+                            from sqlalchemy import select as sql_select
+                            result_svc = await db.execute(
+                                sql_select(Service).where(Service.id == appointment.service_id)
+                            )
+                            service = result_svc.scalar_one_or_none()
+                            service_name = service.name if service else "Serviço"
+                            
+                            # Gerar mensagem de confirmação
+                            confirmation_msg = auto_booking_service.format_confirmation_message(
+                                appointment=appointment,
+                                service_name=service_name,
+                                user_name=extracted_data.get('customer_name')
+                            )
+                            
+                            # Enviar confirmação via WhatsApp
+                            confirm_response = await whatsapp_service.send_text_message(
+                                wa_id, confirmation_msg
+                            )
+                            
+                            # Salvar mensagem de confirmação
+                            await MessageService.create_message(
+                                db=db,
+                                user_id=user.id,
+                                conversation_id=conversation.id,
+                                direction="out",
+                                content=confirmation_msg,
+                                message_type="text",
+                                raw_payload=confirm_response,
+                            )
+                            
+                            logger.info(f"🎉 AGENDAMENTO AUTOMÁTICO CRIADO! ID: {appointment.id}")
+                        else:
+                            logger.debug(f"⏸️ Agendamento não criado: {message}")
+                            
+                    except Exception as booking_error:
+                        logger.error(f"❌ Erro no agendamento automático: {booking_error}")
+                        # Não falhar o webhook se agendamento falhar
+                        pass
+            else:
+                logger.debug(f"⚠️ Confidence baixa ({extracted_data.get('confidence')}), dados não salvos")
+                
+        except Exception as e:
+            logger.error(f"❌ Erro na extração de dados: {e}")
+            # Não falhar o webhook se extração falhar
+            pass
 
-            # Atualizar conversa
-            conversation.last_message_at = datetime.utcnow()
-            await db.commit()
+        # Atualizar conversa
+        conversation.last_message_at = datetime.utcnow()
+        await db.commit()
 
-            # Notificações WebSocket
+        # Notificações WebSocket
+        try:
             await notify_new_whatsapp_message(user.wa_id, clean_content)
             await notify_message_sent(user.wa_id, response_text)
+        except Exception as ws_error:
+            logger.warning(f"⚠️ WebSocket notification failed: {ws_error}")
 
-            logger.info(f"✅ SUCESSO: {wa_id} - Resposta enviada")
-            return {"processed": True, "response_sent": True}
+        # Log baseado no resultado do envio
+        if whatsapp_response.get("success") or whatsapp_response.get("status") == "queued":
+            logger.info(f"✅ SUCESSO: {wa_id} - Resposta salva (WhatsApp: {whatsapp_response.get('status', 'success')})")
+            return {"processed": True, "response_sent": True, "response_saved": True}
         else:
-            logger.error(f"❌ Erro ao enviar resposta: {whatsapp_response}")
-            return {"processed": True, "response_sent": False}
+            logger.warning(f"⚠️ Resposta salva mas envio WhatsApp falhou: {whatsapp_response}")
+            return {"processed": True, "response_sent": False, "response_saved": True}
 
     except Exception as e:
         logger.error(f"❌ Erro processando mensagem: {e}")
