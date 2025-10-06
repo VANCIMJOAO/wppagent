@@ -79,9 +79,6 @@ class BaseConfig(BaseSettings):
         alias="ENABLE_DEBUG_ROUTES", 
         description="Habilita rotas de debug/test (APENAS DESENVOLVIMENTO)"
     )
-    
-    # Alias para compatibilidade
-    ENABLE_DEBUG_ROUTES: bool = enable_debug_routes
 
     # ==============================
     # APLICAÇÃO
