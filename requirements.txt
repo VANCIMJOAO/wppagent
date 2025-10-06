@@ -1,61 +1,100 @@
-# Core Framework
+# ============================================================
+# CORE FRAMEWORK
+# ============================================================
 fastapi==0.115.9
 uvicorn[standard]==0.35.0
 
-# Database
+# ============================================================
+# DATABASE
+# ============================================================
 sqlalchemy==2.0.23
 asyncpg==0.30.0
 psycopg2-binary==2.9.9
 alembic==1.12.1
 
-# AI & External APIs
+# ============================================================
+# AI & EXTERNAL APIs
+# ============================================================
 openai==1.97.1
 requests==2.32.4
 httpx==0.28.1
 crewai==0.150.0
 
-# Dashboard
+# ============================================================
+# DASHBOARD & ANALYTICS
+# ============================================================
 streamlit==1.39.0
 streamlit-authenticator==0.2.3
 pandas>=2.2.0
-
-# Cache
-redis[hiredis]>=4.0.0
 plotly==5.17.0
 
-# PDF & Reports Generation
+# ============================================================
+# CACHE & REDIS
+# ============================================================
+redis[hiredis]>=4.0.0
+
+# ============================================================
+# PDF & REPORTS
+# ============================================================
 reportlab>=4.0.0
 openpyxl>=3.1.0
 xlsxwriter>=3.1.0
 
-# Scheduling & Background Tasks
+# ============================================================
+# SCHEDULING & BACKGROUND TASKS
+# ============================================================
 APScheduler==3.10.4
 
-# Configuration & Security
+# ============================================================
+# CONFIGURATION
+# ============================================================
 python-dotenv==1.0.0
 pydantic==2.11.7
 pydantic-settings==2.1.0
 python-multipart==0.0.7
+typing-extensions>=4.0.0
+
+# ============================================================
+# AUTHENTICATION & SECURITY
+# ============================================================
 python-jose[cryptography]==3.4.0
 passlib[bcrypt]>=1.7.4
 bcrypt>=4.0.0
-
-# Push Notifications
-pywebpush>=1.14.0
-http-ece>=1.2.0
-cryptography>=42.0.0
-
-# Authentication & Security
 PyJWT==2.10.1
 cryptography==44.0.1
+pycryptodome>=3.19.0
 
-# Logging & Monitoring
+# ============================================================
+# PUSH NOTIFICATIONS
+# ============================================================
+pywebpush>=1.14.0
+http-ece>=1.2.0
+
+# ============================================================
+# LOGGING & MONITORING
+# ============================================================
 structlog>=25.4.0
 pyotp==2.9.0
 qrcode[pil]==8.0.0
 email-validator==2.2.0
+prometheus_client==0.19.0
+grafana-api==1.0.3
 
-# Testing Framework
+# ============================================================
+# SECRETS MANAGEMENT
+# ============================================================
+hvac==2.3.0
+
+# ============================================================
+# SYSTEM UTILITIES
+# ============================================================
+aiofiles>=0.8.0
+psutil>=5.9.0
+schedule>=1.2.0
+
+# ============================================================
+# TESTING FRAMEWORK
+# ============================================================
 pytest==8.3.3
 pytest-asyncio==0.21.1
 pytest-mock==3.12.0
@@ -64,24 +103,3 @@ pytest-xdist==3.6.0
 pytest-html==4.1.1
 faker==28.4.1
 freezegun==1.5.1
-
-# Monitoring & Observability
-prometheus_client==0.19.0
-grafana-api==1.0.3
-
-# Secrets Management
-hvac==2.3.0
-
-# Dependências para Sistema de Produção
-aiofiles>=0.8.0
-httpx>=0.24.0
-psutil>=5.9.0
-schedule>=1.2.0
-contextvars>=2.4  # Para Python < 3.7
-
-# Dependências para Sistema de Correções
-dataclasses>=0.6  # Para Python < 3.7
-enum34>=1.1.10  # Para Python < 3.7
-typing-extensions>=4.0.0
-
-pycryptodome>=3.19.0
