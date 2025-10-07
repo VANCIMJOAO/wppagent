@@ -194,7 +194,11 @@ async def execute_redis_safe_async(operation: callable, *args, **kwargs) -> Any:
     """Executa operação Redis assíncrona com fallback seguro"""
     try:
         # Executar operação assíncrona
-        return await operation(*args, **kwargs)
+        result = operation(*args, **kwargs)
+        # Verificar se é awaitable (coroutine)
+        if hasattr(result, '__await__'):
+            return await result
+        return result
     except Exception as e:
         logger.warning(f"⚠️ Operação Redis assíncrona falhou: {e}")
         # Retornar default se fornecido
