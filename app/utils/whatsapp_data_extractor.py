@@ -36,7 +36,8 @@ def sanitize_whatsapp_data(message_data: Dict[str, Any]) -> Tuple[Optional[str],
         message_type = message_data.get("type", "text")
         
         if message_type == "text" and "text" in message_data:
-            clean_content = message_data["text"].get("body", "")
+            raw_content = message_data["text"].get("body", "")
+            clean_content = sanitize_message(raw_content, message_type)
         elif message_type == "image" and "image" in message_data:
             clean_content = f"[Imagem: {message_data['image'].get('caption', 'Sem legenda')}]"
         elif message_type == "audio" and "audio" in message_data:
@@ -111,14 +112,31 @@ def sanitize_message(content: str, message_type: str = "text") -> str:
     Returns:
         str: Conteúdo sanitizado
     """
+    import re
+    
     if not content:
         return ""
     
-    # Limitar tamanho
+    # 1. Remover scripts e styles completamente
+    content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
+    content = re.sub(r'<style[^>]*>.*?</style>', '', content, flags=re.DOTALL | re.IGNORECASE)
+    
+    # 2. Remover todas as tags HTML
+    content = re.sub(r'<[^>]+>', '', content)
+    
+    # 3. Remover entidades HTML
+    content = content.replace('&lt;', '<').replace('&gt;', '>')
+    content = content.replace('&amp;', '&').replace('&quot;', '"')
+    content = content.replace('&#39;', "'").replace('&nbsp;', ' ')
+    
+    # 4. Limitar tamanho
     if len(content) > 4096:
         content = content[:4096]
     
-    # Remover caracteres de controle perigosos
+    # 5. Remover caracteres de controle perigosos
     content = content.replace("\x00", "").replace("\r", "")
+    
+    # 6. Remover espaços múltiplos
+    content = re.sub(r'\s+', ' ', content)
     
     return content.strip()
