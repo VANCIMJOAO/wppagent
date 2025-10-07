@@ -70,37 +70,22 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         """Processa rate limiting para webhooks"""
 
-        # Debug logging
         path = request.url.path
-        logger.info(f"H003 Debug: Processing request to path: {path}")
 
         # 1. Verificar se é endpoint isento (health check)
         if self._is_exempt_path(path):
-            logger.info(f"H003 Debug: Path {path} is exempt, skipping rate limiting")
             return await call_next(request)
 
         # 2. Verificar se é webhook
-        is_webhook = self._is_webhook_path(path)
-        logger.info(f"H003 Debug: Path {path} is_webhook: {is_webhook}")
-
-        if not is_webhook:
-            logger.info(
-                f"H003 Debug: Path {path} is not a webhook, skipping rate limiting"
-            )
+        if not self._is_webhook_path(path):
             return await call_next(request)
 
         # 3. Aplicar rate limiting
         client_ip = self._get_client_ip(request)
-        logger.info(
-            f"H003 Debug: Applying rate limiting to IP {client_ip} for path {path}"
-        )
 
         try:
             # Verificar rate limit
             is_allowed, rate_info = await self._check_rate_limit(client_ip)
-            logger.info(
-                f"H003 Debug: Rate limit check result - allowed: {is_allowed}, info: {rate_info}"
-            )
 
             if not is_allowed:
                 # Log do blocking
@@ -128,7 +113,6 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
 
             # Request permitida - registrar e prosseguir
             await self._record_request(client_ip)
-            logger.info(f"H003 Debug: Request recorded for IP {client_ip}")
 
             # Adicionar headers informativos
             response = await call_next(request)
@@ -138,7 +122,6 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
                 max(0, rate_info.get("remaining", 0))
             )
 
-            logger.info(f"H003 Debug: Added rate limit headers to response")
             return response
 
         except Exception as e:

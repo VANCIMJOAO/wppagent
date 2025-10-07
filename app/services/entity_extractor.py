@@ -83,11 +83,10 @@ class EntityExtractor:
             # Parsear resposta JSON
             raw_content = response.choices[0].message.content
             if not raw_content:
-                logger.warning("⚠️ GPT-5-nano retornou conteúdo vazio")
+                logger.warning("⚠️ Extração retornou conteúdo vazio")
                 return self._empty_extraction()
                 
             extracted_raw = raw_content.strip()
-            logger.debug(f"🔍 Resposta GPT-5-nano (primeiros 200 chars): {extracted_raw[:200]}")
             
             # Extrair JSON se tiver texto antes/depois (```json...```)
             if "```json" in extracted_raw:
