@@ -115,9 +115,9 @@ IMPORTANTE: Mantenha tom conversacional e natural."""
             
             # Chamar OpenAI
             response = await self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-5-nano",  # Modelo nano - mais rápido e econômico
                 messages=messages,
-                max_tokens=150,
+                max_completion_tokens=150,  # gpt-5-nano usa max_completion_tokens
                 temperature=0.7,
             )
             

@@ -87,16 +87,23 @@ class UnifiedResponseControl:
     async def _ensure_redis_initialized(self):
         """Inicializa conexão Redis de forma assíncrona (lazy)"""
         if self._redis_initialized:
+            logger.info(f"🔍 Redis já inicializado anteriormente (client exists: {self.redis_client is not None})")
             return
-            
+        
+        logger.info("🔍 ===== INICIALIZANDO REDIS =====")    
         try:
             redis_config = redis_manager._config
+            logger.info(f"🔍 Redis config available: {redis_config.available if redis_config else False}")
+            
             if redis_config and redis_config.available and redis_config.url:
                 # Criar cliente Redis assíncrono
                 # Adicionar /0 para garantir database 0
                 redis_url = redis_config.url
+                logger.info(f"🔍 Redis URL original: {redis_url}")
+                
                 if not redis_url.endswith(('/0', '/1', '/2', '/3', '/4', '/5', '/6', '/7', '/8', '/9')):
                     redis_url = f"{redis_url}/0"
+                    logger.info(f"🔍 Redis URL modificada: {redis_url}")
                 
                 self.redis_client = redis.from_url(
                     redis_url,
@@ -106,17 +113,26 @@ class UnifiedResponseControl:
                     socket_connect_timeout=5,
                 )
                 # Testar conexão
-                await self.redis_client.ping()
-                logger.info(f"🔧 Redis cliente assíncrono inicializado: {redis_url}")
-                logger.info("🔧 Redis PING OK!")
+                ping_result = await self.redis_client.ping()
+                logger.info(f"🔧 Redis PING result: {ping_result}")
+                logger.info(f"✅ Redis cliente CONECTADO: {redis_url}")
+                
+                # Testar operação SET NX
+                test_result = await self.redis_client.set("test_init", "1", ex=10, nx=True)
+                logger.info(f"🔧 Teste SET NX na inicialização: {test_result}")
+                await self.redis_client.delete("test_init")
+                
             else:
-                logger.warning("⚠️ Redis não disponível - usando cache em memória")
+                logger.warning("⚠️ Redis config não disponível - usando cache em memória")
                 self.redis_client = None
         except Exception as e:
             logger.error(f"❌ Erro ao inicializar Redis: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             self.redis_client = None
         finally:
             self._redis_initialized = True
+            logger.info(f"🔍 ===== FIM INICIALIZAÇÃO REDIS (success: {self.redis_client is not None}) =====")
 
     def generate_message_hash(self, content: str) -> str:
         """
@@ -166,32 +182,47 @@ class UnifiedResponseControl:
                     )
 
                 # 2. Verificar mensagem duplicada
+                logger.info(f"🔍 ===== INÍCIO VERIFICAÇÃO DUPLICATA =====")
+                logger.info(f"🔍 User ID: {user_id}")
+                logger.info(f"🔍 Content: {content[:50]}...")
+                
                 message_hash = self.generate_message_hash(content)
+                logger.info(f"🔍 Hash gerado: {message_hash}")
+                
                 cache_key = self._get_cache_key(user_id, message_hash)
-
-                logger.info(f"🔍 Verificando: {user_id} - hash:{message_hash}")
+                logger.info(f"🔍 Cache key completa: {cache_key}")
 
                 # Tentar usar Redis primeiro
+                logger.info(f"🔍 Chamando _can_process_redis...")
                 redis_result = await self._can_process_redis(cache_key)
-                logger.info(f"🔍 Redis result para {user_id}: {redis_result}")
+                logger.info(f"🔍 ===== Redis retornou: {redis_result} (type: {type(redis_result).__name__}) =====")
                 
                 if redis_result:
                     # Redis retornou True = chave foi criada (primeira vez)
+                    # IMPORTANTE: Também salvar na memória como backup redundante
+                    self.memory_cache[cache_key] = time.time()
+                    logger.info(f"💾 Chave também salva na memória como backup")
+                    
                     self.stats.messages_allowed += 1
-                    logger.info(f"✅ PERMITIDO: {user_id} - Redis - primeira vez")
+                    logger.info(f"✅ PERMITIDO VIA REDIS: {user_id} - primeira vez")
+                    logger.info(f"🔍 ===== FIM VERIFICAÇÃO - PERMITIDO REDIS =====")
                     return True, "Redis - primeira vez"
 
                 # Se Redis falhou ou key já existe, verificar memória
+                logger.info(f"🔍 Redis falhou/duplicata, tentando memória...")
                 memory_result = await self._can_process_memory(cache_key)
-                logger.info(f"🔍 Memory result para {user_id}: {memory_result}")
+                logger.info(f"🔍 ===== Memory retornou: {memory_result} =====")
                 
                 if memory_result:
                     # Memória retornou True = chave foi criada (primeira vez)
                     self.stats.messages_allowed += 1
-                    logger.info(f"✅ PERMITIDO: {user_id} - Memory - primeira vez")
+                    logger.info(f"✅ PERMITIDO VIA MEMORY: {user_id} - fallback primeira vez")
+                    logger.info(f"🔍 ===== FIM VERIFICAÇÃO - PERMITIDO MEMORY =====")
                     return True, "Memory - primeira vez"
 
                 # Mensagem já processada (duplicata detectada)
+                logger.info(f"🚫 DUPLICATA DETECTADA! Bloqueando...")
+                logger.info(f"🔍 ===== FIM VERIFICAÇÃO - BLOQUEADO =====")
                 return await self._block_message(
                     user_id, "Mensagem duplicada detectada"
                 )
@@ -247,8 +278,11 @@ class UnifiedResponseControl:
     async def _can_process_memory(self, cache_key: str) -> bool:
         """Verifica via cache em memória se pode processar mensagem"""
         try:
+            logger.info(f"🔍 _can_process_memory chamado para: {cache_key}")
             self.stats.fallback_operations += 1
             current_time = time.time()
+            
+            logger.info(f"🔍 Memory cache atual tem {len(self.memory_cache)} chaves")
 
             # Limpar entradas expiradas
             expired_keys = [
@@ -257,15 +291,22 @@ class UnifiedResponseControl:
                 if current_time - timestamp > self.window_seconds
             ]
 
+            if expired_keys:
+                logger.info(f"🧹 Removendo {len(expired_keys)} chaves expiradas da memória")
             for key in expired_keys:
                 del self.memory_cache[key]
 
             # Verificar se chave já existe
-            if cache_key in self.memory_cache:
+            exists_in_memory = cache_key in self.memory_cache
+            logger.info(f"🔍 Chave existe na memória: {exists_in_memory}")
+            
+            if exists_in_memory:
+                logger.info(f"🚫 DUPLICATA em memória! Retornando False")
                 return False  # Já processada
 
             # Marcar como processada
             self.memory_cache[cache_key] = current_time
+            logger.info(f"✅ Chave SALVA na memória. Total agora: {len(self.memory_cache)}")
             return True
 
         except Exception as e:

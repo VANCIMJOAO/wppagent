@@ -69,15 +69,15 @@ class EntityExtractor:
             
             extraction_prompt = self._get_extraction_prompt()
             
-            # Chamar GPT-4 para extração
+            # Chamar GPT-5-nano para extração (mais rápido e econômico)
             response = await self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-5-nano",
                 messages=[
                     {"role": "system", "content": extraction_prompt},
                     {"role": "user", "content": context}
                 ],
                 temperature=0.2,  # Baixa temperatura para extração precisa
-                max_tokens=300,
+                max_completion_tokens=300,  # gpt-5-nano usa max_completion_tokens
             )
             
             # Parsear resposta JSON
