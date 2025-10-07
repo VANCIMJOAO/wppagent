@@ -144,10 +144,10 @@ class UnifiedResponseControl:
         Returns:
             Tuple[bool, str]: (pode_processar, motivo)
         """
-        # Garantir que Redis está inicializado antes de processar
-        await self._ensure_redis_initialized()
-        
         async with self._lock:
+            # Garantir que Redis está inicializado (dentro do lock para thread-safety)
+            await self._ensure_redis_initialized()
+            
             self.stats.messages_processed += 1
             self.stats.reset_if_needed()
 
@@ -198,12 +198,19 @@ class UnifiedResponseControl:
 
     async def _can_process_redis(self, cache_key: str) -> bool:
         """Verifica via Redis se pode processar mensagem"""
+        logger.info(f"🔍 _can_process_redis chamado para: {cache_key}")
+        logger.info(f"🔍 Redis client exists: {self.redis_client is not None}")
+        
         if not self.redis_client:
             logger.warning(f"⚠️ Redis client não disponível para {cache_key}")
             return False
 
         try:
             self.stats.redis_operations += 1
+            
+            # ANTES: Verificar se chave existe
+            exists_before = await self.redis_client.exists(cache_key)
+            logger.info(f"🔍 Chave '{cache_key}' existe ANTES do SET: {exists_before}")
 
             # Usar SET com NX (só define se não existir) e EX (TTL)
             result = await self.redis_client.set(
@@ -213,16 +220,22 @@ class UnifiedResponseControl:
                 nx=True,  # Só define se a chave não existir
             )
 
-            logger.info(f"🔍 Redis SET NX result para '{cache_key}': {result} (type: {type(result).__name__})")
+            logger.info(f"🔍 Redis SET NX result: {result} (type: {type(result).__name__})")
+            
+            # DEPOIS: Verificar se chave existe
+            exists_after = await self.redis_client.exists(cache_key)
+            logger.info(f"🔍 Chave existe DEPOIS do SET: {exists_after}")
             
             # Se result é True, a chave foi criada (mensagem pode ser processada)
-            # Se result é None, a chave já existia (mensagem duplicada)
-            is_new = result is not None
-            logger.info(f"🔍 is_new={is_new} (result is not None)")
+            # Se result é None ou False, a chave já existia (mensagem duplicada)
+            is_new = result is True
+            logger.info(f"🔍 DECISÃO FINAL: is_new={is_new} (result is True)")
             return is_new
 
         except Exception as e:
-            logger.warning(f"⚠️ Erro Redis para '{cache_key}': {e} - usando fallback")
+            logger.error(f"❌ ERRO Redis para '{cache_key}': {e} - usando fallback")
+            import traceback
+            logger.error(traceback.format_exc())
             return False
 
     async def _can_process_memory(self, cache_key: str) -> bool:
