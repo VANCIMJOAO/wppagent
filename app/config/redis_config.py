@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 import redis
+import redis.asyncio as redis_async
 
 logger = logging.getLogger(__name__)
 
@@ -133,9 +134,23 @@ class RedisManager:
         return self._config.client
     
     @property
-    def async_client(self) -> Optional[redis.Redis]:
-        """Alias para client - retorna cliente Redis assíncrono"""
-        return self._config.client
+    def async_client(self) -> Optional[redis_async.Redis]:
+        """Retorna cliente Redis assíncrono"""
+        if not self._config or not self._config.available or not self._config.url:
+            return None
+        
+        # Criar client assíncrono baseado na URL
+        try:
+            return redis_async.from_url(
+                self._config.url,
+                encoding="utf-8",
+                decode_responses=True,
+                socket_timeout=5,
+                socket_connect_timeout=5,
+            )
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao criar async_client: {e}")
+            return None
 
     @property
     def fallback_mode(self) -> bool:
