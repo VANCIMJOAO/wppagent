@@ -108,13 +108,13 @@ class UnifiedResponseControl:
                 )
                 # Testar conexão
                 await self.redis_client.ping()
-                logger.info(f"✅ Redis UnifiedResponseControl conectado")
+                logger.info("[CONTROL] Redis conectado com sucesso")
                 
             else:
-                logger.warning("⚠️ Redis não disponível - usando cache em memória")
+                logger.warning("[CONTROL] Redis não disponível - usando cache em memória")
                 self.redis_client = None
         except Exception as e:
-            logger.error(f"❌ Erro ao inicializar Redis: {e}")
+            logger.error(f"[CONTROL] Erro ao inicializar Redis: {e}")
             self.redis_client = None
         finally:
             self._redis_initialized = True
@@ -181,7 +181,7 @@ class UnifiedResponseControl:
                     self.memory_cache[cache_key] = time.time()
                     
                     self.stats.messages_allowed += 1
-                    logger.info(f"✅ PERMITIDO: {user_id} - Redis (primeira vez)")
+                    logger.info(f"[CONTROL] PERMITIDO: {user_id} - Redis (primeira vez)")
                     return True, "Redis - primeira vez"
 
                 # Se Redis falhou ou key já existe, verificar memória
@@ -190,7 +190,7 @@ class UnifiedResponseControl:
                 if memory_result:
                     # Memória retornou True = chave foi criada (primeira vez)
                     self.stats.messages_allowed += 1
-                    logger.info(f"✅ PERMITIDO: {user_id} - Memory fallback")
+                    logger.info(f"[CONTROL] PERMITIDO: {user_id} - Memory fallback")
                     return True, "Memory - primeira vez"
 
                 # Mensagem já processada (duplicata detectada)
@@ -200,7 +200,7 @@ class UnifiedResponseControl:
 
             except Exception as e:
                 self.stats.errors += 1
-                logger.error(f"❌ Erro no controle de resposta: {e}")
+                logger.error(f"[CONTROL] Erro no controle de resposta: {e}")
                 # Em caso de erro, permitir processamento para evitar bloqueio completo
                 return True, f"Erro no controle - permitindo: {str(e)}"
 
@@ -225,7 +225,7 @@ class UnifiedResponseControl:
             return result is True
 
         except Exception as e:
-            logger.warning(f"⚠️ Erro Redis: {e} - usando fallback")
+            logger.warning(f"[REDIS] Erro: {e} - usando fallback")
             return False
 
     async def _can_process_memory(self, cache_key: str) -> bool:
@@ -253,7 +253,7 @@ class UnifiedResponseControl:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro cache memória: {e}")
+            logger.error(f"[CACHE] Erro cache memória: {e}")
             return True  # Em caso de erro, permitir processamento
 
     async def _allow_message(
@@ -261,14 +261,14 @@ class UnifiedResponseControl:
     ) -> Tuple[bool, str]:
         """Permite processamento da mensagem"""
         self.stats.messages_allowed += 1
-        logger.info(f"✅ PERMITIDO: {user_id} - {reason}")
+        logger.info(f"[CONTROL] PERMITIDO: {user_id} - {reason}")
         return True, reason
 
     async def _block_message(self, user_id: str, reason: str) -> Tuple[bool, str]:
         """Bloqueia processamento da mensagem"""
         self.stats.messages_blocked += 1
         self.stats.duplicates_prevented += 1
-        logger.warning(f"🚫 BLOQUEADO: {user_id} - {reason}")
+        logger.warning(f"[CONTROL] BLOQUEADO: {user_id} - {reason}")
         return False, reason
 
     async def get_stats(self) -> Dict[str, Any]:
@@ -322,7 +322,7 @@ class UnifiedResponseControl:
             }
 
         except Exception as e:
-            logger.error(f"❌ Erro ao limpar cache: {e}")
+            logger.error(f"[CONTROL] Erro ao limpar cache: {e}")
             return {"error": str(e), "status": "error"}
 
     async def cleanup_expired(self):
@@ -353,7 +353,7 @@ class UnifiedResponseControl:
             return {"expired_keys_removed": len(expired_keys)}
 
         except Exception as e:
-            logger.error(f"❌ Erro no cleanup: {e}")
+            logger.error(f"[CONTROL] Erro no cleanup: {e}")
             return {"error": str(e)}
 
     async def _check_user_rate_limit(self, user_id: str) -> Tuple[bool, str]:
@@ -404,7 +404,7 @@ class UnifiedResponseControl:
                     )
 
                 except Exception as e:
-                    logger.warning(f"⚠️ Erro Redis rate limit: {e}")
+                    logger.warning(f"[REDIS] Erro rate limit: {e}")
                     # Fallback para memória
                     pass
 
@@ -439,7 +439,7 @@ class UnifiedResponseControl:
             )
 
         except Exception as e:
-            logger.error(f"❌ Erro no rate limiting: {e}")
+            logger.error(f"[CONTROL] Erro no rate limiting: {e}")
             # Em caso de erro, permitir processamento
             return True, f"Rate limit error - permitindo: {str(e)}"
 

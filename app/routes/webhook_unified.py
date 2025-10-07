@@ -130,12 +130,12 @@ IMPORTANTE: Mantenha tom conversacional e natural."""
                     "content": bot_response
                 })
             
-            logger.info(f"🤖 GPT-4 gerou resposta: {bot_response[:50]}...")
+            logger.info(f"[GPT] Resposta gerada: {bot_response[:50]}...")
             
             return bot_response
             
         except Exception as e:
-            logger.error(f"❌ Erro ao gerar resposta GPT-4: {e}")
+            logger.error(f"[GPT] Erro ao gerar resposta: {e}")
             # Fallback para resposta simples
             return "Desculpe, estou com dificuldades no momento. Por favor, entre em contato pelo telefone (16) 3333-4444. 😊"
 
@@ -175,7 +175,7 @@ async def webhook_endpoint(request: Request, db: AsyncSession = Depends(get_db))
 
         # Validar estrutura básica
         if "entry" not in raw_data:
-            logger.warning("⚠️ Webhook sem campo 'entry'")
+            logger.warning("[WEBHOOK] Payload sem campo 'entry'")
             return {"status": "ignored", "reason": "no_entry_field"}
 
         total_processed = 0
@@ -213,7 +213,7 @@ async def webhook_endpoint(request: Request, db: AsyncSession = Depends(get_db))
     except Exception as e:
         import traceback
         error_details = traceback.format_exc()
-        logger.error(f"❌ Erro no webhook: {e}")
+        logger.error(f"[WEBHOOK] Erro no processamento: {e}")
         logger.error(f"Traceback: {error_details}")
         return {"status": "error", "error": str(e), "traceback": error_details[:500]}
 
@@ -236,7 +236,7 @@ async def process_single_message(
         )
 
         if not can_process:
-            logger.warning(f"🚫 BLOQUEADO: {wa_id} - {reason}")
+            logger.warning(f"[CONTROL] BLOQUEADO: {wa_id} - {reason}")
             return {"processed": False, "reason": reason}
 
         # Processando mensagem silenciosamente
@@ -361,19 +361,19 @@ async def process_single_message(
                                 raw_payload=confirm_response,
                             )
                             
-                            logger.info(f"🎉 AGENDAMENTO AUTOMÁTICO CRIADO! ID: {appointment.id}")
+                            logger.info(f"[BOOKING] Agendamento automático criado: ID {appointment.id}")
                         else:
-                            logger.debug(f"⏸️ Agendamento não criado: {message}")
+                            logger.debug(f"[BOOKING] Agendamento não criado: {message}")
                             
                     except Exception as booking_error:
-                        logger.error(f"❌ Erro no agendamento automático: {booking_error}")
+                        logger.error(f"[BOOKING] Erro no agendamento automático: {booking_error}")
                         # Não falhar o webhook se agendamento falhar
                         pass
             else:
-                logger.debug(f"⚠️ Confidence baixa ({extracted_data.get('confidence')}), dados não salvos")
+                logger.debug(f"[EXTRACTOR] Confidence baixa ({extracted_data.get('confidence')}), dados não salvos")
                 
         except Exception as e:
-            logger.error(f"❌ Erro na extração de dados: {e}")
+            logger.error(f"[EXTRACTOR] Erro na extração de dados: {e}")
             # Não falhar o webhook se extração falhar
             pass
 
@@ -386,18 +386,18 @@ async def process_single_message(
             await notify_new_whatsapp_message(user.wa_id, clean_content)
             await notify_message_sent(user.wa_id, response_text)
         except Exception as ws_error:
-            logger.warning(f"⚠️ WebSocket notification failed: {ws_error}")
+            logger.warning(f"[WEBSOCKET] Notificação falhou: {ws_error}")
 
         # Log baseado no resultado do envio
         if whatsapp_response.get("success") or whatsapp_response.get("status") == "queued":
-            logger.info(f"✅ SUCESSO: {wa_id} - Resposta salva (WhatsApp: {whatsapp_response.get('status', 'success')})")
+            logger.info(f"[WEBHOOK] SUCESSO: {wa_id} - Resposta salva (WhatsApp: {whatsapp_response.get('status', 'success')})")
             return {"processed": True, "response_sent": True, "response_saved": True}
         else:
-            logger.warning(f"⚠️ Resposta salva mas envio WhatsApp falhou: {whatsapp_response}")
+            logger.warning(f"[WHATSAPP] Resposta salva mas envio falhou: {whatsapp_response}")
             return {"processed": True, "response_sent": False, "response_saved": True}
 
     except Exception as e:
-        logger.error(f"❌ Erro processando mensagem: {e}")
+        logger.error(f"[WEBHOOK] Erro processando mensagem: {e}")
         return {"processed": False, "reason": f"error: {str(e)}"}
 
 
@@ -413,15 +413,15 @@ async def verify_webhook(
     expected_token = "your_verify_token_here"  # TODO: Mover para config
 
     if not hub_mode or not hub_challenge or not hub_verify_token:
-        logger.warning("❌ Parâmetros de verificação ausentes")
+        logger.warning("[WEBHOOK] Parâmetros de verificação ausentes")
         raise HTTPException(status_code=400, detail="Parâmetros hub.mode, hub.challenge e hub.verify_token são obrigatórios")
 
     if hub_mode == "subscribe" and hub_verify_token == expected_token:
-        logger.info("✅ Webhook verificado com sucesso")
+        logger.info("[WEBHOOK] Verificado com sucesso")
         # Meta espera o challenge de volta como plain text integer
         return Response(content=hub_challenge, media_type="text/plain")
     else:
-        logger.warning("❌ Falha na verificação do webhook")
+        logger.warning("[WEBHOOK] Falha na verificação - token inválido")
         raise HTTPException(status_code=403, detail="Token de verificação inválido")
 
 
