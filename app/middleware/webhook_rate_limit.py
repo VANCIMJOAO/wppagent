@@ -185,8 +185,8 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
             Tuple[bool, Dict]: (is_allowed, rate_info)
         """
         current_time = time.time()
-
-        async def _check_limits():
+        
+        try:
             # Chaves Redis
             minute_key = f"webhook_rl:min:{client_ip}"
             burst_key = f"webhook_rl:burst:{client_ip}"
@@ -194,7 +194,8 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
 
             redis_client = redis_manager.async_client
             if not redis_client:
-                return True, {"remaining": self.config.requests_per_minute}
+                logger.debug("⚠️ Redis não disponível - permitindo request (sem rate limit)")
+                return True, {"remaining": self.config.requests_per_minute, "fallback": True}
 
             # Verificar se está bloqueado
             blocked_until = await redis_client.get(block_key)
@@ -234,6 +235,7 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
                     block_key, self.config.block_duration, block_until
                 )
 
+                logger.warning(f"🚫 Rate limit atingido para {client_ip}: min={current_minute_count}, burst={current_burst_count}")
                 return False, {
                     "reason": "limit_exceeded",
                     "retry_after": self.config.block_duration,
@@ -247,24 +249,22 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
                 "minute_count": current_minute_count,
                 "burst_count": current_burst_count,
             }
-
-        # Executar com fallback seguro
-        try:
-            return await _check_limits()
+            
         except Exception as e:
-            logger.warning(f"⚠️ Rate limit Redis falhou: {e} - permitindo request")
-            return True, {"remaining": self.config.requests_per_minute, "fallback": True}
+            logger.warning(f"⚠️ Rate limit exception: {e} - permitindo request")
+            return True, {"remaining": self.config.requests_per_minute, "fallback": True, "error": str(e)}
 
     async def _record_request(self, client_ip: str):
         """Registra request para contabilização"""
         current_time = time.time()
-
-        async def _record():
+        
+        try:
             minute_key = f"webhook_rl:min:{client_ip}"
             burst_key = f"webhook_rl:burst:{client_ip}"
 
             redis_client = redis_manager.async_client
             if not redis_client:
+                logger.debug("⚠️ Redis não disponível - não registrando request")
                 return
 
             pipe = redis_client.pipeline()
@@ -278,9 +278,8 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
             pipe.expire(burst_key, self.config.burst_window + 10)  # +10s buffer
 
             await pipe.execute()
-
-        try:
-            await _record()
+            logger.debug(f"✅ Request registrada para {client_ip}")
+            
         except Exception as e:
             logger.warning(f"⚠️ Erro ao registrar request: {e}")
 
