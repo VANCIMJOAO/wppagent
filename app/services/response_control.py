@@ -93,8 +93,13 @@ class UnifiedResponseControl:
             redis_config = redis_manager._config
             if redis_config and redis_config.available and redis_config.url:
                 # Criar cliente Redis assíncrono
+                # Adicionar /0 para garantir database 0
+                redis_url = redis_config.url
+                if not redis_url.endswith(('/0', '/1', '/2', '/3', '/4', '/5', '/6', '/7', '/8', '/9')):
+                    redis_url = f"{redis_url}/0"
+                
                 self.redis_client = redis.from_url(
-                    redis_config.url,
+                    redis_url,
                     encoding="utf-8",
                     decode_responses=True,
                     socket_timeout=5,
@@ -102,7 +107,8 @@ class UnifiedResponseControl:
                 )
                 # Testar conexão
                 await self.redis_client.ping()
-                logger.info("🔧 Redis cliente assíncrono inicializado e testado")
+                logger.info(f"🔧 Redis cliente assíncrono inicializado: {redis_url}")
+                logger.info("🔧 Redis PING OK!")
             else:
                 logger.warning("⚠️ Redis não disponível - usando cache em memória")
                 self.redis_client = None
@@ -309,18 +315,25 @@ class UnifiedResponseControl:
     async def clear_cache(self) -> Dict[str, Any]:
         """Limpa todos os caches (para testes/debug)"""
         try:
+            # Garantir que Redis está inicializado
+            await self._ensure_redis_initialized()
+            
             cleared_redis = 0
             cleared_memory = len(self.memory_cache)
 
             # Limpar Redis
             if self.redis_client:
+                logger.info("🧹 Limpando chaves do Redis...")
                 # Buscar chaves do padrão
                 keys = await self.redis_client.keys("msg_processed:*")
+                logger.info(f"🧹 Encontrou {len(keys)} chaves no Redis")
                 if keys:
                     cleared_redis = await self.redis_client.delete(*keys)
+                    logger.info(f"🧹 Deletou {cleared_redis} chaves do Redis")
 
             # Limpar cache em memória
             self.memory_cache.clear()
+            logger.info(f"🧹 Limpou {cleared_memory} chaves da memória")
 
             logger.info(
                 f"🧹 Cache limpo: {cleared_redis} Redis + {cleared_memory} memória"
