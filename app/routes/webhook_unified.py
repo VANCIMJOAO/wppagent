@@ -118,7 +118,7 @@ IMPORTANTE: Mantenha tom conversacional e natural."""
                 model="gpt-5-nano",  # Modelo nano - mais rápido e econômico
                 messages=messages,
                 max_completion_tokens=150,  # gpt-5-nano usa max_completion_tokens
-                temperature=0.7,
+                # temperature não suportado no gpt-5-nano (sempre 1.0)
             )
             
             bot_response = response.choices[0].message.content.strip()

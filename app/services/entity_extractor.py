@@ -76,7 +76,7 @@ class EntityExtractor:
                     {"role": "system", "content": extraction_prompt},
                     {"role": "user", "content": context}
                 ],
-                temperature=0.2,  # Baixa temperatura para extração precisa
+                # temperature não suportado no gpt-5-nano (sempre 1.0)
                 max_completion_tokens=300,  # gpt-5-nano usa max_completion_tokens
             )
             

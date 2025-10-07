@@ -131,6 +131,11 @@ class RedisManager:
     def client(self) -> Optional[redis.Redis]:
         """Retorna cliente Redis se disponível"""
         return self._config.client
+    
+    @property
+    def async_client(self) -> Optional[redis.Redis]:
+        """Alias para client - retorna cliente Redis assíncrono"""
+        return self._config.client
 
     @property
     def fallback_mode(self) -> bool:
@@ -187,4 +192,12 @@ def execute_redis_safe(operation: callable, *args, **kwargs) -> Any:
 
 async def execute_redis_safe_async(operation: callable, *args, **kwargs) -> Any:
     """Executa operação Redis assíncrona com fallback seguro"""
-    return redis_manager.execute_safe(operation, *args, **kwargs)
+    try:
+        # Executar operação assíncrona
+        return await operation(*args, **kwargs)
+    except Exception as e:
+        logger.warning(f"⚠️ Operação Redis assíncrona falhou: {e}")
+        # Retornar default se fornecido
+        if 'default' in kwargs:
+            return kwargs['default']
+        return None

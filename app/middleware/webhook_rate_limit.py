@@ -248,10 +248,12 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
                 "burst_count": current_burst_count,
             }
 
-        return await execute_redis_safe_async(
-            _check_limits,
-            default=(True, {"remaining": self.config.requests_per_minute}),
-        )
+        # Executar com fallback seguro
+        try:
+            return await _check_limits()
+        except Exception as e:
+            logger.warning(f"⚠️ Rate limit Redis falhou: {e} - permitindo request")
+            return True, {"remaining": self.config.requests_per_minute, "fallback": True}
 
     async def _record_request(self, client_ip: str):
         """Registra request para contabilização"""
@@ -277,7 +279,10 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
 
             await pipe.execute()
 
-        await execute_redis_safe_async(_record)
+        try:
+            await _record()
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao registrar request: {e}")
 
     async def _log_rate_limit_block(
         self, client_ip: str, rate_info: Dict, request: Request
