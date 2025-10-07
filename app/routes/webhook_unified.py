@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -412,9 +412,14 @@ async def verify_webhook(
     # Verificar token (use uma variável de ambiente em produção)
     expected_token = "your_verify_token_here"  # TODO: Mover para config
 
+    if not hub_mode or not hub_challenge or not hub_verify_token:
+        logger.warning("❌ Parâmetros de verificação ausentes")
+        raise HTTPException(status_code=400, detail="Parâmetros hub.mode, hub.challenge e hub.verify_token são obrigatórios")
+
     if hub_mode == "subscribe" and hub_verify_token == expected_token:
         logger.info("✅ Webhook verificado com sucesso")
-        return int(hub_challenge)
+        # Meta espera o challenge de volta como plain text integer
+        return Response(content=hub_challenge, media_type="text/plain")
     else:
         logger.warning("❌ Falha na verificação do webhook")
         raise HTTPException(status_code=403, detail="Token de verificação inválido")

@@ -81,10 +81,14 @@ class UnifiedResponseControl:
         self.memory_cache: Dict[str, float] = {}
         self.stats = ResponseControlStats()
         self._lock = asyncio.Lock()
-        self._initialize_redis()
+        self._redis_initialized = False
+        # Redis será inicializado no primeiro uso (lazy initialization)
 
-    def _initialize_redis(self):
-        """Inicializa conexão Redis de forma assíncrona"""
+    async def _ensure_redis_initialized(self):
+        """Inicializa conexão Redis de forma assíncrona (lazy)"""
+        if self._redis_initialized:
+            return
+            
         try:
             redis_config = redis_manager._config
             if redis_config and redis_config.available and redis_config.url:
@@ -93,15 +97,20 @@ class UnifiedResponseControl:
                     redis_config.url,
                     encoding="utf-8",
                     decode_responses=True,
-                    socket_timeout=15,
-                    socket_connect_timeout=15,
+                    socket_timeout=5,
+                    socket_connect_timeout=5,
                 )
-                logger.info("🔧 Redis cliente assíncrono inicializado")
+                # Testar conexão
+                await self.redis_client.ping()
+                logger.info("🔧 Redis cliente assíncrono inicializado e testado")
             else:
                 logger.warning("⚠️ Redis não disponível - usando cache em memória")
+                self.redis_client = None
         except Exception as e:
             logger.error(f"❌ Erro ao inicializar Redis: {e}")
             self.redis_client = None
+        finally:
+            self._redis_initialized = True
 
     def generate_message_hash(self, content: str) -> str:
         """
@@ -135,6 +144,9 @@ class UnifiedResponseControl:
         Returns:
             Tuple[bool, str]: (pode_processar, motivo)
         """
+        # Garantir que Redis está inicializado antes de processar
+        await self._ensure_redis_initialized()
+        
         async with self._lock:
             self.stats.messages_processed += 1
             self.stats.reset_if_needed()
@@ -151,21 +163,29 @@ class UnifiedResponseControl:
                 message_hash = self.generate_message_hash(content)
                 cache_key = self._get_cache_key(user_id, message_hash)
 
-                logger.debug(f"🔍 Verificando: {user_id} - hash:{message_hash}")
+                logger.info(f"🔍 Verificando: {user_id} - hash:{message_hash}")
 
                 # Tentar usar Redis primeiro
-                if await self._can_process_redis(cache_key):
-                    return await self._allow_message(
-                        user_id, cache_key, "Redis - primeira vez"
-                    )
+                redis_result = await self._can_process_redis(cache_key)
+                logger.info(f"🔍 Redis result para {user_id}: {redis_result}")
+                
+                if redis_result:
+                    # Redis retornou True = chave foi criada (primeira vez)
+                    self.stats.messages_allowed += 1
+                    logger.info(f"✅ PERMITIDO: {user_id} - Redis - primeira vez")
+                    return True, "Redis - primeira vez"
 
-                # Fallback para cache em memória
-                if await self._can_process_memory(cache_key):
-                    return await self._allow_message(
-                        user_id, cache_key, "Memory - primeira vez"
-                    )
+                # Se Redis falhou ou key já existe, verificar memória
+                memory_result = await self._can_process_memory(cache_key)
+                logger.info(f"🔍 Memory result para {user_id}: {memory_result}")
+                
+                if memory_result:
+                    # Memória retornou True = chave foi criada (primeira vez)
+                    self.stats.messages_allowed += 1
+                    logger.info(f"✅ PERMITIDO: {user_id} - Memory - primeira vez")
+                    return True, "Memory - primeira vez"
 
-                # Mensagem já processada
+                # Mensagem já processada (duplicata detectada)
                 return await self._block_message(
                     user_id, "Mensagem duplicada detectada"
                 )
@@ -179,6 +199,7 @@ class UnifiedResponseControl:
     async def _can_process_redis(self, cache_key: str) -> bool:
         """Verifica via Redis se pode processar mensagem"""
         if not self.redis_client:
+            logger.warning(f"⚠️ Redis client não disponível para {cache_key}")
             return False
 
         try:
@@ -192,12 +213,16 @@ class UnifiedResponseControl:
                 nx=True,  # Só define se a chave não existir
             )
 
+            logger.info(f"🔍 Redis SET NX result para '{cache_key}': {result} (type: {type(result).__name__})")
+            
             # Se result é True, a chave foi criada (mensagem pode ser processada)
             # Se result é None, a chave já existia (mensagem duplicada)
-            return result is not None
+            is_new = result is not None
+            logger.info(f"🔍 is_new={is_new} (result is not None)")
+            return is_new
 
         except Exception as e:
-            logger.warning(f"⚠️ Erro Redis: {e} - usando fallback")
+            logger.warning(f"⚠️ Erro Redis para '{cache_key}': {e} - usando fallback")
             return False
 
     async def _can_process_memory(self, cache_key: str) -> bool:
