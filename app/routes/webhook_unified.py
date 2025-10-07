@@ -239,7 +239,7 @@ async def process_single_message(
             logger.warning(f"🚫 BLOQUEADO: {wa_id} - {reason}")
             return {"processed": False, "reason": reason}
 
-        logger.info(f"📨 PROCESSANDO: {wa_id} - {clean_content[:50]}...")
+        # Processando mensagem silenciosamente
 
         # Criar/buscar usuário
         user = await UserService.get_or_create_user(

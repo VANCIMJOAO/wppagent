@@ -111,7 +111,7 @@ class DatabaseOptimizer:
             "system_config": 14400,  # 4 horas
         }
 
-        logger.info("🚀 DatabaseOptimizer inicializado")
+        # DatabaseOptimizer inicializado silenciosamente
 
     async def initialize(self):
         """Inicializa o otimizador com engine otimizado"""
@@ -160,7 +160,7 @@ class DatabaseOptimizer:
             if self.cache_service:
                 await self.cache_service.initialize()
 
-            logger.info("✅ DatabaseOptimizer inicializado com sucesso")
+            # DatabaseOptimizer configurado com sucesso
 
         except Exception as e:
             logger.error(f"❌ Erro ao inicializar DatabaseOptimizer: {e}")

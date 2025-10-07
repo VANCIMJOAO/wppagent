@@ -71,10 +71,10 @@ class QueryPerformanceMonitor:
                 queries.append(query_info)
                 request_queries.set(queries)
 
-                # Log queries lentas
-                if duration > 0.5:  # >500ms
+                # Log queries lentas (apenas se muito lentas para evitar poluição)
+                if duration > 2.0:  # >2000ms (apenas queries MUITO lentas)
                     logger.warning(
-                        "🐌 Slow query detected",
+                        "Slow query detected",
                         extra={
                             "query": (
                                 statement.replace("\n", " ")[:200] + "..."

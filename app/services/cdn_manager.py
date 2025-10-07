@@ -98,7 +98,7 @@ class CDNManager:
             "assets_cached": 0,
         }
 
-        logger.info(f"🚀 CDNManager inicializado - Diretório: {self.static_dir}")
+        # CDNManager inicializado silenciosamente
 
     async def initialize(self):
         """Inicializa o CDN com warm-up do cache"""
@@ -111,7 +111,7 @@ class CDNManager:
             # Fazer warm-up do cache
             await self._warm_up_cache()
 
-            logger.info("✅ CDNManager inicializado com sucesso")
+            # CDNManager configurado com sucesso
 
         except Exception as e:
             logger.error(f"❌ Erro ao inicializar CDNManager: {e}")

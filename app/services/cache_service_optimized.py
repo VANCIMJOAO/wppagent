@@ -77,15 +77,7 @@ class OptimizedCacheService:
         self.memory_cache: Dict[str, CacheEntry] = {}
         self.memory_cache_timestamps: Dict[str, datetime] = {}
 
-        # Configuração Redis otimizada
-        if self.redis_available:
-            logger.info(
-                f"🚀 OptimizedCacheService inicializado - Redis: {self.redis_available}"
-            )
-        else:
-            logger.info(
-                "🚀 OptimizedCacheService inicializado - Redis: False (usando cache em memória)"
-            )
+        # Configuração Redis otimizada (silencioso)
 
         # Configurar TTL padrão por tipo
         self.default_ttl = {
@@ -136,9 +128,7 @@ class OptimizedCacheService:
             "response_generation": {},
         }
 
-        logger.info(
-            f"🚀 OptimizedCacheService inicializado - Redis: {self.redis_available}"
-        )
+        # OptimizedCacheService inicializado silenciosamente
 
     def _setup_connections(self):
         """Configura conexões com Redis usando redis_manager"""
@@ -650,7 +640,7 @@ def get_optimized_cache() -> OptimizedCacheService:
     """
     global _optimized_cache_instance
     if _optimized_cache_instance is None:
-        logger.info("🔧 Criando instância singleton do OptimizedCacheService")
+        # Criando instância singleton do OptimizedCacheService
         _optimized_cache_instance = OptimizedCacheService()
     return _optimized_cache_instance
 

@@ -457,7 +457,7 @@ def get_unified_response_control() -> UnifiedResponseControl:
     """
     global _unified_response_control_instance
     if _unified_response_control_instance is None:
-        logger.info("🔧 Criando instância singleton do UnifiedResponseControl")
+        # Criando instância singleton do UnifiedResponseControl
         _unified_response_control_instance = UnifiedResponseControl()
     return _unified_response_control_instance
 
